@@ -23,19 +23,19 @@
         </header>
 
         {{-- Filter --}}
-        <div class="flex items-center justify-between">
-            <select name="account" id="account" class="w-full md:w-fit border p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-[#005382] font-bold bg-white outline-none">
+        <div class="flex items-center md:flex-row flex-col justify-end gap-2">
+            <select name="account" id="account" class="w-full md:text-[20px] text-4xl h-fit w-[50%] md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-[#005382] font-bold bg-white outline-none">
                 <option value="account">All Account</option>
                 <option value="account">Staff</option>
                 <option value="account">Customer</option>    
             </select>
 
-            <button onclick="addaccount()" class="bg-white shadow-blue-500 shadow-sm p-2 rounded-lg mt-5 md:mt-9 flex items-center gap-2 hover:cursor-pointer"><i class="fa-solid fa-plus"></i>Add Account</button>
+            <button onclick="addaccount()" class="w-full md:text-[20px] h-fit text-4xl font-semibold text-[#005382] md:w-fit bg-white shadow-blue-500 shadow-sm p-2 rounded-lg mt-5 md:mt-9 flex items-center justify-center gap-2 hover:cursor-pointer"><i class="fa-solid fa-plus"></i>Add Account</button>
         </div>
         {{-- Filter --}}
 
         <div class="w-full bg-white h-[490px] mt-3 rounded-lg p-5">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center flex-col md:flex-row gap-2">
                 <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
                 {{-- Search --}}
                 <div class="w-full md:w-[35%] relative">
@@ -46,7 +46,7 @@
             </div>
 
             {{-- Table for Customer List --}}
-            <div class="table-container mt-5 overflow-auto h-[80%]">
+            <div class="table-container mt-5 overflow-auto md:h-[80%]">
                 <table>
                     <thead>
                         <tr>

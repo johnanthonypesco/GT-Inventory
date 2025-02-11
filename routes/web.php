@@ -21,6 +21,10 @@ use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 
+// Customer Controller
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+
+
 // Admin
 Route::get('admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
@@ -39,6 +43,8 @@ Route::get('staff/chat', [StaffChatController::class, 'showChat'])->name('staff.
 Route::get('staff/history', [StaffHistoryController::class, 'showHistory'])->name('staff.history');
 Route::get('staff/', [StaffLoginController::class, 'showLogin'])->name('staff.index');
 
+// Customer
+Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
 
 // BREEZE AUTHERS
 // Route::middleware('auth')->group(function () {
