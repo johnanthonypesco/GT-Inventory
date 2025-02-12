@@ -6,8 +6,8 @@
 
     <ul class="flex flex-col gap-5 flex-1 pt-5">
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-gauge"></i>Dashboard</a>
-        <a href="{{ route('customer.order') }}" class="text-md active"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
-        <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a>
+        <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
+        <a href="{{ route('customer.chat') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a>
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-list-check"></i>Manage Order</a>
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-gear"></i>Manage Account</a>
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-regular fa-clock"></i>History</a>
@@ -15,3 +15,13 @@
 
     <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
 </nav>
+
+<script>
+    var currentLocation = window.location.href;
+    var navLinks = document.querySelectorAll("nav a");
+    navLinks.forEach(function (link) {
+        if (link.href === currentLocation) {
+            link.classList.add("active");
+        }
+    });
+</script>

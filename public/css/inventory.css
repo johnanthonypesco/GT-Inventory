@@ -7,7 +7,7 @@ select{
     outline: none;
     cursor: pointer;
 }
-.table-container button{
+.table-container .button button{
     padding: 5px 15px;
     border-radius: 10px;
     border: none;

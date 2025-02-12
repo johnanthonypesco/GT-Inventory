@@ -1,17 +1,16 @@
-var viewOrder = document.getElementById("view-order");
-var orderModal = document.getElementById("order-modal");
-var modalClose = document.getElementById("modal-close");
-
-viewOrder.addEventListener("click", () => {
+function viewOrder(){
+    var orderModal = document.getElementById("order-modal");
     orderModal.style.display = "block";
-});
+}
 
-modalClose.addEventListener("click", () => {
+function closeOrderModal(){
+    var orderModal = document.getElementById("order-modal");
     orderModal.style.display = "none";
-});
+}
 
-window.addEventListener("click", (e) => {
-    if (e.target == orderModal) {
+window.addEventListener("click", function(event){
+    var orderModal = document.getElementById("order-modal");
+    if(event.target == orderModal){
         orderModal.style.display = "none";
     }
 });

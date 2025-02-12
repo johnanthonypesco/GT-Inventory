@@ -13,18 +13,14 @@
     <x-customer.navbar />
 
     <main class="w-full">
-        <x-customer.header />
+        <x-customer.header/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">
             <!-- Available Products -->
             <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl">
                 <h1 class="font-semibold text-2xl">Available Products</h1>
-                <div class="relative">
-                    <input type="search" class="w-full mt-3 p-2 rounded-xl border border-[#005382] outline-none" placeholder="Search Order">
-                    <button class="absolute right-1 top-5 border-l-1 border-[#005382] px-3 cursor-pointer text-xl">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
+                <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>
+
         
                 <div class="h-[70vh] lg:h-[57vh] overflow-y-auto mt-5">
                     <!-- Product Form -->

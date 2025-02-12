@@ -14,23 +14,17 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-bars-progress text-xl"></i>Manage Account</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Manage Account Page" icon="fa-solid fa-bars-progress" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
-        <div class="flex items-center md:flex-row flex-col justify-end gap-2">
-            <select name="account" id="account" class="w-full md:text-[20px] text-4xl h-fit w-[50%] md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-[#005382] font-bold bg-white outline-none">
+        <div class="flex items-center justify-end gap-2">
+            <select name="account" id="account" class="w-full md:text-[20px] text-[15px] h-fit w-fit md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-black font-semibold bg-white outline-none">
                 <option value="account">All Account</option>
                 <option value="account">Staff</option>
                 <option value="account">Customer</option>    
             </select>
 
-            <button onclick="addaccount()" class="w-full md:text-[20px] h-fit text-4xl font-semibold text-[#005382] md:w-fit bg-white shadow-blue-500 shadow-sm p-2 rounded-lg mt-5 md:mt-9 flex items-center justify-center gap-2 hover:cursor-pointer"><i class="fa-solid fa-plus"></i>Add Account</button>
+            <button onclick="addaccount()" class="w-full md:text-[20px] h-fit text-[15px] font-semibold text-black md:w-fit bg-white shadow-blue-500 shadow-sm p-[5px] rounded-lg mt-5 md:mt-9 flex items-center justify-center gap-2 hover:cursor-pointer"><i class="fa-solid fa-plus"></i>Add Account</button>
         </div>
         {{-- Filter --}}
 
@@ -38,10 +32,7 @@
             <div class="flex justify-between items-center flex-col md:flex-row gap-2">
                 <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
                 {{-- Search --}}
-                <div class="w-full md:w-[35%] relative">
-                    <input type="search" placeholder="Search Customer Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
-                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <x-input name="search" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
                 {{-- Search --}}
             </div>
 
@@ -97,7 +88,7 @@
                         <label for="password" class="text-black/80 font-semibold text-lg tracking-wide">Account Password:</label>
                         <input type="password" name="password" placeholder="Enter Account Password" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
                     </div>
-
+                    
                     <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}">Submit</button>
                 </form>
             </div>
@@ -135,30 +126,5 @@
     
 </body>
 
-<script>
-    // Add Account Modal
-    function addaccount() {
-        var addaccount = document.getElementById("addaccount");
-        addaccount.style.display = "block";
-    }
-
-    function closeaddaccount() {
-        var addaccount = document.getElementById("addaccount");
-        addaccount.style.display = "none";
-    }
-    // End of Add Account Modal
-
-
-    // Edit Account Modal
-    function editaccount() {
-        var editaccount = document.getElementById("editaccount");
-        editaccount.style.display = "block";
-    }
-
-    function closeeditaccount() {
-        var editaccount = document.getElementById("editaccount");
-        editaccount.style.display = "none";
-    }
-    // End of Edit Account Modal
-</script>
+<script src="{{asset ('js/manageaccount.js')}}"></script>
 </html>

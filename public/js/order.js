@@ -1,39 +1,34 @@
-var viewOrder = document.getElementById("view-order");
-var orderModal = document.getElementById("order-modal");
-var modalClose = document.getElementById("modal-close");
+function viewOrder() {
+    var viewOrderModal = document.querySelector(".order-modal");
+    viewOrderModal.style.display = "block";
+}
+function closeOrderModal() {
+    var viewOrderModal = document.querySelector(".order-modal");
+    viewOrderModal.style.display = "none";
+}
 
-viewOrder.addEventListener("click", () => {
-    orderModal.style.display = "block";
-});
-
-modalClose.addEventListener("click", () => {
-    orderModal.style.display = "none";
-});
-
-window.addEventListener("click", (e) => {
-    if (e.target == orderModal) {
-        orderModal.style.display = "none";
+window.addEventListener("click", function (e) {
+    var viewOrderModal = document.querySelector(".order-modal");
+    if (e.target == viewOrderModal) {
+        viewOrderModal.style.display = "none";
     }
 });
 
-var addNewOrder = document.getElementById("add-new-order");
-var addNewOrderModal = document.querySelector(".add-new-order-modal");
+function addneworder() {
+    var addOrderModal = document.querySelector(".add-new-order-modal");
+    addOrderModal.style.display = "block";
+}
+function closeaddneworder() {
+    var addOrderModal = document.querySelector(".add-new-order-modal");
+    addOrderModal.style.display = "none";
+}
 
-addNewOrder.onclick = function () {
-    addNewOrderModal.style.display = "block";
-};
-
-var close = document.querySelector(".close");
-
-close.onclick = function () {
-    addNewOrderModal.style.display = "none";
-};
-
-window.onclick = function (e) {
-    if (e.target == addNewOrderModal) {
-        addNewOrderModal.style.display = "none";
+window.addEventListener("click", function (e) {
+    var addOrderModal = document.querySelector(".add-new-order-modal");
+    if (e.target == addOrderModal) {
+        addOrderModal.style.display = "none";
     }
-};
+});
 
 document
     .getElementById("addnewworder-button")

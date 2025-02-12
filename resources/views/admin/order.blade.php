@@ -14,13 +14,8 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-cart-shopping text-xl"></i>Order Page</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
+
 
         {{-- Total Container --}}
         <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
@@ -59,18 +54,15 @@
         {{-- Total Container --}}
 
         {{-- Table for Order --}}
-        <div class="table-container mt-5 bg-white p-5">
+        <div class="table-container mt-5 bg-white p-5 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
                 {{-- Search --}}
-                <div>
-                    <input type="search" placeholder="Search Orders by Customer Name" class="w-[350px] p-2 rounded-lg border border-[#005382] outline-none">
-                    <button class="shadow-sm shadow-[#005382] px-3 py-2 rounded-lg"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <x-input name="searchconvo" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
                 {{-- Search --}}
 
                 {{-- Table Button --}}
                 <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                    <button id="add-new-order"><i class="fa-solid fa-plus"></i>Add New Order</button>
+                    <button onclick="addneworder()"><i class="fa-solid fa-plus"></i>Add New Order</button>
                     <button><i class="fa-solid fa-qrcode"></i>Scan</button>
                     <button><i class="fa-solid fa-bars"></i>Filter</button>
                     <button><i class="fa-solid fa-download"></i>Export</button>
@@ -78,7 +70,7 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[320px] mt-5">
+            <div class="overflow-auto h-[340px] mt-5">
                 {{-- Table --}}
                 <table class="w-full min-w-[600px]">
                     <thead>
@@ -104,119 +96,7 @@
                                 </select>
                             </td>
                             <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
                             </td>
                         </tr>
                     </tbody>
@@ -229,11 +109,10 @@
         {{-- View Order Modal --}}
         <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full flex items-center justify-center px-4" id="order-modal">
             <div class="modal order-modal-content mx-auto w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <span id="modal-close" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
+                <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
                 {{-- Name of Selected Customer --}}
-
 
                 {{-- Order Details --}}
                 <div class="table-container overflow-y-auto mt-5">
@@ -281,7 +160,7 @@
         {{-- Add New Order Modal --}}
         <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] mx-auto p-5 rounded-lg relative shadow-lg">
-                <span class="close cursor-pointer absolute -top-4 right-2 text-red-600 font-bold text-[50px]">&times;</span>
+                <span onclick="closeaddneworder()" class="cursor-pointer absolute -top-4 right-2 text-red-600 font-bold text-[50px]">&times;</span>
                 <h1 class="text-[18px] text-[#005382] font-bold">Add New Order</h1>
 
                 <form action="" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5">

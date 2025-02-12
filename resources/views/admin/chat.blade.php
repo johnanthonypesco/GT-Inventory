@@ -13,13 +13,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-message text-xl"></i>Chat Page</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Chat Page" icon="fa-solid fa-message" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="mt-3 flex flex-col lg:flex-row justify-center w-full gap-5">
             <div class="lg:w-[45%] w-full">

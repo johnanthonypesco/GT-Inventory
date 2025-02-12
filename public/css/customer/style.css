@@ -4,7 +4,10 @@
 }
 body{
     height: 100vh;
-    background-color: #F4F4F4;
+    background-color: #eaeaea;
+}
+nav{
+    border-radius: 20px;
 }
 ul a,a{
     padding: 10px;

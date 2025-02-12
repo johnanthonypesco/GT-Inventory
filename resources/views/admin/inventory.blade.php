@@ -15,13 +15,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full h-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-boxes-stacked text-xl"></i>Inventory Page</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
         <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
@@ -62,16 +56,13 @@
         {{-- Filters Location --}}
 
 
-        <div class="table-container bg-white mt-2 p-3 px-6">
+        <div class="table-container bg-white mt-2 p-3 px-6 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
                 {{-- Search --}}
-                <div class="flex items-center gap-1 w-full md:w-[40%]">
-                    <input type="search" name="search" id="search" class="border p-1 md:w-[350px] py-2 rounded-lg w-full outline-none border-[#005382]" placeholder="Search Brand/Generic Name">
-                    <button class=" px-3 cursor-pointer text-xl"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <x-input name="searchproduct" placeholder="Search Product by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
                 {{-- Search --}}
                 
-                <div class="flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
+                <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                     <button id="openModal" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Add New</button>
                     <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button>
                     <button class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
@@ -79,7 +70,7 @@
             </div>
 
             {{-- Table for Inventory --}}
-            <div class="overflow-auto h-[300px] mt-5">
+            <div class="overflow-auto h-[330px] mt-5">
                 <table class="w-full min-w-[600px]">
                     <thead>
                         <tr>

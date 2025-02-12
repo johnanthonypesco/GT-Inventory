@@ -14,13 +14,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-gauge text-xl"></i>Product Listing</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Product Listing Page" icon="fa-solid fa-list" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- All Products and Add New Product Button --}}
         <div class="mt-5 flex gap-5 justify-end">
@@ -33,14 +27,12 @@
             {{-- Customer List Search Function --}}
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <h1 class="font-bold text-2xl text-[#005382]">Customer List</h1>
-                <div class="w-full md:w-[35%] relative">
-                    <input type="search" placeholder="Search Customer Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
-                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>            </div>
+                <x-input name="search" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
+            </div>
             {{-- Customer List Search Function --}}
 
             {{-- Table for customer List --}}
-            <div class="table-container mt-5 overflow-auto h-[390px]">
+            <div class="table-container mt-5 overflow-auto h-[410px]">
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -87,10 +79,8 @@
             {{-- Button for Search --}}
             <div class="flex justify-between items-center">
                 <h1 class="font-bold text-2xl text-[#005382]">All Products</h1>
-                <div class="w-full md:w-[35%] relative">
-                    <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
-                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>            </div>
+                <x-input name="search" placeholder="Search Product by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>                 
+            </div>
             {{-- Button for Search --}}
 
             {{-- Table for all products --}}

@@ -23,6 +23,8 @@ use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 
 // Customer Controller
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Customer\ChatController as CustomerChatController;
+
 
 
 // Admin
@@ -45,6 +47,8 @@ Route::get('staff/', [StaffLoginController::class, 'showLogin'])->name('staff.in
 
 // Customer
 Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
+Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
+
 
 // BREEZE AUTHERS
 // Route::middleware('auth')->group(function () {

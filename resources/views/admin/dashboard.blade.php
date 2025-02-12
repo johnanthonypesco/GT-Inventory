@@ -13,13 +13,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-gauge text-xl"></i>Dashboard</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
             <div class="item-container flex gap-5 w-[190px] p-5 h-[120px] rounded-lg bg-white relative">

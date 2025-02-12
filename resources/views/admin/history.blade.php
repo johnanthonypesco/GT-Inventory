@@ -14,13 +14,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-clock-rotate-left text-xl"></i>History Page</h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+        <x-admin.header title="History Page" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
         <div class="mt-10 flex flex-col md:flex-row justify-between">
@@ -41,10 +35,7 @@
         <div class="table-container mt-2 bg-white p-5 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
                 {{-- Search --}}
-                <div>
-                    <input type="search" placeholder="Search History by Customer Name" class="w-[350px] p-2 rounded-lg border border-[#005382] outline-none">
-                    <button class="shadow-sm shadow-[#005382] px-3 py-2 rounded-lg"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <x-input name="search" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
                 {{-- Search --}}
 
                 {{-- Table Button --}}
@@ -75,7 +66,7 @@
                             <td>12/15/2023</td>
                             <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
                             </td>
                         </tr>
                         <tr class="text-center">
@@ -83,69 +74,9 @@
                             <td>Jewel Velasquez</td>
                             <td>₱ 10,000</td>
                             <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Cancelled</p></td>
-                            <td>
-                                <button class="cursor-pointer" id="view-order"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
                             </td>
                         </tr>
                     </tbody>
@@ -156,9 +87,9 @@
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full flex items-center justify-center px-4" id="order-modal">
+        <div id="order-modal" class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full flex items-center justify-center px-4" id="order-modal">
             <div class="modal order-modal-content mx-auto w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <span id="modal-close" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
+                <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
                 {{-- Name of Selected Customer --}}
