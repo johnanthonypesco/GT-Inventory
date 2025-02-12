@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Admin extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -15,7 +15,7 @@ class User extends Authenticatable
      *
      * @var string
      */
-    protected $primaryKey = 'customer_id';
+    protected $primaryKey = 'admin_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,11 +23,10 @@ class User extends Authenticatable
      * @var array<string>
      */
     protected $fillable = [
-        'customer_name',
-        'customer_email',
-        'customer_password',
-        'customer_cnum',
-        'location_id', // Foreign key to locations
+        'admin_username',
+        'admin_email',
+        'admin_password',
+        's_admin_id', // Foreign key to Super Admin
     ];
 
     /**
@@ -36,7 +35,7 @@ class User extends Authenticatable
      * @var array<string>
      */
     protected $hidden = [
-        'customer_password',
+        'admin_password',
         'remember_token',
     ];
 
@@ -46,14 +45,19 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'customer_password' => 'hashed',
+        'admin_password' => 'hashed',
     ];
 
     /**
-     * Relationship: User belongs to a Location.
+     * Relationship: Admin belongs to a Super Admin.
      */
-    public function location()
+    public function superAdmin()
     {
-        return $this->belongsTo(Location::class, 'location_id');
+        return $this->belongsTo(SuperAdmin::class, 's_admin_id');
+    }
+
+    public function staff()
+    {
+        return $this->hasMany(Staff::class, 'admin_id');
     }
 }

@@ -6,16 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Staff extends Authenticatable
 {
     use HasFactory, Notifiable;
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'customer_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,11 +16,12 @@ class User extends Authenticatable
      * @var array<string>
      */
     protected $fillable = [
-        'customer_name',
-        'customer_email',
-        'customer_password',
-        'customer_cnum',
-        'location_id', // Foreign key to locations
+        'staff_username',
+        'staff_email',
+        'staff_password',
+        'admin_id',
+        'location_id',
+        'job_title',
     ];
 
     /**
@@ -36,7 +30,7 @@ class User extends Authenticatable
      * @var array<string>
      */
     protected $hidden = [
-        'customer_password',
+        'staff_password',
         'remember_token',
     ];
 
@@ -46,11 +40,19 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'customer_password' => 'hashed',
+        'staff_password' => 'hashed',
     ];
 
     /**
-     * Relationship: User belongs to a Location.
+     * Define the relationship with the Admin model.
+     */
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
+    }
+
+    /**
+     * Define the relationship with the Location model.
      */
     public function location()
     {
