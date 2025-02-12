@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('staff', function (Blueprint $table) {
             $table->id('staff_id'); // Primary Key
             $table->foreignId('admin_id')->constrained('admins', 'admin_id')->onDelete('cascade'); // FK to `admins`
-            $table->foreignId('location_id')->constrained('locations', 'location_id')->onDelete('cascade'); // FK to `locations`
+            // $table->foreignId('location_id')->constrained('locations', 'location_id')->onDelete('cascade'); 
             $table->string('staff_username')->unique(); // Unique Staff Username
             $table->string('staff_email')->unique(); // Unique Email
             $table->string('staff_password'); // Password
