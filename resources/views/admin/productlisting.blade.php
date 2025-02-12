@@ -89,26 +89,26 @@
                     <thead>
                         <tr>
                             <th>Product ID</th>
-                            <th>Brand Name</th>
                             <th>Generic Name</th>
+                            <th>Brand Name</th>
                             <th>Form</th>
                             <th>Strength</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1234</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/ml</td>
-                            <td>
-                                <form action="">
-                                    <button type="submit" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" onclick="return confirm('Are you sure you want to delete?')"><i class="fa-solid fa-trash"></i>Delete</button>
-                                </form>
-                            </td>
-                        </tr>
+                        @foreach ($listedProducts as $product)
+                            <tr>
+                                <td>{{ $product->id}}</td>
+                                <td>{{ $product->generic_name ?? "none" }}</td>
+                                <td>{{ $product->brand_name ?? "none" }}</td>
+                                <td>{{ $product->form }}</td>
+                                <td>{{ $product->strength }}</td>
+                                <td>
+                                    buttons :)
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -122,15 +122,17 @@
         <div class="modal w-full md:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form for register new product --}}
-            <form action="" class="px-4">
+            <form action="{{ route('admin.register.product') }}" method="POST" class="px-4">
+                @csrf
+
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
                 <div class="mt-5"> 
                     <label for="brand" class="text-gray-600/90 font-semibold text-xl tracking-wide">Brand Name:</label>
-                    <input type="text" name="brand" placeholder="Enter Brand Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
+                    <input type="text" name="brand_name" placeholder="Enter Brand Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
                 </div>
                 <div class="mt-2"> 
                     <label for="generic" class="text-gray-600/90 font-semibold text-xl tracking-wide">Generic Name:</label>
-                    <input type="text" name="generic" placeholder="Enter Generic Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
+                    <input type="text" name="generic_name" placeholder="Enter Generic Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
                 </div>
                 <div class="mt-2"> 
                     <label for="form" class="text-gray-600/90 font-semibold text-xl tracking-wide">Form:</label>

@@ -27,17 +27,21 @@ use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 
 
 
-// Admin
+// ADMIN ROUTES
 Route::get('admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
 Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
 Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
 Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
 Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');
-Route::get('admin/productlisting', [ProductlistingController::class, 'showProductlisting'])->name('admin.productlisting');
+
+Route::get('admin/productlisting', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
+Route::post('admin/productlisting/register/product', [ProductlistingController::class, 'registerNewProduct'])->name('admin.register.product');
+
 Route::get('admin/manageaccount', [ManageaccountController::class, 'showManageaccount'])->name('admin.manageaccount');
 
-// Staff
+
+// STAFF ROUTES
 Route::get('staff/dashboard', [StaffDashboardController::class, 'showDashboard'])->name('staff.dashboard');
 Route::get('staff/inventory', [StaffInventoryController::class, 'showInventory'])->name('staff.inventory');
 Route::get('staff/order', [StaffOrderController::class, 'showOrder'])->name('staff.order');
