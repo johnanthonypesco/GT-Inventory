@@ -13,4 +13,8 @@ class Product extends Model
         'strength',
         'img_file_path',
     ];  
+
+    public function inventories() {
+        return $this->hasMany(Inventory::class);
+    }
 }

@@ -28,6 +28,6 @@ class ProductlistingController extends Controller
 
         $product->create($validated);
 
-        to_route('admin.productlisting');
+        return to_route('admin.productlisting');
     }
 }

@@ -29,7 +29,11 @@ use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 
 // ADMIN ROUTES
 Route::get('admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
+Route::post('admin/inventory', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
+
+
 Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
 Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
 Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');

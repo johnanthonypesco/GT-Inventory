@@ -85,106 +85,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Ceftrialis</td>
-                            <td>Ceftriaxone</td>
-                            <td>Ampules</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-green-600 font-semibold">In Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-red-600 font-semibold">Out of Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>NZ73212</td>
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/2ml</td>
-                            <td>100</td>
-                            <td>12/12/2023</td>
-                            <td class="text-yellow-600 font-semibold">Low Stock</td>
-                        </tr>
+                        @foreach ($inventories as $inv)
+                            <tr class="text-center">
+                                <td>{{ $inv->batch_number }}</td>
+                                <td>{{ $inv->product->brand_name }}</td>
+                                <td>{{ $inv->product->generic_name }}</td>
+                                <td>{{ $inv->product->form }}</td>
+                                <td>{{ $inv->product->strength }}</td>
+                                <td>{{ $inv->quantity }}</td>
+                                <td>{{ $inv->expiry_date }}</td>
+                                <td class="{{ $inv->quantity < 100 ? "text-yellow-600 font-semibold" : "text-green-500"}}">{{ $inv->quantity < 100 ? "Low Stock" : "In Stock"}}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -212,34 +124,43 @@
                 {{-- drop file area --}}
 
                 {{-- Form --}}
-                <form action="" id="addform" class="lg:w-[60%] w-full overflow-y-auto z-1 ">  
-                    <h1 class="text-[18px] text-[#005382] font-bold">Add New Product</h1>
+                <form action="{{ route('admin.inventory.store') }}" method="POST" id="addform" class="lg:w-[60%] w-full overflow-y-auto z-1 ">  
+                    @csrf
+
+                    <h1 class="text-[18px] text-[#005382] font-bold">Add New Stock</h1>
 
                     <div class="mt-5 grid grid-cols-2 gap-2">
                         <div>
-                            <label for="batch" class="text-[15px] font-semibold">Batch no.</label>
-                            <input type="text" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Batch No.">
+                            <label for="batch_number" class="text-[15px] font-semibold">Batch no.</label>
+                            <input type="text" name="batch_number" id="batch_number" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Batch No.">
                         </div>
-                        <div>
-                            <label for="brand" class="text-[15px] font-semibold">Brand Name:</label>
-                            <input type="text" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Brand Name">
-                        </div>
-                        <div>
-                            <label for="generic" class="text-[15px] font-semibold">Generic Name:</label>
-                            <input type="text" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Generic Name">
-                        </div>
-                        <div>
-                            <label for="form" class="text-[15px] font-semibold">Form:</label>
-                            <input type="text" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Form">
-                        </div>
+                        <div> {{-- TEMPORARY SOLUTION --}}
+                            <label for="product_id" class="text-[15px] font-semibold">Product:</label>
+                            <select name="product_id" id="product_id">
+                                @if ($products->count() > 0)
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}">
+                                            {{ $product->generic_name ? $product->generic_name : "No Generic Name"}} - {{ $product->brand_name ? $product->brand_name : "No Brand Name" }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="">No Products Listed</option>
+                                @endif
+                            </select>
+                        </div> {{-- TEMPORARY SOLUTION --}}
                         <div>
                             <label for="quantity" class="text-[15px] font-semibold">Quantity:</label>
-                            <input type="text" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Quantity">
+                            <input type="number" name="quantity" id="quantity" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Quantity">
                         </div>
                         <div>
-                            <label for="expiry" class="text-[15px] font-semibold">Expiry Date</label>
-                            <input type="date" name="batch" id="batch" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Expiry Date">
+                            <label for="expiry_date" class="text-[15px] font-semibold">Expiry Date:</label>
+                            <input type="text" name="expiry_date" id="expiry_date" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Expiry Date">
                         </div>
+                        <div>
+                            <label for="img_file_path" class="text-[15px] font-semibold">Receipt Image:</label>
+                            <input type="file" name="img_file_path" id="img_file_path" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Expiry Date">
+                        </div>
+                        <div></div>
                         <hr class="border-t border-black w-[410px] mt-5">
                     </div>
 

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id('customer_id'); // Primary Key
-            $table->foreignId('location_id')->constrained('locations', 'location_id')->onDelete('cascade'); 
+            $table->foreignId('location_id')->constrained('locations', 'location_id')->cascadeOnDelete(); 
             $table->string('customer_name'); // Customer Name
             $table->string('customer_email')->unique(); // Unique Email
             $table->string('customer_password'); // Password
@@ -23,16 +23,16 @@ return new class extends Migration
             $table->rememberToken(); // Authentication token
         });
         // ✅ Password Reset Tokens for Customers
-        Schema::create('customer_password_reset_tokens', function (Blueprint $table) {
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('customer_email')->primary(); // Primary Key (Reference to Users Email)
             $table->string('token'); // Reset Token
             $table->timestamp('created_at')->nullable(); // Token Creation Time
         });
         
         // ✅ Sessions Table for Customers
-        Schema::create('customer_sessions', function (Blueprint $table) {
+        Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary(); // Session ID
-            $table->foreignId('customer_id')->nullable()->constrained('customers', 'customer_id')->onDelete('cascade'); // Corrected FK
+            $table->foreignId('customer_id')->nullable()->constrained('users', 'customer_id')->onDelete('cascade'); // Corrected FK
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload'); // Session data
@@ -40,13 +40,13 @@ return new class extends Migration
         });
     }
 
-
-/**
-* Reverse the migrations.
-*/
-public function down(): void
-{
-Schema::dropIfExists('customer_sessions');
-Schema::dropIfExists('customer_password_reset_tokens');
-Schema::dropIfExists('customers');
-}};
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
+    }
+};

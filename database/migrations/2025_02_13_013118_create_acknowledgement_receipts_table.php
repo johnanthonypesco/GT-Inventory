@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+        Schema::create('acknowledgement_receipts', function (Blueprint $table) {
+            $table->id('receipt_id');
+            $table->string('batch_number');
+            $table->string('date_released');
+            $table->string('date_received');
+            $table->string('img_file_path');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('acknowledgement_receipts');
     }
 };
