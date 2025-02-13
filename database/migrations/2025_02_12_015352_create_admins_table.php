@@ -13,32 +13,19 @@ return new class extends Migration
     {
         // ✅ Admins Table (References Existing `super_admins`)
         Schema::create('admins', function (Blueprint $table) {
-            $table->id('admin_id'); // Primary Key
-            $table->foreignId('s_admin_id')->constrained('super_admins', 's_admin_id')->onDelete('cascade'); // Foreign Key to super_admins
-            $table->string('admin_username')->unique(); // Unique Admin Username
-            $table->string('admin_email')->unique(); // Unique Email
-            $table->string('admin_password'); // Password
-            $table->timestamps(); // created_at & updated_at
-            $table->boolean('is_admin')->default(true); // Identifies admin
-            $table->rememberToken(); // Authentication token for "Remember Me"
+            $table->id(); // ✅ Standard Laravel Primary Key (automatically `admin_id`)
+            $table->foreignId('super_admin_id')->constrained('super_admins')->onDelete('cascade'); // ✅ Fixed FK (Changed `s_admin_id` → `id`)
+            $table->string('username')->unique(); // ✅ Standardized field name
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->boolean('is_admin')->default(true); // ✅ Optional flag for identification
+            $table->timestamps(); // ✅ created_at & updated_at
+            $table->rememberToken(); // ✅ Authentication token
         });
+        
 
         // ✅ Password Reset Tokens for Admins
-        Schema::create('admin_password_reset_tokens', function (Blueprint $table) {
-            $table->string('admin_email')->primary(); // Reference Admin Email
-            $table->string('token'); // Reset Token
-            $table->timestamp('created_at')->nullable(); // Token Creation Time
-        });
-
-        // ✅ Sessions Table for Admins
-        Schema::create('admin_sessions', function (Blueprint $table) {
-            $table->string('id')->primary(); // Session ID
-            $table->foreignId('admin_id')->constrained('admins', 'admin_id')->onDelete('cascade'); // Correct FK Reference
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload'); // Session data
-            $table->integer('last_activity')->index(); // Last activity timestamp
-        });
+       
     }
 
     /**

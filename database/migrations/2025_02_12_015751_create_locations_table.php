@@ -13,11 +13,12 @@ return new class extends Migration
     {
         // Locations Table
         Schema::create('locations', function (Blueprint $table) {
-            $table->id('location_id'); // Primary Key
-            $table->string('province'); // Province Name
-            $table->string('city'); // City Name
-            $table->timestamps(); // created_at & updated_at
+            $table->id(); // ✅ Standard Laravel Primary Key (auto-incrementing `id`)
+            $table->string('province');
+            $table->string('city');
+            $table->timestamps();
         });
+        
     }
 
     /**

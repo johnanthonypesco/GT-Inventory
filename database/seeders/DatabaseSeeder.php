@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\SuperAdmin;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // ✅ Seed Super Admin
+        $this->call(SuperAdminSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // // ✅ Seed Test User
+        // if (!User::where('email', 'test@example.com')->exists()) {
+        //     User::factory()->create([
+        //         'name' => 'Test User',
+        //         'email' => 'test@example.com',
+        //         'password' => bcrypt('password123'), // Ensure password is set
+        //     ]);
+        }
     }
-}
+

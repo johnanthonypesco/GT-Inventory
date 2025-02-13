@@ -11,22 +11,15 @@ class Admin extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'admin_id';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<string>
      */
     protected $fillable = [
         'admin_username',
-        'admin_email',
-        'admin_password',
-        's_admin_id', // Foreign key to Super Admin
+        'email', // ✅ Standardized field name
+        'password', // ✅ Standardized field name
+        'super_admin_id', // ✅ Updated FK (matches `super_admins.id`)
     ];
 
     /**
@@ -35,7 +28,7 @@ class Admin extends Authenticatable
      * @var array<string>
      */
     protected $hidden = [
-        'admin_password',
+        'password', // ✅ Laravel expects this field name
         'remember_token',
     ];
 
@@ -45,7 +38,7 @@ class Admin extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'admin_password' => 'hashed',
+        'password' => 'hashed', // ✅ Laravel automatically handles hashing
     ];
 
     /**
@@ -53,11 +46,14 @@ class Admin extends Authenticatable
      */
     public function superAdmin()
     {
-        return $this->belongsTo(SuperAdmin::class, 's_admin_id');
+        return $this->belongsTo(SuperAdmin::class, 'super_admin_id'); // ✅ Correct FK
     }
 
+    /**
+     * Relationship: Admin has many Staff.
+     */
     public function staff()
     {
-        return $this->hasMany(Staff::class, 'admin_id');
+        return $this->hasMany(Staff::class, 'admin_id'); // ✅ No change needed
     }
 }

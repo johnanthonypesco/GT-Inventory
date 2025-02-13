@@ -10,13 +10,6 @@ class Location extends Model
     use HasFactory;
 
     /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'location_id';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<string>
@@ -42,4 +35,3 @@ class Location extends Model
         return $this->hasMany(Staff::class, 'location_id');
     }
 }
-//

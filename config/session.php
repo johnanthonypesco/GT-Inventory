@@ -19,7 +19,6 @@ return [
     */
 
     'driver' => env('SESSION_DRIVER', 'database'),
-
     /*
     |--------------------------------------------------------------------------
     | Session Lifetime
@@ -73,7 +72,7 @@ return [
     |
     */
 
-    'connection' => env('SESSION_CONNECTION'),
+    'connection' => env('SESSION_CONNECTION', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -88,6 +87,8 @@ return [
 
     'table' => env('SESSION_TABLE', 'sessions'),
 
+    'authenticatable_id' => 'authenticatable_id', // ✅ Ensure Laravel uses this field
+    'authenticatable_type' => 'authenticatable_type',
     /*
     |--------------------------------------------------------------------------
     | Session Cache Store

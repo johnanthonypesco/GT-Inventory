@@ -27,7 +27,9 @@ use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
-
+//Super Admin Login
+use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
+use App\Http\Controllers\SuperAdminDashboardController;
 
 
 // ADMIN ROUTES
@@ -69,5 +71,34 @@ Route::get('customer/manageaccount', [CustomerManageaccountController::class, 's
 //     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
+
+
+//SuperAdmin Login Routes
+
+
+
+//  Guest Routes for Super Admin Login
+
+
+
+// ✅ Guest Routes (Only accessible when logged out)
+Route::middleware('guest:superadmin')->group(function () {
+    Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
+        ->name('superadmin.login');
+    
+    Route::post('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'store'])
+        ->name('superadmin.login.store'); // ✅ Corrected form action
+});
+
+// ✅ Authenticated Routes (Only accessible when logged in)
+Route::middleware('auth:superadmin')->group(function () {
+    Route::get('/superadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
+        ->name('superadmin.dashboard'); // ✅ Corrected redirect name
+
+    Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])
+        ->name('superadmin.logout');
+});
+
+
 
 require __DIR__.'/auth.php';

@@ -16,9 +16,9 @@ class Staff extends Authenticatable
      * @var array<string>
      */
     protected $fillable = [
-        'staff_username',
-        'staff_email',
-        'staff_password',
+        'username', // Standardized field name
+        'email',
+        'password',
         'admin_id',
         'location_id',
         'job_title',
@@ -30,7 +30,7 @@ class Staff extends Authenticatable
      * @var array<string>
      */
     protected $hidden = [
-        'staff_password',
+        'password', // Laravel standard for password column
         'remember_token',
     ];
 
@@ -40,7 +40,7 @@ class Staff extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'staff_password' => 'hashed',
+        'password' => 'hashed', // Laravel auto-hashes passwords
     ];
 
     /**
