@@ -118,32 +118,20 @@
     {{-- Modal for View All Products --}}
 
     {{-- Modal for Register New Product --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="registerproductmodal">
-        <div class="modal w-full md:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
+        <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form for register new product --}}
             <form action="{{ route('admin.register.product') }}" method="POST" class="px-4">
                 @csrf
 
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <div class="mt-5"> 
-                    <label for="brand" class="text-gray-600/90 font-semibold text-xl tracking-wide">Brand Name:</label>
-                    <input type="text" name="brand_name" placeholder="Enter Brand Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
-                </div>
-                <div class="mt-2"> 
-                    <label for="generic" class="text-gray-600/90 font-semibold text-xl tracking-wide">Generic Name:</label>
-                    <input type="text" name="generic_name" placeholder="Enter Generic Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
-                </div>
-                <div class="mt-2"> 
-                    <label for="form" class="text-gray-600/90 font-semibold text-xl tracking-wide">Form:</label>
-                    <input type="text" name="form" placeholder="Enter Form" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
-                </div>
-                <div class="mt-2"> 
-                    <label for="strength" class="text-gray-600/90 font-semibold text-xl tracking-wide">Strength:</label>
-                    <input type="text" name="strength" placeholder="Enter Strength" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-2">
-                </div>
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Username"/>
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Account Name"/>
+                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative"/>
+                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative"/>
 
-                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Save</button>
+                <x-submit-button/>
             </form>
             {{-- Form for register new product --}}
         </div>

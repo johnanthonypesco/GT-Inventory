@@ -18,7 +18,7 @@
 
         {{-- Filter --}}
         <div class="flex items-center justify-end gap-2">
-            <select name="account" id="account" class="w-full md:text-[20px] text-[15px] h-fit w-fit md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-black font-semibold bg-white outline-none">
+            <select name="account" id="account" class="w-full md:text-[20px] text-[15px] h-fit  md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 text-center text-black font-semibold bg-white outline-none">
                 <option value="account">All Account</option>
                 <option value="account">Staff</option>
                 <option value="account">Customer</option>    
@@ -68,57 +68,39 @@
         </div>
 
         {{-- Modal for Add Account --}}
-        <div class="w-full hidden bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20" id="addaccount">
-            <div class="modal w-full md:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
+        <div class="w-full hidden bg-black/60 h-full fixed top-0 left-0 p-10 lg:p-20" id="addaccount">
+            <div class="modal w-full lg:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
                 <span onclick="closeaddaccount()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                {{-- Form --}}
                 <form action="">
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
-
-                    <div>
-                        <label for="name" class="text-black/80 font-semibold text-lg tracking-wide">Account Name:</label>
-                        <input type="text" name="name" placeholder="Enter Account Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
-                    </div>
-
-                    <div class="mt-2">
-                        <label for="username" class="text-black/80 font-semibold text-lg tracking-wide">Username:</label>
-                        <input type="text" name="username" placeholder="Enter Username" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
-                    </div>
-
-                    <div class="mt-2">
-                        <label for="password" class="text-black/80 font-semibold text-lg tracking-wide">Account Password:</label>
-                        <input type="password" name="password" placeholder="Enter Account Password" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
-                    </div>
-                    
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}">Submit</button>
+                    {{-- input --}}
+                    <x-label-input label="Account Name" name="accountname" type="text" for="accountname" divclass="mt-5" placeholder="Enter Account Name"/>
+                    <x-label-input label="Account Username" name="username" type="text" for="username" divclass="mt-5" placeholder="Enter Username"/>
+                    <x-label-input label="Account Password" name="password" type="password" id="modalpassword" for="password" placeholder="Enter Account Password" divclass="mt-5 relative"/>
+                    {{-- input --}}
+                    <x-submit-button/>
                 </form>
+                {{-- Form --}}
             </div>
         </div>
         {{-- Modal for Add Account --}}
 
         {{-- Modal for Edit Account --}}
-        <div class="w-full hidden bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20" id="editaccount">
-            <div class="modal w-full md:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
+        <div class="w-full hidden bg-black/60 h-full fixed top-0 left-0 p-10 lg:p-20" id="editaccount">
+            <div class="modal w-full lg:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
                 <span onclick="closeeditaccount()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                {{-- Form --}}
                 <form action="">
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
-
-                    <div>
-                        <label for="name" class="text-black/80 font-semibold text-lg tracking-wide">Account Name:</label>
-                        <input type="text" name="name" placeholder="Enter Account Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1" value="Jewel Velasquez">
-                    </div>
-
-                    <div class="mt-2">
-                        <label for="username" class="text-black/80 font-semibold text-lg tracking-wide">Username:</label>
-                        <input type="text" name="username" placeholder="Enter Username" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1" value="jewelvelasquez">
-                    </div>
-
-                    <div class="mt-2">
-                        <label for="password" class="text-black/80 font-semibold text-lg tracking-wide">Account Password:</label>
-                        <input type="password" name="password" placeholder="Enter Account Password" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1" value="******">
-                    </div>
-
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}">Save</button>
+                    {{-- input --}}
+                    <x-label-input label="Account Name" name="accountname" type="text" for="accountname" value="Jewel Velasquez" divclass="mt-5" placeholder="Enter Account Name"/>
+                    <x-label-input label="Account Username" name="username" type="text" for="username" divclass="mt-5" value="jewelvelasquez" placeholder="Enter Username"/>
+                    <x-label-input label="Account Password" name="password" type="password" id="modalpassword" for="password" value="jewelvelasquez" placeholder="Enter Account Password" divclass="mt-5 relative"/>
+                    {{-- input --}}
+                    <x-submit-button/>
                 </form>
+                {{-- Form --}}
             </div>
         </div>
         {{-- Modal for Edit Account --}}

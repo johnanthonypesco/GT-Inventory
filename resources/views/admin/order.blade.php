@@ -13,7 +13,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full">
+    <main class="md:w-[82%] w-full">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
 
@@ -96,7 +96,7 @@
                                 </select>
                             </td>
                             <td>
-                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <x-vieworder onclick="viewOrder()"/>
                             </td>
                         </tr>
                     </tbody>

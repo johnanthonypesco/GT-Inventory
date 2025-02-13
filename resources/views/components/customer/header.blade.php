@@ -9,4 +9,17 @@
             <p class="text-sm">wesleyan@gmail.com</p>
         </div>
     </div>
+    <div class="lg:hidden">
+        <i class="fa-solid fa-bars text-2xl hover:cursor-pointer" onclick="sidebar()"></i>
+    </div>
 </header>
+
+<x-customer.sidebar/>
+
+<script>
+    function sidebar() {
+        var sidebar = document.querySelector('#sidebar');
+        sidebar.classList.toggle('left-0');
+        sidebar.classList.toggle('w-[300px]');
+    }
+</script>

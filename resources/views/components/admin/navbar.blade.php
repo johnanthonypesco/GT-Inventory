@@ -12,6 +12,7 @@
         <a href="{{ route ('admin.manageaccount')}}" class="text-md whitespace-nowrap"><i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Account</a>
         <a href="{{ route ('admin.productlisting')}}" class="text-md"><i class="fa-solid fa-list text-[#005382] text-md"></i>Product Listing</a>
         <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>History</a>
+        
         <form action="" class="mt-auto">
             <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full"><i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout</button>
         </form>    

@@ -13,7 +13,7 @@
     <x-customer.navbar />
 
     <main class="w-full">
-        <x-customer.header/>
+        <x-customer.header title="Make an Order Page" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">
             <!-- Available Products -->

@@ -66,7 +66,7 @@
                             <td>12/15/2023</td>
                             <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <x-vieworder onclick="viewOrder()"/>
                             </td>
                         </tr>
                         <tr class="text-center">
@@ -76,7 +76,7 @@
                             <td>12/15/2023</td>
                             <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <button class="cursor-pointer" onclick="viewOrder()"><i class="fa-regular fa-eye mr-2"></i>View Order</button>
+                                <x-vieworder onclick="viewOrder()"/>                            
                             </td>
                         </tr>
                     </tbody>

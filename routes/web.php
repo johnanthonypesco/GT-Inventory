@@ -24,6 +24,9 @@ use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 // Customer Controller
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
+use App\Http\Controllers\Customer\ManageorderController;
+use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+
 
 
 
@@ -56,6 +59,8 @@ Route::get('staff/', [StaffLoginController::class, 'showLogin'])->name('staff.in
 // Customer
 Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
 Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
+Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
+Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
 
 
 // BREEZE AUTHERS
