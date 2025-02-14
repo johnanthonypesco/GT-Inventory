@@ -16,11 +16,13 @@ class Admin extends Authenticatable
      * @var array<string>
      */
     protected $fillable = [
-        'admin_username',
-        'email', // ✅ Standardized field name
-        'password', // ✅ Standardized field name
-        'super_admin_id', // ✅ Updated FK (matches `super_admins.id`)
+        'username', // ✅ Change from 'admin_username' to 'username'
+        'email',
+        'password',
+        'super_admin_id',
+        'is_admin', // ✅ Ensure this is included
     ];
+    
 
     /**
      * The attributes that should be hidden for serialization.

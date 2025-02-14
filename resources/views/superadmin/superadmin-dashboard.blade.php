@@ -10,15 +10,15 @@
     <title>Dashboard</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
-    <x-admin.navbar/>
+    <x-superadmin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
         <header class="flex justify-between py-2 px-5 items-center">
             <div>
                 <h1 class="font-bold text-lg flex gap-2 items-center uppercase"><i class="fa-solid fa-gauge text-xl"></i>Dashboard</h1>
             </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
+            <x-superadmin.burgermenu/>
+            <x-superadmin.header/>
         </header>
 
         <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">

@@ -3,25 +3,29 @@
 use Illuminate\Support\Facades\Route;
 
 // Admin Controller
+use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ChatController;
-use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Admin\ProductlistingController;
-use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Admin\ManageaccountController;
 
 
 // Staff Controller
-use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
-use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
-use App\Http\Controllers\Staff\OrderController as StaffOrderController;
+use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\Admin\ProductlistingController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
-use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
+use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
+use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 
 // Customer Controller
+use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
+
+
+//Super Admin Login
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Customer\ManageorderController;
@@ -31,11 +35,9 @@ use App\Http\Controllers\Customer\CustomerloginController;
 
 
 
+use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 
-
-//Super Admin Login
-use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
-use App\Http\Controllers\SuperAdminDashboardController;
 
 
 // ADMIN ROUTES
@@ -105,7 +107,16 @@ Route::middleware('auth:superadmin')->group(function () {
 
     Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])
         ->name('superadmin.logout');
+
+        Route::get('/manageaccounts', [SuperAdminAccountController::class, 'index'])->name('superadmin.account.index');
+        Route::post('/manageaccounts', [SuperAdminAccountController::class, 'store'])->name('superadmin.account.store');
+    
+        Route::get('/manageaccounts/{role}/{id}/edit', [SuperAdminAccountController::class, 'edit'])->name('superadmin.account.edit');
+        Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
+        
+        Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
 });
+
 
 
 

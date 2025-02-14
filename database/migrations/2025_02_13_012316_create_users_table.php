@@ -15,8 +15,7 @@ return new class extends Migration
         // ✅ Users Table (Customers)
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // ✅ Standard Laravel Primary Key (`id`)
-            $table->foreignId('location_id')->constrained()->  cascadeOnDelete();
-
+            $table->foreignId('location_id')->constrained('locations')->onDelete('cascade'); // ✅ FK to `locations.id`
         
             $table->string('name');
             $table->string('email')->unique();
