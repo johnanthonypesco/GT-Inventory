@@ -26,6 +26,12 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
+use App\Http\Controllers\Customer\CustomerloginController;
+
+
+
+
 
 //Super Admin Login
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
@@ -63,6 +69,8 @@ Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->nam
 Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
 Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
 Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
+Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
+Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
 
 
 // BREEZE AUTHERS

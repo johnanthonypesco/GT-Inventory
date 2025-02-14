@@ -34,7 +34,7 @@
                             <td>₱ 2,000</td>
                             <td>Pending</td>
                             <td>
-                                <x-vieworder onclick="viewOrder()"/>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
                             </td>
                         </tr>
                     </tbody>

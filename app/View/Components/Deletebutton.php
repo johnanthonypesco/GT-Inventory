@@ -6,15 +6,14 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class Vieworder extends Component
+class Deletebutton extends Component
 {
     /**
      * Create a new component instance.
      */
-    public function __construct($name)
+    public function __construct()
     {
         //
-        $this->name = $name;
     }
 
     /**
@@ -22,6 +21,6 @@ class Vieworder extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.vieworder' , ['name' => $this->name]);
+        return view('components.deletebutton');
     }
 }

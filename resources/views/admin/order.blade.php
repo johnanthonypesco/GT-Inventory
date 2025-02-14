@@ -13,7 +13,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] w-full">
+    <main class="w-full">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
 
@@ -96,7 +96,7 @@
                                 </select>
                             </td>
                             <td>
-                                <x-vieworder onclick="viewOrder()"/>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
                             </td>
                         </tr>
                     </tbody>
@@ -107,8 +107,8 @@
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full flex items-center justify-center px-4" id="order-modal">
-            <div class="modal order-modal-content mx-auto w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
+        <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full items-center justify-center px-4" id="order-modal">
+            <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
                 <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>

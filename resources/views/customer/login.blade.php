@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="{{asset ('css/index.css')}}">
-    <title>Admin Login</title>
+    <title>Customer Login</title>
 </head>
 <body>
     <div class="flex flex-col lg:flex-row p-5 lg:gap-90 gap-5 items-center">
@@ -17,14 +17,8 @@
         <form action="" class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white ">
             <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">“Manage Your Medication Effortlessly <span class="font-light">Anytime, Anywhere</span>”</h1>
             
-            <div class="mt-5">
-                <label for="username" class="text-[20px] text-[#005382]/71">Username</label>
-                <input type="text" name="username" id="username" placeholder="Enter Your Username" class="border border-1-[#005382] lg:border-none bg-white w-full p-3 rounded-lg outline-none mt-2">
-            </div>
-            <div class="mt-5">
-                <label for="password" class="text-[20px] text-[#005382]/71">Password</label>
-                <input type="text" name="username" id="username" placeholder="Enter Your Password" class=" border border-1-[#005382] lg:border-none bg-white w-full p-3 rounded-lg outline-none mt-2">
-            </div>
+            <x-label-input label="Username" name="username" placeholder="Enter Your Username" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3"/>
+            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5" inputclass="outline-none bg-white p-3"/>
 
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-1">

@@ -39,7 +39,7 @@
             <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto relative">
                 <span onclick="closeeditaccount()" class="cursor-pointer absolute -top-10 -right-3 text-red-600 font-bold text-[50px]">&times;</span>
                 <p class="text-xl font-semibold text-center text-[#005382]">Edit Account</p>
-
+                {{-- Form --}}
                 <form action="">
                     <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-5" disabled/>
                     <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-5"/>
@@ -49,6 +49,7 @@
 
                     <x-submit-button/>
                 </form>
+                {{-- Form --}}
             </div>
         </div>
         {{-- Modal for edit account --}}
@@ -56,4 +57,4 @@
 </body>
 </html>
 
-<script src="{{ asset('js/manageaccount.js') }}"></script>
+<script src="{{ asset('js/customeraccount.js') }}"></script>

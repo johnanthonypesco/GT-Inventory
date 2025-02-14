@@ -6,14 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <link rel="stylesheet" href="{{asset ('css/order.css')}}">
+    <link rel="stylesheet" href="{{asset ('css/history.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Orders</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full">
+    <main class="md:w-full">
         <x-admin.header title="History Page" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
@@ -66,7 +66,7 @@
                             <td>12/15/2023</td>
                             <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <x-vieworder onclick="viewOrder()"/>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
                             </td>
                         </tr>
                         <tr class="text-center">
@@ -76,7 +76,7 @@
                             <td>12/15/2023</td>
                             <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
                             <td>
-                                <x-vieworder onclick="viewOrder()"/>                            
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
                             </td>
                         </tr>
                     </tbody>
@@ -87,8 +87,8 @@
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        <div id="order-modal" class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full flex items-center justify-center px-4" id="order-modal">
-            <div class="modal order-modal-content mx-auto w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
+        <div id="order-modal" class="order-modal hidden bg-black/60 fixed top-0 left-0 pt-[70px] w-full h-full px-4" id="order-modal">
+            <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
                 <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
@@ -124,8 +124,8 @@
                             </tr>
                         </tbody>
                     </table>
-                    <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱10,000</p>
                 </div>
+                <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱10,000</p>
                 {{-- Order Details --}}
 
             </div>
@@ -181,5 +181,5 @@
     </main>
     
 </body>
-<script src="{{asset('js/history.js')}}"></script>
 </html>
+<script src="{{asset('js/history.js')}}"></script>

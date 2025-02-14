@@ -13,7 +13,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full">
+    <main class="md:w-full">
         <x-admin.header title="Manage Account Page" icon="fa-solid fa-bars-progress" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
@@ -56,8 +56,8 @@
                             <td>******</td>
                             {{-- Action --}}
                             <td class="flex justify-center items-center gap-4">
-                                <button class="flex items-center text-[#005382] cursor-pointer" onclick="editaccount()"><i class="fa-regular fa-pen-to-square mr-2"></i>Edit</button>
-                                <button class="flex items-center text-red-500 cursor-pointer" onclick="return confirm('Are you sure you want to delete')"><i class="fa-solid fa-trash mr-2"></i>Delete</button>
+                                <x-editbutton onclick="editaccount()"/>
+                                <x-deletebutton method="GET" onclick="return confirm('Are you sure you want to delete')"/>
                             </td>
                             {{-- Action --}}
                         </tr>

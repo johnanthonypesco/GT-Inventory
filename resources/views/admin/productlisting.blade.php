@@ -13,7 +13,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full">
+    <main class="md:w-full">
         <x-admin.header title="Product Listing Page" icon="fa-solid fa-list" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- All Products and Add New Product Button --}}
@@ -49,8 +49,8 @@
                             <td>20 Personalized Products</td>
                             {{-- button for view and add --}}
                             <td class="m-auto flex gap-4 justify-center font-semibold">
-                                <button class="cursor-pointer text-blue-500 py-1 rounded-lg" onclick="viewproductlisting()"><i class="fa-regular fa-eye mr-1"></i>View</button>
-                                <button class="cursor-pointer text-green-500 py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                                <x-vieworder onclick="viewproductlisting()" name="View"/>
+                                <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
                             </td>
                             {{-- button for view and add --}}
                         </tr>
@@ -60,8 +60,8 @@
                             <td>20 Personalized Products</td>
                             {{-- button for view and add --}}
                             <td class="m-auto flex gap-4 justify-center font-semibold">
-                                <button class="cursor-pointer text-blue-500 py-1 rounded-lg" onclick="viewproductlisting()"><i class="fa-regular fa-eye mr-1"></i>View</button>
-                                <button class="cursor-pointer text-green-500 py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                                <x-vieworder onclick="viewproductlisting()" name="View"/>
+                                <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
                             </td>
                             {{-- button for view and add --}}
                         </tr>
@@ -105,7 +105,12 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td>
-                                    buttons :)
+                                    <x-delete-button method="get"
+                                    {{--
+                                    use action like this :action="route('aso.admin')
+                                    and declare a method like this method="delete"
+                                    "--}}
+                                    />
                                 </td>
                             </tr>
                         @endforeach
@@ -119,6 +124,8 @@
 
     {{-- Modal for Register New Product --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
+        <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+    <div class="w-full h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form for register new product --}}
@@ -173,7 +180,7 @@
                             <td>₱ 1,000</td>
                             <td>
                                 <div class="flex gap-3 items-center justify-center text-xl">
-                                    <button class="text-[#005382] py-1 rounded-lg cursor-pointer flex items-center gap-1" onclick="editproductlisting()"><i class="fa-regular fa-pen-to-square"></i>Edit</button>
+                                    <x-editbutton onclick="editproductlisting()"/>
                                     <form action="">
                                         <button type="submit" class="text-red-500 py-1 rounded-lg cursor-pointer flex gap-1 items-center" onclick="return confirm('Are you sure you want to delete')"><i class="fa-solid fa-trash"></i>Delete</button>
                                     </form>
@@ -192,6 +199,7 @@
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
         <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeaddproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+            {{-- Form --}}
             <form action="" class="h-[75%]">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
 
@@ -217,7 +225,8 @@
                     <button class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer" onclick="addmoreproductlisting()"><i class="fa-solid fa-plus"></i>Add More</button>
                     <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Save</button>
                 </div>
-            </form> 
+            </form>
+             {{--Form  --}}
         </div>
     </div>
     {{-- Modal for Add Product Listing --}}
@@ -226,24 +235,15 @@
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="editproductlisting">
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeeditproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+            {{-- Form --}}
             <form action="">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">Edit Product</h1>
 
-                <div class="h-full overflow-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2" id="addmoreproductlist">
-                        <div>
-                            <label for="product" class="text-lg font-semibold text-black/80">Product Name:</label>
-                            <input type="text" name="product" placeholder="Enter Product Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
-                        </div>
-                        <div>
-                            <label for="productprice" class="text-lg font-semibold text-black/80">Product Price:</label>
-                            <input type="text" name="productprice" placeholder="Enter Price Price" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Save</button>
+                <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/>
+                <x-label-input label="Product Price" name="price" type="text" for="genericname" divclass="mt-5" placeholder="Enter Username"/>
+                <x-submit-button/>
             </form> 
+            {{-- Form --}}
         </div>
     </div>
 </body>

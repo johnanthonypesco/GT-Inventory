@@ -14,7 +14,7 @@
 
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full h-full">
+    <main class="md:w-full h-full">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
