@@ -98,8 +98,8 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td>
-                                    <x-delete-button method="get"
-                                    {{--
+                                    <x-delete-button route="admin.destroy.product" routeid="{{$product->id}}" method="DELETE"
+                                    {{-- 8===D ayaw naman gumana ng action mo <====8 gumawa nalang ako ibang props
                                     use action like this action="{{ route('admin.delete.product', $product->id) }}"
                                     and declare a method like this method="delete"
 

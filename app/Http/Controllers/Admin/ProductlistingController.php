@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -29,5 +30,12 @@ class ProductlistingController extends Controller
         $product->create($validated);
 
         return to_route('admin.productlisting');
+    }
+
+    public function destroyProduct(Product $product) {
+        $product->inventories()->delete(); //SHOULDNT REMOVE STOCK FROM INVENTORY. dont know a solution yet \ (.-.) /
+        $product->delete();
+
+        return to_route("admin.productlisting");
     }
 }
