@@ -37,7 +37,7 @@ return [
             'provider' => 'users',
         ],
 
-        'superadmin' => [ // ✅ Added Super Admin Guard
+        'superadmin' => [ 
             'driver' => 'session',
             'provider' => 'superadmins',
         ],
@@ -60,7 +60,7 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        'superadmins' => [ // ✅ Added Super Admin Provider
+        'superadmins' => [ 
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\SuperAdmin::class),
         ],
