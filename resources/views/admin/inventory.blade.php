@@ -55,7 +55,6 @@
         </select>
         {{-- Filters Location --}}
 
-
         <div class="table-container bg-white mt-2 p-3 px-6 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
                 {{-- Search --}}
@@ -70,7 +69,7 @@
             </div>
 
             {{-- Table for Inventory --}}
-            <div class="overflow-auto h-[330px] mt-5">
+            <div class="overflow-auto h-[250px] mt-5">
                 <table class="w-full min-w-[600px]">
                     <thead>
                         <tr>
@@ -101,6 +100,10 @@
                 </table>
             </div>
             {{-- Table for Inventory --}}
+
+            {{-- Pagination --}}
+            <x-pagination/>
+            {{-- Pagination --}}
         </div>
 
         {{-- Add New modal --}}

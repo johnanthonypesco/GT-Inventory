@@ -70,7 +70,7 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[340px] mt-5">
+            <div class="overflow-auto h-[270px] mt-5">
                 {{-- Table --}}
                 <table class="w-full min-w-[600px]">
                     <thead>
@@ -103,6 +103,10 @@
                 </table>
                 {{-- Table --}}
             </div>
+            {{-- Pagination --}}
+            <x-pagination/>
+            {{-- Pagination --}}
+            
         </div>
         {{-- Table for Order --}}
 

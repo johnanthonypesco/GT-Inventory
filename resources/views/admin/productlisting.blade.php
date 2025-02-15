@@ -14,7 +14,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-full">
-        <x-admin.header title="Product Listing Page" icon="fa-solid fa-list" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Product Deals Page" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- All Products and Add New Product Button --}}
         <div class="mt-5 flex gap-5 justify-end">
@@ -32,7 +32,7 @@
             {{-- Customer List Search Function --}}
 
             {{-- Table for customer List --}}
-            <div class="table-container mt-5 overflow-auto h-[410px]">
+            <div class="table-container mt-5 overflow-auto h-[340px]">
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -54,21 +54,14 @@
                             </td>
                             {{-- button for view and add --}}
                         </tr>
-                        <tr>
-                            <td>1234</td>
-                            <td>Jewel Velasquez</td>
-                            <td>20 Personalized Products</td>
-                            {{-- button for view and add --}}
-                            <td class="m-auto flex gap-4 justify-center font-semibold">
-                                <x-vieworder onclick="viewproductlisting()" name="View"/>
-                                <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
-                            </td>
-                            {{-- button for view and add --}}
-                        </tr>
                     </tbody>
                 </table>
             </div>
             {{-- Table for customer List --}}
+
+            {{-- pagination --}}
+            <x-pagination/>
+            {{-- pagination --}}
         </div>
     </main>
 
@@ -96,7 +89,7 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="data">
                         @foreach ($listedProducts as $product)
                             <tr>
                                 <td>{{ $product->id}}</td>
@@ -107,8 +100,10 @@
                                 <td>
                                     <x-delete-button method="get"
                                     {{--
-                                    use action like this :action="route('aso.admin')
+                                    use action like this action="{{ route('admin.delete.product', $product->id) }}"
                                     and declare a method like this method="delete"
+
+                                    @csrf and @method are already included in the deletebutton component
                                     "--}}
                                     />
                                 </td>
@@ -118,14 +113,15 @@
                 </table>
             </div>
             {{-- Table for all products --}}
+            {{-- Pagination --}}
+            <x-pagination/>
+            {{-- Pagination --}}
         </div>
     </div>
     {{-- Modal for View All Products --}}
 
     {{-- Modal for Register New Product --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
-        <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-    <div class="w-full h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form for register new product --}}
@@ -191,6 +187,9 @@
                 </table>
             </div>
             {{-- Table for all products --}}
+            {{-- Pagination --}}
+            <x-pagination/>
+            {{-- Pagination --}}
         </div>
     </div>
     {{-- VIew Product Listing --}}

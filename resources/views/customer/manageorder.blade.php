@@ -18,7 +18,7 @@
         
         <div class="bg-white mt-5 p-5 rounded-lg ">
             <x-input name="search" placeholder="Search Order by Order ID" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
-            <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[57vh]">
+            <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[52vh]">
                 <table>
                     <thead>
                         <th>Order ID</th>
@@ -40,6 +40,7 @@
                     </tbody>
                 </table>
             </div>
+            <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
         </div>
     </main>
 

@@ -57,7 +57,7 @@
                             {{-- Action --}}
                             <td class="flex justify-center items-center gap-4">
                                 <x-editbutton onclick="editaccount()"/>
-                                <x-deletebutton method="GET" onclick="return confirm('Are you sure you want to delete')"/>
+                                <x-deletebutton onclick="return confirm('Are you sure you want to delete')"/>
                             </td>
                             {{-- Action --}}
                         </tr>

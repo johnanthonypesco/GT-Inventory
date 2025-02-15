@@ -25,9 +25,9 @@
             <div class="bg-white mt-5 p-5 rounded-xl">
                 <p class="text-xl font-semibold">Account Information</p>
 
-                <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-5" disabled/>
-                <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-5" disabled/>
-                <x-label-input label="Account Password" type="password" id="password" for="password" value="jewelmatapang" divclass="mt-5 relative">
+                <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-3" disabled/>
+                <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-3" disabled/>
+                <x-label-input label="Account Password" type="password" id="password" for="password" value="jewelmatapang" divclass="mt-3 relative">
                     <x-view-password onclick="password()"/>
                 </x-label-input>
 

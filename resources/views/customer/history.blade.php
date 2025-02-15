@@ -15,7 +15,7 @@
     <x-customer.navbar/>
 
     <main class="w-full">
-        <x-customer.header title="History Page" icon="fa-solid fa-clock-rotate-left"/>
+        <x-customer.header title="Order History Page" icon="fa-solid fa-clock-rotate-left"/>
         
         {{-- Table for Order --}}
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
@@ -31,7 +31,7 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[380px] mt-5">
+            <div class="overflow-auto h-[360px] mt-5">
                 {{-- Table --}}
                 <table class="w-full min-w-[600px]">
                     <thead>
@@ -70,6 +70,7 @@
                 </table>
                 {{-- Table --}}
             </div>
+            <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
         </div>
         {{-- Table for Order --}}
 

@@ -14,7 +14,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-full">
-        <x-admin.header title="History Page" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Order History Page" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
         <div class="mt-10 flex flex-col md:flex-row justify-between">
@@ -45,7 +45,7 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[380px] mt-5">
+            <div class="overflow-auto h-[330px] mt-5">
                 {{-- Table --}}
                 <table class="w-full min-w-[600px]">
                     <thead>
@@ -79,10 +79,93 @@
                                 <x-vieworder onclick="viewOrder()" name="View Order"/>                            
                             </td>
                         </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>
+                            </td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>#123456</td>
+                            <td>Jewel Velasquez</td>
+                            <td>₱ 10,000</td>
+                            <td>12/15/2023</td>
+                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
+                            <td>
+                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
                 {{-- Table --}}
             </div>
+            {{-- Pagination --}}
+            <x-pagination/>
+            {{-- Pagination --}}
         </div>
         {{-- Table for Order --}}
 

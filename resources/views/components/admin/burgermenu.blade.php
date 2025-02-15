@@ -8,10 +8,10 @@
     <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
     <a href="{{ route ('admin.chat')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
     <a href="{{ route ('admin.manageaccount')}}" class="text-md whitespace-nowrap"><i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Account</a>
-    <a href="{{ route ('admin.productlisting')}}" class="text-md"><i class="fa-solid fa-list text-[#005382] text-md"></i>Product Listing</a>
-    <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>History</a>
-    <form action="" class="mt-auto">
-        <button type="submit" class="flex items-center gap-2 text-md uppercase bg-[#005382] p-2 text-white rounded-lg w-full"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+    <a href="{{ route ('admin.productlisting')}}" class="text-md"><i class="fa-solid fa-list-check text-[#005382] text-md"></i>Product Listing</a>
+    <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History</a>
+    <form action="" class="mt-auto bg-[#005382] rounded-lg">
+        <button type="submit" class="flex items-center gap-2 text-md uppercase p-2 text-white w-full" style="border: none;"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
     </form>
 </div>
 
