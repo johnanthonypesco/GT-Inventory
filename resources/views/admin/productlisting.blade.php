@@ -16,13 +16,6 @@
     <main class="md:w-full">
         <x-admin.header title="Product Deals Page" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        {{-- All Products and Add New Product Button --}}
-        <div class="mt-5 flex gap-5 justify-end">
-            <button class="bg-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
-            <button class="bg-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
-        </div>
-        {{-- All Products and Add New Product Button --}}
-
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
             <div class="flex flex-col md:flex-row justify-between items-center">
@@ -64,82 +57,6 @@
             {{-- pagination --}}
         </div>
     </main>
-
-    {{-- Modal for View All Products --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewallproductmodal">
-        <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span id="viewallproductclose" class="text-6xl font-bold text-red-600 cursor-pointer absolute -right-4 -top-8" onclick="closeviewallproduct()">&times;</span>
-            {{-- Button for Search --}}
-            <div class="flex justify-between items-center">
-                <h1 class="font-bold text-2xl text-[#005382]">All Products</h1>
-                <x-input name="search" placeholder="Search Product by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>                 
-            </div>
-            {{-- Button for Search --}}
-
-            {{-- Table for all products --}}
-            <div class="table-container mt-5 overflow-auto h-[400px]">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Generic Name</th>
-                            <th>Brand Name</th>
-                            <th>Form</th>
-                            <th>Strength</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="data">
-                        @foreach ($listedProducts as $product)
-                            <tr>
-                                <td>{{ $product->id}}</td>
-                                <td>{{ $product->generic_name ?? "none" }}</td>
-                                <td>{{ $product->brand_name ?? "none" }}</td>
-                                <td>{{ $product->form }}</td>
-                                <td>{{ $product->strength }}</td>
-                                <td>
-                                    <x-delete-button route="admin.destroy.product" routeid="{{$product->id}}" method="DELETE"
-                                    {{-- 8===D ayaw naman gumana ng action mo <====8 gumawa nalang ako ibang props
-                                    use action like this action="{{ route('admin.delete.product', $product->id) }}"
-                                    and declare a method like this method="delete"
-
-                                    @csrf and @method are already included in the deletebutton component
-                                    "--}}
-                                    />
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            {{-- Table for all products --}}
-            {{-- Pagination --}}
-            <x-pagination/>
-            {{-- Pagination --}}
-        </div>
-    </div>
-    {{-- Modal for View All Products --}}
-
-    {{-- Modal for Register New Product --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
-        <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
-            {{-- Form for register new product --}}
-            <form action="{{ route('admin.register.product') }}" method="POST" class="px-4">
-                @csrf
-
-                <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Username"/>
-                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Account Name"/>
-                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative"/>
-                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative"/>
-
-                <x-submit-button/>
-            </form>
-            {{-- Form for register new product --}}
-        </div>
-    </div>
-    {{-- Modal for Register New Product --}}
 
     {{-- View Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewproductlisting">

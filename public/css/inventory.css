@@ -19,13 +19,21 @@ table thead th{
     background-color: #00528237;
     font-weight: semibold;
     text-transform: uppercase;
+    padding: 10px;
+    font-size: 20px;
+}
+table{
+    width: 100%;
 }
 table tbody td{
     padding: 10px;
-    font-size: 15px;
+    font-size: 18px;
 }
 table tbody tr{
     border-bottom: 2px solid #0052825e;
+}
+table tr{
+    text-align: center;
 }
 .modal-button button{
     padding: 8px 18px;

@@ -53,8 +53,8 @@ Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
 Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');
 
 Route::get('admin/productlisting', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
-Route::post('admin/productlisting/register/product', [ProductlistingController::class, 'registerNewProduct'])->name('admin.register.product');
-Route::delete('admin/productlisting/delete/product/{product}', [ProductlistingController::class, 'destroyProduct'])->name('admin.destroy.product');
+Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
+Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
 
 Route::get('admin/manageaccount', [ManageaccountController::class, 'showManageaccount'])->name('admin.manageaccount');
 

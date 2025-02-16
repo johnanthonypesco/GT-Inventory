@@ -18,6 +18,7 @@ window.onclick = function (event) {
     }
 };
 
+
 addmore.onclick = function () {
     event.preventDefault();
     var list = document.createElement("div");
@@ -53,3 +54,27 @@ addmore.onclick = function () {
 
     addform.appendChild(list);
 };
+
+
+// View All Products
+function viewallproduct() {
+    var viewallproductmodal = document.getElementById("viewallproductmodal");
+    viewallproductmodal.style.display = "block";
+}
+function closeviewallproduct() {
+    var viewallproductmodal = document.getElementById("viewallproductmodal");
+    viewallproductmodal.style.display = "none";
+}
+// View All Products
+
+// Register New Product
+function registerproduct() {
+    var registerproductmodal = document.getElementById("registerproductmodal");
+    registerproductmodal.style.display = "block";
+}
+function closeregisterproductmodal() {
+    var registerproductmodal = document.getElementById("registerproductmodal");
+    registerproductmodal.style.display = "none";
+}
+// Register New Product
+
