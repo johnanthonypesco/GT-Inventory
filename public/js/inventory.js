@@ -78,3 +78,32 @@ function closeregisterproductmodal() {
 }
 // Register New Product
 
+
+// SHOW THE STOCK PRODUCTS POPUP MODAL
+function showStockModals(type) {
+    const modalInStock = document.getElementById("in-stock-modal");
+    const modalLowStock = document.getElementById("low-stock-modal");
+    const modalOutStock = document.getElementById("out-stock-modal");
+
+    if (type === "in-stock") {
+        if(modalInStock.classList.contains("-mt-96")) {
+            modalInStock.classList.replace("-mt-96", "mt-5");
+        } else {
+            modalInStock.classList.replace("mt-5", "-mt-96");        
+        }
+    } else if (type === "low-stock") {
+        if(modalLowStock.classList.contains("-mt-96")) {
+            modalLowStock.classList.replace("-mt-96", "mt-5");
+        } else {
+            modalLowStock.classList.replace("mt-5", "-mt-96");        
+        }
+    } else if (type === "out-stock") {
+        if(modalOutStock.classList.contains("-mt-96")) {
+            modalOutStock.classList.replace("-mt-96", "mt-5");
+        } else {
+            modalOutStock.classList.replace("mt-5", "-mt-96");        
+        }
+    }
+}
+
+// SHOW THE STOCK PRODUCTS POPUP MODAL

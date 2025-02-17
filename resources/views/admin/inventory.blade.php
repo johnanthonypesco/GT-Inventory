@@ -21,31 +21,46 @@
         <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
             <div class="item-container flex gap-5 sm:w-[190px] w-[150px] p-5 sm:h-[120px] rounded-lg bg-white relative">
                 <div class="flex flex-col">
-                    <p class="text-md sm:text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Total Products</p>
+                    <p class="text-md sm:text-2xl">{{ $inStocks->count() ?? 0 }}</p>
+                    <p class="font-bold mt-2">Products In Stock</p>
+                    <x-stock-overview-btn  buttonType="in-stock" />
                 </div>
                 <img src="{{asset ('image/image.png')}}" class="absolute right-2 top-2">
             </div>
 
             <div class="item-container flex gap-5 sm:w-[190px] w-[150px] p-5 sm:h-[120px] rounded-lg bg-white relative">
                 <div class="flex flex-col">
-                    <p class="text-md sm:text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Total Low Stocks</p>
+                    <p class="text-md sm:text-2xl">
+                        {{
+                            $lowStocks->count() ? $lowStocks->count() : 0
+                        }}
+                    </p>
+                    <p class="font-bold mt-2">Low Stock Products</p>
+                    <x-stock-overview-btn  buttonType="low-stock" />
                 </div>
                 <img src="{{asset ('image/image (1).png')}}" class="absolute right-2 top-2">
             </div>
 
             <div class="item-container flex gap-5 sm:w-[190px] w-[150px] p-5 sm:h-[120px] rounded-lg bg-white relative">
                 <div class="flex flex-col">
-                    <p class="text-md sm:text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Total Out of Stocks</p>
+                    <p class="text-md sm:text-2xl">
+                        {{ 
+                            $outOfStocks->count() ? $outOfStocks->count() : 0      
+                        }}
+                    </p>
+                    <p class="font-bold mt-2">Products Out of Stock</p>
+                    <x-stock-overview-btn  buttonType="out-stock" />
                 </div>
                 <img src="{{asset ('image/image (2).png')}}" class="absolute right-2 top-2">
             </div>
         </div>
         {{-- Total Container --}}
 
-
+        {{-- Shows An Overview Modal for Certain Product Categories --}}
+        <x-stock-overview-modal  modalType="in-stock" :variable="$inStocks" />
+        <x-stock-overview-modal  modalType="low-stock" :variable="$lowStocks" />
+        <x-stock-overview-modal  modalType="out-stock" :variable="$outOfStocks" />
+        {{-- Shows An Overview Modal for Certain Product Categories --}}
 
         {{-- Filters Location --}}
         <div class="flex justify-between flex-col lg:flex-row">

@@ -15,6 +15,19 @@ class InventoryController extends Controller
         return view('admin.inventory', [
             'products' => Product::all(),
             'inventories' => Inventory::with('product')->get(),
+            
+            'inStocks' => Inventory::where('quantity', '>', 100)
+            ->has("product")
+            ->with("product")->get(),
+
+            'lowStocks' => Inventory::where('quantity', '<', 100)
+            ->where("quantity", ">", 0)
+            ->has("product")
+            ->with("product")->get(),
+
+            'outOfStocks' => Inventory::where('quantity', '==', 0)
+            ->has("product")
+            ->with("product")->get(),
         ]);
     }
 
