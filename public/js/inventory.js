@@ -86,22 +86,22 @@ function showStockModals(type) {
     const modalOutStock = document.getElementById("out-stock-modal");
 
     if (type === "in-stock") {
-        if(modalInStock.classList.contains("-mt-96")) {
-            modalInStock.classList.replace("-mt-96", "mt-5");
+        if(modalInStock.classList.contains("hidden")){
+            modalInStock.classList.replace("hidden","block");
         } else {
-            modalInStock.classList.replace("mt-5", "-mt-96");        
+            modalInStock.classList.replace("block", "hidden");
         }
     } else if (type === "low-stock") {
-        if(modalLowStock.classList.contains("-mt-96")) {
-            modalLowStock.classList.replace("-mt-96", "mt-5");
+        if(modalLowStock.classList.contains("hidden")) {
+            modalLowStock.classList.replace("hidden","block");
         } else {
-            modalLowStock.classList.replace("mt-5", "-mt-96");        
+            modalLowStock.classList.replace("block", "hidden");      
         }
     } else if (type === "out-stock") {
-        if(modalOutStock.classList.contains("-mt-96")) {
-            modalOutStock.classList.replace("-mt-96", "mt-5");
+        if(modalOutStock.classList.contains("hidden")) {
+            modalOutStock.classList.replace("hidden","block");
         } else {
-            modalOutStock.classList.replace("mt-5", "-mt-96");        
+            modalOutStock.classList.replace("block", "hidden");      
         }
     }
 }

@@ -2,19 +2,17 @@
 
 @props(['buttonType' => "none"])
 
-<button onclick="showStockModals('{{$buttonType}}')" class="bg-blue-400 text-white p-1 rounded-md whitespace-nowrap font-bold -ml-4 hover:cursor-pointer hover:bg-blue-500 transition-colors">
+<button onclick="showStockModals('{{$buttonType}}')" class="absolute right-2 -bottom-4">
     @switch($buttonType)
         @case($buttonType === "in-stock")
-            View In Stocks
+                <i class="fa-solid fa-hand-pointer bg-[#005382] rounded-full text-white p-2 text-xl cursor-pointer animate-bounce"></i> 
             @break
         @case($buttonType === "low-stock")
-            View Low Stocks
+                <i class="fa-solid fa-hand-pointer bg-[#005382] rounded-full text-white p-2 text-xl cursor-pointer animate-bounce"></i>
             @break
         @case($buttonType === "out-stock")
-            View Out of Stock
+                <i class="fa-solid fa-hand-pointer bg-[#005382] rounded-full text-white p-2 text-xl cursor-pointer animate-bounce"></i>
             @break
-        @default
-            YAHOO
     @endswitch
 </button>
 {{-- CAN SUMMON THE  IN-STOCK, LOW-STOCK, AND NO STOCK PRODUCTS IN A MODAL --}}
