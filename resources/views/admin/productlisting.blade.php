@@ -25,30 +25,8 @@
             {{-- Customer List Search Function --}}
 
             {{-- Table for customer List --}}
-            <div class="table-container mt-5 overflow-auto h-[340px]">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th>Customer ID</th>
-                            <th>Customer Name</th>
-                            <th>Total Personalized Products</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1234</td>
-                            <td>Jewel Velasquez</td>
-                            <td>20 Personalized Products</td>
-                            {{-- button for view and add --}}
-                            <td class="m-auto flex gap-4 justify-center font-semibold">
-                                <x-vieworder onclick="viewproductlisting()" name="View"/>
-                                <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
-                            </td>
-                            {{-- button for view and add --}}
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="table-container mt-5 overflow-auto h-[380px]">
+                <x-table :headings="['Customer ID', 'Customer Name', 'Total Personalized Products', 'Action']" category="productdeals"/>
             </div>
             {{-- Table for customer List --}}
 

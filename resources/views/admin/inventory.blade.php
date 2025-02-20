@@ -61,34 +61,7 @@
 
             {{-- Table for Inventory --}}
             <div class="overflow-auto h-[250px] mt-5">
-                <table class="w-full min-w-[600px]">
-                    <thead>
-                        <tr>
-                            <th class="p-2 font-regular">Batch No.</th>
-                            <th class="p-2 font-regular">Brand Name</th>
-                            <th class="p-2 font-regular">Generic Name</th>
-                            <th class="p-2 font-regular">Form</th>
-                            <th class="p-2 font-regular">Stregth</th>
-                            <th class="p-2 font-regular">Quantity</th>
-                            <th class="p-2 font-regular">Expiry Date</th>
-                            <th class="p-2 font-regular">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($inventories as $inv)
-                            <tr class="text-center">
-                                <td>{{ $inv->batch_number }}</td>
-                                <td>{{ $inv->product->brand_name }}</td>
-                                <td>{{ $inv->product->generic_name }}</td>
-                                <td>{{ $inv->product->form }}</td>
-                                <td>{{ $inv->product->strength }}</td>
-                                <td>{{ $inv->quantity }}</td>
-                                <td>{{ $inv->expiry_date }}</td>
-                                <td class="{{ $inv->quantity < 100 ? "text-yellow-600 font-semibold" : "text-green-500"}}">{{ $inv->quantity < 100 ? "Low Stock" : "In Stock"}}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <x-table :headings="['Batch No.', 'Brand Name', 'Generic Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Status']" :variable="$inventories" category="inventory"/>
             </div>
             {{-- Table for Inventory --}}
 

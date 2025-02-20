@@ -47,125 +47,11 @@
 
             <div class="overflow-auto h-[330px] mt-5">
                 {{-- Table --}}
-                <table class="w-full min-w-[600px]">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Total Amount</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>12/15/2023</td>
-                            <td><p class="bg-red-600/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>                            
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <x-table :headings="['Order ID' , 'Customer Name', 'Total Amount', 'Date', 'Status', 'Action']" category="history"/>
                 {{-- Table --}}
             </div>
             {{-- Pagination --}}
             <x-pagination/>
-            {{-- Pagination --}}
         </div>
         {{-- Table for Order --}}
 
@@ -215,52 +101,6 @@
         </div>        
         {{-- View Order Modal --}}
 
-        {{-- Add New Order Modal --}}
-        <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 bg-black/50 pt-[50px]">
-            <div class="modal bg-white w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] mx-auto p-5 rounded-lg relative shadow-lg">
-                <span class="close cursor-pointer absolute -top-4 right-2 text-red-600 font-bold text-[50px]">&times;</span>
-                <h1 class="text-[18px] text-[#005382] font-bold">Add New Order</h1>
-
-                <form action="" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5">
-                    <div class="flex flex-wrap items-center justify-center gap-2 px-5 pb-10" id="order-form-input">
-                        <div cl ass="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Customer Name:</label>
-                            <input type="text" placeholder="Enter Customer Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Brand Name:</label>
-                            <input type="text" placeholder="Enter Brand Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Generic Name:</label>
-                            <input type="text" placeholder="Enter Generic Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Form:</label>
-                            <input type="text" placeholder="Enter Form:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Strength:</label>
-                            <input type="text" placeholder="Enter Strength:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Quantity:</label>
-                            <input type="text" placeholder="Enter Quantity:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Price:</label>
-                            <input type="text" placeholder="Enter Price:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-5 absolute bottom-2">
-                        <button id="addnewworder-button" class="bg-white flex items-center"><i class="fa-solid fa-plus"></i>Add More</button>
-                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Submit</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {{-- Add New Order Modal --}} 
     </main>
     
 </body>

@@ -38,31 +38,7 @@
 
             {{-- Table for Customer List --}}
             <div class="table-container mt-5 overflow-auto md:h-[80%]">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Account Id</th>
-                            <th>Customer Name</th>
-                            <th>Username</th>
-                            <th>Password</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1234</td>
-                            <td>Jewel Velasquez</td>
-                            <td>jewelvelasquez</td>
-                            <td>******</td>
-                            {{-- Action --}}
-                            <td class="flex justify-center items-center gap-4">
-                                <x-editbutton onclick="editaccount()"/>
-                                <x-deletebutton onclick="return confirm('Are you sure you want to delete')"/>
-                            </td>
-                            {{-- Action --}}
-                        </tr>
-                    </tbody>
-                </table>
+                <x-table :headings="['Account Id', 'Customer Name', 'Username', 'Password', 'Action']" category="manageaccount"/>
             </div>
             {{-- Table for Customer List --}}
         </div>

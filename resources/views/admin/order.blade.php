@@ -18,38 +18,11 @@
 
 
         {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
-            <div class="item-container flex gap-5 w-[220px] p-5 h-[120px] rounded-lg bg-white relative shadow-lg">
-                <div class="flex flex-col">
-                    <p class="text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Total Orders</p>
-                </div>
-                <img src="{{asset ('image/image (3).png')}}" class="absolute right-2 top-2">
-            </div>
-
-            <div class="item-container flex gap-5 w-[220px] p-5 h-[120px] rounded-lg bg-white relative shadow-lg">
-                <div class="flex flex-col">
-                    <p class="text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Complete Orders</p>
-                </div>
-                <img src="{{asset ('image/image (4).png')}}" class="absolute right-2 top-2">
-            </div>
-
-            <div class="item-container flex gap-5 w-[220px] p-5 h-[120px] rounded-lg bg-white relative shadow-lg">
-                <div class="flex flex-col">
-                    <p class="text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Cancelled Orders</p>
-                </div>
-                <img src="{{asset ('image/image (5).png')}}" class="absolute right-2 top-2">
-            </div>
-
-            <div class="item-container flex gap-5 w-[220px] p-5 h-[120px] rounded-lg bg-white relative shadow-lg">
-                <div class="flex flex-col">
-                    <p class="text-2xl">10,815</p>
-                    <p class="font-bold mt-2">Pending Orders</p>
-                </div>
-                <img src="{{asset ('image/image (6).png')}}" class="absolute right-2 top-2">
-            </div>
+        <div class="mt-3 flex flex-wrap gap-10">
+            <x-countcard title='Total Orders' image="image (3).png" />
+            <x-countcard title='Complete Orders' image="image (4).png" />
+            <x-countcard title='Cancelled Orders' image="image (5).png" />
+            <x-countcard title='Pending Orders' image="image (6).png" />
         </div>
         {{-- Total Container --}}
 
@@ -72,35 +45,7 @@
 
             <div class="overflow-auto h-[270px] mt-5">
                 {{-- Table --}}
-                <table class="w-full min-w-[600px]">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="text-center">
-                            <td>#123456</td>
-                            <td>Jewel Velasquez</td>
-                            <td>₱ 10,000</td>
-                            <td>
-                                <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="delivered">Delivered</option>
-                                </select>
-                            </td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <x-table :headings="['Order ID', 'Customer Name', 'Date Ordered', 'Status', 'Action']" category="order"/>
                 {{-- Table --}}
             </div>
             {{-- Pagination --}}
