@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/order.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -18,7 +20,7 @@
 
 
         {{-- Total Container --}}
-        <div class="mt-3 flex flex-wrap gap-10">
+        <div class="mt-3 flex flex-wrap gap-2 lg:gap-10">
             <x-countcard title='Total Orders' image="image (3).png" />
             <x-countcard title='Complete Orders' image="image (4).png" />
             <x-countcard title='Cancelled Orders' image="image (5).png" />
@@ -107,44 +109,20 @@
         {{-- View Order Modal --}}
 
         {{-- Add New Order Modal --}}
-        <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 bg-black/50 pt-[50px]">
-            <div class="modal bg-white w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] mx-auto p-5 rounded-lg relative shadow-lg">
-                <span onclick="closeaddneworder()" class="cursor-pointer absolute -top-4 right-2 text-red-600 font-bold text-[50px]">&times;</span>
+        <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+            <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
+                <span onclick="closeaddneworder()" class="cursor-pointer absolute -top-9 -right-4 text-red-600 font-bold text-[50px]">&times;</span>
                 <h1 class="text-[18px] text-[#005382] font-bold">Add New Order</h1>
 
                 <form action="" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5">
-                    <div class="flex flex-wrap items-center justify-center gap-2 px-5 pb-10" id="order-form-input">
-                        <div cl ass="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Customer Name:</label>
-                            <input type="text" placeholder="Enter Customer Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Brand Name:</label>
-                            <input type="text" placeholder="Enter Brand Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Generic Name:</label>
-                            <input type="text" placeholder="Enter Generic Name:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Form:</label>
-                            <input type="text" placeholder="Enter Form:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Strength:</label>
-                            <input type="text" placeholder="Enter Strength:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Quantity:</label>
-                            <input type="text" placeholder="Enter Quantity:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="customer-name" class="text-black/60 font-bold">Price:</label>
-                            <input type="text" placeholder="Enter Price:" class="w-full p-2 rounded-lg border border-[#005382] outline-none mt-2">
-                        </div>
+                    <div class="flex flex-col gap-2 items-center px-5 pb-10" id="order-form-input">
+                        <x-label-input label="Customer Name:" name="customer_name" type="text" for="customer_name" divclass="flex flex-col" placeholder="Enter Customer Name"/>
+                        <x-label-input label="Product Name:" name="product" type="text" for="product" divclass="flex flex-col" placeholder="Enter Product Name"/>
+                        <x-label-input label="Quantity:" name="quantity" type="text" for="quantity" divclass="flex flex-col" placeholder="Enter Quanaity"/>
+                        <x-label-input label="Price:" name="price" type="text" for="price" divclass="flex flex-col" placeholder="Enter Price"/>
                     </div>
 
-                    <div class="flex gap-5 absolute bottom-2">
+                    <div class="flex justify-between absolute bottom-0 w-full p-2 bg-white left-0">
                         <button id="addnewworder-button" class="bg-white flex items-center"><i class="fa-solid fa-plus"></i>Add More</button>
                         <button type="submit" class="bg-white p-2 rounded-lg flex items-center"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Submit</button>
                     </div>

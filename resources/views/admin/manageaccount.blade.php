@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/manageaccount.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -48,14 +50,14 @@
             <div class="modal w-full lg:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
                 <span onclick="closeaddaccount()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                 {{-- Form --}}
-                <form action="">
+                <form action="" id="addaccountform">
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
                     {{-- input --}}
                     <x-label-input label="Account Name" name="accountname" type="text" for="accountname" divclass="mt-5" placeholder="Enter Account Name"/>
                     <x-label-input label="Account Username" name="username" type="text" for="username" divclass="mt-5" placeholder="Enter Username"/>
                     <x-label-input label="Account Password" name="password" type="password" id="modalpassword" for="password" placeholder="Enter Account Password" divclass="mt-5 relative"/>
                     {{-- input --}}
-                    <x-submit-button/>
+                    <x-submit-button id="addaccountBtn"/>
                 </form>
                 {{-- Form --}}
             </div>
@@ -67,14 +69,14 @@
             <div class="modal w-full lg:w-[40%] h-fit bg-white m-auto rounded-lg relative p-10">
                 <span onclick="closeeditaccount()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                 {{-- Form --}}
-                <form action="">
+                <form action="" id="editaccountform">
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
                     {{-- input --}}
                     <x-label-input label="Account Name" name="accountname" type="text" for="accountname" value="Jewel Velasquez" divclass="mt-5" placeholder="Enter Account Name"/>
                     <x-label-input label="Account Username" name="username" type="text" for="username" divclass="mt-5" value="jewelvelasquez" placeholder="Enter Username"/>
                     <x-label-input label="Account Password" name="password" type="password" id="modalpassword" for="password" value="jewelvelasquez" placeholder="Enter Account Password" divclass="mt-5 relative"/>
                     {{-- input --}}
-                    <x-submit-button/>
+                    <x-submit-button id="editaccountBtn"/>
                 </form>
                 {{-- Form --}}
             </div>
@@ -85,4 +87,5 @@
 </body>
 
 <script src="{{asset ('js/manageaccount.js')}}"></script>
+<script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
 </html>

@@ -55,17 +55,17 @@
             </div>
         
             <!-- Summary of Orders -->
-            <div class="w-full lg:w-[30%] bg-white p-5 rounded-xl">
-                <h1 class="text-center font-semibold text-2xl mb-5">Summary of Orders</h1>
-                <div id="order-summary" class="h-[30vh] lg:h-[45vh] overflow-y-auto">
+            <div class="w-full sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-xl">
+                <h1 class="hidden lg:block text-center font-semibold text-2xl mb-5">Summary of Orders</h1>
+                <div id="order-summary" class="hidden lg:block h-[30vh] lg:h-[45vh] overflow-y-auto">
                     <!-- Orders will be appended here -->
                 </div>
         
-                <hr class="my-5">
+                <hr class="hidden lg:block my-5">
         
-                <div>
+                <div class="flex justify-between gap-20 lg:gap-0 lg:flex-col items-center lg:items-start">
                     <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">$0</span></h1>
-                    <button class="bg-[#005382] text-white p-2 rounded-lg w-full mt-5">Checkout</button>
+                    <button class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
                 </div>
             </div>
         </div>      

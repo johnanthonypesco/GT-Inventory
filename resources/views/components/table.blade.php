@@ -59,6 +59,22 @@
                         <x-vieworder onclick="viewOrder()" name="View Order"/>
                     </td>
                 </tr>
+                <tr class="text-center">
+                    <td>#123456</td>
+                    <td>Jewel Velasquez</td>
+                    <td>₱ 10,000</td>
+                    <td>
+                        <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </td>
+                    <td>
+                        <x-vieworder onclick="viewOrder()" name="View Order"/>
+                    </td>
+                </tr>
             @break
 
             {{-- manageaccount --}}
@@ -71,7 +87,7 @@
                     {{-- Action --}}
                     <td class="flex justify-center items-center gap-4">
                         <x-editbutton onclick="editaccount()"/>
-                        <x-deletebutton route="admin.manageaccount"  onclick="return confirm('Are you sure you want to delete')"/>
+                        <x-deletebutton route="admin.manageaccount" method="DELETE"/>
                     </td>
                     {{-- Action --}}
                 </tr>           

@@ -18,44 +18,6 @@ window.onclick = function (event) {
     }
 };
 
-
-addmore.onclick = function () {
-    event.preventDefault();
-    var list = document.createElement("div");
-    list.classList.add("mt-5", "grid", "grid-cols-2", "gap-2");
-
-    list.innerHTML = `
-            <div>
-                <label for="batch" class="text-[15px] font-semibold">Batch no.</label>
-                <input type="text" name="batch[]" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Batch No.">
-            </div>
-            <div>
-                <label for="brand" class="text-[15px] font-semibold">Brand Name:</label>
-                <input type="text" name="brand[]" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Brand Name">
-            </div>
-            <div>
-                <label for="generic" class="text-[15px] font-semibold">Generic Name:</label>
-                <input type="text" name="generic[]" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Generic Name">
-            </div>
-            <div>
-                <label for="form" class="text-[15px] font-semibold">Form:</label>
-                <input type="text" name="form[]" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Form">
-            </div>
-            <div>
-                <label for="quantity" class="text-[15px] font-semibold">Quantity:</label>
-                <input type="text" name="quantity[]" class="border p-1 w-full rounded-lg mt-1" placeholder="Enter Quantity">
-            </div>
-            <div>
-                <label for="expiry" class="text-[15px] font-semibold">Expiry Date</label>
-                <input type="date" name="expiry[]" class="border p-1 w-full rounded-lg mt-1">
-            </div>
-            <hr class="border-t border-black w-[410px] mt-5">
-        `;
-
-    addform.appendChild(list);
-};
-
-
 // View All Products
 function viewallproduct() {
     var viewallproductmodal = document.getElementById("viewallproductmodal");
@@ -104,6 +66,24 @@ function showStockModals(type) {
             modalOutStock.classList.replace("block", "hidden");      
         }
     }
+}
+
+function addstock() {
+    var addstock = document.getElementById("addstock");
+    addstock.style.display = "block";
+}
+function closeaddstock() {
+    var addstock = document.getElementById("addstock");
+    addstock.style.display = "none";
+}
+
+function addmultiplestock() {
+    var addmultiplestock = document.getElementById("addmultiplestock");
+    addmultiplestock.style.display = "block";
+}
+function closeaddmultiplestock() {
+    var addmultiplestock = document.getElementById("addmultiplestock");
+    addmultiplestock.style.display = "none";
 }
 
 // SHOW THE STOCK PRODUCTS POPUP MODAL

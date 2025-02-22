@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
@@ -72,9 +74,7 @@
                             <td>
                                 <div class="flex gap-3 items-center justify-center text-xl">
                                     <x-editbutton onclick="editproductlisting()"/>
-                                    <form action="">
-                                        <button type="submit" class="text-red-500 py-1 rounded-lg cursor-pointer flex gap-1 items-center" onclick="return confirm('Are you sure you want to delete')"><i class="fa-solid fa-trash"></i>Delete</button>
-                                    </form>
+                                    <x-deletebutton route="admin.productlisting" method="DELETE"/>
                                 </div>
                             </td>
                         </tr>
@@ -94,13 +94,13 @@
         <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeaddproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form --}}
-            <form action="" class="h-[75%]">
+            <form action="" class="h-[75%]" id="addproductlistingform">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
 
                 <div class="h-full overflow-auto">
                     <div>
                         <label for="customername" class="text-lg font-semibold text-black/80">Customer Name:</label>
-                        <input type="text" name="customername" placeholder="Enter Customer Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
+                        <input type="text" name="customername" placeholder="Enter Customer Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1" value="Jewel Velasquez" disabled>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2" id="addmoreproductlist">
@@ -117,7 +117,7 @@
 
                 <div class="flex justify-between absolute bottom-0 w-full left-0 pb-5 h-fit px-10">
                     <button class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer" onclick="addmoreproductlisting()"><i class="fa-solid fa-plus"></i>Add More</button>
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Save</button>
+                    <x-submit-button id="addproductlistingBtn"/>
                 </div>
             </form>
              {{--Form  --}}
@@ -130,12 +130,12 @@
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeeditproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
             {{-- Form --}}
-            <form action="">
+            <form action="" id="editproductlistingform">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">Edit Product</h1>
 
                 <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/>
                 <x-label-input label="Product Price" name="price" type="text" for="genericname" divclass="mt-5" placeholder="Enter Username"/>
-                <x-submit-button/>
+                <x-submit-button id="editproductlistingBtn"/>
             </form> 
             {{-- Form --}}
         </div>
@@ -143,4 +143,5 @@
 </body>
 
 <script src="{{asset('js/productlisting.js')}}"></script>
+<script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
 </html>
