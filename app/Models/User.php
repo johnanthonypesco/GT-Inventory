@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -49,6 +50,8 @@ class User extends Authenticatable
         'password',  // ✅ Standardized field name (was `customer_password`)
         'contact_number',  // ✅ Standardized field name (was `customer_cnum`)
         'location_id', // ✅ Foreign key to `locations` table
+        'email_verified_at'
+
     ];
 
     /**

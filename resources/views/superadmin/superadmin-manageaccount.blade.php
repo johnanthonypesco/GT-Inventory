@@ -10,6 +10,16 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Manage Accounts</title>
 </head>
+<style>
+    #addAccountModal select{
+        border: 1px solid black;
+        padding: 5px;
+    }
+    #addAccountModal input{
+        border: 1px solid black;
+        padding: 5px;
+    }
+</style>
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
@@ -23,6 +33,14 @@
             <x-admin.burgermenu/>
             <x-admin.header/>
         </header>
+
+        @if ($errors->any())
+        <div class="bg-red-500 text-white p-2 rounded-md mb-4">
+        @foreach ($errors->all() as $e)
+                <p class="text-black"> {{ $e }} </p>
+            @endforeach
+    </div>
+        @endif
 
         {{-- Filter & Add Account --}}
         <div class="flex items-center md:flex-row flex-col justify-end gap-2">
@@ -109,50 +127,53 @@
                     </select>
                 
                     <!-- Name Field (Only for Customers) -->
-                    <div id="nameField" style="display: none;">
-                        <label for="name">Full Name:</label>
-                        <input type="text" name="name" placeholder="Enter Full Name">
-                    </div>
-                
-                    <!-- Username Field (Only for Admins and Staff) -->
-                    <div id="usernameField" style="display: none;">
-                        <label for="username">Username:</label>
-                        <input type="text" name="username" placeholder="Enter Username">
-                    </div>
-                
-                    <!-- Email Field -->
-                    <label for="email">Email:</label>
-                    <input type="email" name="email" required>
-                
-                    <!-- Password Field -->
-                    <label for="password">Password:</label>
-                    <input type="password" name="password" required>
-                
-                    <!-- Location Field (Only for Staff and Customers) -->
-                    <div id="locationField" style="display: none;">
-                        <label for="location_id">Select Location:</label>
-                        <select name="location_id">
-                            <option value="">-- Select Location --</option>
-                            @foreach($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                
-                    <!-- Job Title Field (Only for Staff) -->
-                    <div id="jobTitleField" style="display: none;">
-                        <label for="job_title">Job Title:</label>
-                        <input type="text" name="job_title">
-                    </div>
-
-                    <div id="adminField" style="display: none;">
-                        <label for="admin_id">Select Admin:</label>
-                        <select name="admin_id" id="admin_id">
-                            <option value="">-- Select Admin --</option>
-                            @foreach($admins as $admin)
-                                <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
-                            @endforeach
-                        </select>
+                    <div class="flex flex-col gap-2">
+                        <div id="nameField" style="display: none;">
+                            <label for="name">Full Name:</label>
+                            <input class="border border-black" type="text" name="name" placeholder="Enter Full Name">
+                        </div>
+                    
+                        <!-- Username Field (Only for Admins and Staff) -->
+                        <div id="usernameField" style="display: none;">
+                            <label for="username">Username:</label>
+                            <input class="border border-black" type="text" name="username" placeholder="Enter Username">
+                        </div>
+                    
+                        <!-- Email Field -->
+                        <label for="email">Email:</label>
+                        <input class="border border-black" type="email" name="email" required>
+                        
+                    
+                        <!-- Password Field -->
+                        <label for="password">Password:</label>
+                        <input class="border border-black" type="password" name="password" required>
+                    
+                        <!-- Location Field (Only for Staff and Customers) -->
+                        <div id="locationField" style="display: none;">
+                            <label for="location_id">Select Location:</label>
+                            <select name="location_id">
+                                <option value="">-- Select Location --</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    
+                        <!-- Job Title Field (Only for Staff) -->
+                        <div id="jobTitleField" style="display: none;">
+                            <label for="job_title">Job Title:</label>
+                            <input type="text" name="job_title">
+                        </div>
+    
+                        <div id="adminField" style="display: none;">
+                            <label for="admin_id">Select Admin:</label>
+                            <select name="admin_id" id="admin_id">
+                                <option value="">-- Select Admin --</option>
+                                @foreach($admins as $admin)
+                                    <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 
                     <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">

@@ -22,6 +22,7 @@ class Staff extends Authenticatable
         'admin_id',
         'location_id',
         'job_title',
+        'is_staff',
     ];
 
     /**

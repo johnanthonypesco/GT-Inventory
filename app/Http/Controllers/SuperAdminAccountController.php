@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\Staff;
 use App\Models\User;
 use App\Models\Location;
+use Illuminate\Support\Facades\Log;
 
 class SuperAdminAccountController extends Controller
 {
@@ -38,7 +39,7 @@ class SuperAdminAccountController extends Controller
             ]));
 
         $locations = Location::all();
-        return view('superadmin.superadmin-manageaccount', compact('accounts', 'locations', 'admins'));
+        return view('admin.manageaccount', compact('accounts', 'locations', 'admins'));
     }
 
     /**
@@ -46,48 +47,59 @@ class SuperAdminAccountController extends Controller
      */
     public function store(Request $request)
 {
-    $request->validate([
-        'role' => 'required|string|in:admin,staff,customer',
-        'name' => 'nullable|string|max:255', // Only for customers
-        'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
-        'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
-        'password' => 'required|string|min:6',
-        'admin_id' => $request->role === 'staff' ? 'required|exists:admins,id' : 'nullable',
-
-        'location_id' => 'nullable|exists:locations,id',
-        'job_title' => 'nullable|string|max:255',
-    ]);
     try {
+        $validated =$request->validate([
+            'role' => 'required|string|in:admin,staff,customer',
+            'name' => 'nullable|string|max:255', // Only for customers
+            'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
+            'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'admin_id' => $request->role === 'staff' ? 'required|integer|exists:admins,id' : 'nullable',
+    
+            'location_id' => 'nullable|exists:locations,id',
+            'job_title' => 'nullable|string|max:255',
+        ]);
 
-    match ($request->role) {
+        $validated = array_map("strip_tags", $validated);
+
+
+        // dd($validated);
+    match ($validated['role']) {
         'admin' => Admin::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
             'super_admin_id' => auth()->id(),
             'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
         ]),
         'staff' => Staff::create([
-            'staff_username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'admin_id' => $request->admin_id, // ✅ Store the selected Admin ID
-            'location_id' => $request->location_id,
-            'job_title' => $request->job_title,
+            'staff_username' => $validated['username'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
+            'location_id' => $validated['location_id'],
+            'job_title' => $validated['job_title'],
+            'is_staff' => 1,
+
         ]),
         'customer' => User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'contact_number' => $request->contact_number,
-            'location_id' => $request->location_id,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            // 'contact_number' => $validated['contact_number'],
+            'location_id' => $validated['location_id'],
             'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
+            'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
         ]),
     };
+    
 
-    return redirect()->route('superadmin.account.index')->with('success', ucfirst($request->role) . ' account created successfully.');
+    // dd($validated);
+    return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
 } catch (\Exception $e) {
     // Log error message
+
+    dd($e);
     Log::error('Error creating account', ['message' => $e->getMessage()]);
 
     return back()->with('error', 'Failed to create account. Please check logs.');
@@ -121,27 +133,47 @@ class SuperAdminAccountController extends Controller
             'customer' => User::findOrFail($id),
             default => abort(404),
         };
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:admins,username,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,staff_username,' . ($role == 'staff' ? $id : 'null') . '|unique:users,name,' . ($role == 'customer' ? $id : 'null'),
+    
+        // Validate the request
+        $validatedData = $request->validate([
+            'name' => $role === 'customer' ? 'required|string|max:255' : 'nullable|string|max:255',
+            'username' => $role !== 'customer' ? 'required|string|max:255|unique:admins,username,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,staff_username,' . ($role == 'staff' ? $id : 'null') : 'nullable',
             'email' => 'required|string|email|max:255|unique:admins,email,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,email,' . ($role == 'staff' ? $id : 'null') . '|unique:users,email,' . ($role == 'customer' ? $id : 'null'),
             'password' => 'nullable|string|min:6',
+            'admin_id' => $role === 'staff' ? 'required|integer|exists:admins,id' : 'nullable',
             'location_id' => 'nullable|exists:locations,id',
-            'job_title' => 'nullable|string|max:255',
+            'job_title' => $role === 'staff' ? 'nullable|string|max:255' : 'nullable',
         ]);
-
-        $model->update([
-            'name' => $request->name ?? $model->name,
-            'username' => $request->username ?? $model->username,
-            'email' => $request->email ?? $model->email,
-            'password' => $request->password ? Hash::make($request->password) : $model->password,
-            'location_id' => $request->location_id ?? $model->location_id,
-            'job_title' => $request->job_title ?? $model->job_title,
-        ]);
-
+    
+        // Sanitize input
+        $validatedData = array_map("strip_tags", $validatedData);
+    
+        // Update the model based on role
+        match ($role) {
+            'admin' => $model->update([
+                'username' => $validatedData['username'] ?? $model->username,
+                'email' => $validatedData['email'] ?? $model->email,
+                'password' => $validatedData['password'] ? Hash::make($validatedData['password']) : $model->password,
+            ]),
+            'staff' => $model->update([
+                'staff_username' => $validatedData['username'] ?? $model->staff_username,
+                'email' => $validatedData['email'] ?? $model->email,
+                'password' => $validatedData['password'] ? Hash::make($validatedData['password']) : $model->password,
+                'admin_id' => $validatedData['admin_id'] ?? $model->admin_id,
+                'location_id' => $validatedData['location_id'] ?? $model->location_id,
+                'job_title' => $validatedData['job_title'] ?? $model->job_title,
+            ]),
+            'customer' => $model->update([
+                'name' => $validatedData['name'] ?? $model->name,
+                'email' => $validatedData['email'] ?? $model->email,
+                'password' => $validatedData['password'] ? Hash::make($validatedData['password']) : $model->password,
+                'location_id' => $validatedData['location_id'] ?? $model->location_id,
+            ]),
+        };
+    
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
     }
+    
 
     /**
      * Remove an account dynamically.

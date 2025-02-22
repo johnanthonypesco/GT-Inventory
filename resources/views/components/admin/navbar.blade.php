@@ -9,7 +9,7 @@
         <a href="{{ route ('admin.inventory')}}" class="text-md"><i class="fa-solid fa-boxes-stacked text-[#005382] text-md"></i>Inventory</a>
         <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
         <a href="{{ route ('admin.chat')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
-        <a href="{{ route ('admin.manageaccount')}}" class="text-md whitespace-nowrap"><i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Account</a>
+        <a href="{{ route ('superadmin.account.index')}}" class="text-md whitespace-nowrap"><i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Account</a>
         <a href="{{ route ('admin.productlisting')}}" class="text-md"><i class="fa-solid fa-list-check text-[#005382] text-md"></i>Product Deals</a>
         <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History</a>
         
@@ -20,3 +20,4 @@
 </nav>
 
 <script src="{{asset ('js/navbar.js')}}"></script>
+<a href="{{ route('superadmin.account.index') }}" class="text-md whitespace-nowrap">

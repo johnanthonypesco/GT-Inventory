@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
-class SuperAdminAuthenticatedSessionController extends Controller
+class StaffAuthenticatedSessionController extends Controller
 {
     /**
-     * Display the Super Admin login view.
+     * Display the Staff login view.
      */
     public function create(): View
     {
-        return view('auth.superadmin-login');
+        return view('auth.staff-login');
     }
 
     /**
@@ -28,40 +28,39 @@ class SuperAdminAuthenticatedSessionController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-    
-        if (Auth::guard('superadmin')->attempt($credentials, $request->filled('remember'))) {
-            $superAdmin = Auth::guard('superadmin')->user();
-    
+
+        if (Auth::guard('staff')->attempt($credentials, $request->filled('remember'))) {
+            $staff = Auth::guard('staff')->user();
+
             // ✅ Store session using `authenticatable_id`
             Session::put([
-                'authenticatable_id' => $superAdmin->id,
-                'authenticatable_type' => SuperAdmin::class, // ✅ Use SuperAdmin class
+                'authenticatable_id' => $staff->id,
+                'authenticatable_type' => \App\Models\Staff::class, // ✅ Use Staff model
             ]);
-    
+
             // ✅ Regenerate session after login
             $request->session()->regenerate();
-    
-            return redirect()->route('admin.dashboard'); // ✅ Redirect to shared dashboard
+
+            return redirect()->route('admin.dashboard');
         }
-    
+
         return back()->withErrors([
             'email' => 'Invalid credentials.',
         ]);
     }
-
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('superadmin')->logout();
+        Auth::guard('staff')->logout();
 
-        // ✅ Remove only Super Admin session details
+        // ✅ Remove only Staff session details
         Session::forget(['authenticatable_id', 'authenticatable_type']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('superadmin.login');
+        return redirect()->route('staff.login'); // ✅ Redirects to Staff login
     }
 }

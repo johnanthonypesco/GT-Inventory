@@ -1,31 +1,49 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+    <title>Email Verification</title>
+</head>
+<body class="flex justify-center items-center min-h-screen bg-[#F5F5F5]">
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
+    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-lg text-center">
+        <img src="{{ asset('image/Group 41.png') }}" class="w-[200px] mx-auto mb-5">
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+        <h1 class="text-2xl font-bold text-[#005382] mb-4">Verify Your Email</h1>
+        
+        <p class="text-gray-600 text-sm">
+            Thanks for signing up! Before getting started, please verify your email by clicking the link we just sent you. 
+            If you didn't receive the email, you can request another one below.
+        </p>
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+        @if (session('status') == 'verification-link-sent')
+            <div class="bg-green-100 text-green-700 p-3 rounded-lg mt-4">
+                ✅ A new verification link has been sent to your email.
             </div>
-        </form>
+        @endif
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+        <div class="mt-6 flex flex-col gap-4">
+            <!-- ✅ Resend Verification Email Form -->
+            <form method="POST" action="{{ route('verification.send') }}">
+                @csrf
+                <button type="submit" class="w-full bg-[#15ABFF] text-white p-3 rounded-lg hover:bg-[#0E8CD7] transition">
+                    Resend Verification Email
+                </button>
+            </form>
 
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
+            <!-- ✅ Log Out Button -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full text-[#005382] font-semibold underline hover:text-[#003F6B]">
+                    Log Out
+                </button>
+            </form>
+        </div>
     </div>
-</x-guest-layout>
+
+</body>
+</html>
