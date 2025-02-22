@@ -68,7 +68,13 @@ function showStockModals(type) {
     }
 }
 
-function addstock() {
+function addstock(product_id, product_name) {
+    const name = document.getElementById('single_add_name');
+    const product_id_input = document.getElementById('single_product_id');
+    
+    name.innerHTML = product_name;
+    product_id_input.value = product_id;
+
     var addstock = document.getElementById("addstock");
     addstock.style.display = "block";
 }
@@ -76,7 +82,6 @@ function closeaddstock() {
     var addstock = document.getElementById("addstock");
     addstock.style.display = "none";
 }
-
 function addmultiplestock() {
     var addmultiplestock = document.getElementById("addmultiplestock");
     addmultiplestock.style.display = "block";
@@ -87,3 +92,39 @@ function closeaddmultiplestock() {
 }
 
 // SHOW THE STOCK PRODUCTS POPUP MODAL
+
+// MULTIPLE STOCK ADD SECTIONS
+function add_more_stocks_input(current_clones) {
+        // Get the html inside the template tag
+        const template = document.getElementById('stock-entry-template').content.cloneNode(true);
+    
+        // Clears all values in inputs
+        template.querySelectorAll('input').forEach(input => input.value = '');
+    
+        // Inserts the cloned template to the container
+        document.getElementById('template-container').appendChild(template);
+}
+// MULTIPLE STOCK ADD SECTIONS
+
+// SEARCH FUNCTION SECTION
+function is_in_suggestion(event) {
+    const search = document.getElementById('search');
+    const search_options = document.getElementById('search_options').options;
+    let in_suggestions = false;
+
+    for (let i = 0 ; i < search_options.length ; i++) {
+        if(search.value === search_options[i].value) {
+            in_suggestions = true;
+            break
+        }
+    }
+
+    if (!in_suggestions) {
+        search.classList.remove('border-[#005382]');
+        search.classList.add('border-rose-500');
+        alert("Choose from Search Suggestions");
+    } else {
+        document.getElementById('search-form').submit();
+    }
+}
+// SEARCH FUNCTION SECTION

@@ -3,7 +3,7 @@ const addmultiplestockBtn = document.getElementById('addmultiplestockBtn');
 const addproductBtn = document.getElementById('addproductBtn');
 
 const addproductform = document.getElementById('addproduct');
-const addstockform = document.getElementById('addstock');
+const addSpecificStockForm = document.getElementById('addspecificstock');
 const addmultiplestockform = document.getElementById('addmultiplestockform');
 
 addproductBtn.addEventListener('click', () => {
@@ -11,7 +11,7 @@ addproductBtn.addEventListener('click', () => {
 });
 
 addstockBtn.addEventListener('click', () => {
-    showsweetalert(addstockform);
+    showsweetalert(addSpecificStockForm);
 });
 
 addmultiplestockBtn.addEventListener('click', () => {
