@@ -94,7 +94,11 @@
                 <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                     <button id="openModal" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                     {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
-                    <button class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
+                    <form action="{{ route('admin.inventory.export') }}" method="get">
+                        @csrf
+                        
+                        <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
+                    </form>
                 </div>
             </div>
 
@@ -143,8 +147,6 @@
                         </tr>
                     </thead>
                     <tbody class="data">
-                        
-
                         @foreach ($registeredProducts as $product)
                             @php
                                 $generic_name = $product->generic_name ? $product->generic_name : "none";

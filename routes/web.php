@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Export\ExportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,7 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
 Route::post('admin/inventory', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
 Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
+Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
 
 
 Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
