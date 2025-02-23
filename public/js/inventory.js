@@ -107,7 +107,18 @@ function add_more_stocks_input(current_clones) {
 // MULTIPLE STOCK ADD SECTIONS
 
 // SEARCH FUNCTION SECTION
-function is_in_suggestion(event) {
+// Prevents user from submitting form with Enter key
+document.querySelectorAll('input[type=search]').forEach((search) => {
+    search.addEventListener('keydown', (event)  => {
+        if(event.key === "Enter") {
+            event.preventDefault();
+            is_in_suggestion()
+        }
+    })
+});
+
+//The function checks if the input is in the data list
+function is_in_suggestion() {
     const search = document.getElementById('search');
     const search_options = document.getElementById('search_options').options;
     let in_suggestions = false;

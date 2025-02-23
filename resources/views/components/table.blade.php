@@ -21,7 +21,6 @@
                         <td>{{ $inv->product->strength }}</td>
                         <td>{{ $inv->quantity }}</td>
                         <td>{{ $inv->expiry_date }}</td>
-                        <td class="{{ $inv->quantity < 100 ? "text-yellow-600 font-semibold" : "text-green-500"}}">{{ $inv->quantity < 100 ? "Low Stock" : "In Stock"}}</td>
                     </tr>
                 @endforeach
                 @break

@@ -20,26 +20,26 @@
                     YAHOO
             @endswitch
         </h1>
+
         <table>
             <thead>
-                <tr class="bg-blue-200">
-                    <th>Generic Name</th>
-                    <th>Brand Name</th>
-                    <th>Quantity</th>
-                </tr>
+                <th>Generic Name</th>
+                <th>Brand Name</th>
+                <th>Current Quantity</th>
             </thead>
             <tbody>
-                @if ($variable->count() > 0)
-                    @foreach ($variable as $display)
-                    <tr class="bg-white">
-                        <td>{{ $display->product->generic_name }}</td>
-                        <td>{{ $display->product->brand_name }}</td>
-                        <td>{{$display->quantity}}</td>
+                @foreach ($variable as $generic_product)
+                    <tr>
+                        @foreach ($generic_product['inventory'] as $product)
+                            <td> {{ $product->product->generic_name }} </td>
+                            <td> {{ $product->product->brand_name }} </td>
+                            @break
+                        @endforeach
+                        <td>{{ $generic_product['total'] }}</td>
                     </tr>
-                    @endforeach
-                @endif
+                @endforeach
             </tbody>
-        </table>    
+        </table>
     </div>
 </div>
 

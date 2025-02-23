@@ -19,18 +19,46 @@
     <main class="md:w-full h-full">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
+        {{-- $stockMonitor['paracetamol']["inventories"] --}}
+
+        @php
+            // these variables will be used for the totals in the notifs & stock overview summaries
+            $inStockProducts = []; 
+            $lowStockProducts = [];
+            $noStockProducts = [];
+            foreach ($stockMonitor as $stock) {
+                switch($stock['status']) {
+                    case ("in-stock" ):
+                        array_push($inStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
+                        break;
+                    case ("low-stock" ):
+                        array_push($lowStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
+                        break;
+                    case ("no-stock" ):
+                        array_push($noStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
+                        break;
+                    default:
+                        false;
+                    break;
+                }
+            }
+
+            // dd($inStockProducts[0]['inventory'][0]->product->generic_name);
+            // dd($inStockProducts[0]);
+        @endphp
+
         {{-- Total Container --}}
         <div class="mt-3 flex gap-5 flex-wrap">
-            <x-totalstock :count="$inStocks->count() ? $inStocks->count() : 0" title="Total In Stocks" image="image.png" buttontype="in-stock" />
-            <x-totalstock :count="$lowStocks->count() ? $lowStocks->count() : 0" title="Total Low Stocks" image="image (1).png" buttontype="low-stock" />
-            <x-totalstock :count="$outOfStocks->count() ? $outOfStocks->count() : 0" title="Total Out of Stocks" image="image (2).png" buttontype="out-stock" />
+            <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttontype="in-stock" />
+            <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="image (1).png" buttontype="low-stock" />
+            <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="image (2).png" buttontype="out-stock" />
         </div>
         {{-- Total Container --}}
 
         {{-- Shows An Overview Modal for Certain Product Categories --}}
-        <x-stock-overview-modal  modalType="in-stock" :variable="$inStocks" />
-        <x-stock-overview-modal  modalType="low-stock" :variable="$lowStocks" />
-        <x-stock-overview-modal  modalType="out-stock" :variable="$outOfStocks" />
+        <x-stock-overview-modal  modalType="in-stock" :variable="$inStockProducts" />
+        <x-stock-overview-modal  modalType="low-stock" :variable="$lowStockProducts" />
+        <x-stock-overview-modal  modalType="out-stock" :variable="$noStockProducts" /> 
         {{-- Shows An Overview Modal for Certain Product Categories --}}
 
         {{-- Filters Location --}}
@@ -70,7 +98,7 @@
 
             {{-- Table for Inventory --}}
             <div class="overflow-auto h-[250px] mt-5">
-                <x-table :headings="['Batch No.', 'Brand Name', 'Generic Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Status']" :variable="$inventories" category="inventory"/>
+                <x-table :headings="['Batch No.', 'Brand Name', 'Generic Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$inventories" category="inventory"/>
             </div>
             {{-- Table for Inventory --}}
 

@@ -10,26 +10,29 @@ use Illuminate\Http\Request;
 class InventoryController extends Controller
 {
 
-    public function showInventory($search_value = null, $form_data = null)
+    public function showInventory($searched_name = null, $form_data = null)
     {
         return view('admin.inventory', [
             'products' => Product::all(),
             'inventories' => $form_data ? $form_data : Inventory::with('product')->select()->get(),
 
-            'current_search' => $search_value,
+            'current_search' => $searched_name,
 
-            'inStocks' => Inventory::where('quantity', '>', 100)
-            ->has("product")
-            ->with("product")->get(),
-
-            'lowStocks' => Inventory::where('quantity', '<', 100)
-            ->where("quantity", ">", 0)
-            ->has("product")
-            ->with("product")->get(),
-
-            'outOfStocks' => Inventory::where('quantity', '=', 0)
-            ->has("product")
-            ->with("product")->get(),
+            // for the inventory notifications
+            'stockMonitor' => Inventory::has('product') 
+            ->with('product')->get() // gets the product data
+            ->groupBy(function ($inventory) { // groups data by generic name
+                return $inventory->product->generic_name . '|' . $inventory->product->brand_name; // this gives the name for the keys of each group
+            })->sortKeys()
+            ->map(function ($group) { // calculates the totals and what to categorize them as.
+                $total = $group->sum('quantity');
+                $status = $total > 0 && $total <= 50 ? 'low-stock' : ($total > 50 ? 'in-stock' : 'no-stock');
+                return [
+                    'total' => $total,
+                    'status' => $status,
+                    'inventories' => $group,
+                ];
+            }),
         ]);
     }
 
@@ -42,6 +45,7 @@ class InventoryController extends Controller
 
         $validated = explode(' - ',$validated['search']);
 
+        // makes the where query on the Products table instead of the Inventory table
         $result = Inventory::with('product')
         ->whereHas('product', function ($query) use ($validated) {
             $query->where('generic_name', '=', $validated[0])
@@ -62,9 +66,6 @@ class InventoryController extends Controller
             'img_file_path.*' => 'string|min:3|nullable',
         ]); # defense against SQL injections
 
-        // dd($validated);
-
-
         // this is anti-XSS if the validated array is one dimensional:
         // $validated = array_map('strip_tags', $validated); # defense against XSS
 
@@ -79,8 +80,8 @@ class InventoryController extends Controller
         for ($i=0 ; $i < $count ; $i++) {
             $datas = [
                 'batch_number' => $validated['batch_number'][$i],
-                'quantity'     => $validated['quantity'][$i],
-                'expiry_date'  => $validated['expiry_date'][$i],
+                'quantity' => $validated['quantity'][$i],
+                'expiry_date' => $validated['expiry_date'][$i],
             ];
 
             $product = Product::findOrFail($validated['product_id'][$i]);
