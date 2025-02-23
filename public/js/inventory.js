@@ -118,9 +118,9 @@ document.querySelectorAll('input[type=search]').forEach((search) => {
 });
 
 //The function checks if the input is in the data list
-function is_in_suggestion() {
-    const search = document.getElementById('search');
-    const search_options = document.getElementById('search_options').options;
+function is_in_suggestion(id, list_id) {
+    const search = document.getElementById(id);
+    const search_options = document.getElementById(list_id).options;
     let in_suggestions = false;
 
     for (let i = 0 ; i < search_options.length ; i++) {
@@ -135,7 +135,7 @@ function is_in_suggestion() {
         search.classList.add('border-rose-500');
         alert("Choose from Search Suggestions");
     } else {
-        document.getElementById('search-form').submit();
+        document.getElementById('search-form-' + id).submit();
     }
 }
 // SEARCH FUNCTION SECTION

@@ -83,9 +83,11 @@
                 placeholder="Search Product by Name"
                 classname="fa fa-magnifying-glass" 
                 divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
+                id="search-stock"
+                searchType="stock"
                 :dataList="$products"
                 :autofill="true"
-                :currentSearch="$current_search"/>
+                :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
                 
                 {{-- Search --}}
                 
@@ -109,14 +111,22 @@
     </main>
 
     {{-- Modal for View All Products --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ request()->is('admin/inventory/search/product') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewallproductmodal">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span id="viewallproductclose" class="text-6xl font-bold text-red-600 cursor-pointer absolute -right-4 -top-8" onclick="closeviewallproduct()">&times;</span>
+            <span id="viewallproductclose" class="text-6xl font-bold text-red-600 cursor-pointer absolute -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]" onclick="closeviewallproduct()">&times;</span>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
 
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
-                <x-input name="search" placeholder="Search Product by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>                 
+                <x-input name="search" 
+                placeholder="Search Product by Name" 
+                classname="fa fa-magnifying-glass" 
+                divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
+                id="search-product"
+                searchType="product"
+                :dataList="$products"
+                :autofill="true"
+                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>                 
             </div>
 
             {{-- Table for all products --}}
@@ -133,7 +143,9 @@
                         </tr>
                     </thead>
                     <tbody class="data">
-                        @foreach ($products as $product)
+                        
+
+                        @foreach ($registeredProducts as $product)
                             @php
                                 $generic_name = $product->generic_name ? $product->generic_name : "none";
                                 $brand_name = $product->brand_name ? $product->brand_name : "none";
@@ -167,7 +179,7 @@
     {{-- Modal for Register New Product --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
+            <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
             {{-- Form for register new product --}}
             <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" class="px-4">
                 @csrf
@@ -188,7 +200,7 @@
     {{-- Add stock to specific product --}}
     <div id="addstock" class="bg-black/70 hidden fixed w-full h-full top-0 left-0 z-10 p-10">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
-            <span class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8" onclick="closeaddstock()">&times;</span>
+            <span class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]" onclick="closeaddstock()">&times;</span>
             <h1 class="text-[#005382] text-xl font-bold">
                 Add Stock in: <span id="single_add_name" class="text-black"> No Name Inserted </span>
             </h1>
@@ -209,7 +221,7 @@
     {{--  Scan Receipt--}}
     <div class="addmodal hidden fixed bg-black w-full h-full top-0 left-0 px-[50px]" id="addmodal">
         <div class="modal addmodal-content relative bg-white w-full lg:w-[40%] p-5 rounded-lg mx-auto mt-20 flex flex-col md:flex-row gap-[40px]">
-            <span class="close absolute -top-10 -right-4 text-red-600 font-bold text-[50px] cursor-pointer">&times;</span>
+            <span class="close absolute -top-10 -right-4 text-red-600 font-bold text-[50px] cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
             {{-- drop file area --}}
             <div class="w-full lg:w-full h-full overflow-y-hidden">
                 <h1 class="text-center text-[25px] font-bold">Upload Acknowledgment Receipt</h1>
@@ -231,7 +243,7 @@
     {{-- Add Multiple Stocks --}}
     <div id="addmultiplestock" class="hidden bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
-            <span onclick="closeaddmultiplestock()" class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8">&times;</span>
+            <span onclick="closeaddmultiplestock()" class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
             {{-- Form Multiple add stock--}}
             <form id="addmultiplestockform" action="{{ route('admin.inventory.store') }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  

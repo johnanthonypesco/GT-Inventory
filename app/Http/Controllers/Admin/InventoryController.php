@@ -10,15 +10,17 @@ use Illuminate\Http\Request;
 class InventoryController extends Controller
 {
 
-    public function showInventory($searched_name = null, $form_data = null)
+    public function showInventory($searched_name = null, $form_data = null, $search_type = null)
     {
         return view('admin.inventory', [
             'products' => Product::all(),
-            'inventories' => $form_data ? $form_data : Inventory::with('product')->select()->get(),
+            'registeredProducts' => $search_type === 'product' ? $form_data : Product::all(),
+            
+            'inventories' => $search_type === 'stock' ? $form_data : Inventory::with('product')->select()->get(),
 
-            'current_search' => $searched_name,
+            'currentSearch' => ['query' => $searched_name, 'type' => $search_type],
 
-            // for the inventory notifications
+            // for the inventory stock notifications
             'stockMonitor' => Inventory::has('product') 
             ->with('product')->get() // gets the product data
             ->groupBy(function ($inventory) { // groups data by generic name
@@ -36,24 +38,50 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function searchInventory(Request $request) {
+    public function searchInventory(Request $request, $type) {
         $validated = $request->validate([
             'search' => 'string|min:5|required',
         ]);
 
         $validated = array_map('strip_tags',$validated);
 
+        // splits up the string and returns an array
         $validated = explode(' - ',$validated['search']);
 
-        // makes the where query on the Products table instead of the Inventory table
-        $result = Inventory::with('product')
-        ->whereHas('product', function ($query) use ($validated) {
-            $query->where('generic_name', '=', $validated[0])
-            ->where('brand_name', '=', $validated[1]);
-        })
-        ->get();
+        if($type === "stock") {
+            // makes the where query on the Products table instead of the Inventory table
+            $result =  Inventory::with('product')
+            ->whereHas('product', function ($query) use ($validated) {
+                $query->where('generic_name', '=', $validated[0])
+                ->where('brand_name', '=', $validated[1]);
+            })
+            ->get();
+    
+            return $this->showInventory($validated,$result, "stock");
+        } 
+        elseif ($type === "product") {
+            $result = Product::where('generic_name', '=', $validated[0])
+            ->where('brand_name', '=', $validated[1])
+            ->get();
+            
+            return $this->showInventory($validated, $result, 'product'); 
+        }
+    }
 
-        return $this->showInventory($validated,$result);
+    public function registerNewProduct(Request $request, Product $product){
+        $validated = $request->validate([
+            'generic_name' => 'string|min:3|max:120|nullable',
+            'brand_name' => 'string|min:3|max:120|nullable',
+            'form' => 'string|min:3|max:120|required',
+            'strength' => 'string|min:3|max:120|required',
+            'img_file_path' => 'string|min:3|nullable',
+        ]); # defense against SQL injections
+
+        $validated = array_map('strip_tags', $validated); # defense against XSS
+
+        $product->create($validated);
+
+        return to_route('admin.inventory');
     }
 
     public function addStock(Request $request, Inventory $inventory)
@@ -98,21 +126,5 @@ class InventoryController extends Controller
         $product->delete();
 
         return to_route("admin.inventory");
-    }
-
-    public function registerNewProduct(Request $request, Product $product){
-        $validated = $request->validate([
-            'generic_name' => 'string|min:3|max:120|nullable',
-            'brand_name' => 'string|min:3|max:120|nullable',
-            'form' => 'string|min:3|max:120|required',
-            'strength' => 'string|min:3|max:120|required',
-            'img_file_path' => 'string|min:3|nullable',
-        ]); # defense against SQL injections
-
-        $validated = array_map('strip_tags', $validated); # defense against XSS
-
-        $product->create($validated);
-
-        return to_route('admin.inventory');
     }
 }
