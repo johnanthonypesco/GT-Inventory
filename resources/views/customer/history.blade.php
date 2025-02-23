@@ -15,7 +15,7 @@
     <x-customer.navbar/>
 
     <main class="w-full">
-        <x-customer.header title="Order History Page" icon="fa-solid fa-clock-rotate-left"/>
+        <x-customer.header title="Order History" icon="fa-solid fa-clock-rotate-left"/>
         
         {{-- Table for Order --}}
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
@@ -122,4 +122,4 @@
 </body>
 </html>
 
-<script src="{{ asset('js/order.js') }}"></script>
+<script src="{{ asset('js/history.js') }}"></script>

@@ -16,7 +16,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-full">
-        <x-admin.header title="Order History Page" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Order History" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}
         <div class="mt-10 flex flex-col md:flex-row justify-between">
@@ -60,7 +60,7 @@
         {{-- View Order Modal --}}
         <div id="order-modal" class="order-modal hidden bg-black/60 fixed top-0 left-0 pt-[70px] w-full h-full px-4" id="order-modal">
             <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
+                <x-modalclose click="closeOrderModal"/>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
                 {{-- Name of Selected Customer --}}

@@ -1,4 +1,4 @@
-<nav class="h-[93vh] hidden lg:flex flex-col p-5 w-[280px] bg-white rounded-xl">
+<nav class="h-[96vh] hidden lg:flex flex-col p-5 w-[280px] bg-white rounded-xl">
     <div class="flex flex-col">
         <img src="{{ asset('image/Group 39.png') }}" alt="" class="w-[180px] self-center">
         <hr class="mt-2">
@@ -17,13 +17,5 @@
     </form>
 </nav>
 
-<script>
-    var currentLocation = window.location.href;
-    var navLinks = document.querySelectorAll("nav a");
-    navLinks.forEach(function (link) {
-        if (link.href === currentLocation) {
-            link.classList.add("active");
-        }
-    });
-</script>
+<script src="{{ asset('js/customer/navbar.js') }}"></script>
 

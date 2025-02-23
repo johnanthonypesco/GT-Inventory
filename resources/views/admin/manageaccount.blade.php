@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -23,32 +25,15 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-[82%] md:w-full">
-        <header class="flex justify-between py-2 px-5 items-center">
-            <div>
-                <h1 class="font-bold text-lg flex gap-2 items-center uppercase">
-                    <i class="fa-solid fa-bars-progress text-xl"></i> Manage Accounts
-                </h1>
-            </div>
-            <x-admin.burgermenu/>
-            <x-admin.header/>
-        </header>
+    <main class="md:w-full">
+        <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        @if ($errors->any())
-        <div class="bg-red-500 text-white p-2 rounded-md mb-4">
-        @foreach ($errors->all() as $e)
-                <p class="text-black"> {{ $e }} </p>
-            @endforeach
-    </div>
-        @endif
-
-        {{-- Filter & Add Account --}}
-        <div class="flex items-center md:flex-row flex-col justify-end gap-2">
-            <select id="accountFilter" class="w-full md:text-[20px] text-4xl w-[50%] md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 h-10 text-center text-[#005382] font-bold bg-white outline-none">
-                <option value="all">All Accounts</option>
-                <option value="admin">Admin</option>
-                <option value="staff">Staff</option>
-                <option value="customer">Customer</option>    
+        {{-- Filter --}}
+        <div class="flex items-center justify-end gap-2">
+            <select name="account" id="account" class="w-full md:text-[20px] text-[15px] h-fit  md:w-fit shadow-sm shadow-blue-500 p-2 rounded-lg mt-5 md:mt-9 text-center text-black font-semibold bg-white outline-none">
+                <option value="account">All Account</option>
+                <option value="account">Staff</option>
+                <option value="account">Customer</option>    
             </select>
 
             <button onclick="openAddAccountModal()" class="w-full md:text-[20px] h-fit text-4xl font-semibold text-[#005382] md:w-fit bg-white shadow-blue-500 shadow-sm p-2 rounded-lg mt-5 md:mt-9 flex items-center justify-center gap-2 hover:cursor-pointer">
@@ -72,48 +57,7 @@
             </div>
 
             <div class="table-container mt-5 overflow-auto md:h-[80%]">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Account ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($accounts as $account)
-                        <tr 
-                            data-id="{{ $account['id'] }}" 
-                            data-name="{{ $account['name'] }}" 
-                            data-username="{{ $account['username'] ?? '' }}"
-                            data-email="{{ $account['email'] }}"
-                            data-role="{{ $account['role'] }}"
-                            data-location="{{ $account['location_id'] ?? '' }}"
-                            data-jobtitle="{{ $account['job_title'] ?? '' }}"
-                            data-adminid="{{ $account['admin_id'] ?? '' }}"
-                        >
-                            <td>{{ $account['id'] }}</td>
-                            <td>{{ $account['name'] }}</td>
-                            <td>{{ $account['email'] }}</td>
-                            <td>{{ ucfirst($account['role']) }}</td>
-                            <td class="flex justify-center items-center gap-4">
-                                <button class="text-[#005382]" onclick="openEditAccountModal(this)">
-                                    <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
-                                </button>
-                                <form method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500" onclick="return confirm('Are you sure you want to delete this account?')">
-                                        <i class="fa-solid fa-trash mr-2"></i> Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <x-table :headings="['Account Id', 'Customer Name', 'Username', 'Password', 'Action']" category="manageaccount"/>
             </div>
         </div>
         {{-- End Table for Account List --}}
@@ -394,4 +338,5 @@
 
 
 
+<script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
 </html>

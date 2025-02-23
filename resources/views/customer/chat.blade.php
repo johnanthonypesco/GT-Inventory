@@ -13,7 +13,7 @@
     <x-customer.navbar />
 
     <main class="w-full">
-        <x-customer.header title="Chat Page" icon="fa-solid fa-message"/>
+        <x-customer.header title="Chat" icon="fa-solid fa-message"/>
         
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
         <div class="flex flex-col lg:flex-row gap-5">

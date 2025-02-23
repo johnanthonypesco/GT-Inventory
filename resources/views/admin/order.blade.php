@@ -20,11 +20,11 @@
 
 
         {{-- Total Container --}}
-        <div class="mt-3 flex flex-wrap gap-2 lg:gap-10">
-            <x-countcard title='Total Orders' image="image (3).png" />
-            <x-countcard title='Complete Orders' image="image (4).png" />
-            <x-countcard title='Cancelled Orders' image="image (5).png" />
-            <x-countcard title='Pending Orders' image="image (6).png" />
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <x-countcard title='Total Orders' image="stocks.png" count="10"/>
+            <x-countcard title='Complete Orders' image="complete.png" count="20"/>
+            <x-countcard title='Cancelled Orders' image="cancel.png" count="20"/>
+            <x-countcard title='Pending Orders' image="pending.png" count="20"/>
         </div>
         {{-- Total Container --}}
 
@@ -60,7 +60,7 @@
         {{-- View Order Modal --}}
         <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full items-center justify-center px-4" id="order-modal">
             <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <span onclick="closeOrderModal()" class="modal-close absolute -top-9 -right-4 text-red-600 font-bold text-[40px] sm:text-[50px] cursor-pointer">&times;</span>
+                <x-modalclose id="order-modal-close" click="closeOrderModal"/>
                 {{-- Name of Selected Customer --}}
                 <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
                 {{-- Name of Selected Customer --}}
@@ -111,7 +111,7 @@
         {{-- Add New Order Modal --}}
         <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
-                <span onclick="closeaddneworder()" class="cursor-pointer absolute -top-9 -right-4 text-red-600 font-bold text-[50px]">&times;</span>
+                <x-modalclose id="addneworderclose" click="closeaddneworder"/>
                 <h1 class="text-[18px] text-[#005382] font-bold">Add New Order</h1>
 
                 <form action="" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5">

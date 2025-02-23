@@ -15,7 +15,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-full">
-        <x-admin.header title="Chat Page" icon="fa-solid fa-message" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Chat" icon="fa-solid fa-message" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="mt-3 flex flex-col lg:flex-row justify-center w-full gap-5">
             <div class="lg:w-[45%] w-full">

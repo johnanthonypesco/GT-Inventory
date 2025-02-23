@@ -1,4 +1,5 @@
 function sidebar() {
+    event.preventDefault();
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.toggle('left-0')
     sidebar.classList.toggle('w-[300px]')
@@ -18,6 +19,7 @@ navLinks.forEach(function(link) {
         link.classList.add('active');
     }
 });
+
 navicons.forEach(function(icon) {
     if (icon.parentElement.href === currentLocation) {
         icon.classList.add('text-white');

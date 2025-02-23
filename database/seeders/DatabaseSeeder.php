@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         // ✅ Seed Super Admin
         $this->call(SuperAdminSeeder::class);
+        $this->call(LocationSeeder::class);
 
         // // ✅ Seed Test User
         // if (!User::where('email', 'test@example.com')->exists()) {

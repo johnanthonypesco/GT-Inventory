@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <title>Manage Account</title>
@@ -13,7 +15,7 @@
     <x-customer.navbar/>
 
     <main class="w-full">
-        <x-customer.header title="Manage Account Page" icon="fa-solid fa-gear"/>
+        <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
         
         <div class="mt-5">
             <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
@@ -40,14 +42,14 @@
                 <span onclick="closeeditaccount()" class="cursor-pointer absolute -top-10 -right-3 text-red-600 font-bold text-[50px]">&times;</span>
                 <p class="text-xl font-semibold text-center text-[#005382]">Edit Account</p>
                 {{-- Form --}}
-                <form action="">
+                <form action="" id="editaccountform">
                     <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-5" disabled/>
                     <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-5"/>
                     <x-label-input label="Account Password" type="password" id="modalpassword" for="password" value="jewelmatapang" divclass="mt-5 relative">
                         <x-view-password onclick="modalpassword()"/>
                     </x-label-input>
 
-                    <x-submit-button/>
+                    <x-submit-button id="editaccountBtn"/>
                 </form>
                 {{-- Form --}}
             </div>
@@ -57,4 +59,5 @@
 </body>
 </html>
 
-<script src="{{ asset('js/customeraccount.js') }}"></script>
+<script src="{{ asset('js//customer/customeraccount.js') }}"></script>
+<script src="{{ asset('js/customer/sweetalert/editaccount.js') }}"></script>

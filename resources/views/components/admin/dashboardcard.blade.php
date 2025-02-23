@@ -1,11 +1,11 @@
-@props(['count' => 0, 'title'=> 'Total Stocks', 'image' => 'image.png'])
+@props(['image' => 'image.png', 'title' => 'Total Orders', 'count' => 00])
 
-<div  id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
+<div id="card" class="cursor-pointer shadow-lg bg-white w-full p-10 rounded-xl">
     <div class="flex items-center justify-between">
         <p class="text-3xl">0{{$count}}</p>
-        <img src="{{asset ('image/'. $image)}}" alt="">
+        <img src="{{asset ('image/'. $image)}}" class="w-10">
     </div>
-    <p class="text-xl font-semibold">{{$title}}</p>
+    <p class="text-xl font-semibold mt-2">{{$title}}</p>
 </div>
 
 <style>

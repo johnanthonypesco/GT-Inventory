@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <title>Order</title>
@@ -13,7 +15,7 @@
     <x-customer.navbar />
 
     <main class="w-full">
-        <x-customer.header title="Make an Order Page" icon="fa-solid fa-cart-shopping"/>
+        <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">
             <!-- Available Products -->
@@ -41,7 +43,7 @@
                         <div class="self-start mt-4 lg:mt-0 lg:self-end">
                             <p class="font-semibold flex gap-5">
                                 <span class="text-[#005382]">Price:</span> 
-                                <span class="product-price">$10000</span>
+                                <span class="product-price">₱10000</span>
                             </p>
                             <!-- Quantity Input -->
                             <div class="flex gap-2 mt-2">
@@ -55,7 +57,7 @@
             </div>
         
             <!-- Summary of Orders -->
-            <div class="w-full sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-xl">
+            <form action="" id="ordersummaryform" class="w-full sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-xl">
                 <h1 class="hidden lg:block text-center font-semibold text-2xl mb-5">Summary of Orders</h1>
                 <div id="order-summary" class="hidden lg:block h-[30vh] lg:h-[45vh] overflow-y-auto">
                     <!-- Orders will be appended here -->
@@ -64,51 +66,13 @@
                 <hr class="hidden lg:block my-5">
         
                 <div class="flex justify-between gap-20 lg:gap-0 lg:flex-col items-center lg:items-start">
-                    <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">$0</span></h1>
-                    <button class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
+                    <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">₱0</span></h1>
+                    <button type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
                 </div>
-            </div>
+            </form>
         </div>      
     </main>
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const forms = document.querySelectorAll(".product-form");
-        const orderSummary = document.getElementById("order-summary");
-        const subtotalElement = document.getElementById("subtotal");
-        let subtotal = 0;
-
-        forms.forEach(form => {
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-
-                const productName = form.querySelector(".product-name").textContent;
-                const price = parseInt(form.querySelector(".product-price").textContent.replace("$", ""));
-                const quantity = parseInt(form.querySelector(".quantity").value);
-                const total = price * quantity;
-
-                const orderItem = document.createElement("div");
-                orderItem.classList.add("flex", "justify-between", "mt-2");
-                orderItem.innerHTML = `
-                    <h1 class="text-sm font-semibold w-[60%]">${productName} x ${quantity}</h1>
-                    <p class="text-sm font-semibold">Price: $${total}</p>
-                `;
-
-                orderSummary.appendChild(orderItem);
-
-                subtotal += total;
-                subtotalElement.textContent = `$${subtotal}`;
-            });
-        });
-    });
-
-
-    var currentLocation = window.location.href;
-    var navLinks = document.querySelectorAll("nav a");
-    navLinks.forEach(function (link) {
-        if (link.href === currentLocation) {
-            link.classList.add("active");
-        }
-    });
-</script>
+<script src="{{ asset('js/customer/order.js') }}"></script>
+<script src="{{ asset('js/customer/sweetalert/order.js') }}"></script>
 </html>

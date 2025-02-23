@@ -16,7 +16,7 @@
     <x-admin.navbar/>
 
     <main class="md:w-full">
-        <x-admin.header title="Product Deals Page" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
@@ -41,8 +41,8 @@
     {{-- View Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewproductlisting">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeproductlisting()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer">&times;</span>
-            <div class="flex justify-between items-center">
+            <x-modalclose click="closeproductlisting"/>
+            <div class="flex flex-col md:flex-row md:justify-between items-center">
                 <h1 class="text-3xl font-semibold text-[#005382]">Jewel Velasquez</h1>
                 {{-- Button for Search --}}
                 <div class="w-full md:w-[35%] relative">
@@ -52,7 +52,7 @@
                 {{-- Button for Search --}}           
             </div>
             {{-- Table for all products --}}
-            <div class="table-container mt-5 overflow-auto h-[80%]">
+            <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
                 <table>
                     <thead>
                         <tr>
@@ -92,27 +92,25 @@
     {{-- Modal for Add Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
         <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeaddproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+            <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
             <form action="" class="h-[75%]" id="addproductlistingform">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
 
                 <div class="h-full overflow-auto">
                     <div>
-                        <label for="customername" class="text-lg font-semibold text-black/80">Customer Name:</label>
-                        <input type="text" name="customername" placeholder="Enter Customer Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1" value="Jewel Velasquez" disabled>
+                        <x-label-input label="Customer Name" name="customername" type="text" for="customername" divclass="mt-5" placeholder="Enter Customer Name" value="Jewel Velasquez" disabled/>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2" id="addmoreproductlist">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 relative" id="addmoreproductlist">
                         <div>
-                            <label for="product" class="text-lg font-semibold text-black/80">Product Name:</label>
-                            <input type="text" name="product" placeholder="Enter Product Name" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
+                            <x-label-input label="Product Name" name="product" type="text" for="product" placeholder="Enter Product Name"/>
                         </div>
                         <div>
-                            <label for="productprice" class="text-lg font-semibold text-black/80">Product Price:</label>
-                            <input type="text" name="productprice" placeholder="Enter Price Price" class="w-full p-2 outline-none border border-[#005382] rounded-lg mt-1">
+                            <x-label-input label="Product Price" name="productprice" type="text" for="productprice" placeholder="Enter Product Price"/>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="flex justify-between absolute bottom-0 w-full left-0 pb-5 h-fit px-10">
@@ -128,7 +126,7 @@
     {{-- Edit Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="editproductlisting">
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeeditproductlisting()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+            <x-modalclose click="closeeditproductlisting"/>
             {{-- Form --}}
             <form action="" id="editproductlistingform">
                 <h1 class="text-center font-bold text-3xl text-[#005382]">Edit Product</h1>

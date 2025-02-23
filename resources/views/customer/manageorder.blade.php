@@ -14,7 +14,7 @@
     <x-customer.navbar/>
 
     <main class="w-full">
-        <x-customer.header title="Manage Order Page" icon="fa-solid fa-list-check"/>
+        <x-customer.header title="Manage Order" icon="fa-solid fa-list-check"/>
         
         <div class="bg-white mt-5 p-5 rounded-lg ">
             <x-input name="search" placeholder="Search Order by Order ID" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>

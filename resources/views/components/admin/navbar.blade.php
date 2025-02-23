@@ -1,6 +1,6 @@
 <nav class="md:w-[18%] w-full hidden md:flex flex-col p-3">
     <div class="p-3 flex flex-col">
-        <img src="{{asset ('image/Group 39.png')}}" alt="" class="w-[180px] self-center">
+        <img src="{{asset ('image/Logowname.png')}}" alt="" class="w-[180px] self-center">
         <hr class="mt-2">
     </div>
 
