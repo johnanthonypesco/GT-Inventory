@@ -48,7 +48,7 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 // ADMIN ROUTES
 
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
-Route::post('admin/inventory', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
+Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
 Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
 Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
 

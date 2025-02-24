@@ -4,10 +4,18 @@
     'inputclass'=>'', 
     'divclass'=>'', 
     'labelclass'=>'',
+    'errorChecker' => null,
 ])
 
 <div class="{{$divclass}}">
-    <label for="{{$for}}" class="text-black/80 font-semibold text-md tracking-wide {{$labelclass}}">{{$label}}</label>
-    <input class="w-full p-2 border border-[#005382] rounded-lg {{$inputclass}}" {{$attributes}}>
+    <label for="{{$for}}" class="text-black/80 font-semibold text-md tracking-wide {{$labelclass}}">
+        {{$label}} 
+        @if ($errorChecker !== null)
+            <span class="text-red-600">
+                {{ str_replace(['_', '.0'], ' ', $errorChecker) }}
+            </span>
+        @endif
+    </label>
+    <input required class="w-full p-2 rounded-lg {{$inputclass}}" {{$attributes}}>
     {{$slot}}
 </div>

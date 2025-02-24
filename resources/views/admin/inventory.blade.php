@@ -181,7 +181,11 @@
     {{-- Modal for View All Products --}}
 
     {{-- Modal for Register New Product --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
+    @php
+        $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength']);
+    @endphp
+
+    <div class="w-full {{ $failedToRegister ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
             {{-- Form for register new product --}}
@@ -189,10 +193,13 @@
                 @csrf
 
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Username"/>
-                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Account Name"/>
-                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative"/>
-                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative"/>
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Username" value="{{ old('generic_name') }}" :errorChecker="$errors->first('generic_name')"/>
+
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Account Name" value="{{ old('brand_name') }}" :errorChecker="$errors->first('brand_name')"/>
+
+                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form') }}" :errorChecker="$errors->first('form')"/>
+
+                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative" value="{{ old('strength') }}" :errorChecker="$errors->first('strength')"/>
 
                 <x-submit-button id="addproductBtn"/>
             </form>
@@ -202,20 +209,24 @@
     {{-- Modal for Register New Product --}}
 
     {{-- Add stock to specific product --}}
-    <div id="addstock" class="bg-black/70 hidden fixed w-full h-full top-0 left-0 z-10 p-10">
+    @php
+        $failedToAddStock = session('stockFailType') === 'single' ? true : false;
+    @endphp
+
+    <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 z-10 p-10">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
             <span class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]" onclick="closeaddstock()">&times;</span>
             <h1 class="text-[#005382] text-xl font-bold">
-                Add Stock in: <span id="single_add_name" class="text-black"> No Name Inserted </span>
+                Add Stock in: <span id="single_add_name" class="text-black"> Current Product </span>
             </h1>
-            <form action="{{ route('admin.inventory.store') }}" method="POST" id="addspecificstock">
+            <form action="{{ route('admin.inventory.store', ['addType' => 'single']) }}" method="POST" id="addspecificstock">
                 @csrf
                 
-                <input type="hidden" id="single_product_id" name="product_id[]">
+                <input type="hidden" id="single_product_id" value="{{ $failedToAddStock ? old('product_id.0') : '' }}" name="product_id[]">
 
-                <x-label-input label="Batch Number:" id="single_batch_number" name="batch_number[]" type="text" for="batch_number" divclass="mt-5" placeholder="Enter Batch Number"/>
-                <x-label-input label="Quantity:" id="single_quantity" name="quantity[]" type="number" for="quantity" divclass="mt-5" placeholder="Enter Quantity"/>
-                <x-label-input label="Expiry Date:" id="single_expiry" name="expiry_date[]" type="text" for="expiry_date" divclass="mt-5" placeholder="Enter Expiry Date"/>
+                <x-label-input label="Batch Number:" id="single_batch_number" name="batch_number[]" type="text" for="batch_number" divclass="mt-5" placeholder="Enter Batch Number" value="{{ $failedToAddStock ? old('batch_number.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('batch_number.0') : null}}" />
+                <x-label-input label="Quantity:" id="single_quantity" name="quantity[]" type="number" for="quantity" divclass="mt-5" placeholder="Enter Quantity" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('quantity.0') : null }}" />
+                <x-label-input label="Expiry Date:" id="single_expiry" name="expiry_date[]" type="text" for="expiry_date" divclass="mt-5" placeholder="Enter Expiry Date" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('expiry_date.0') : null }}" />
                 <x-submitbutton id="addstockBtn"/>
             </form>
         </div>
@@ -245,12 +256,47 @@
     {{-- SCan Receipt --}}
 
     {{-- Add Multiple Stocks --}}
-    <div id="addmultiplestock" class="hidden bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed">
+    @php
+        $addMultiStockFailed = session('stockFailType') === 'multiple' ? true : false;
+    @endphp
+
+    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
             <span onclick="closeaddmultiplestock()" class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
+
+            {{-- DISPLAY ERRORS MODAL --}}
+            @if ($addMultiStockFailed)
+                <div class="bg-white p-5 m-auto rounded-lg w-fit z-50 border-1 border-rose-400 animate-pulse">
+                    @php
+                        $hasBeenPrinted = [];
+                    @endphp
+    
+                    @foreach ($errors->all() as $error)
+                        @php
+                            // will create a string with no underscores or any indexes attached
+                            $cleanedString = preg_replace(['/[_]/', '/\.\d+/'], ' ', $error);
+                        @endphp
+    
+                        @if (in_array($cleanedString, $hasBeenPrinted)) {{-- skips the printed errors --}}
+                            @continue
+                        @endif
+    
+                        <p class="text-rose-600">
+                            {{$cleanedString}}
+                        </p>               
+    
+                        @php // pushes the string in the array
+                            $hasBeenPrinted[] = $cleanedString;
+                        @endphp
+                    @endforeach
+                </div>
+            @endif
+            {{-- DISPLAY ERRORS MODAL --}}
+
+
             {{-- Form Multiple add stock--}}
-            <form id="addmultiplestockform" action="{{ route('admin.inventory.store') }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  
+            <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  
                 @csrf
 
                 <div class="flex gap-2 mt-2">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class InventoryController extends Controller
 {
@@ -84,15 +85,25 @@ class InventoryController extends Controller
         return to_route('admin.inventory');
     }
 
-    public function addStock(Request $request, Inventory $inventory)
+    public function addStock(Request $request, $addType = null)
     {
-        $validated = $request->validate([
-            'batch_number.*' => 'string|required',
+        // I'm using Validator to differentiate the two types of add stock forms, para mahiwalay yung re-popup.
+        $validator = Validator::make($request->all(), [
+            'batch_number.*' => 'string|min:3|required',
             'product_id.*' => 'integer|min:1|required|exists:products,id',
-            'expiry_date.*' => 'string|max:120|required',
-            'quantity.*' => 'integer|min:1|required',
+            'expiry_date.*' => 'string|min:3|max:30|required',
+            'quantity.*' => 'integer|min:1|max:100000|required',
             'img_file_path.*' => 'string|min:3|nullable',
         ]); # defense against SQL injections
+
+        if($validator->fails()) {
+            return back()
+            ->withErrors($validator) // allows us to use $errors
+            ->withInput() // allows us to use old()
+            ->with('stockFailType', $addType); // allows us to use session('stockFailType')
+        }
+
+        $validated = $validator->validated(); // returns the validated values
 
         // this is anti-XSS if the validated array is one dimensional:
         // $validated = array_map('strip_tags', $validated); # defense against XSS

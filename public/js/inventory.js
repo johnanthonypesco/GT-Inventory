@@ -80,6 +80,12 @@ function addstock(product_id, product_name) {
 }
 function closeaddstock() {
     var addstock = document.getElementById("addstock");
+
+    document.getElementById('single_product_id').value = "";
+    document.getElementById('single_batch_number').value = "";
+    document.getElementById('single_quantity').value = "";
+    document.getElementById('single_expiry').value = "";
+
     addstock.style.display = "none";
 }
 function addmultiplestock() {
