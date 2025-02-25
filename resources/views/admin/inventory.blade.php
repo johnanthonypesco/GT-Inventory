@@ -50,10 +50,10 @@
         @endphp
 
         {{-- Total Container --}}
-        <div class="mt-3 flex gap-5 flex-wrap">
-            <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttontype="in-stock" />
-            <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="image (1).png" buttontype="low-stock" />
-            <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="image (2).png" buttontype="out-stock" />
+        <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
+            <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
+            <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
+            <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
         </div>
         {{-- Total Container --}}
 
@@ -117,9 +117,9 @@
     </main>
 
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ request()->is('admin/inventory/search/product') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ request()->is('admin/inventory/search/product') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span id="viewallproductclose" class="text-6xl font-bold text-red-600 cursor-pointer absolute -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]" onclick="closeviewallproduct()">&times;</span>
+            <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
 
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
@@ -187,7 +187,7 @@
 
     <div class="w-full {{ $failedToRegister ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <span onclick="closeregisterproductmodal()" class="absolute text-6xl text-red-500 font-bold -right-4 -top-8 cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
+            <x-modalclose click="closeregisterproductmodal"/>
             {{-- Form for register new product --}}
             <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" class="px-4">
                 @csrf
@@ -215,7 +215,7 @@
 
     <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 z-10 p-10">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
-            <span class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]" onclick="closeaddstock()">&times;</span>
+            <x-modalclose click="closeaddstock"/>
             <h1 class="text-[#005382] text-xl font-bold">
                 Add Stock in: <span id="single_add_name" class="text-black"> Current Product </span>
             </h1>
@@ -234,9 +234,9 @@
     {{-- Add stock to specific product --}}
 
     {{--  Scan Receipt--}}
-    <div class="addmodal hidden fixed bg-black w-full h-full top-0 left-0 px-[50px]" id="addmodal">
+    <div class="addmodal hidden fixed bg-black w-full h-full p-10 top-0 left-0 px-[50px]" id="addmodal">
         <div class="modal addmodal-content relative bg-white w-full lg:w-[40%] p-5 rounded-lg mx-auto mt-20 flex flex-col md:flex-row gap-[40px]">
-            <span class="close absolute -top-10 -right-4 text-red-600 font-bold text-[50px] cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
+            <x-modalclose class="close"/>
             {{-- drop file area --}}
             <div class="w-full lg:w-full h-full overflow-y-hidden">
                 <h1 class="text-center text-[25px] font-bold">Upload Acknowledgment Receipt</h1>
@@ -262,7 +262,7 @@
 
     <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
-            <span onclick="closeaddmultiplestock()" class="absolute text-6xl font-bold text-red-600 cursor-pointer -right-4 -top-8 bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
+            <x-modalclose click="closeaddmultiplestock"/>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
 
             {{-- DISPLAY ERRORS MODAL --}}

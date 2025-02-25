@@ -1,10 +1,9 @@
 @props(['count' => 0, 'title'=> 'Total Stocks', 'image' => 'image.png', 'buttontype '=> 'in-stock', 'buttonType' => 'in-stock'])
 
-<div onclick="showStockModals('{{ $buttontype }}')" class="item-container flex gap-2 md:gap-5 sm:w-[250px] w-full p-8 sm:h-auto rounded-lg bg-white relative hover:outline hover:outline-3 hover:outline-blue-600 hover:cursor-pointer transition-all duration-100">
-    <div class="flex flex-col">
-        <p class="text-md sm:text-2xl">{{$count}}</p>
-        <p class="font-bold mt-2">{{$title}}</p>
-        <x-stock-overview-btn  buttonType="{{$buttontype}}" />
+<div onclick="showStockModals('{{$buttonType}}')" id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
+    <div class="flex items-center justify-between">
+        <p class="text-3xl">0{{$count}}</p>
+        <img src="{{asset ('image/'. $image)}}" alt="">
     </div>
     <p class="text-xl font-semibold">{{$title}}</p>
 </div>

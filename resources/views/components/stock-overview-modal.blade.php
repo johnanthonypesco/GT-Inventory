@@ -4,7 +4,7 @@
 
 <div id="{{$modalType}}-modal" class="w-full h-full fixed pt-20 bg-black/70 top-0 left-0 z-20 hidden">
     <div class="modal flex flex-col gap-5 mx-auto h-fit z-10  bg-white p-5 w-full lg:w-[60%] transition-all relative rounded-lg">
-        <span onclick="showStockModals('{{ $modalType }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer bg-white rounded-xl px-4 border-4 border-red-400 hover:text-white hover:bg-red-500 hover:border-black transition-all duration-[0.25s]">&times;</span>
+        <x-modalclose click="showStockModals('{{ $modalType }}')" />
         <h1 class="text-lg font-bold text-[#005382]">
             @switch($modalType)
                 @case($modalType === "in-stock")

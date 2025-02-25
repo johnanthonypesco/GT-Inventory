@@ -9,14 +9,14 @@
     <title>Super Admin Login</title>
 </head>
 <body class="bg-gray-100">
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-20 gap-5 items-center min-h-screen">
+    <div class="flex flex-col lg:flex-row p-5 lg:gap-50 gap-5 items-center min-h-screen">
         <div>
             <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
         </div>
 
         {{-- ✅ Super Admin Login Form --}}
         <form method="POST" action="{{ route('superadmin.login.store') }}" 
-              class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white shadow-lg rounded-lg">
+              class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white rounded-lg">
             @csrf {{-- ✅ Security Token --}}
 
             <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">

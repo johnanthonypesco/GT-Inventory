@@ -5,9 +5,10 @@
     'divclass'=>'', 
     'labelclass'=>'',
     'errorChecker' => null,
+    'id'=> ''
 ])
 
-<div class="{{$divclass}}">
+<div class="{{$divclass}}" id="{{$id}}">
     <label for="{{$for}}" class="text-black/80 font-semibold text-md tracking-wide {{$labelclass}}">
         {{$label}} 
         @if ($errorChecker !== null)

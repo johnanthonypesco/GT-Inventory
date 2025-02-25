@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Mail\TwoFactorCodeMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+
+class TwoFactorAuthController extends Controller
+{
+    public function index()
+    {
+        return view('auth.two-factor');
+    }
+
+    public function verify(Request $request)
+    {
+        $request->validate(['two_factor_code' => 'required|numeric']);
+    
+        // ✅ Get the user from session
+        $user = User::where('id', session('two_factor_user_id'))
+                    ->where('two_factor_expires_at', '>', now())
+                    ->first();
+    
+        if (!$user || $user->two_factor_code !== $request->two_factor_code) {
+            return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
+        }
+    
+        // ✅ Reset 2FA code after successful login
+        $user->update([
+            'two_factor_code' => null,
+            'two_factor_expires_at' => null,
+        ]);
+    
+        // ✅ Log the user in
+        Auth::login($user);
+    
+        return redirect()->intended(route('customer.manageorder', absolute: false));
+    }
+    
+
+    public function resend()
+{
+    // ✅ Get the currently stored user ID in session
+    $userId = session('two_factor_user_id');
+
+    if (!$userId) {
+        return redirect()->route('login')->withErrors(['email' => 'Session expired. Please log in again.']);
+    }
+
+    $user = User::find($userId);
+
+    if (!$user) {
+        return redirect()->route('login')->withErrors(['email' => 'User not found.']);
+    }
+
+    // ✅ Generate a new 6-digit 2FA code (convert to string for VARCHAR)
+    $newCode = (string) rand(100000, 999999);
+
+    // ✅ Save the new code and update expiration time
+    $user->two_factor_code = $newCode;
+    $user->two_factor_expires_at = now()->addMinutes(10);
+
+    // 🔥 Ensure the new code is actually saved in the database
+    if (!$user->save()) {
+        return back()->withErrors(['error' => 'Failed to generate a new 2FA code. Please try again.']);
+    }
+
+    // ✅ Resend the email with the new 2FA code
+    try {
+        Mail::to($user->email)->send(new TwoFactorCodeMail($newCode));
+    } catch (\Exception $e) {
+        return back()->withErrors(['email' => 'Failed to resend the 2FA email. Please try again later.']);
+    }
+
+    return back()->with('message', 'A new 2FA code has been sent to your email.');
+}
+}

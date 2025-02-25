@@ -4,6 +4,7 @@ use App\Http\Controllers\Export\ExportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 // Admin Controller
 use App\Http\Controllers\Admin\ChatController;
@@ -46,7 +47,7 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 
 
 // ADMIN ROUTES
-
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
 Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
 Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
@@ -72,7 +73,7 @@ Route::get('staff/order', [StaffOrderController::class, 'showOrder'])->name('sta
 Route::get('staff/chat', [StaffChatController::class, 'showChat'])->name('staff.chat');
 Route::get('staff/history', [StaffHistoryController::class, 'showHistory'])->name('staff.history');
 Route::get('staff/', [StaffLoginController::class, 'showLogin'])->name('staff.index');
-
+});
 Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
 Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
@@ -155,6 +156,13 @@ Route::middleware('auth:superadmin,admin')->group(function () {
 
     Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
 });
+
+
+Route::get('/2fa', [TwoFactorAuthController::class, 'index'])->name('2fa.verify');
+Route::post('/2fa', [TwoFactorAuthController::class, 'verify'])->name('2fa.check');
+
+Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
+
 
 // ✅ Keep Laravel Auth Routes
 require __DIR__.'/auth.php';

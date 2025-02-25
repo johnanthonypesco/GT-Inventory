@@ -94,6 +94,9 @@ header button{
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+::-webkit-search-cancel-button{
+    -webkit-appearance: none;
+}
 .modal{
     animation-name: animatetop;
     animation-duration: 0.4s;

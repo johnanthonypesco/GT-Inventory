@@ -20,6 +20,12 @@ class SuperAdminSeeder extends Seeder
                 'email' => 'romark7bayan@gmail.com',
                 'password' => Hash::make('Romark12345678!'), // Securely hash password
             ]);
+
+            SuperAdmin::create([
+                's_admin_username' => 'sigrae-super-admin',
+                'email' => 'sig@gmail.com',
+                'password' => Hash::make('12345678'), // Securely hash password
+            ]);
         }
     }
 }

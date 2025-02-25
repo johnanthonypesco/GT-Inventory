@@ -78,18 +78,35 @@
 
             {{-- manageaccount --}}
             @case($category === 'manageaccount')
-                <tr>
-                    <td>1234</td>
-                    <td>Jewel Velasquez</td>
-                    <td>jewelvelasquez</td>
-                    <td>******</td>
-                    {{-- Action --}}
-                    <td class="flex justify-center items-center gap-4">
-                        <x-editbutton onclick="editaccount()"/>
-                        <x-deletebutton route="admin.manageaccount" method="DELETE"/>
-                    </td>
-                    {{-- Action --}}
-                </tr>           
+                @foreach($variable as $account)
+                    <tr 
+                        data-id="{{ $account['id'] }}" 
+                        data-name="{{ $account['name'] }}" 
+                        data-username="{{ $account['username'] ?? '' }}"
+                        data-email="{{ $account['email'] }}"
+                        data-role="{{ $account['role'] }}"
+                        data-location="{{ $account['location_id'] ?? '' }}"
+                        data-jobtitle="{{ $account['job_title'] ?? '' }}"
+                        data-adminid="{{ $account['admin_id'] ?? '' }}"
+                    >
+                        <td>{{ $account['id'] }}</td>
+                        <td>{{ $account['name'] }}</td>
+                        <td>{{ $account['email'] }}</td>
+                        <td>{{ ucfirst($account['role']) }}</td>
+                        <td class="flex justify-center items-center gap-4">
+                            <button class="text-[#005382]" onclick="openEditAccountModal(this)">
+                                <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
+                            </button>
+                            <form method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500" onclick="return confirm('Are you sure you want to delete this account?')">
+                                    <i class="fa-solid fa-trash mr-2"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
             @break
 
             {{-- history --}}
