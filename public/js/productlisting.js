@@ -1,18 +1,21 @@
 // View Product Listing
-function viewproductlisting() {
-    var viewproductlisting = document.getElementById("viewproductlisting");
+function viewproductlisting(username) {
+    var viewproductlisting = document.getElementById("view-listings-" + username);
     viewproductlisting.style.display = "block";
 }
-function closeproductlisting() {
-    var viewproductlisting = document.getElementById("viewproductlisting");
+function closeproductlisting(username) {
+    var viewproductlisting = document.getElementById("view-listings-" + username);
     viewproductlisting.style.display = "none";
 }
 // Viewe Product Listing
 
 // Modal for Add Product Listing
-function addproductlisting() {
-    var addproductlisting = document.getElementById("addproductlisting");
+function addproductlisting(customer_id) {
+    const addproductlisting = document.getElementById("addproductlisting");
+    const customer_id_input = document.getElementById("user-id");
+
     addproductlisting.style.display = "block";
+    customer_id_input.value = customer_id;
 }
 function addmoreproductlisting() {
     event.preventDefault();

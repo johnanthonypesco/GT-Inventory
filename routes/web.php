@@ -59,7 +59,10 @@ Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat'
 Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
 Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');
 
-Route::get('admin/productlisting', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
+Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
+Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
+Route::delete('admin/productlisting/{deal_id}/{user}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
+
 Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
 Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
 

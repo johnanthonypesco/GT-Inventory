@@ -1,4 +1,4 @@
-@props(['headings'=> [], 'variable' => null, 'category' =>'none' ])
+@props(['headings'=> [], 'variable' => null, 'secondaryVariable' => null,  'category' =>'none' ])
 
 <table class="w-full min-w-[600px]">
     <thead>
@@ -27,17 +27,26 @@
 
             {{-- productdeals --}}
             @case($category === 'productdeals')
-                <tr>
-                    <td>1234</td>
-                    <td>Jewel Velasquez</td>
-                    <td>20 Personalized Products</td>
-                    {{-- button for view and add --}}
-                    <td class="m-auto flex gap-4 justify-center font-semibold">
-                        <x-vieworder onclick="viewproductlisting()" name="View"/>
-                        <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting()"><i class="fa-regular fa-plus mr-1"></i>Add</button>
-                    </td>
-                    {{-- button for view and add --}}
-                </tr>
+                @foreach ($variable as $customer)
+                    <tr class="text-center">
+                        <td>{{ $customer->id }}</td>
+                        <td> {{ $customer->name }} </td>
+                        <td> 
+                            {{ array_key_exists($customer->name, $secondaryVariable->toArray()) ? count($secondaryVariable[$customer->name])  : "No " }} Personalized Products 
+                        </td>
+
+                        {{-- button for view and add --}}
+                        <td class="m-auto flex gap-4 justify-center font-semibold">
+                            @if ($secondaryVariable->get($customer->name))
+                                <x-vieworder 
+                                onclick="viewproductlisting('{{ $customer->name }}')" 
+                                name="View"
+                                />                                
+                            @endif
+                            <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting('{{ $customer->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                        </td>
+                    </tr>
+                @endforeach                
                 @break
 
             {{-- order --}}

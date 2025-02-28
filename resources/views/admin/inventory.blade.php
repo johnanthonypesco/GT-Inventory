@@ -193,9 +193,9 @@
                 @csrf
 
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Username" value="{{ old('generic_name') }}" :errorChecker="$errors->first('generic_name')"/>
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('generic_name') }}" :errorChecker="$errors->first('generic_name')"/>
 
-                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Account Name" value="{{ old('brand_name') }}" :errorChecker="$errors->first('brand_name')"/>
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('brand_name') }}" :errorChecker="$errors->first('brand_name')"/>
 
                 <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form') }}" :errorChecker="$errors->first('form')"/>
 

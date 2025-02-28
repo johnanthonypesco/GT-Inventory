@@ -17,4 +17,8 @@ class Product extends Model
     public function inventories() {
         return $this->hasMany(Inventory::class);
     }
+
+    public function exclusive_deals() {
+        return $this->hasMany(Exclusive_Deal::class);
+    }
 }

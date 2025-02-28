@@ -28,7 +28,9 @@
 
             {{-- Table for customer List --}}
             <div class="table-container mt-5 overflow-auto h-[380px]">
-                <x-table :headings="['Customer ID', 'Customer Name', 'Total Personalized Products', 'Action']" category="productdeals"/>
+                <x-table 
+                :headings="['Customer ID', 'Customer Name', 'Total Personalized Products', 'Action']" :variable="$customers" :secondaryVariable="$dealsDB" 
+                category="productdeals"/>
             </div>
             {{-- Table for customer List --}}
 
@@ -38,55 +40,85 @@
         </div>
     </main>
 
+    {{-- @php
+        dd($dealsDB['yahoo baby!']->first()->user->name);
+    @endphp --}}
+
+    
     {{-- View Product Listing --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="viewproductlisting">
-        <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <x-modalclose click="closeproductlisting"/>
-            <div class="flex flex-col md:flex-row md:justify-between items-center">
-                <h1 class="text-3xl font-semibold text-[#005382]">Jewel Velasquez</h1>
-                {{-- Button for Search --}}
-                <div class="w-full md:w-[35%] relative">
-                    <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
-                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div> 
-                {{-- Button for Search --}}           
+    @foreach ($dealsDB as $deals)
+        <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $deals->first()->user->name }}">
+            @if (session("reSummon"))
+                <script>
+                    addEventListener("DOMContentLoaded", () => {
+                        const modalLoaded = document.getElementById("view-listings-{{ session('reSummon') }}");
+                        
+                        if(modalLoaded) {
+                            modalLoaded.classList.replace('hidden', 'block');
+                        }
+                    });
+                </script>
+            @endif
+
+            <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$deals->first()->user->name"/>
+                <div class="flex flex-col md:flex-row md:justify-between items-center">
+                    <h1 class="text-3xl font-semibold text-[#005382]">
+                        Exclusive Deals: {{ 
+                            $deals->first()->user->name
+                        }}
+                    </h1>
+                    {{-- Button for Search --}}
+                    <div class="w-full md:w-[35%] relative">
+                        <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
+                        <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div> 
+                    {{-- Button for Search --}}           
+                </div>
+                {{-- Table for all products --}}
+                <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
+                    <table>
+                        <thead>
+                            <tr class="text-center">
+                                <th>Generic Name</th>
+                                <th>Brand Name</th>
+                                <th>Form</th>
+                                <th>Strength</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($deals as $deal)
+                            <tr class="text-center">
+                                <td>{{ $deal->product->generic_name }}</td>
+                                <td>{{ $deal->product->brand_name }}</td>
+                                <td>{{ $deal->product->form }}</td>
+                                <td>{{ $deal->product->strength }}</td>
+                                <td>₱ {{ number_format($deal->price) }}</td>
+                                <td>
+                                    <div class="flex gap-3 items-center justify-center text-xl">
+                                        <x-editbutton onclick="editproductlisting({{ $deal->id }})"/>
+                                        <x-deletebutton :routeid="$deal->id" 
+                                            route="admin.productlisting.destroy" 
+                                            deleteType="deleteDeal"
+                                            :variable="$deal->user->name"
+                                            method="DELETE"
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                {{-- Table for all products --}}
+                {{-- Pagination --}}
+                <x-pagination/>
+                {{-- Pagination --}}
             </div>
-            {{-- Table for all products --}}
-            <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Brand Name</th>
-                            <th>Generic Name</th>
-                            <th>Form</th>
-                            <th>Strength</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Arcemit</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/ 10ml</td>
-                            <td>₱ 1,000</td>
-                            <td>
-                                <div class="flex gap-3 items-center justify-center text-xl">
-                                    <x-editbutton onclick="editproductlisting()"/>
-                                    <x-deletebutton route="admin.productlisting" method="DELETE"/>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            {{-- Table for all products --}}
-            {{-- Pagination --}}
-            <x-pagination/>
-            {{-- Pagination --}}
         </div>
-    </div>
+    @endforeach
     {{-- VIew Product Listing --}}
 
     {{-- Modal for Add Product Listing --}}
@@ -94,20 +126,24 @@
         <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
-            <form action="" class="h-[75%]" id="addproductlistingform">
+            <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">
+                @csrf
+
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
 
                 <div class="h-full overflow-auto">
-                    <div>
-                        <x-label-input label="Customer Name" name="customername" type="text" for="customername" divclass="mt-5" placeholder="Enter Customer Name" value="Jewel Velasquez" disabled/>
-                    </div>
+                    <input type="hidden" name="user_id" id="user-id">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 relative" id="addmoreproductlist">
+                        <select name="product_id">
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}">
+                                    {{$product->generic_name}} - {{ $product->brand_name }}
+                                </option>
+                            @endforeach
+                        </select>
                         <div>
-                            <x-label-input label="Product Name" name="product" type="text" for="product" placeholder="Enter Product Name"/>
-                        </div>
-                        <div>
-                            <x-label-input label="Product Price" name="productprice" type="text" for="productprice" placeholder="Enter Product Price"/>
+                            <x-label-input label="Product's Price" name="price" type="number" for="price" placeholder="Enter Exclusive Price"/>
                         </div>
                     </div>
 

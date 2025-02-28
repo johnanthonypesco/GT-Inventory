@@ -80,4 +80,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Location::class, 'location_id');
     }
+
+    public function exclusive_deals() {
+        return $this->hasMany(Exclusive_Deal::class);
+    }
 }
