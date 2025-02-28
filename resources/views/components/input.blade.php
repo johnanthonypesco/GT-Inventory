@@ -37,7 +37,7 @@
         value="{{ $currentSearch ? $currentSearch[0] . " - " . $currentSearch[1] : '' }}"
         >
         @if ($classname)
-            <button class="absolute right-1 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl"
+            <button class="absolute bg-white right-1 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl"
             type="button"
             onclick="is_in_suggestion('{{ $id }}', 'search-options-{{ $id }}')"
             >

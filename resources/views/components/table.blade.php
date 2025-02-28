@@ -94,13 +94,13 @@
                         <td>{{ $account['email'] }}</td>
                         <td>{{ ucfirst($account['role']) }}</td>
                         <td class="flex justify-center items-center gap-4">
-                            <button class="text-[#005382]" onclick="openEditAccountModal(this)">
+                            <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
                                 <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
                             </button>
-                            <form method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
+                            <form id="deleteaccountform" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-500" onclick="return confirm('Are you sure you want to delete this account?')">
+                                <button id="deleteaccountbtn" type="button" class="text-red-500 cursor-pointer">
                                     <i class="fa-solid fa-trash mr-2"></i> Delete
                                 </button>
                             </form>
@@ -128,3 +128,5 @@
         @endswitch
     </tbody>
 </table>
+
+<script src="{{asset('js/sweetalert/deleteaccountsweetalert.js')}}"></script>

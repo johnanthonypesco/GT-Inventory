@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Manage Accounts</title>
 </head>
@@ -78,7 +77,7 @@
 
         <!-- Modal for Add Account -->
         <div id="addAccountModal" class="hidden fixed inset-0 bg-black/50 p-5 overflow-auto">
-            <div class="bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
+            <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
                 
                 <!-- Close Button -->
                 <x-modalclose click="closeAddAccountModal"/>
@@ -170,10 +169,14 @@
 
 
         <!-- Edit Account Modal -->
-        <div id="editAccountModal" class="w-full hidden bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20 flex items-center justify-center">
-            <div class="modal w-full md:w-[40%] h-fit bg-white rounded-lg relative p-10">
+        <div id="editAccountModal" class="hidden fixed inset-0 bg-black/50 p-5 overflow-auto">
+            <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
+                
+                <!-- Close Button -->
                 <x-modalclose click="closeEditAccountModal"/>
-                <form method="POST" id="editAccountForm">
+
+                <!-- Form -->
+                <form method="POST" id="editAccountForm" class="space-y-5">
                     @csrf
                     @method('POST') 
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
@@ -181,38 +184,50 @@
                     <input type="hidden" name="id" id="editId">
 
                     <!-- Account Type Selection (Disabled for Editing) -->
-                    <label for="editRole">Account Type:</label>
-                    <select name="role" id="editRole" disabled class="border border-black p-2 w-full">
-                        <option value="admin">Admin</option>
-                        <option value="staff">Staff</option>
-                        <option value="customer">Customer</option>
-                    </select>
+                    <div>
+                        <label for="editRole" class="block font-medium text-gray-700">Account Type:</label>
+                        <select name="role" id="editRole" disabled 
+                            class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="admin">Admin</option>
+                            <option value="staff">Staff</option>
+                            <option value="customer">Customer</option>
+                        </select>
+                    </div>
 
-                    <!-- Name Field (Only for Customers) -->
-                    <div class="flex flex-col gap-2">
+                    <div class="space-y-1">
+                        <!-- Name Field (Only for Customers) -->
                         <div id="editNameField" class="hidden">
-                            <label for="editName">Full Name:</label>
-                            <input class="border border-black p-2 w-full" type="text" name="name" id="editName">
+                            <label for="editName" class="block font-medium text-gray-700">Full Name:</label>
+                            <input type="text" name="name" id="editName"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
 
                         <!-- Username Field (Only for Admins and Staff) -->
                         <div id="editUsernameField" class="hidden">
-                            <label for="editUsername">Username:</label>
-                            <input class="border border-black p-2 w-full" type="text" name="username" id="editUsername">
+                            <label for="editUsername" class="block font-medium text-gray-700">Username:</label>
+                            <input type="text" name="username" id="editUsername" placeholder="Enter Username"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
 
                         <!-- Email Field -->
-                        <label for="editEmail">Email:</label>
-                        <input class="border border-black p-2 w-full" type="email" name="email" id="editEmail" required>
+                        <div>
+                            <label for="editEmail" class="block font-medium text-gray-700">Email:</label>
+                            <input type="email" name="email" id="editEmail" placeholder="Enter Email" required
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
 
                         <!-- Password Field (Optional) -->
-                        <label for="editPassword">New Password (leave blank if unchanged):</label>
-                        <input class="border border-black p-2 w-full" type="password" name="password" id="editPassword">
+                        <div>
+                            <label for="editPassword" class="block font-medium text-gray-700">New Password (leave blank if unchanged):</label>
+                            <input type="password" name="password" id="editPassword" placeholder="Enter Password"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
 
                         <!-- Location Field (Only for Staff and Customers) -->
                         <div id="editLocationField" class="hidden">
-                            <label for="editLocation">Select Location:</label>
-                            <select name="location_id" id="editLocation" class="border border-black p-2 w-full">
+                            <label for="editLocation" class="block font-medium text-gray-700">Select Location:</label>
+                            <select name="location_id" id="editLocation"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="">-- Select Location --</option>
                                 @foreach($locations as $location)
                                     <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
@@ -222,14 +237,16 @@
 
                         <!-- Job Title Field (Only for Staff) -->
                         <div id="editJobTitleField" class="hidden">
-                            <label for="editJobTitle">Job Title:</label>
-                            <input type="text" name="job_title" id="editJobTitle" class="border border-black p-2 w-full">
+                            <label for="editJobTitle" class="block font-medium text-gray-700">Job Title:</label>
+                            <input type="text" name="job_title" id="editJobTitle"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
 
-                        <!-- Admin Field (Only for Staff) -->
+                        <!-- Admin Selection Field (Only for Staff) -->
                         <div id="editAdminField" class="hidden">
-                            <label for="editAdmin">Select Admin:</label>
-                            <select name="admin_id" id="editAdmin" class="border border-black p-2 w-full">
+                            <label for="editAdmin" class="block font-medium text-gray-700">Select Admin:</label>
+                            <select name="admin_id" id="editAdmin"
+                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="">-- Select Admin --</option>
                                 @foreach($admins as $admin)
                                     <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
@@ -238,13 +255,13 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
-                        <i class="fa-solid fa-save"></i> Save Changes
-                    </button>
+                    <!-- Submit Button -->
+                    <x-submitbutton id="editaccountBtn"/>
                 </form>
             </div>
         </div>
         <!-- End Edit Account Modal -->
+
 
     </main>
 </body>

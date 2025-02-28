@@ -136,7 +136,7 @@
             </div>
 
             {{-- Table for all products --}}
-            <div class="table-container mt-5 overflow-auto h-[350px]">
+            <div class="table-container mt-5 overflow-auto h-[300px]">
                 <table>
                     <thead>
                         <tr>

@@ -27,12 +27,12 @@ function showsweetalert(form) {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, save it!'
+        confirmButtonText: 'Yes, submit it!'
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'Saved!',
-                text: 'Your Product has been successfully saved.',
+                title: 'Summited Successfully!',
+                text: 'Your Product has been successfully submitted.',
                 icon: 'success',
                 confirmButtonColor: '#3085d6'
             }).then(() => {

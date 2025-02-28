@@ -2,7 +2,7 @@ const addaccountBtn = document.getElementById('addaccountBtn');
 const editaccountBtn = document.getElementById('editaccountBtn');
 
 const addaccountform = document.getElementById('addaccountform');
-const editaccountform = document.getElementById('editaccountform');
+const editaccountform = document.getElementById('editAccountForm');
 
 addaccountBtn.addEventListener('click', () => {
     sweetalert(addaccountform);

@@ -80,6 +80,9 @@ header button{
     cursor: pointer;
     height: fit-content;
 }
+input:focus{
+    outline: 2px solid #005382;
+}
 ::-webkit-scrollbar {
     width: 10px; 
 }
@@ -94,9 +97,7 @@ header button{
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
-::-webkit-search-cancel-button{
-    -webkit-appearance: none;
-}
+
 .modal{
     animation-name: animatetop;
     animation-duration: 0.4s;
