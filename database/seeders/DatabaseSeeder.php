@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->count(10)->create();
         
         Admin::factory()->count(5)->create();
+        $this->call(StaffSeeder::class);
 
         ExclusiveDeal::factory()->count(20)->create();
         Order::factory()->count(12)->create();

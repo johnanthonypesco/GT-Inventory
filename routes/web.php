@@ -49,49 +49,47 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
-Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
-Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
-Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
-Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
+    // ONLY FOR THE ADMINS
+    Route::middleware(['auth:superadmin,admin'])->group(function () {
+        Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
+    
+        Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
+        Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
+    
+        Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
+        Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
+        Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
+    
+        Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');
+    
+        Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
+        Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
+        Route::delete('admin/productlisting/{deal_id}/{user}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
+    
+        Route::get('admin/manageaccount', [ManageaccountController::class, 'showManageaccount'])->name('admin.manageaccount');
+    });
 
+    // AVAILABLE ROUTES EVEN FOR STAFF
+    Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
+    Route::put('admin/orders/{order}', [OrderController::class, 'updateOrder'])->name('admin.order.update');
 
-Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
-Route::put('admin/orders/{order}', [OrderController::class, 'updateOrder'])->name('admin.order.update');
-
-Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
-Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
-Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');
-
-Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
-Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
-Route::delete('admin/productlisting/{deal_id}/{user}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
-
-Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
-Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
-
-Route::get('admin/manageaccount', [ManageaccountController::class, 'showManageaccount'])->name('admin.manageaccount');
-
-
-// STAFF ROUTES
-Route::get('staff/dashboard', [StaffDashboardController::class, 'showDashboard'])->name('staff.dashboard');
-Route::get('staff/inventory', [StaffInventoryController::class, 'showInventory'])->name('staff.inventory');
-Route::get('staff/order', [StaffOrderController::class, 'showOrder'])->name('staff.order');
-Route::get('staff/chat', [StaffChatController::class, 'showChat'])->name('staff.chat');
-Route::get('staff/history', [StaffHistoryController::class, 'showHistory'])->name('staff.history');
-Route::get('staff/', [StaffLoginController::class, 'showLogin'])->name('staff.index');
+    Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
+    Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
 });
+
+
+// LOGGED IN CUSTOMER ROUTES
 Route::middleware(['auth', 'verified'])->group(function () {
-Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
-Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
-Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
-Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
-Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
-Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
+    Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
+    Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
+    Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
+    Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
+    Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
+    Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
 
-Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
-Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
-Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
-
+    Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
+    Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
+    Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
 });
 
 // BREEZE AUTHERS
