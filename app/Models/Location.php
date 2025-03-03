@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Location extends Model
 {
@@ -22,7 +23,7 @@ class Location extends Model
     /**
      * Relationship: A Location has many Users (Customers).
      */
-    public function users()
+    public function users():HasMany
     {
         return $this->hasMany(User::class, 'location_id');
     }
@@ -30,8 +31,12 @@ class Location extends Model
     /**
      * Relationship: A Location has many Staff.
      */
-    public function staff()
+    public function staff(): HasMany
     {
         return $this->hasMany(Staff::class, 'location_id');
+    }
+    public function inventories(): HasMany
+    {
+        return $this->hasMany(Inventory::class);
     }
 }

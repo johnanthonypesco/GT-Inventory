@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,6 +19,7 @@ class InventoryFactory extends Factory
     public function definition(): array
     {
         return [
+            'location_id' => Location::pluck('id')->random(),
             'product_id' => Product::pluck("id")->random(),
 
             'batch_number' => strtoupper(

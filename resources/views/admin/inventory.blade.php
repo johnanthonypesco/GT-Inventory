@@ -65,11 +65,15 @@
 
         {{-- Filters Location --}}
         <div class="flex justify-between flex-col lg:flex-row mt-4">
-            <select name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
-                <option selected>All Location</option>  
-                <option>Tarlac</option>
-                <option>Cabanatuan</option>
-            </select>
+            <form action="{{ route('admin.inventory.location') }}" method="POST">
+                @csrf @method("POST")
+
+                <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
+                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>  
+                    <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
+                    <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
+                </select>
+            </form>
 
             <div class="flex gap-3 mt-2">
                 <button class="bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
@@ -78,42 +82,48 @@
         </div>
         {{-- Filters Location --}}
 
-        <div class="table-container bg-white mt-2 p-3 px-6 rounded-lg">
+        @foreach ($inventories as $inventory)
+        <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
-                {{-- Search --}}
-                <x-input name="search" 
-                placeholder="Search Product by Name"
-                classname="fa fa-magnifying-glass" 
-                divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
-                id="search-stock"
-                searchType="stock"
-                :dataList="$products"
-                :autofill="true"
-                :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
-                
-                {{-- Search --}}
-                
-                <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                    <button id="openModal" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
-                    {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
-                    <form action="{{ route('admin.inventory.export') }}" method="get">
-                        @csrf
-                        
-                        <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
-                    </form>
+                    <h1 class="text-2xl font-bold text-blue-500">
+                        {{ $inventory->first()->location->province }}
+                    </h1>
+                    
+                    {{-- Search --}}
+                    <x-input name="search" 
+                    placeholder="Search Product by Name"
+                    classname="fa fa-magnifying-glass" 
+                    divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
+                    id="search-stock"
+                    searchType="stock"
+                    :dataList="$products"
+                    :autofill="true"
+                    :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
+                    
+                    {{-- Search --}}
+                    
+                    <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
+                        <button id="openModal" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
+                        {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
+                        <form action="{{ route('admin.inventory.export') }}" method="get">
+                            @csrf
+                            
+                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Table for Inventory --}}
-            <div class="overflow-auto h-[250px] mt-5">
-                <x-table :headings="['Batch No.', 'Brand Name', 'Generic Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$inventories" category="inventory"/>
-            </div>
-            {{-- Table for Inventory --}}
+                {{-- Table for Inventory --}}
+                <div class="overflow-auto h-[250px] mt-5">
+                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$inventory" category="inventory"/>
+                </div>
+                {{-- Table for Inventory --}}
 
-            {{-- Pagination --}}
-            <x-pagination/>
-            {{-- Pagination --}}
-        </div>
+                {{-- Pagination --}}
+                <x-pagination/>
+                {{-- Pagination --}}
+            </div>
+        @endforeach
     </main>
 
     {{-- Modal for View All Products --}}
@@ -224,6 +234,14 @@
                 
                 <input type="hidden" id="single_product_id" value="{{ $failedToAddStock ? old('product_id.0') : '' }}" name="product_id[]">
 
+                <div>
+                    <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
+                    <select name="location_id[]" id="single_location_id">
+                        @foreach ($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->province }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <x-label-input label="Batch Number:" id="single_batch_number" name="batch_number[]" type="text" for="batch_number" divclass="mt-5" placeholder="Enter Batch Number" value="{{ $failedToAddStock ? old('batch_number.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('batch_number.0') : null}}" />
                 <x-label-input label="Quantity:" id="single_quantity" name="quantity[]" type="number" for="quantity" divclass="mt-5" placeholder="Enter Quantity" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('quantity.0') : null }}" />
                 <x-label-input label="Expiry Date:" id="single_expiry" name="expiry_date[]" type="date" for="expiry_date" divclass="mt-5" placeholder="Enter Expiry Date" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('expiry_date.0') : null }}" />
@@ -300,6 +318,15 @@
                 @csrf
 
                 <div class="flex gap-2 mt-2">
+                    <div>
+                        <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
+                        <select name="location_id[]" id="single_location_id">
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}">{{ $location->province }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <x-label-input label="Batch No:" name="batch_number[]" type="text" for="batch_number" divclass="w-1/2" inputclass="p-3"  placeholder="Enter Quantity"/>
                     <div class="flex flex-col w-1/2" inputclass="p-3">
                         <label for="product_id" class="text-md font-semibold">Product:</label>
@@ -327,6 +354,15 @@
                     <div class="w-full my-3 bg-blue-600 rounded-md py-1" ></div>
 
                     <div class="flex gap-2 mt-2">
+                        <div>
+                            <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
+                            <select name="location_id[]" id="single_location_id">
+                                @foreach ($locations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->province }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <x-label-input label="Batch No:" name="batch_number[]" type="text" for="batch_number" divclass="w-1/2" inputclass="p-3"  placeholder="Enter Quantity"/>
                         <div class="flex flex-col w-1/2" inputclass="p-3">
                             <label for="product_id" class="text-md font-semibold">Product:</label>

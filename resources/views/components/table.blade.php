@@ -18,8 +18,8 @@
                 @foreach ($variable as $inv)
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
-                        <td>{{ $inv->product->brand_name }}</td>
                         <td>{{ $inv->product->generic_name }}</td>
+                        <td>{{ $inv->product->brand_name }}</td>
                         <td>{{ $inv->product->form }}</td>
                         <td>{{ $inv->product->strength }}</td>
                         <td>{{ $inv->quantity }}</td>

@@ -51,7 +51,8 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     // ONLY FOR THE ADMINS
     Route::middleware(['auth:superadmin,admin'])->group(function () {
-        Route::get('admin/inventory', [InventoryController::class, 'showInventory'])->name('admin.inventory');
+        Route::get('admin/inventory/{location_filter?}', [InventoryController::class, 'showInventory'])->name('admin.inventory');
+        Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
     
         Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
         Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');

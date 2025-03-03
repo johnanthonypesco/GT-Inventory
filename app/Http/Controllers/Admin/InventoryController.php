@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
+use App\Models\Location;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,13 +12,46 @@ use Illuminate\Support\Facades\Validator;
 class InventoryController extends Controller
 {
 
-    public function showInventory($searched_name = null, $form_data = null, $search_type = null)
+    public function showInventory
+    (
+        $searched_name = null, 
+        $form_data = null, 
+        $search_type = null,
+        $location_filter = 'All',
+    )
     {
+        $inventory = Inventory::with('product')->select()->get();
+
+        switch ($location_filter) {
+            case 'Tarlac':
+                $inventory = Inventory::with('product')->where('location_id', 1)
+                ->orderBy('expiry_date', 'asc')
+                ->get()->groupBy(fn ($stock) => $stock->location_id);
+                break;
+ 
+            case 'Nueva Ecija':
+                $inventory = Inventory::with('product')->where('location_id', 2)
+                ->orderBy('expiry_date', 'asc')
+                ->get()->groupBy(fn ($stock) => $stock->location_id);
+                break;
+
+            default:
+                $inventory = Inventory::with(['product', 'location'])
+                ->orderBy('expiry_date', 'asc')
+                ->get()->groupBy(function ($stock) {
+                    return $stock->location_id;
+                });
+                break;
+        }
+
         return view('admin.inventory', [
             'products' => Product::all(),
             'registeredProducts' => $search_type === 'product' ? $form_data : Product::all(),
             
-            'inventories' => $search_type === 'stock' ? $form_data : Inventory::with('product')->select()->get(),
+            'inventories' => $search_type === 'stock' ? $form_data : $inventory,
+            'current_inventory' => $location_filter,
+
+            'locations' => Location::all(),
 
             'currentSearch' => ['query' => $searched_name, 'type' => $search_type],
 
@@ -37,6 +71,24 @@ class InventoryController extends Controller
                 ];
             }),
         ]);
+    }
+
+    public function showInventoryLocation(Request $request) {
+        $validated = $request->validate([
+            'location' => 'required|string',
+        ]);
+
+        $validated = array_map('strip_tags', $validated);
+        
+        switch ($validated['location']){
+            case 'Tarlac':
+                return $this->showInventory(location_filter:"Tarlac");
+
+            case 'Nueva Ecija':
+                return $this->showInventory(location_filter:"Nueva Ecija");
+            default:
+                return $this->showInventory(location_filter:"All");
+        }
     }
 
     public function searchInventory(Request $request, $type) {
@@ -91,7 +143,8 @@ class InventoryController extends Controller
         $validator = Validator::make($request->all(), [
             'batch_number.*' => 'string|min:3|required',
             'product_id.*' => 'integer|min:1|required|exists:products,id',
-            'expiry_date.*' => 'string|min:3|max:30|required',
+            'location_id.*' => 'integer|min:1|required|exists:locations,id',
+            'expiry_date.*' => 'date|required',
             'quantity.*' => 'integer|min:1|max:100000|required',
             'img_file_path.*' => 'string|min:3|nullable',
         ]); # defense against SQL injections
@@ -121,6 +174,7 @@ class InventoryController extends Controller
                 'batch_number' => $validated['batch_number'][$i],
                 'quantity' => $validated['quantity'][$i],
                 'expiry_date' => $validated['expiry_date'][$i],
+                'location_id' => $validated['location_id'][$i],
             ];
 
             $product = Product::findOrFail($validated['product_id'][$i]);
