@@ -21,10 +21,10 @@
 
         {{-- Total Container --}}
         <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-            <x-countcard title='Total Orders' image="stocks.png" count="10"/>
-            <x-countcard title='Complete Orders' image="complete.png" count="20"/>
-            <x-countcard title='Cancelled Orders' image="cancel.png" count="20"/>
-            <x-countcard title='Pending Orders' image="pending.png" count="20"/>
+            <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
+            {{-- <x-countcard title='Cancelled Orders' image="cancel.png" count="20"/> --}}
+            <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
+            <x-countcard title='Partially Delivered Orders' image="complete.png" :count="$currentPartials"/>
         </div>
         {{-- Total Container --}}
 
@@ -37,9 +37,9 @@
 
                 {{-- Table Button --}}
                 <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                    <button onclick="addneworder()"><i class="fa-solid fa-plus"></i>Add New Order</button>
+                    {{-- <button onclick="addneworder()"><i class="fa-solid fa-plus"></i>Add New Order</button> --}}
                     <button><i class="fa-solid fa-qrcode"></i>Scan</button>
-                    <button><i class="fa-solid fa-bars"></i>Filter</button>
+                    {{-- <button><i class="fa-solid fa-bars"></i>Filter</button> --}}
                     <button><i class="fa-solid fa-download"></i>Export</button>
                 </div>
                 {{-- Table Button --}}
@@ -47,7 +47,10 @@
 
             <div class="overflow-auto h-[270px] mt-5">
                 {{-- Table --}}
-                <x-table :headings="['Order ID', 'Customer Name', 'Date Ordered', 'Status', 'Action']" category="order"/>
+                <x-table 
+                :headings="['Order ID', 'Company', 'Customer Name', 'Date Ordered', 'Status', 'Action']" 
+                :variable="$orders"
+                category="order"/>
                 {{-- Table --}}
             </div>
             {{-- Pagination --}}
@@ -58,54 +61,75 @@
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full items-center justify-center px-4" id="order-modal">
-            <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <x-modalclose id="order-modal-close" click="closeOrderModal"/>
-                {{-- Name of Selected Customer --}}
-                <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
-                {{-- Name of Selected Customer --}}
+        @foreach ($orders as $order)
+            <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full items-center justify-center px-4" id="order-modal-{{$order->first()->id}}">
+                <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
+                    <x-modalclose id="order-modal-close" 
+                        click="closeOrderModal"
+                        closeType="orders-admin-view"
+                        :variable="$order->first()->id"
+                    />
+                    {{-- Name of Selected Customer --}}
+                    <h1 class="text-[20px] sm:text-[20px] font-regular">
+                        <span class="text-[#005382] text-[20px] font-bold mr-2">
+                            Orders of:
+                        </span>
+                        {{$order->first()->user->name}}
+                    </h1>
+                    {{-- Name of Selected Customer --}}
 
-                {{-- Order Details --}}
-                <div class="table-container overflow-y-auto mt-5">
-                    <table class="w-full">
-                        <thead>
-                            <tr>
-                                <th>Brand Name</th>
-                                <th>Generic Name</th>
-                                <th>Form</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="text-center">
-                                <td>Arcimet</td>
-                                <td>Metoclopramide 20mg/10ml</td>
-                                <td>Vials</td>
-                                <td>10</td>
-                                <td>₱ 1,000</td>
-                            </tr>
-                            <tr class="text-center">
-                                <td>Arcimet</td>
-                                <td>Metoclopramide 20mg/10ml</td>
-                                <td>Vials</td>
-                                <td>10</td>
-                                <td>₱ 1,000</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱10,000</p>
-                </div>
-                {{-- Order Details --}}
+                    {{-- Order Details --}}
+                    <div class="table-container overflow-y-auto mt-5">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Generic Name</th>
+                                    <th>Brand Name</th>
+                                    <th>Form</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $item_calc;
+                                    $total = 0;
+                                @endphp
+                                @foreach ($order as $item)
+                                    @php
+                                        $item_calc = $item->exclusive_deal->price * $item->quantity;
+                                    @endphp
 
-                {{-- Print Button --}}
-                <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
-                    <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base"><i class="fa-solid fa-qrcode"></i>Qr Code</button>
-                    <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base"><i class="fa-solid fa-print"></i>Invoice</button>
+                                    <tr class="text-center">
+                                        <td>{{ $item->exclusive_deal->product->generic_name }}</td>
+                                        <td>{{ $item->exclusive_deal->product->brand_name }}</td>
+                                        <td>{{ $item->exclusive_deal->product->form }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td>₱ {{ number_format($item_calc) }}</td>
+                                    </tr>
+                                    @php
+                                        $total += $item_calc;
+                                    @endphp
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">
+                            Grand Total: ₱ {{ number_format($total) }}
+                        </p>
+                    </div>
+                    {{-- Order Details --}}
+
+                    {{-- Print Button --}}
+                    <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
+                        <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base"><i class="fa-solid fa-qrcode"></i>Qr Code</button>
+                        @if ($order->first()->status === "completed")
+                            <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base"><i class="fa-solid fa-print"></i>Invoice</button>                            
+                        @endif
+                    </div>
+                    {{-- Print Button --}}
                 </div>
-                {{-- Print Button --}}
-            </div>
-        </div>        
+            </div>        
+        @endforeach
         {{-- View Order Modal --}}
 
         {{-- Add New Order Modal --}}

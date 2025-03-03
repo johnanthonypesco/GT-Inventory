@@ -226,7 +226,7 @@
 
                 <x-label-input label="Batch Number:" id="single_batch_number" name="batch_number[]" type="text" for="batch_number" divclass="mt-5" placeholder="Enter Batch Number" value="{{ $failedToAddStock ? old('batch_number.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('batch_number.0') : null}}" />
                 <x-label-input label="Quantity:" id="single_quantity" name="quantity[]" type="number" for="quantity" divclass="mt-5" placeholder="Enter Quantity" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('quantity.0') : null }}" />
-                <x-label-input label="Expiry Date:" id="single_expiry" name="expiry_date[]" type="text" for="expiry_date" divclass="mt-5" placeholder="Enter Expiry Date" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('expiry_date.0') : null }}" />
+                <x-label-input label="Expiry Date:" id="single_expiry" name="expiry_date[]" type="date" for="expiry_date" divclass="mt-5" placeholder="Enter Expiry Date" value="{{ $failedToAddStock ? old('quantity.0') : '' }}" errorChecker="{{ $failedToAddStock ? $errors->first('expiry_date.0') : null }}" />
                 <x-submitbutton id="addstockBtn"/>
             </form>
         </div>
@@ -318,7 +318,7 @@
                 </div>
                 <div class="flex gap-2 mt-2 mb-2">
                     <x-label-input label="Quantity:" name="quantity[]" type="number" for="quantity" divclass="w-1/2" inputclass="p-3" placeholder="Enter Quantity"/>
-                    <x-label-input label="Expiry Date:" name="expiry_date[]" type="text" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
+                    <x-label-input label="Expiry Date:" name="expiry_date[]" type="date" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
                 </div>
                 <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/>
 
@@ -346,7 +346,7 @@
                     </div>
                     <div class="flex gap-2 mt-2 mb-2">
                         <x-label-input label="Quantity:" name="quantity[]" type="text" for="quantity" divclass="w-1/2" inputclass="p-3" placeholder="Enter Quantity"/>
-                        <x-label-input label="Expiry Date:" name="expiry_date[]" type="text" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
+                        <x-label-input label="Expiry Date:" name="expiry_date[]" type="date" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
                     </div>
                     <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/>
                 </template>

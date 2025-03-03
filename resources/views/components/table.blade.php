@@ -1,4 +1,7 @@
 @props(['headings'=> [], 'variable' => null, 'secondaryVariable' => null,  'category' =>'none' ])
+@php
+    use Carbon\Carbon;
+@endphp
 
 <table class="w-full min-w-[600px]">
     <thead>
@@ -51,38 +54,48 @@
 
             {{-- order --}}
             @case($category === 'order')
-                <tr class="text-center">
-                    <td>#123456</td>
-                    <td>Jewel Velasquez</td>
-                    <td>₱ 10,000</td>
-                    <td>
-                        <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="delivered">Delivered</option>
-                        </select>
-                    </td>
-                    <td>
-                        <x-vieworder onclick="viewOrder()" name="View Order"/>
-                    </td>
-                </tr>
-                <tr class="text-center">
-                    <td>#123456</td>
-                    <td>Jewel Velasquez</td>
-                    <td>₱ 10,000</td>
-                    <td>
-                        <select name="status" id="status" class="py-1 px-2 rounded-lg border border-[#005382] outline-none">
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="delivered">Delivered</option>
-                        </select>
-                    </td>
-                    <td>
-                        <x-vieworder onclick="viewOrder()" name="View Order"/>
-                    </td>
-                </tr>
+            {{-- <script>
+                alert("{{ $errors->first("status") }}")
+            </script> --}}
+                @foreach ($variable as $order)
+                    <tr class="text-center">
+                        <td> {{ $order->first()->id }} </td>
+                        <td> {{ $order->first()->user->company->name }} </td>
+                        <td> {{ $order->first()->user->name }} </td>
+                        <td> 
+                            {{ Carbon::parse($order->first()
+                            ->date_ordered)->translatedFormat('M d, Y') 
+                            }} 
+                        </td>
+                        <td>
+                            <form action="{{ route('admin.order.update', $order->first()->id) }}" method="post">
+                                @csrf
+                                @method("PUT")
+                                
+                                <select onchange="this.form.submit()" name="status" id="status" 
+                                class="py-1 px-2 rounded-lg border-3 outline-none text-center
+                                {{
+                                    match ($order->first()->status) {
+                                        'pending' => 'border-orange-400',
+                                        'completed' => 'border-blue-500',
+                                        'partial-delivery' => 'border-purple-600',
+                                        default => 'border-black'
+                                    }
+                                }}
+                                ">
+                                    <option @selected($order->first()->status == 'pending') value="pending">Pending</option>
+                                    <option @selected($order->first()->status == 'completed') value="completed">Completed</option>
+                                    <option @selected($order->first()->status == 'cancelled') value="cancelled">Cancelled</option>
+                                    <option @selected($order->first()->status == 'partial-delivery') value="partial-delivery">Partial-Delivery</option>
+                                    <option @selected($order->first()->status == 'delivered') value="delivered">Delivered</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <x-vieworder onclick="viewOrder('{{ $order->first()->id }}')" name="View Order"/>
+                        </td>
+                    </tr>
+                @endforeach
             @break
 
             {{-- manageaccount --}}

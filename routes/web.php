@@ -56,6 +56,8 @@ Route::get('admin/inventory/export', [ExportController::class, 'export'])->name(
 
 
 Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
+Route::put('admin/orders/{order}', [OrderController::class, 'updateOrder'])->name('admin.order.update');
+
 Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
 Route::get('admin', [LoginController::class, 'showIndex'])->name('admin.index');
 Route::get('admin/history', [HistoryController::class, 'showHistory'])->name('admin.history');

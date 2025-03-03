@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -77,17 +79,21 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * ✅ Relationship: User belongs to a Location.
      */
-    public function location()
+    public function location():BelongsTo
     {
         return $this->belongsTo(Location::class, 'location_id');
     }
 
-    public function exclusive_deals() {
-        return $this->hasMany(Exclusive_Deal::class);
+    public function exclusive_deals():HasMany {
+        return $this->hasMany(ExclusiveDeal::class);
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function orders():HasMany {
+        return $this->hasMany(Order::class);
     }
 }

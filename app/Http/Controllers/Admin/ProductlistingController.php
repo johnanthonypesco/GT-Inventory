@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Exclusive_Deal;
-use App\Models\Inventory;
+use App\Models\ExclusiveDeal;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,7 +18,7 @@ class ProductlistingController extends Controller
             "customers" => $customers,
             "products" => $products,
 
-            "dealsDB" => Exclusive_Deal::with("user")->get()
+            "dealsDB" => ExclusiveDeal::with("user")->get()
             ->groupBy(function ($deal) {
                 return $deal->user->name;
             })->sortKeys(),
@@ -37,13 +36,13 @@ class ProductlistingController extends Controller
         $validated = array_map("strip_tags", $validated);
 
 
-        Exclusive_Deal::create($validated);
+        ExclusiveDeal::create($validated);
 
         return to_route('admin.productlisting');
     }
 
     public function destroyExclusiveDeal($deal_id = null, $user = null) {
-        Exclusive_Deal::findOrFail($deal_id)->delete();
+        ExclusiveDeal::findOrFail($deal_id)->delete();
 
         return to_route('admin.productlisting')->with('reSummon', $user);
     }
