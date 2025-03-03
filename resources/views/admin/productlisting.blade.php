@@ -135,13 +135,16 @@
                     <input type="hidden" name="user_id" id="user-id">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 relative" id="addmoreproductlist">
-                        <select name="product_id">
-                            @foreach ($products as $product)
-                                <option value="{{ $product->id }}">
-                                    {{$product->generic_name}} - {{ $product->brand_name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div>
+                            <label for="product_id" class="text-md font-semibold">Select Product</label>
+                            <select name="product_id" id="product_id" class="w-full p-[9.5px] outline-none border border-[#005382] rounded-lg">
+                                @foreach ($products as $product)
+                                    <option value="{{ $product->id }}">
+                                        {{$product->generic_name}} - {{ $product->brand_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div>
                             <x-label-input label="Product's Price" name="price" type="number" for="price" placeholder="Enter Exclusive Price"/>
                         </div>

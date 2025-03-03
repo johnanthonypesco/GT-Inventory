@@ -118,14 +118,14 @@
                         <div>
                             <label for="email" class="block font-medium text-gray-700">Email:</label>
                             <input type="email" name="email" required 
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Email">
                         </div>
 
                         <!-- Password Field -->
                         <div>
                             <label for="password" class="block font-medium text-gray-700">Password:</label>
                             <input type="password" name="password" required
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Password">
                         </div>
 
                         <!-- Location Field (Only for Staff and Customers) -->
@@ -144,7 +144,7 @@
                         <div id="jobTitleField" class="hidden">
                             <label for="job_title" class="block font-medium text-gray-700">Job Title:</label>
                             <input type="text" name="job_title"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Job Title">
                         </div>
 
                         <!-- Admin Selection Field -->

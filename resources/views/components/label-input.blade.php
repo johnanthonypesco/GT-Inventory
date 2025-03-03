@@ -17,6 +17,6 @@
             </span>
         @endif
     </label>
-    <input required class="w-full p-2 rounded-lg {{$inputclass}}" {{$attributes}} style="{{ $errorChecker ? 'outline: 2px solid red; border:none;' : '' }}">
+    <input required class="w-full p-2 rounded-lg border border-[#005382] {{$inputclass}}" {{$attributes}} style="{{ $errorChecker ? 'outline: 2px solid red; border:none;' : '' }}">
     {{$slot}}
 </div>
