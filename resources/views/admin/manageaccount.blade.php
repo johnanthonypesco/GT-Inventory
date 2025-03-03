@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Manage Accounts</title>
@@ -28,15 +30,15 @@
     <x-admin.navbar/>
 
     <main class="md:w-[82%] md:w-full">
-        <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" name="John Anthony Pesco" gmail="admin@gmail"/>
+        <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
 
-        @if ($errors->any())
+        {{-- @if ($errors->any())
         <div class="bg-red-500 text-white p-2 rounded-md mb-4">
         @foreach ($errors->all() as $e)
                 <p class="text-black"> {{ $e }} </p>
             @endforeach
     </div>
-        @endif
+        @endif --}}
 
         {{-- Filter & Add Account --}}
         <div class="flex items-center md:flex-row flex-col justify-end gap-2">
@@ -69,204 +71,301 @@
 
             <div class="table-container mt-5 overflow-auto md:h-[80%]">
                 <x-table :variable="$accounts" 
-                :headings="['Account Id', 'Customer Name', 'Email Address', 'Role', 'Action']" 
+                :headings="['Account Id', 'Name/Username', 'Email Address', 'Role','Company', 'Action']" 
                 category="manageaccount"/>
             </div>
         </div>
         {{-- End Table for Account List --}}
 
         <!-- Modal for Add Account -->
-        <div id="addAccountModal" class="hidden fixed inset-0 bg-black/50 p-5 overflow-auto">
-            <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
-                
+        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 overflow-auto {{ $errors->hasBag('addAccount') ? 'block' : 'hidden' }}">    
+                    <div class="bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
+                        @if ($errors->hasBag('addAccount'))
+                        @foreach ($errors->getBag('addAccount')->all() as $error)
+                            <p class="text-red-500 text-xs italic">{{ $error }}</p>
+                        @endforeach
+                    @endif
                 <!-- Close Button -->
                 <x-modalclose click="closeAddAccountModal"/>
 
                 <!-- Form -->
-                <form method="POST" action="{{ route('superadmin.account.store') }}" class="space-y-5" id="addaccountform">
-                    @csrf
-                    <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
-                    
-                    <!-- Account Type Selection -->
-                    <div>
-                        <label for="role" class="block font-medium text-gray-700">Select Account Type:</label>
-                        <select name="role" id="role" required onchange="toggleFields()" 
-                            class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">-- Select Role --</option>
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
-                            <option value="customer">Customer</option>
-                        </select>
-                    </div>
+               <!-- Form -->
+<form method="POST" action="{{ route('superadmin.account.store') }}">
+    @csrf
+    <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
 
-                    <div class="space-y-1">
-                        <!-- Name Field (Only for Customers) -->
-                        <div id="nameField" class="hidden">
-                            <label for="name" class="block font-medium text-gray-700">Full Name:</label>
-                            <input type="text" name="name" placeholder="Enter Full Name"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
+    <!-- Account Type Selection -->
+    <select name="role" id="role" required onchange="toggleFields()" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <option value="">-- Select Role --</option>
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+        <option value="customer">Customer</option>
+    </select>
+    @error('role')
+    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+    @enderror
 
-                        <!-- Username Field (Only for Admins and Staff) -->
-                        <div id="usernameField" class="hidden">
-                            <label for="username" class="block font-medium text-gray-700">Username:</label>
-                            <input type="text" name="username" placeholder="Enter Username"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
+    <!-- Name Field (Only for Customers) -->
+    <div id="nameField" style="display: none;">
+        <input type="text" name="name" placeholder="Full Name" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        @error('name', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
 
-                        <!-- Email Field -->
-                        <div>
-                            <label for="email" class="block font-medium text-gray-700">Email:</label>
-                            <input type="email" name="email" required 
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Email">
-                        </div>
+    <!-- Contact Number -->
+    <div id="contactField" style="display: none;">
+        <input type="text" name="contact_number"     placeholder="e.g., +639191234567 or 09191234567" 
+        class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        @error('contact_number', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
 
-                        <!-- Password Field -->
-                        <div>
-                            <label for="password" class="block font-medium text-gray-700">Password:</label>
-                            <input type="password" name="password" required
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Password">
-                        </div>
+    <!-- Company Selection - Only for Customers -->
+<div id="companySection" class="hidden">
+    <!-- Select Existing Company -->
+    <div id="companySelectionField">
+        <label for="company_id">Select a Company</label>
+        <select name="company_id" id="company_id" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">-- Select Existing Company --</option>
+            @foreach($companies as $company)
+                <option value="{{ $company->id }}">{{ $company->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-                        <!-- Location Field (Only for Staff and Customers) -->
-                        <div id="locationField" class="hidden">
-                            <label for="location_id" class="block font-medium text-gray-700">Select Location:</label>
-                            <select name="location_id"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                <option value="">-- Select Location --</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+    <!-- Button to Show New Company Fields -->
+    <div class="mt-2">
+        <button type="button" id="createCompanyBtn" onclick="showNewCompanyFields()" class="text-blue-600 hover:underline">
+            + Create New Company
+        </button>
+    </div>
 
-                        <!-- Job Title Field (Only for Staff) -->
-                        <div id="jobTitleField" class="hidden">
-                            <label for="job_title" class="block font-medium text-gray-700">Job Title:</label>
-                            <input type="text" name="job_title"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Job Title">
-                        </div>
+    <!-- New Company Fields (Hidden by Default) -->
+    <div id="createCompanyFields" class="hidden mt-3">
+        <label for="new_company">Company Name</label>
+        <input type="text" name="new_company" id="new_company" placeholder="Enter New Company Name"
+            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-                        <!-- Admin Selection Field -->
-                        <div id="adminField" class="hidden">
-                            <label for="admin_id" class="block font-medium text-gray-700">Select Admin:</label>
-                            <select name="admin_id" id="admin_id"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                <option value="">-- Select Admin --</option>
-                                @foreach($admins as $admin)
-                                    <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+        <label for="new_company_address" class="mt-2">Company Address</label>
+        <input type="text" name="new_company_address" id="new_company_address" placeholder="Enter Company Address"
+            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-                    <!-- Submit Button -->
-                <x-submitbutton id="addaccountBtn"/>
-                </form>
+        <button type="button" onclick="hideNewCompanyFields()" class="mt-2 text-red-500 hover:underline">Cancel</button>
+    </div>
+</div>
+
+
+    <!-- Username Field (Only for Admins and Staff) -->
+    <div id="usernameField" style="display: none;">
+        <input type="text" name="username" placeholder="Username" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        @error('username', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Email Field -->
+    <input type="email" name="email" placeholder="Email" required class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+    @error('email', 'addAccount')
+    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+    @enderror
+
+    <!-- Password Fields -->
+    <div class="relative mb-4">
+        <input type="password" id="password" name="password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <span onclick="togglePasswordVisibility('password', 'togglePasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+            <i id="togglePasswordIcon" class="far fa-eye"></i>
+        </span>
+        @error('password', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div class="relative">
+        <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        <span onclick="togglePasswordVisibility('password_confirmation', 'toggleConfirmPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+            <i id="toggleConfirmPasswordIcon" class="far fa-eye"></i>
+        </span>
+        @error('password_confirmation', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Location Field (Only for Staff and Customers) -->
+    <div id="locationField" style="display: none;">
+        <select name="location_id" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">-- Select Location --</option>
+            @foreach($locations as $location)
+                <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
+            @endforeach
+        </select>
+        @error('location_id', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Job Title Field (Only for Staff) -->
+    <div id="jobTitleField" style="display: none;">
+        <input type="text" name="job_title" placeholder="Job Title" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        @error('job_title','addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Admin Selection -->
+    <div id="adminField" style="display: none;">
+        <select name="admin_id" id="admin_id" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">-- Select Admin --</option>
+            @foreach($admins as $admin)
+                <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
+            @endforeach
+        </select>
+        @error('admin_id', 'addAccount')
+        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
+        <img src="{{ asset('image/image 51.png') }}"> Submit
+    </button>
+</form>
+
+                
             </div>
         </div>
         <!-- End Modal for Add Account -->
 
-
         <!-- Edit Account Modal -->
-        <div id="editAccountModal" class="hidden fixed inset-0 bg-black/50 p-5 overflow-auto">
-            <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-8 rounded-2xl shadow-xl relative">
-                
-                <!-- Close Button -->
-                <x-modalclose click="closeEditAccountModal"/>
-
-                <!-- Form -->
-                <form method="POST" id="editAccountForm" class="space-y-5">
-                    @csrf
-                    @method('POST') 
-                    <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
-
-                    <input type="hidden" name="id" id="editId">
-
-                    <!-- Account Type Selection (Disabled for Editing) -->
-                    <div>
-                        <label for="editRole" class="block font-medium text-gray-700">Account Type:</label>
-                        <select name="role" id="editRole" disabled 
-                            class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
-                            <option value="customer">Customer</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <!-- Name Field (Only for Customers) -->
-                        <div id="editNameField" class="hidden">
-                            <label for="editName" class="block font-medium text-gray-700">Full Name:</label>
-                            <input type="text" name="name" id="editName"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- Username Field (Only for Admins and Staff) -->
-                        <div id="editUsernameField" class="hidden">
-                            <label for="editUsername" class="block font-medium text-gray-700">Username:</label>
-                            <input type="text" name="username" id="editUsername" placeholder="Enter Username"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- Email Field -->
-                        <div>
-                            <label for="editEmail" class="block font-medium text-gray-700">Email:</label>
-                            <input type="email" name="email" id="editEmail" placeholder="Enter Email" required
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- Password Field (Optional) -->
-                        <div>
-                            <label for="editPassword" class="block font-medium text-gray-700">New Password (leave blank if unchanged):</label>
-                            <input type="password" name="password" id="editPassword" placeholder="Enter Password"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- Location Field (Only for Staff and Customers) -->
-                        <div id="editLocationField" class="hidden">
-                            <label for="editLocation" class="block font-medium text-gray-700">Select Location:</label>
-                            <select name="location_id" id="editLocation"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                <option value="">-- Select Location --</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Job Title Field (Only for Staff) -->
-                        <div id="editJobTitleField" class="hidden">
-                            <label for="editJobTitle" class="block font-medium text-gray-700">Job Title:</label>
-                            <input type="text" name="job_title" id="editJobTitle"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- Admin Selection Field (Only for Staff) -->
-                        <div id="editAdminField" class="hidden">
-                            <label for="editAdmin" class="block font-medium text-gray-700">Select Admin:</label>
-                            <select name="admin_id" id="editAdmin"
-                                class="w-full border border-[#005382] rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                <option value="">-- Select Admin --</option>
-                                @foreach($admins as $admin)
-                                    <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <x-submitbutton id="editaccountBtn"/>
-                </form>
-            </div>
+    </div>
+    <div id="editAccountModal" class="w-full bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20 items-center justify-center {{ $errors->hasBag('editAccount') ? 'block' : 'hidden' }}">
+        <div class="modal w-full md:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
+            <x-modalclose click="closeEditAccountModal"/>
+            <form method="POST" id="editAccountForm">
+                @csrf
+                @method('POST') 
+                <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
+    
+                <input type="hidden" name="id" id="editId" value="{{ old('id') }}">
+    
+                <!-- Account Type Selection (Disabled for Editing) -->
+                <select name="role" id="editRole" disabled class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="staff" {{ old('role') === 'staff' ? 'selected' : '' }}>Staff</option>
+                    <option value="customer" {{ old('role') === 'customer' ? 'selected' : '' }}>Customer</option>
+                </select>
+                <input type="hidden" name="role" id="editHiddenRole" value="{{ old('role') }}">
+    
+                <!-- Name Field (Only for Customers) -->
+                <div id="editNameField" class="hidden">
+                    <input type="text" name="name" id="editName" placeholder="Full Name" value="{{ old('name') }}" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    @error('name', 'editAccount')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <div id="editContactField" class="hidden">
+                    <input type="text" name="contact_number" id="editContact" 
+                           placeholder="e.g., +639191234567 or 09191234567" 
+                           value="{{ old('contact_number', '') }}" 
+                           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    @error('contact_number', 'editAccount')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <!-- Username Field (Only for Admins and Staff) -->
+                <div id="editUsernameField" class="hidden">
+                    <input type="text" name="username" id="editUsername" placeholder="Username" value="{{ old('username') }}" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    @error('username', 'editAccount')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <!-- Email Field -->
+                <input type="email" name="email" id="editEmail" placeholder="Email" required value="{{ old('email') }}" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                @error('email', 'editAccount')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+    
+                <!-- Password Fields -->
+                <div class="relative mb-4">
+                    <input type="password" id="editPassword" name="password" placeholder="New Password (leave blank if unchanged)" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span onclick="togglePasswordVisibility('editPassword', 'toggleEditPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                        <i id="toggleEditPasswordIcon" class="far fa-eye"></i>
+                    </span>
+                    @error('password', 'editAccount')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <div class="relative">
+                    <input type="password" id="editPasswordConfirmation" name="password_confirmation" placeholder="Confirm Password" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <span onclick="togglePasswordVisibility('editPasswordConfirmation', 'toggleEditConfirmPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                        <i id="toggleEditConfirmPasswordIcon" class="far fa-eye"></i>
+                    </span>
+                    @error('password_confirmation', 'editAccount')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <!-- Location Field (Only for Staff and Customers) -->
+                <div id="editLocationField" class="hidden">
+                    <select name="location_id" id="editLocation" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">-- Select Location --</option>
+                        @foreach($locations as $location)
+                            <option value="{{ $location->id }}" {{ old('location_id') == $location->id ? 'selected' : '' }}>
+                                {{ $location->province }}, {{ $location->city }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+    
+                <!-- Job Title Field (Only for Staff) -->
+                <div id="editJobTitleField" class="hidden">
+                    <input type="text" name="job_title" id="editJobTitle" placeholder="Job Title" value="{{ old('job_title') }}" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+    
+                <!-- Admin Field (Only for Staff) -->
+                <div id="editAdminField" class="hidden">
+                    <select name="admin_id" id="editAdmin" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">-- Select Admin --</option>
+                        @foreach($admins as $admin)
+                            <option value="{{ $admin->id }}" {{ old('admin_id') == $admin->id ? 'selected' : '' }}>
+                                {{ $admin->username }} ({{ $admin->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+    
+                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
+                    <i class="fa-solid fa-save"></i> Save Changes
+                </button>
+            </form>
+      
+    
+            
         </div>
+    </div>
         <!-- End Edit Account Modal -->
-
-
     </main>
 </body>
 
+
+
 <script>
+
+function togglePasswordVisibility(fieldId, iconId) {
+        var field = document.getElementById(fieldId);
+        var icon = document.getElementById(iconId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
     function toggleFields() {
         var role = document.getElementById("role").value;
         document.getElementById("locationField").style.display = (role === "staff" || role === "customer") ? "block" : "none";
@@ -286,6 +385,8 @@
 
         // Show "name" only for customers
         document.getElementById("nameField").style.display = (role === "customer") ? "block" : "none";
+        document.getElementById("contactField").style.display = (role === "customer") ? "block" : "none";
+
         document.querySelector("input[name='name']").required = (role === "customer");
 
         // Show "username" only for admins and staff
@@ -301,71 +402,128 @@
         document.querySelector("input[name='job_title']").required = (role === "staff");
         document.getElementById("adminField").style.display = (role === "staff") ? "block" : "none";
 
+         // Show "company selection" only for customers
+         if (role === "customer") {
+        document.getElementById("companySection").classList.remove("hidden");
+    } else {
+        document.getElementById("companySection").classList.add("hidden");
+        hideNewCompanyFields(); // Ensure new company fields are hidden if role changes
     }
+}
+
+function showNewCompanyFields() {
+    document.getElementById("createCompanyFields").classList.remove("hidden");
+    document.getElementById("companySelectionField").classList.add("hidden"); // Hide dropdown
+}
+
+function hideNewCompanyFields() {
+    document.getElementById("createCompanyFields").classList.add("hidden");
+    document.getElementById("companySelectionField").classList.remove("hidden"); // Show dropdown
+}
 </script>
 
 <script>
-    function openEditAccountModal(button) {
-        let row = button.closest("tr"); // Get the parent <tr> of the button
+   function openEditAccountModal(button) {
+    var editAccountModal = document.getElementById("editAccountModal");
+    editAccountModal.classList.replace("hidden", "block");
 
-        let id = row.getAttribute("data-id");
-        let name = row.getAttribute("data-name");
-        let username = row.getAttribute("data-username");
-        let email = row.getAttribute("data-email");
-        let role = row.getAttribute("data-role");
-        let location = row.getAttribute("data-location");
-        let jobTitle = row.getAttribute("data-jobtitle");
-        let adminId = row.getAttribute("data-adminid");
+    let row = button.closest("tr"); // Get the row of the clicked button
+    let id = row.getAttribute("data-id");
+    let name = row.getAttribute("data-name");
+    let username = row.getAttribute("data-username");
+    let email = row.getAttribute("data-email");
+    let contactNumber = row.getAttribute("data-contactnumber") || ''; // ✅ FIXED: Ensure contact number is fetched
+    let role = row.getAttribute("data-role").trim().toLowerCase(); // Ensure correct role
+    let location = row.getAttribute("data-location");
+    let jobTitle = row.getAttribute("data-jobtitle");
+    let adminId = row.getAttribute("data-adminid");
 
-        // Ensure fields exist before setting values
-        document.getElementById("editId").value = id;
-        document.getElementById("editRole").value = role;
-        document.getElementById("editName").value = name || "";
-        document.getElementById("editUsername").value = username || "";
-        document.getElementById("editEmail").value = email || "";
-        document.getElementById("editJobTitle").value = jobTitle || "";
+    console.log("Role detected:", role); // Debugging to check if role is correctly fetched
 
-        // Set selected option for "location"
-        let locationSelect = document.getElementById("editLocation");
-        if (locationSelect) {
-            for (let option of locationSelect.options) {
-                option.selected = option.value === location;
-            }
+    // Set values in modal fields
+    document.getElementById("editId").value = id;
+    document.getElementById("editName").value = name || "";
+    document.getElementById("editUsername").value = username || "";
+    document.getElementById("editEmail").value = email || "";
+    document.getElementById("editContact").value = contactNumber; // ✅ FIXED contact number population
+    document.getElementById("editJobTitle").value = jobTitle || "";
+
+
+    document.getElementById("editHiddenRole").value = role; // Set the role in the hidden input
+
+    // Set the correct role in the dropdown
+    let editRoleSelect = document.getElementById("editRole");
+    if (editRoleSelect) {
+        for (let option of editRoleSelect.options) {
+            option.selected = option.value === role;
         }
+    }
 
-        // Set selected option for "admin"
-        let adminSelect = document.getElementById("editAdmin");
-        if (adminSelect) {
-            for (let option of adminSelect.options) {
-                option.selected = option.value === adminId;
-            }
+    // Set selected option for "location"
+    let locationSelect = document.getElementById("editLocation");
+    if (locationSelect) {
+        for (let option of locationSelect.options) {
+            option.selected = option.value === location;
         }
-
-        // Update form action to match the correct update route
-        document.getElementById("editAccountForm").action = `/manageaccounts/${role}/${id}/update`;
-
-        // Show/hide fields based on role
-        toggleEditFields(role);
-
-        // Open the modal
-        let modal = document.getElementById("editAccountModal");
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
     }
 
-    function closeEditAccountModal() {
-        let modal = document.getElementById("editAccountModal");
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
+    // Set selected option for "admin"
+    let adminSelect = document.getElementById("editAdmin");
+    if (adminSelect) {
+        for (let option of adminSelect.options) {
+            option.selected = option.value === adminId;
+        }
     }
 
-    function toggleEditFields(role) {
-        document.getElementById("editNameField").classList.toggle("hidden", role !== "customer");
-        document.getElementById("editUsernameField").classList.toggle("hidden", !(role === "admin" || role === "staff"));
-        document.getElementById("editLocationField").classList.toggle("hidden", !(role === "staff" || role === "customer"));
-        document.getElementById("editJobTitleField").classList.toggle("hidden", role !== "staff");
-        document.getElementById("editAdminField").classList.toggle("hidden", role !== "staff");
+    // Ensure fields are properly displayed based on role
+    toggleEditFields(role);
+
+    // Set correct form action URL
+    document.getElementById("editAccountForm").action = `/manageaccounts/${role}/${id}/update`;
+}
+
+
+function closeEditAccountModal() {
+    var editAccountModal = document.getElementById("editAccountModal");
+    editAccountModal.classList.replace("block", "hidden");
+}
+
+function toggleEditFields(role) {
+    // Convert role to lowercase for consistency
+    role = role.toLowerCase();
+
+    // Get all fields
+    let nameField = document.getElementById("editNameField");
+    let contactField = document.getElementById("editContactField");
+    let usernameField = document.getElementById("editUsernameField");
+    let locationField = document.getElementById("editLocationField");
+    let jobTitleField = document.getElementById("editJobTitleField");
+    let adminField = document.getElementById("editAdminField");
+
+    // Reset: Hide all fields first
+    nameField.classList.add("hidden");
+    contactField.classList.add("hidden");
+    usernameField.classList.add("hidden");
+    locationField.classList.add("hidden");
+    jobTitleField.classList.add("hidden");
+    adminField.classList.add("hidden");
+
+    // Show fields based on role
+    if (role === "customer") {
+        nameField.classList.remove("hidden");  // Show Full Name for customers
+        contactField.classList.remove("hidden"); // Show Contact Number for customers
+        locationField.classList.remove("hidden");  // Show Location for customers
+    } else if (role === "staff") {
+        usernameField.classList.remove("hidden"); // Show Username for staff
+        locationField.classList.remove("hidden"); // Show Location for staff
+        jobTitleField.classList.remove("hidden"); // Show Job Title for staff
+        adminField.classList.remove("hidden"); // Show Admin selection for staff
+    } else if (role === "admin") {
+        usernameField.classList.remove("hidden"); // Show Username for admin
     }
+}
+
+
 </script>
 
 <script>
@@ -386,5 +544,43 @@
     });
 </script>
 
+
+<script>
+ 
+   document.addEventListener("DOMContentLoaded", function() {
+    let addAccountModal = document.getElementById('addAccountModal');
+    let editAccountModal = document.getElementById('editAccountModal');
+
+    // Ensure both modals start as hidden
+    addAccountModal.classList.add('hidden');
+    editAccountModal.classList.add('hidden');
+
+    @if ($errors->hasBag('addAccount'))
+        addAccountModal.classList.remove('hidden'); // Open Add Account Modal only
+    @endif
+
+    @if ($errors->hasBag('editAccount'))
+        editAccountModal.classList.remove('hidden'); // Open Edit Account Modal only
+
+        // Get selected role from the hidden input field (role was stored here during form submission)
+        let selectedRole = document.getElementById("editHiddenRole").value;
+        
+        console.log("Restoring role:", selectedRole); // Debugging line
+        
+        if (selectedRole) {
+            toggleEditFields(selectedRole); // Ensure correct fields are shown based on role
+        }
+    @endif
+});
+
+
+
+</script>
+
+
+
+
 <script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
+{{-- <script src="{{asset ('js/manageaccount.js')}}"></script> --}}
+
 </html>

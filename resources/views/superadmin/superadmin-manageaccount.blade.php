@@ -7,6 +7,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Manage Accounts</title>
 </head>
@@ -115,7 +117,7 @@
                 <span onclick="closeAddAccountModal()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                 <form method="POST" action="{{ route('superadmin.account.store') }}">
                     @csrf
-                    <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
+                    <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account!</h1>
                 
                     <!-- Account Type Selection -->
                     <label for="role">Select Account Type:</label>
@@ -125,28 +127,65 @@
                         <option value="staff">Staff</option>
                         <option value="customer">Customer</option>
                     </select>
+                    @error('role')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
                 
                     <!-- Name Field (Only for Customers) -->
                     <div class="flex flex-col gap-2">
                         <div id="nameField" style="display: none;">
                             <label for="name">Full Name:</label>
                             <input class="border border-black" type="text" name="name" placeholder="Enter Full Name">
+                            @error('name')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
                         </div>
-                    
+                
+                        <div class="flex flex-col gap-2">
+                            <div id="contactField" style="display: none;">
+                                <label for="contact_number">Contact Number:</label>
+                                <input class="border border-black" type="text" name="contact_number" placeholder="Enter Contact Number">
+                                @error('contact_number')
+                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        
                         <!-- Username Field (Only for Admins and Staff) -->
                         <div id="usernameField" style="display: none;">
                             <label for="username">Username:</label>
                             <input class="border border-black" type="text" name="username" placeholder="Enter Username">
+                            @error('username')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
                         </div>
                     
                         <!-- Email Field -->
                         <label for="email">Email:</label>
                         <input class="border border-black" type="email" name="email" required>
-                        
+                        @error('email')
+                        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
                     
-                        <!-- Password Field -->
-                        <label for="password">Password:</label>
-                        <input class="border border-black" type="password" name="password" required>
+                        <!-- Password Fields -->
+                        <div class="relative mb-4">
+                            <input type="password" id="password" name="password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <span onclick="togglePasswordVisibility('password', 'togglePasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                                <i id="togglePasswordIcon" class="far fa-eye"></i>
+                            </span>
+                            @error('password')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div class="relative">
+                            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <span onclick="togglePasswordVisibility('password_confirmation', 'toggleConfirmPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                                <i id="toggleConfirmPasswordIcon" class="far fa-eye"></i>
+                            </span>
+                            @error('password_confirmation')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
+                        </div>
                     
                         <!-- Location Field (Only for Staff and Customers) -->
                         <div id="locationField" style="display: none;">
@@ -157,14 +196,20 @@
                                     <option value="{{ $location->id }}">{{ $location->province }}, {{ $location->city }}</option>
                                 @endforeach
                             </select>
+                            @error('location_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
                         </div>
                     
                         <!-- Job Title Field (Only for Staff) -->
                         <div id="jobTitleField" style="display: none;">
                             <label for="job_title">Job Title:</label>
                             <input type="text" name="job_title">
+                            @error('job_title')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
                         </div>
-    
+                
                         <div id="adminField" style="display: none;">
                             <label for="admin_id">Select Admin:</label>
                             <select name="admin_id" id="admin_id">
@@ -173,6 +218,9 @@
                                     <option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>
                                 @endforeach
                             </select>
+                            @error('admin_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 
@@ -180,6 +228,7 @@
                         <img src="{{ asset('image/image 51.png') }}"> Submit
                     </button>
                 </form>
+                
             </div>
         </div>
         {{-- End Modal for Add Account --}}
@@ -187,6 +236,18 @@
 </body>
 
 <script>
+
+function togglePasswordVisibility(fieldId, iconId) {
+        var field = document.getElementById(fieldId);
+        var icon = document.getElementById(iconId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
     function toggleFields() {
         var role = document.getElementById("role").value;
         document.getElementById("locationField").style.display = (role === "staff" || role === "customer") ? "block" : "none";
@@ -206,6 +267,8 @@
 
         // Show "name" only for customers
         document.getElementById("nameField").style.display = (role === "customer") ? "block" : "none";
+        document.getElementById("contactField").style.display = (role === "customer") ? "block" : "none";
+
         document.querySelector("input[name='name']").required = (role === "customer");
 
         // Show "username" only for admins and staff

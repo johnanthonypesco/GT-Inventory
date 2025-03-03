@@ -1,44 +1,45 @@
 <?php
 
-use App\Http\Controllers\Export\ExportController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Auth\TwoFactorAuthController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Admin\ChatController;
 
 // Admin Controller
-use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\SuperAdminAccountController;
-use App\Http\Controllers\Admin\ManageaccountController;
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 
 // Staff Controller
+use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
-use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 
 // Customer Controller
-use App\Http\Controllers\Staff\ChatController as StaffChatController;
+use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 
 
 //Super Admin Login
+use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
+
+
+
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
-
-
-
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
@@ -84,6 +85,11 @@ Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrd
 Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
 Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
 Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
+
+Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
+Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
+Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
+
 });
 
 // BREEZE AUTHERS
@@ -133,22 +139,22 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         return view('admin.dashboard'); // ✅ Shared dashboard view
     })->name('admin.dashboard');
 
-    Route::post('/logout', function (Request $request) {
-        if (Auth::guard('superadmin')->check()) {
-            Auth::guard('superadmin')->logout();
-        } elseif (Auth::guard('admin')->check()) {
-            Auth::guard('admin')->logout();
-        } elseif (Auth::guard('staff')->check()) {
-            Auth::guard('staff')->logout();
-        }
+  Route::post('user/logout', function (Request $request) {
+    if (Auth::guard('superadmin')->check()) {
+        Auth::guard('superadmin')->logout();
+        return redirect()->route('superadmin.login')->with('status', 'Logged out successfully.');
+    } elseif (Auth::guard('admin')->check()) {
+        Auth::guard('admin')->logout();
+        return redirect()->route('admin.login')->with('status', 'Logged out successfully.');
+    } elseif (Auth::guard('staff')->check()) {
+        Auth::guard('staff')->logout();
+        return redirect()->route('staff.login')->with('status', 'Logged out successfully.');
+    }
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    return redirect('/login');
+})->name('user.logout');
 
-        return redirect('/login'); // ✅ Redirect to generic login page
-    })->name('logout');
 });
-
 // ✅ Super Admin Routes
 Route::middleware('auth:superadmin,admin')->group(function () {
     Route::get('/manageaccounts', [SuperAdminAccountController::class, 'index'])->name('superadmin.account.index');
@@ -166,6 +172,12 @@ Route::post('/2fa', [TwoFactorAuthController::class, 'verify'])->name('2fa.check
 
 Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
 
+
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+    Route::get('admin/chat', [MessageController::class, 'chat'])->name('admin.chat'); // Chat page
+    Route::get('/messages/{receiver_id}', [MessageController::class, 'fetchMessages'])->name('messages.fetch'); // Fetch messages
+    Route::post('/messages', [MessageController::class, 'sendMessage'])->name('messages.send'); // Send message
+});
 
 // ✅ Keep Laravel Auth Routes
 require __DIR__.'/auth.php';

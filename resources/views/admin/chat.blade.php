@@ -5,94 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="{{asset ('css/style.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/admin/style.css') }}">
+
+    <!-- Import Laravel Echo & Reverb -->
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.1/dist/echo.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
     <title>Chat</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4 mx-auto">
-    <x-admin.navbar/>
+<body class="bg-[#BBBCBE] flex p-5 gap-5">
+    <x-admin.navbar />
 
-    <main class="md:w-full">
-        <x-admin.header title="Chat" icon="fa-solid fa-message" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="w-full">
+        <x-admin.header title="Chat" icon="fa-solid fa-message"/>
+        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
 
-        <div class="mt-3 flex flex-col lg:flex-row justify-center w-full gap-5">
-            <div class="lg:w-[45%] w-full">
-                {{-- Search --}}
-                <div class="relative">
-                    <input type="search" placeholder="Search" class="w-full py-4 rounded-lg px-3 bg-white">
-                    <button class="border-l-1 border-[#005382] px-3 py-2 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="flex flex-col lg:flex-row gap-5">
+            <!-- Chat List -->
+            <div class="bg-white w-full lg:w-[40%] h-[460px] p-2 rounded-xl mt-3 overflow-y-auto">
+                <div id="chat-list" class="flex flex-col gap-2">
+                    @foreach($contacts as $contact)
+                        <div class="flex items-center gap-2 p-3 hover:bg-gray-100 rounded-lg cursor-pointer" onclick="selectChat({{ $contact->id }}, '{{ $contact->username }}')">
+                            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
+                            <div>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $contact->username }}</p>
+                                <p class="text-sm text-gray-500">{{ $contact->latest_message }}</p>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                {{-- Search --}}
-
-                {{-- List of Customer With Chat --}}
-                <div class="lg:h-[450px] flex gap-2 lg:flex-col lg:gap-2 overflow-auto mt-5 bg-white lg:bg-white/0 rounded-lg">
-                    <x-customerchatlist name="Son Goku" message="Hello, how can I help you?" date="March 15" unread="1"/>
-                    <x-customerchatlist name="Son Gohan" message="Hello, how can I help you?" date="March 15" unread="1"/>
-                    <x-customerchatlist name="Piccolo" message="Hello, how can I help you?" date="March 15" unread="1"/>
-                    <x-customerchatlist name="Vegeta" message="Hello, how can I help you?" date="March 15" unread="1"/>
-                    <x-customerchatlist name="Krillin" message="Hello, how can I help you?" date="March 15" unread="1"/>
-                </div>
-                {{-- List of Customer With Chat --}}
             </div>
 
-            <div class="lg:w-[55%] w-full">
-                {{-- Chatbox --}}
-                <div class="bg-white w-full p-5 rounded-lg h-[540px] flex flex-col">
+            <!-- Chat Messages -->
+            <div class="lg:w-[60%] h-[460px] rounded-xl">
+                <div class="bg-white w-full p-5 rounded-lg h-full flex flex-col">
+                    <!-- Chat Header -->
                     <div>
-                        <p class="font-semibold text-[25px] text-[#005382] border-b-2 border-[#005382]">Son Goku</p>
+                        <p id="chat-header" class="font-semibold text-[25px] text-[#005382] border-b-2 border-[#005382]">Select a user</p>
                     </div>
-                    <div class="flex flex-col gap-5 p-5 h-full mt-2 overflow-y-auto flex-grow">
-                        <div>
-                            <div class="bg-[#379AE6]/20 flex rounded-lg p-3 w-[300px] lg:w-[450px]">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!</p>
-                            </div>
-                            <p class="text-black/50 text-md">3:30 PM</p>
-                        </div>
-                
-                        <div class="self-end">
-                            <div class="bg-[#025E92] p-3 rounded-lg w-[300px] lg:w-[450px]">
-                                <p class="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!</p>
-                            </div>
-                            <p class="text-black/50 text-md float-right">3:30 PM</p>
-                        </div>
-                
-                        <div>
-                            <div class="bg-[#379AE6]/20 rounded-lg p-3 w-[300px] lg:w-[450px]">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!</p>
-                            </div>
-                            <p class="text-black/50 text-md">3:30 PM</p>
-                        </div>
-                
-                        <div class="self-end">
-                            <div class="bg-[#025E92] p-3 rounded-lg w-[300px] lg:w-[450px]">
-                                <p class="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, dolores!</p>
-                            </div>
-                            <p class="text-black/50 text-md float-right">3:30 PM</p>
-                        </div>
+
+                    <!-- Chat Messages -->
+                    <div id="chat-box" class="flex flex-col gap-5 p-5 h-full mt-2 overflow-y-auto flex-grow">
+                        <p class="text-gray-400 text-center">No messages yet.</p>
                     </div>
-                
+
                     <!-- Input for message -->
-                    <form action="" class="flex items-center gap-3 mt-3">
-                        <input type="text" placeholder="Type a message..." class="flex-grow p-3 rounded-lg border border-[#005382] outline-none">
-                        <div class="flex gap-3 items-center">
-                            <input type="file" name="sendfile" id="sendfile" class="hidden">
-                            <label for="sendfile" class="cursor-pointer">
-                                <img src="{{asset('image/image 42.png')}}" alt="Attach file">
-                            </label>
-                            <button type="submit" class="cursor-pointer">
-                                <img src="{{asset('image/image 41.png')}}" alt="Send message">
-                            </button>
-                        </div>
+                    <form id="message-form" class="flex items-center gap-3 mt-3">
+                        <input type="hidden" id="receiver_id">
+                        <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow p-3 rounded-lg border border-[#005382] outline-none">
+                        <button type="submit" class="cursor-pointer">
+                            <img src="{{ asset('image/image 41.png') }}" alt="Send message">
+                        </button>
                     </form>
-                    <!-- Input for message -->
                 </div>
-                {{-- Chatbox --}}
             </div>
         </div>
-
     </main>
+
+    <!-- JavaScript for Real-time Chat -->
+    <script>
+        let userId = {{ auth()->id() }};
+        let receiverId = null;
+    
+        function selectChat(id, name) {
+            receiverId = id;
+            $("#receiver_id").val(id);
+            $("#chat-header").text(name);
+            loadMessages(id);
+        }
+    
+        function loadMessages(receiverId) {
+            $.get(`/messages/${receiverId}`, function (messages) {
+                $("#chat-box").empty();
+                messages.forEach(message => {
+                    let align = message.sender_id == userId ? 'self-end bg-[#025E92] text-white' : 'bg-[#379AE6]/20';
+                    let msgElement = `
+                        <div class="${align} p-3 rounded-lg w-[300px] lg:w-[450px]">
+                            <p>${message.message}</p>
+                            <p class="text-black/50 text-sm float-right">${new Date(message.created_at).toLocaleTimeString()}</p>
+                        </div>
+                    `;
+                    $("#chat-box").append(msgElement);
+                });
+    
+                // ✅ Auto-scroll to latest message
+                $("#chat-box").animate({ scrollTop: $("#chat-box")[0].scrollHeight }, 300);
+            });
+        }
+    
+        window.Echo.private('chat.' + userId)
+            .listen('MessageSent', (e) => {
+                console.log("New Message Received:", e);
+                if (receiverId == e.message.sender_id || receiverId == e.message.receiver_id) {
+                    let align = e.message.sender_id == userId ? 'self-end bg-[#025E92] text-white' : 'bg-[#379AE6]/20';
+                    let msgElement = `
+                        <div class="${align} p-3 rounded-lg w-[300px] lg:w-[450px]">
+                            <p>${e.message.message}</p>
+                            <p class="text-black/50 text-sm float-right">${new Date(e.message.created_at).toLocaleTimeString()}</p>
+                        </div>
+                    `;
+                    $("#chat-box").append(msgElement);
+                    $("#chat-box").animate({ scrollTop: $("#chat-box")[0].scrollHeight }, 300);
+                }
+            });
+    
+        $("#message-form").submit(function (e) {
+            e.preventDefault();
+            let message = $("#message-input").val().trim();
+            let receiverId = receiverId || $("#receiver_id").val();
+            if (message === '' || !receiverId) return;
+    
+            $.post('/messages', {
+                receiver_id: receiverId,
+                message: message,
+                _token: "{{ csrf_token() }}"
+            }, function () {
+                $("#message-input").val('');
+                $("#chat-box").animate({ scrollTop: $("#chat-box")[0].scrollHeight }, 300);
+            }).fail(function (xhr) {
+                console.error("Message send failed:", xhr.responseText);
+            });
+        });
+    </script>
+    
     
 </body>
 </html>

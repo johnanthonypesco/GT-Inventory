@@ -97,11 +97,15 @@
                         data-location="{{ $account['location_id'] ?? '' }}"
                         data-jobtitle="{{ $account['job_title'] ?? '' }}"
                         data-adminid="{{ $account['admin_id'] ?? '' }}"
-                    >
+                        data-contactnumber="{{ $account['contact_number'] ?? 'N/A' }}" >
+                        
                         <td>{{ $account['id'] }}</td>
-                        <td>{{ $account['name'] }}</td>
+                        <td>{{ $account['name'] ?? $account['username'] ?? $account['staff_username'] ?? 'N/A' }}</td>
                         <td>{{ $account['email'] }}</td>
                         <td>{{ ucfirst($account['role']) }}</td>
+                        <td>
+                            {{ $account['company'] ?? 'RCT Med Pharma' }}
+                        </td>
                         <td class="flex justify-center items-center gap-4">
                             <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
                                 <i class="fa-regular fa-pen-to-square mr-2"></i> Edit

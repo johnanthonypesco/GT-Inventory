@@ -13,12 +13,12 @@ function closeaddaccount() {
 
 // Edit Account Modal
 function editaccount() {
-    var editaccount = document.getElementById("editaccount");
-    editaccount.style.display = "block";
+    var editaccount = document.getElementById("editAccountModal");
+    editaccount.classList.replace("hidden","block")
 }
 
-function closeeditaccount() {
-    var editaccount = document.getElementById("editaccount");
-    editaccount.style.display = "none";
+function closeEditAccountModal() {
+    var editaccount = document.getElementById("editAccountModal");
+    editaccount.classList.replace("block","hidden")
 }
 // End of Edit Account Modal

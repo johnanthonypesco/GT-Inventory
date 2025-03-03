@@ -50,7 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',  // ✅ Standardized field name (was `customer_password`)
         'contact_number',  // ✅ Standardized field name (was `customer_cnum`)
         'location_id', // ✅ Foreign key to `locations` table
-        'email_verified_at'
+        'email_verified_at',
+        'company_id'
 
     ];
 
@@ -83,5 +84,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function exclusive_deals() {
         return $this->hasMany(Exclusive_Deal::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
     }
 }

@@ -54,14 +54,18 @@ class SuperAdminAuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('superadmin')->logout();
+{
+    // ✅ Logout Superadmin correctly
+    Auth::guard('superadmin')->logout();
 
-        // ✅ Remove only Super Admin session details
-        Session::forget(['authenticatable_id', 'authenticatable_type']);
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    // ✅ Invalidate and regenerate session
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
-        return redirect()->route('superadmin.login');
-    }
+    // ✅ Ensure session data is cleared
+    Session::flush();
+
+    // ✅ Redirect to Superadmin Login
+    return redirect()->route('superadmin.login')->with('status', 'You have been logged out.');
+}
 }

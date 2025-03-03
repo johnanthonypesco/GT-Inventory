@@ -13,7 +13,9 @@
         <a href="{{ route ('admin.productlisting')}}" class="text-md"><i class="fa-solid fa-list-check text-[#005382] text-md"></i>Product Deals</a>
         <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History</a>
         
-        <form action="" class="mt-auto">
+        <form id="logout-form" method="POST" action="{{ route('user.logout') }}">
+            @csrf
+
             <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full"><i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout</button>
         </form>    
     </li>
