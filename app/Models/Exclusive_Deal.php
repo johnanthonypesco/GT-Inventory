@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Exclusive_Deal extends Model
 {
+    use HasFactory;
+
     protected $table = 'exclusive_deals';
 
     protected $fillable = [

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -24,10 +26,15 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'location_id' => Location::pluck('id')->random(),
+            'company_id' => Company::pluck('id')->random(),
             'name' => fake()->name(),
+            
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'contact_number' => fake()->phoneNumber(),
             'password' => static::$password ??= Hash::make('password'),
+
+            'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];
     }

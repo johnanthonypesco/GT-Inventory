@@ -16,9 +16,9 @@ return new class extends Migration
             $table->id('inventory_id');
             $table->foreignIdFor(Product::class)->cascadeOnDelete();
             $table->string('batch_number');            
-            $table->string('expiry_date');            
+            $table->date('expiry_date');            
             $table->integer('quantity');            
-            $table->string('status')->default("in-stock");            
+            // $table->string('status')->default("in-stock");            
             $table->timestamps();
         });
     }

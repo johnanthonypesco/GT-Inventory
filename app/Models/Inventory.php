@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'batch_number',
         'product_id',
         'expiry_date',            
         'quantity',            
-        'status',
+        // 'status',
     ];
 
     public function product() {
