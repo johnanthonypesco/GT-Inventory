@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Mail\TwoFactorCodeMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Session;
 
 class AdminAuthenticatedSessionController extends Controller
 {
@@ -28,26 +30,42 @@ class AdminAuthenticatedSessionController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
+    
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
             $admin = Auth::guard('admin')->user();
-
-            // ✅ Store session using `authenticatable_id`
-            Session::put([
-                'authenticatable_id' => $admin->id,
-                'authenticatable_type' => \App\Models\Admin::class, // ✅ Use Admin class
-            ]);
-
-            // ✅ Regenerate session after login
-            $request->session()->regenerate();
-
-            return redirect()->route('admin.dashboard');
+    
+            // ✅ Generate a 6-digit 2FA code
+            $twoFactorCode = (string) rand(100000, 999999);
+    
+            // ✅ Save the 2FA code and expiration time
+            $admin->two_factor_code = $twoFactorCode;
+            $admin->two_factor_expires_at = now()->addMinutes(10);
+    
+            if (!$admin->save()) {
+                return back()->withErrors(['error' => 'Failed to generate a two-factor authentication code. Please try again.']);
+            }
+    
+            // ✅ Send the 2FA code via email
+            try {
+                Mail::to($admin->email)->send(new TwoFactorCodeMail($twoFactorCode));
+            } catch (\Exception $e) {
+                return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
+            }
+    
+            // ✅ Log out the admin after generating the code
+            Auth::guard('admin')->logout();
+    
+            // ✅ Store admin ID in session for 2FA verification
+            session(['two_factor_admin_id' => $admin->id]);
+    
+            return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
         }
-
+    
         return back()->withErrors([
             'email' => 'Invalid credentials.',
         ]);
     }
+    
 
     /**
      * Destroy an authenticated session.

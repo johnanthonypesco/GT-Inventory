@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Mail\TwoFactorCodeMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Session;
 
 class SuperAdminAuthenticatedSessionController extends Controller
 {
@@ -22,6 +24,8 @@ class SuperAdminAuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+   
+    
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -32,23 +36,38 @@ class SuperAdminAuthenticatedSessionController extends Controller
         if (Auth::guard('superadmin')->attempt($credentials, $request->filled('remember'))) {
             $superAdmin = Auth::guard('superadmin')->user();
     
-            // ✅ Store session using `authenticatable_id`
-            Session::put([
-                'authenticatable_id' => $superAdmin->id,
-                'authenticatable_type' => SuperAdmin::class, // ✅ Use SuperAdmin class
-            ]);
+            // ✅ Generate a 6-digit 2FA code
+            $twoFactorCode = (string) rand(100000, 999999);
     
-            // ✅ Regenerate session after login
-            $request->session()->regenerate();
+            // ✅ Save the 2FA code and expiration time
+            $superAdmin->two_factor_code = $twoFactorCode;
+            $superAdmin->two_factor_expires_at = now()->addMinutes(10);
     
-            return redirect()->route('admin.dashboard'); // ✅ Redirect to shared dashboard
+            if (!$superAdmin->save()) {
+                return back()->withErrors(['error' => 'Failed to generate a two-factor authentication code. Please try again.']);
+            }
+    
+            // ✅ Send the 2FA code via email
+            try {
+                Mail::to($superAdmin->email)->send(new TwoFactorCodeMail($twoFactorCode));
+            } catch (\Exception $e) {
+                return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
+            }
+    
+            // ✅ Log out the superadmin after generating the code
+            Auth::guard('superadmin')->logout();
+    
+            // ✅ Store superadmin ID in session for 2FA verification
+            session(['two_factor_superadmin_id' => $superAdmin->id]);
+    
+            return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
         }
     
         return back()->withErrors([
             'email' => 'Invalid credentials.',
         ]);
     }
-
+    
 
     /**
      * Destroy an authenticated session.
