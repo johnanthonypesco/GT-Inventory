@@ -3,7 +3,7 @@
 @switch($deleteType)
     @case("deleteDeal")
         @if ($routeid)
-            <form action="{{ route($route, ['deal_id' => $routeid, 'user' => $variable]) }}" 
+            <form action="{{ route($route, ['deal_id' => $routeid, 'company' => $variable]) }}" 
             method="POST" {{ $attributes }}>
                 @csrf
                 @if (strtoupper($method) !== 'POST')

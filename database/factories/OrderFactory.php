@@ -19,11 +19,11 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         $user = User::pluck('id')->random();
-        $userInDeal = ExclusiveDeal::pluck('user_id')->random();
+        $company_id = User::findOrFail($user)->company_id;
 
         return [
             'user_id' => $user,
-            'exclusive_deal_id' => ExclusiveDeal::where('user_id', $userInDeal)->pluck('id')->random(),
+            'exclusive_deal_id' => ExclusiveDeal::where('company_id', $company_id)->pluck('id')->random(),
             'date_ordered' => fake()->dateTimeBetween('-1 Year', 'now'),
             'status' => fake()->randomElement([
                 'pending',

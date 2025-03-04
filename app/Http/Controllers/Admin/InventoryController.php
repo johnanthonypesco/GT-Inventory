@@ -25,19 +25,19 @@ class InventoryController extends Controller
         switch ($location_filter) {
             case 'Tarlac':
                 $inventory = Inventory::with('product')->where('location_id', 1)
-                ->orderBy('expiry_date', 'asc')
+                ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(fn ($stock) => $stock->location_id);
                 break;
  
             case 'Nueva Ecija':
                 $inventory = Inventory::with('product')->where('location_id', 2)
-                ->orderBy('expiry_date', 'asc')
+                ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(fn ($stock) => $stock->location_id);
                 break;
 
             default:
                 $inventory = Inventory::with(['product', 'location'])
-                ->orderBy('expiry_date', 'asc')
+                ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(function ($stock) {
                     return $stock->location_id;
                 });

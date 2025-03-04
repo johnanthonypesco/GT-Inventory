@@ -84,10 +84,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Location::class, 'location_id');
     }
 
-    public function exclusive_deals():HasMany {
-        return $this->hasMany(ExclusiveDeal::class);
-    }
-
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');

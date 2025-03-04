@@ -14,14 +14,14 @@ class ExclusiveDeal extends Model
     protected $table = 'exclusive_deals';
 
     protected $fillable = [
-        "user_id",
+        "company_id",
         "product_id",
         "deal_type",
         "price"
     ];
 
-    public function user():BelongsTo {
-        return $this->belongsTo(User::class);
+    public function company():BelongsTo {
+        return $this->belongsTo(Company::class);
     }
 
     public function product():BelongsTo {

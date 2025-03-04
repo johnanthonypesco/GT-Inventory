@@ -12,7 +12,7 @@ function closeproductlisting(username) {
 // Modal for Add Product Listing
 function addproductlisting(customer_id) {
     const addproductlisting = document.getElementById("addproductlisting");
-    const customer_id_input = document.getElementById("user-id");
+    const customer_id_input = document.getElementById("company-id");
 
     addproductlisting.style.display = "block";
     customer_id_input.value = customer_id;

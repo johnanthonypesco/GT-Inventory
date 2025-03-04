@@ -21,15 +21,15 @@
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <h1 class="font-bold text-2xl text-[#005382]">Customer List</h1>
-                <x-input name="search" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
+                <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
+                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
             </div>
             {{-- Customer List Search Function --}}
 
             {{-- Table for customer List --}}
             <div class="table-container mt-5 overflow-auto h-[380px]">
                 <x-table 
-                :headings="['Customer ID', 'Customer Name', 'Total Personalized Products', 'Action']" :variable="$customers" :secondaryVariable="$dealsDB" 
+                :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB" 
                 category="productdeals"/>
             </div>
             {{-- Table for customer List --}}
@@ -41,13 +41,13 @@
     </main>
 
     {{-- @php
-        dd($dealsDB['yahoo baby!']->first()->user->name);
+        dd($dealsDB['yahoo baby!']->first()->company->name);
     @endphp --}}
 
     
     {{-- View Product Listing --}}
     @foreach ($dealsDB as $deals)
-        <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $deals->first()->user->name }}">
+        <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $deals->first()->company->name }}">
             @if (session("reSummon"))
                 <script>
                     addEventListener("DOMContentLoaded", () => {
@@ -61,11 +61,11 @@
             @endif
 
             <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$deals->first()->user->name"/>
+                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$deals->first()->company->name"/>
                 <div class="flex flex-col md:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
-                            $deals->first()->user->name
+                            $deals->first()->company->name
                         }}
                     </h1>
                     {{-- Button for Search --}}
@@ -102,7 +102,7 @@
                                         <x-deletebutton :routeid="$deal->id" 
                                             route="admin.productlisting.destroy" 
                                             deleteType="deleteDeal"
-                                            :variable="$deal->user->name"
+                                            :variable="$deal->company->name"
                                             method="DELETE"
                                         />
                                     </div>
@@ -132,7 +132,7 @@
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
 
                 <div class="h-full overflow-auto">
-                    <input type="hidden" name="user_id" id="user-id">
+                    <input type="hidden" name="company_id" id="company-id">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 relative" id="addmoreproductlist">
                         <div>

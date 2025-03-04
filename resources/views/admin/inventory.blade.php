@@ -84,9 +84,9 @@
 
         @foreach ($inventories as $inventory)
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
-            {{-- <h1 class="text-2xl font-bold text-blue-500">
+            <h1 class="text-2xl font-bold text-blue-600">
                 {{ $inventory->first()->location->province }}
-            </h1> --}}
+            </h1>
             {{-- since it already has a select location what if, remove the location --}}
             <div class="flex flex-wrap justify-between items-center">
                     

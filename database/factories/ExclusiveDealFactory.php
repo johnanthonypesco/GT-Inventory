@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
 use App\Models\Product;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class ExclusiveDealFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'=> User::pluck("id")->random(),
+            'company_id'=> Company::pluck("id")->random(),
             'product_id' => Product::pluck("id")->random(),
             'price' => fake()->numberBetween(1, 1_000),
             'deal_type' => fake()->randomElement([

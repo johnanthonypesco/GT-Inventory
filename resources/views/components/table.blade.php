@@ -23,30 +23,30 @@
                         <td>{{ $inv->product->form }}</td>
                         <td>{{ $inv->product->strength }}</td>
                         <td>{{ $inv->quantity }}</td>
-                        <td>{{ $inv->expiry_date }}</td>
+                        <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                     </tr>
                 @endforeach
                 @break
 
             {{-- productdeals --}}
             @case($category === 'productdeals')
-                @foreach ($variable as $customer)
+                @foreach ($variable as $company)
                     <tr class="text-center">
-                        <td>{{ $customer->id }}</td>
-                        <td> {{ $customer->name }} </td>
+                        <td>{{ $company->id }}</td>
+                        <td> {{ $company->name }} </td>
                         <td> 
-                            {{ array_key_exists($customer->name, $secondaryVariable->toArray()) ? count($secondaryVariable[$customer->name])  : "No " }} Personalized Products 
+                            {{ array_key_exists($company->name, $secondaryVariable->toArray()) ? count($secondaryVariable[$company->name])  : "No " }} Personalized Products 
                         </td>
 
                         {{-- button for view and add --}}
                         <td class="m-auto flex gap-4 justify-center font-semibold">
-                            @if ($secondaryVariable->get($customer->name))
+                            @if ($secondaryVariable->get($company->name))
                                 <x-vieworder 
-                                onclick="viewproductlisting('{{ $customer->name }}')" 
+                                onclick="viewproductlisting('{{ $company->name }}')" 
                                 name="View"
                                 />                                
                             @endif
-                            <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting('{{ $customer->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                            <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting('{{ $company->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
                         </td>
                     </tr>
                 @endforeach                
