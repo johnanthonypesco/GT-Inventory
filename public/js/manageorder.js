@@ -1,9 +1,9 @@
-function viewOrder() {
-    var modal = document.querySelector('#view-order-modal');
+function viewOrder(id) {
+    var modal = document.getElementById('view-order-modal-' + id);
     modal.classList.toggle('hidden');
 }
-function closevieworder() {
-    var modal = document.querySelector('#view-order-modal');
+function closevieworder(id) {
+    var modal = document.getElementById('view-order-modal-' + id);
     modal.classList.toggle('hidden');
 }
 

@@ -82,10 +82,14 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 // LOGGED IN CUSTOMER ROUTES
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
+    
     Route::get('customer/chat', [CustomerChatController::class, 'showChat'])->name('customer.chat');
+
     Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
-    Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
+    
     Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
+
+    Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
     Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
 
     Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');

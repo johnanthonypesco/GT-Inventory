@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,69 +18,110 @@
     <x-customer.navbar/>
 
     <main class="w-full">
-        <x-customer.header title="Manage Order" icon="fa-solid fa-list-check"/>
+        <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
         
         <div class="bg-white mt-5 p-5 rounded-lg ">
             <x-input name="search" placeholder="Search Order by Order ID" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
             <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[52vh]">
                 <table>
                     <thead>
-                        <th>Order ID</th>
                         <th>Date Ordered</th>
                         <th>Total Amount</th>
-                        <th>Status</th>
                         <th>Action</th>
                     </thead>
                     <tbody>
-                        <tr class="text-center">
-                            <td>1234</td>
-                            <td>12/12/2021</td>
-                            <td>₱ 2,000</td>
-                            <td>Pending</td>
-                            <td>
-                                <x-vieworder onclick="viewOrder()" name="View Order"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                            @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
+                                @php
+                                    $total = 0;
+                                    foreach ($groupedOrdersByStatus as $orders) {
+                                        foreach ($orders as $item) {
+                                            $total += ($item->quantity * $item->exclusive_deal->price);
+                                        }
+                                    }
+                                @endphp
+                                <tr class="text-center">
+                                    <td> {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y') }} </td>
+                                    <td> ₱ {{ number_format($total) }} </td>
+                                    <td>
+                                        <x-vieworder onclick="viewOrder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" name="View Ordered Items"/>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
         </div>
     </main>
 
-    <div id="view-order-modal" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
-        <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
-            <span onclick="closevieworder()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
-            <h1 class="text-xl font-semibold text-[#005382]">Order Details</h1>
-            <div class="table-container mt-5 h-[300px] overflow-auto">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Generic Name</th>
-                            <th>Form</th>
-                            <th>Strength</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="text-center">
-                            <td>Arcimet</td>
-                            <td>Metoclopramide</td>
-                            <td>Vials</td>
-                            <td>10mg/10ml</td>
-                            <td>2</td>
-                            <td>₱ 2,000</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div>
-                <h1 class="text-xl font-semibold text-right mt-5">Total Amount: <span>₱ 2,000</span></h1>
+    @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
+        <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
+            <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
+                <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                <h1 class="text-xl font-semibold text-[#005382]">
+                    Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}} 
+                </h1>
+                
+                <div class="table-container mt-5 h-[300px] overflow-auto">
+                    @php
+                        $totes = 0;
+                    @endphp
+                    @foreach ($groupedOrdersByStatus as $orders)
+                        @php
+                            $currentStatus = $orders->first()->status;
+                        @endphp
+
+                        <h1 class="text-2xl uppercase font-bold
+                        {{
+                            match ($currentStatus) {
+                                'pending' => 'text-orange-600',
+                                'completed' => 'text-blue-600',
+                                'partial-delivery' => 'text-purple-700',
+                                default => 'text-black'
+                            }
+                        }}
+                        ">
+                            {{ $currentStatus }} Items:
+                        </h1>
+                        <table class="mb-6">
+                            <thead>
+                                <tr>
+                                    <th>Generic Name</th>
+                                    <th>Brand Name</th>
+                                    <th>Form</th>
+                                    <th>Strength</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($orders as $item)
+                                    @php
+                                        $calc = $item->quantity * $item->exclusive_deal->price;
+                                        $totes += $calc;
+                                    @endphp
+                                    <tr class="text-center">
+                                        <td>{{ $item->exclusive_deal->product->generic_name }}</td>
+                                        <td>{{ $item->exclusive_deal->product->brand_name }}</td>
+                                        <td>{{ $item->exclusive_deal->product->form }}</td>
+                                        <td>{{ $item->exclusive_deal->product->strength }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td> ₱ {{ number_format($calc) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endforeach
+                </div>
+                <div>
+                    <h1 class="text-xl font-semibold text-right mt-5">
+                        Total Amount: <span>₱ {{ number_format($totes) }}</span>
+                    </h1>
+                </div>
             </div>
         </div>
-    </div>
+    @endforeach
+
 </body>
 </html>
 <script src="{{ asset('js/manageorder.js') }}"></script>

@@ -38,6 +38,10 @@ class DatabaseSeeder extends Seeder
         ExclusiveDeal::factory()->count(20)->create();
         Order::factory()->count(12)->create();
 
+        for ($i=0; $i < 10; $i++) { 
+            $this->call(OrderSeeder::class);
+        }
+
         Message::factory()->count(6)->create();
 
     }

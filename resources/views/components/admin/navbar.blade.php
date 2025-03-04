@@ -7,7 +7,7 @@
     <li class="list-none flex flex-col p-2 gap-[20px] h-full">
         <a href="{{ route ('admin.dashboard')}}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard</a>
 
-        @if (auth('superadmin')->check())
+        @if (auth('superadmin')->check() || auth('admin')->check())
             <a href="{{ route ('admin.inventory')}}" class="text-md"><i class="fa-solid fa-boxes-stacked text-[#005382] text-md"></i>Inventory</a>
 
             <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>

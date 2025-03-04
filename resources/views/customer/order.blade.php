@@ -24,36 +24,38 @@
                 <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>
 
         
-                <div class="h-[70vh] lg:h-[57vh] overflow-y-auto mt-5">
-                    <!-- Product Form -->
-                    <form class="product-form shadow-md shadow-[#005382]/70 flex flex-col lg:flex-row justify-between rounded-xl p-5">
-                        <div class="flex gap-2">
-                            <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
-                            
-                            <div class="flex flex-col gap-2 justify-center">
-                                <p class="border border-[#005382] rounded-xl px-2 w-fit">Vials</p>
-                                <h1 class="product-name">Arcemit</h1>
-                                <p class="font-bold uppercase">Metoclopramide</p>
-                                <div class="flex gap-2">
-                                    <p class="flex items-center"><span class="text-[#005382] font-semibold">Form:</span> Vials</p>
-                                    <p class="flex items-center"><span class="text-[#005382] font-semibold">Strength:</span> 10mg/10ml</p>
+                @foreach ($listedDeals as $deal)
+                    <div class="h-fit lg:h-[30vh] overflow-y-auto mt-5">
+                        <!-- Product Form -->
+                        <form class="product-form shadow-md shadow-[#005382]/70 flex flex-col lg:flex-row justify-between rounded-xl p-5">
+                            <div class="flex gap-2">
+                                <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
+                                
+                                <div class="flex flex-col gap-2 justify-center">
+                                    <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->product->form }}</p>
+                                    <h1 class="product-name">{{ $deal->product->generic_name }}</h1>
+                                    <p class="font-bold uppercase">{{ $deal->product->brand_name }}</p>
+                                    <div class="flex gap-2">
+                                        {{-- <p class="flex items-center"><span class="text-[#005382] font-semibold">Form:</span> {{ $deal->product->form }}</p> --}}
+                                        <p class="flex items-center"><span class="text-[#005382] font-semibold">Strength:</span> {{ $deal->product->strength }} </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="self-start mt-4 lg:mt-0 lg:self-end">
-                            <p class="font-semibold flex gap-5">
-                                <span class="text-[#005382]">Price:</span> 
-                                <span class="product-price">₱10000</span>
-                            </p>
-                            <!-- Quantity Input -->
-                            <div class="flex gap-2 mt-2">
-                                <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1">
-                                <button type="submit" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl">Add to Order</button>
+                            <div class="self-start mt-4 lg:mt-0 lg:self-end">
+                                <p class="font-semibold flex gap-5">
+                                    <span class="text-[#005382]">Price:</span> 
+                                    <span class="product-price">₱ {{ number_format($deal->price) }}</span>
+                                </p>
+                                <!-- Quantity Input -->
+                                <div class="flex gap-2 mt-2">
+                                    <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1">
+                                    <button type="submit" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl">Add to Order</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                    <!-- End of Product Form -->
-                </div>
+                        </form>
+                        <!-- End of Product Form -->
+                    </div>
+                @endforeach
             </div>
         
             <!-- Summary of Orders -->
