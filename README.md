@@ -3,7 +3,13 @@
 1. run in terminal: `composer install`
 2. change .env variables to this:
     ```dotenv
+    - DB_CONNECTION=mysql
+    - DB_HOST=127.0.0.1
+    - DB_PORT=3306
+    - DB_DATABASE=rmpoims_breeze
+    
     - SESSION_DRIVER=cookie
+    
     - MAIL_MAILER=smtp
     - MAIL_SCHEME=null
     - MAIL_HOST=smtp.gmail.com
