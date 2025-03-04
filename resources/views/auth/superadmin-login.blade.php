@@ -9,7 +9,7 @@
     <title>Super Admin Login</title>
 </head>
 <body class="bg-gray-100">
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-50 gap-5 items-center min-h-screen">
+    <div class="flex flex-col lg:flex-row p-5 lg:gap-60 gap-5 items-center min-h-screen">
         <div>
             <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
         </div>

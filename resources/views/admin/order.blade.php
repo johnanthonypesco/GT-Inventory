@@ -32,7 +32,7 @@
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
             <div class="flex flex-wrap justify-between items-center">
                 {{-- Search --}}
-                <x-input name="searchconvo" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
+                <x-input name="searchconvo" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                 {{-- Search --}}
 
                 {{-- Table Button --}}
@@ -79,7 +79,7 @@
                     {{-- Name of Selected Customer --}}
 
                     {{-- Order Details --}}
-                    <div class="table-container overflow-y-auto mt-5">
+                    <div class="table-container h-[260px] overflow-y-auto mt-5">
                         <table class="w-full">
                             <thead>
                                 <tr>
@@ -113,10 +113,10 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">
-                            Grand Total: ₱ {{ number_format($total) }}
-                        </p>
                     </div>
+                    <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">
+                        Grand Total: ₱ {{ number_format($total) }}
+                    </p>
                     {{-- Order Details --}}
 
                     {{-- Print Button --}}

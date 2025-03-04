@@ -27,7 +27,7 @@
             <a href="{{ route ('admin.chat')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
         @endif
 
-        <form id="logout-form" method="POST" action="{{ route('user.logout') }}">
+        <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
             @csrf
 
             <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full"><i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout</button>

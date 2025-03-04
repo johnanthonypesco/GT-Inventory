@@ -9,7 +9,7 @@
     <title>Customer Login</title>
 </head>
 <body>
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-90 gap-5 items-center">
+    <div class="flex flex-col lg:flex-row p-5 lg:gap-60 gap-5 items-center">
         <div>
             <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
         </div>
@@ -34,10 +34,10 @@
             @endif
 
             <!-- ✅ Username Input -->
-            <x-label-input label="Email" name="email" placeholder="Enter Your Username" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3" value="{{ old('username') }}"/>
+            <x-label-input label="Email" name="email" placeholder="Enter Your Username" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border-none" value="{{ old('username') }}"/>
 
             <!-- ✅ Password Input -->
-            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5" inputclass="outline-none bg-white p-3"/>
+            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5" inputclass="outline-none bg-white p-3 border-none"/>
 
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-1">

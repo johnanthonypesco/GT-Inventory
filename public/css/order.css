@@ -34,13 +34,3 @@ table tbody tr{
 button{
     cursor: pointer;
 }
-form button{
-    padding: 8px 18px;
-    box-shadow: 0 0 6px #005282a2;
-    border-radius: 10px;
-    gap: 5px;
-}
-
-form input{
-    width: 300px;
-}

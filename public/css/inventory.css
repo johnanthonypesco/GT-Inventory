@@ -20,14 +20,14 @@ table thead th{
     font-weight: semibold;
     text-transform: uppercase;
     padding: 10px;
-    font-size: 20px;
+    font-size: 16px;
 }
 table{
     width: 100%;
 }
 table tbody td{
     padding: 10px;
-    font-size: 18px;
+    font-size: 15px;
 }
 table tbody tr{
     border-bottom: 2px solid #0052825e;
