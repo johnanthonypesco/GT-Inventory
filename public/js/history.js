@@ -1,11 +1,10 @@
-function viewOrder(){
-    var orderModal = document.getElementById("order-modal");
-    orderModal.style.display = "block";
+function viewOrder(id) {
+    var viewOrderModal = document.getElementById("view-order-modal-" + id);
+    viewOrderModal.style.display = "block";
 }
-
-function closeOrderModal(){
-    var orderModal = document.getElementById("order-modal");
-    orderModal.style.display = "none";
+function closeOrderModal(id) {
+    var viewOrderModal = document.getElementById("view-order-modal-" + id);
+    viewOrderModal.style.display = "none";
 }
 
 window.addEventListener("click", function(event){

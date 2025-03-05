@@ -54,9 +54,6 @@
 
             {{-- order --}}
             @case($category === 'order')
-            {{-- <script>
-                alert("{{ $errors->first("status") }}")
-            </script> --}}
                 @foreach ($variable as $order)
                     <tr class="text-center">
                         <td> {{ $order->first()->id }} </td>
