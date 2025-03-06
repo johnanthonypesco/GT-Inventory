@@ -13,32 +13,33 @@ use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\SuperAdminAccountController;
-use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 
 // Staff Controller
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
-use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 
 // Customer Controller
-use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 
 
 //Super Admin Login
+use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
+
+
+
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
-
-
-
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
@@ -92,9 +93,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
     Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
 
-    Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
-    Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
-    Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
+    // Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
+    // Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
+    // Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
+    Route::get('/customer/account', [CustomerAccountController::class, 'index'])->name('customer.account');
+    Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
 });
 
 // BREEZE AUTHERS

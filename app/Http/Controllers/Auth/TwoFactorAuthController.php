@@ -180,7 +180,7 @@ class TwoFactorAuthController extends Controller
             Auth::guard('staff')->login($staff);
             session()->forget('two_factor_staff_id');
 
-            return redirect()->route('staff.dashboard')->with('success', 'Two-factor authentication successful.');
+            return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }
 
         return redirect()->route('login')->withErrors(['error' => 'Session expired. Please log in again.']);

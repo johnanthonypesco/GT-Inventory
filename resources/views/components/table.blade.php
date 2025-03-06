@@ -97,36 +97,38 @@
 
             {{-- manageaccount --}}
             @case($category === 'manageaccount')
-                @foreach($variable as $account)
-                    <tr 
-                        data-id="{{ $account['id'] }}" 
-                        data-name="{{ $account['name'] }}" 
-                        data-username="{{ $account['username'] ?? '' }}"
-                        data-email="{{ $account['email'] }}"
-                        data-role="{{ $account['role'] }}"
-                        data-location="{{ $account['location_id'] ?? '' }}"
-                        data-jobtitle="{{ $account['job_title'] ?? '' }}"
-                        data-adminid="{{ $account['admin_id'] ?? '' }}"
-                        data-contactnumber="{{ $account['contact_number'] ?? 'N/A' }}" >
-                        
-                        <td>{{ $account['id'] }}</td>
-                        <td>{{ $account['name'] ?? $account['username'] ?? $account['staff_username'] ?? 'N/A' }}</td>
-                        <td>{{ $account['email'] }}</td>
-                        <td>{{ ucfirst($account['role']) }}</td>
-                        <td>
-                            {{ $account['company'] ?? 'RCT Med Pharma' }}
-                        </td>
-                        <td class="flex justify-center items-center gap-4">
-                            <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
-                                <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
-                            </button>
-                            <form id="deleteaccountform" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button id="deleteaccountbtn" type="button" class="text-red-500 cursor-pointer">
-                                    <i class="fa-solid fa-trash mr-2"></i> Delete
-                                </button>
-                            </form>
+            @foreach($variable as $account)
+            <tr 
+                data-id="{{ $account['id'] }}" 
+                data-name="{{ $account['name'] }}" 
+                data-username="{{ $account['username'] ?? '' }}"
+                data-email="{{ $account['email'] }}"
+                data-role="{{ $account['role'] }}"
+                data-location="{{ $account['location_id'] ?? '' }}"
+                data-jobtitle="{{ $account['job_title'] ?? '' }}"
+                data-adminid="{{ $account['admin_id'] ?? '' }}"
+                data-contactnumber="{{ $account['contact_number'] ?? 'N/A' }}" >
+                
+                <td>{{ $account['id'] }}</td>
+                <td>{{ $account['name'] ?? $account['username'] ?? $account['staff_username'] ?? 'N/A' }}</td>
+                <td>{{ $account['email'] }}</td>
+                <td>{{ ucfirst($account['role']) }}</td>
+                <td>
+                    {{ $account['company'] ?? 'RCT Med Pharma' }}
+                </td>
+                <td class="flex justify-center items-center gap-4">
+                    <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
+                        <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
+                    </button>
+                    <form id="deleteaccountform-{{ $account['id'] }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer" data-account-id="{{ $account['id'] }}">
+                            <i class="fa-solid fa-trash mr-2"></i> Delete
+                        </button>
+                    </form>
+          
+        
                         </td>
                     </tr>
                 @endforeach
