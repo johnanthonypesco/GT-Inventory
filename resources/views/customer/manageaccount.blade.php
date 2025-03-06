@@ -10,6 +10,10 @@
 
     {{-- SweetAlert --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Font Awesome --}}
@@ -35,12 +39,26 @@
                 {{-- <i class="fa-solid fa-user text-[#005382] border w-fit text-4xl bg-white p-5 rounded-full z-2"></i> --}}
                 <div class="relative w-fit">
                     <!-- Profile Image -->
-                    <img id="profilePreviewone" 
-                    src="{{ Auth::user()->company && Auth::user()->company->profile_image 
-                       ? asset('storage/' . Auth::user()->company->profile_image) 
-                       : asset('images/default-avatar.png') }}" 
-                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                    alt="Company Profile Picture">
+                    <label for="profile_image">
+                        @if (Auth::user()->company && Auth::user()->company->profile_image)
+                            <img 
+                                id="profilePreview"
+                                src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                                class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                                alt="Company Profile Picture"
+                            >
+                        @else
+                            <i 
+                                class="fas fa-user
+                                       w-32 h-32 
+                                       flex items-center justify-center 
+                                       border-4 border-[#005382] rounded-full 
+                                       bg-white p-1 shadow-md" 
+                                style="font-size: 4rem;"
+                            ></i>
+                        @endif
+                    </label>
+                    
                 </div>
                 <p class="text-xl font-semibold">{{ Auth::user()->name }}</p>
                 <button onclick="editAccount()" class="bg-white text-black w-fit px-3 py-2 rounded-lg flex items-center gap-2" style="box-shadow: 0 0 5px #00528288">
@@ -73,15 +91,25 @@
                     <div class="relative w-fit">
                         <!-- Profile Image -->
                         <label for="profile_image">
-                        <img id="profilePreview" 
-                        src="{{ Auth::user()->company && Auth::user()->company->profile_image 
-                           ? asset('storage/' . Auth::user()->company->profile_image) 
-                           : asset('images/default-avatar.png') }}" 
-                        class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                        alt="Company Profile Picture">
-                   
-                       
+                            @if (Auth::user()->company && Auth::user()->company->profile_image)
+                                <img 
+                                    id="profilePreview"
+                                    src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                                    alt="Company Profile Picture"
+                                >
+                            @else
+                                <i 
+                                    class="fas fa-user
+                                           w-32 h-32 
+                                           flex items-center justify-center 
+                                           border-4 border-[#005382] rounded-full 
+                                           bg-white p-1 shadow-md" 
+                                    style="font-size: 2rem;"
+                                ></i>
+                            @endif
                         </label>
+                        
                         
                         <!-- Hidden File Input -->
                         <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
