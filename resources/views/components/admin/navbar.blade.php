@@ -1,4 +1,4 @@
-<nav class="md:w-[18%] w-full hidden md:flex flex-col p-3">
+<nav class="md:w-[16%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
     <div class="p-3 flex flex-col">
         <img src="{{asset ('image/Logowname.png')}}" alt="" class="w-[180px] self-center">
         <hr class="mt-2">

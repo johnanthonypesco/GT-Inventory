@@ -1,6 +1,6 @@
 @props(['count' => 0, 'title'=> 'Total Stocks', 'image' => 'image.png'])
 
-<div  id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
+<div  id="card" class="shadow-lg bg-white w-full p-5 rounded-xl">
     <div class="flex items-center justify-between">
         <p class="text-3xl">0{{$count}}</p>
         <img src="{{asset ('image/'. $image)}}" alt="">
@@ -8,7 +8,7 @@
     <p class="text-xl font-semibold">{{$title}}</p>
 </div>
 
-<style>
+{{-- <style>
     #card:hover{
         background: #000046;  /* fallback for old browsers */
         background: -webkit-linear-gradient(to right, #1CB5E0, #000046);  /* Chrome 10-25, Safari 5.1-6 */
@@ -17,4 +17,4 @@
         transform: scale(1.05);
         transition: all 0.3s;
     }
-</style>
+</style> --}}

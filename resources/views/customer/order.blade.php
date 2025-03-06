@@ -14,7 +14,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar />
 
-    <main class="w-full">
+    <main class="w-full md:ml-[17%]">
         <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">

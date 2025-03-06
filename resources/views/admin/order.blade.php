@@ -15,12 +15,12 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="w-full">
+    <main class="md:w-full h-full md:ml-[16%]">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
 
         {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             {{-- <x-countcard title='Cancelled Orders' image="cancel.png" count="20"/> --}}
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>

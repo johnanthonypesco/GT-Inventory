@@ -15,7 +15,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full">
+    <main class="md:w-full h-full md:ml-[16%]">
         <x-admin.header title="Order History" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter --}}

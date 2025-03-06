@@ -14,7 +14,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full">
+    <main class="w-full md:ml-[17%]">
         <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
         
         <div class="mt-5">
@@ -30,7 +30,7 @@
                 <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-3" disabled/>
                 <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-3" disabled/>
                 <x-label-input label="Account Password" type="password" id="password" for="password" value="jewelmatapang" divclass="mt-3 relative">
-                    <x-view-password onclick="password()"/>
+                <x-view-password onclick="password()"/>
                 </x-label-input>
 
             </div>
@@ -39,14 +39,14 @@
         {{-- Modal for edit account --}}
         <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 pt-20" id="editaccount">
             <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto relative">
-                <span onclick="closeeditaccount()" class="cursor-pointer absolute -top-10 -right-3 text-red-600 font-bold text-[50px]">&times;</span>
+                <x-modalclose click="closeeditaccount"/>
                 <p class="text-xl font-semibold text-center text-[#005382]">Edit Account</p>
                 {{-- Form --}}
                 <form action="" id="editaccountform">
                     <x-label-input label="Account Name" type="text" for="accountname" value="Wesleyan Hospital" divclass="mt-5" disabled/>
                     <x-label-input label="Account Username" type="text" for="username" value="jewelmatapang" divclass="mt-5"/>
                     <x-label-input label="Account Password" type="password" id="modalpassword" for="password" value="jewelmatapang" divclass="mt-5 relative">
-                        <x-view-password onclick="modalpassword()"/>
+                    <x-view-password onclick="modalpassword()"/>
                     </x-label-input>
 
                     <x-submit-button id="editaccountBtn"/>

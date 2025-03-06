@@ -90,7 +90,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
 
     Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
-    Route::get('customer/', [CustomerloginController::class, 'showLogin'])->name('customer.index');
 
     Route::post('/superadmin/logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
     Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');

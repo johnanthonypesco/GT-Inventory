@@ -17,7 +17,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full">
+    <main class="w-full md:ml-[17%]">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
         
         <div class="bg-white mt-5 p-5 rounded-lg ">

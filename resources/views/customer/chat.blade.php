@@ -12,7 +12,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar />
 
-    <main class="w-full">
+    <main class="w-full md:ml-[17%]">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
         
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>

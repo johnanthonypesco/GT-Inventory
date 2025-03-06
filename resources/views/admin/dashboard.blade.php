@@ -15,7 +15,7 @@
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
     <x-admin.navbar/>
 
-    <main class="md:w-full">
+    <main class="md:w-full h-full md:ml-[16%]">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center mt-5">
