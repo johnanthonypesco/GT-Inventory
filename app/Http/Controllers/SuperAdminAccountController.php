@@ -81,7 +81,7 @@ class SuperAdminAccountController extends Controller
             'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
 'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
             'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
-'contact_number' => 'required|numeric|unique:users,contact_number',
+'contact_number' => 'nullable|numeric|unique:users,contact_number',
             'location_id' => 'nullable|exists:locations,id',
             'job_title' => 'nullable|string|max:255',
             'company_id' => 'nullable|exists:companies,id', // Validate existing company

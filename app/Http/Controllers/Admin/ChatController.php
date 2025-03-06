@@ -1,15 +1,75 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\SuperAdmin;
+use App\Models\Conversation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-    //
     public function showChat()
     {
-        return view('admin.chat');
+        $users = User::select('id', 'name')->get(); // Fetch users from the database
+        return view('admin.chat', compact('users'));
     }
+    public function chatWithUser($id)
+    {
+        $user = User::findOrFail($id); // Get the user being chatted with
+
+        $conversations = Conversation::where(function ($query) use ($id) {
+                $query->where('sender_id', auth()->id())
+                      ->where('receiver_id', $id);
+            })
+            ->orWhere(function ($query) use ($id) {
+                $query->where('sender_id', $id)
+                      ->where('receiver_id', auth()->id());
+            })
+            ->orderBy('created_at', 'asc')
+            ->get(); // Get conversation history
+
+        return view('admin.chatting', compact('user', 'conversations'));
+    }
+
+    public function store(Request $request)
+{
+    $request->validate([
+        'receiver_id' => 'required|integer',
+        'message' => 'nullable|string',
+        'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx|max:5120',
+    ]);
+
+    $user = Auth::user();
+    if (!$user) {
+        return redirect()->back()->with('error', 'Unauthorized');
+    }
+
+    // Determine sender type (SuperAdmin or User)
+    $isSuperAdmin = \App\Models\SuperAdmin::where('id', $user->id)->exists();
+    $senderType = $isSuperAdmin ? 'super_admin' : 'user';
+
+    // Handle File Upload
+    $filePath = null;
+    if ($request->hasFile('file')) {
+        $filePath = $request->file('file')->store('chat_files', 'public');
+    }
+
+    // Ensure at least one of `message` or `file` is present
+    if (!$request->message && !$filePath) {
+        return redirect()->back()->with('error', 'Message or file is required');
+    }
+
+    // Save the chat message
+    Conversation::create([
+        'sender_id' => $user->id,
+        'sender_type' => $senderType,
+        'receiver_id' => $request->receiver_id,
+        'message' => $request->message ?? '',
+        'file_path' => $filePath,
+    ]);
+
+    return redirect()->back();
+}
 }

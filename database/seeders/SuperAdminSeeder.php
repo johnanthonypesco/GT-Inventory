@@ -39,6 +39,11 @@ class SuperAdminSeeder extends Seeder
                 'email' => 'pescojohnanthony@gmail.com',
                 'password' => Hash::make('12345678'), // Securely hash password
             ]);
+            SuperAdmin::create([
+                's_admin_username' => 'jmjmjm',
+                'email' => 'jmjonatas4@gmail.com',
+                'password' => Hash::make('12345678'), // Securely hash password
+            ]);
         }
     }
 }

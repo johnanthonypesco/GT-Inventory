@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\Admin\ChatController;
+
 
 // Admin Controller
 use App\Http\Controllers\Admin\LoginController;
@@ -40,6 +40,18 @@ use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 
 
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
+
+// chat
+use App\Http\Controllers\Admin\ChattingController;
+use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Customer\ChatRepsController;
+
+// GroupChat
+use App\Http\Controllers\Admin\GroupChatController;
+
+
+
+
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
@@ -97,6 +109,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::post('/staff/logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
     Route::get('/customer/account', [CustomerAccountController::class, 'index'])->name('customer.account');
     Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
+
+    // chat
+    Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
+    Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
+    Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
+
+    Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
+    Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
+    Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+
+    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
+    Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
+    ->name('customer.chat.fetch');
+
+    Route::get('/admin/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
+    
+
+
 });
 
 // BREEZE AUTHERS
@@ -181,9 +211,26 @@ Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa
 
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
-    Route::get('admin/chat', [MessageController::class, 'chat'])->name('admin.chat'); // Chat page
-    Route::get('/messages/{receiver_id}', [MessageController::class, 'fetchMessages'])->name('messages.fetch'); // Fetch messages
-    Route::post('/messages', [MessageController::class, 'sendMessage'])->name('messages.send'); // Send message
+    // Route::get('admin/chat', [MessageController::class, 'chat'])->name('admin.chat'); // Chat page
+    
+    
+    Route::post('/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
+
+    // Group Chat
+    Route::get('/admin/group-chat', [GroupChatController::class, 'index'])->name('admin.group.chat');
+    Route::post('/admin/group-chat/store', [GroupChatController::class, 'store'])->name('admin.group.chat.store');
+    Route::get('/admin/chat/{user}', [ChatController::class, 'index'])->name('admin.chat.index');
+    Route::post('/admin/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
+
+    // admins and staff chats
+    Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
+    Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
+    Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
+    // Route::post('admin/chat/send', [ChattingController::class, 'sendMessage'])->name('send.message');
+    // Route::post('/admin/chat/send', [ChattingController::class, 'storeMessage'])->name('admin.chat.send');
+    // Route::get('/admin/chat/{id}', [ChattingController::class, 'chatWithUser'])->name('admin.chat');
+    // Route::post('/admin/chat/send', [ChattingController::class, 'storeMessage'])->name('admin.chat.store');
+    // Route::post('/chat/send', [ChattingController::class, 'storeMessage'])->name('chat.send');
 });
 
 // ✅ Keep Laravel Auth Routes
