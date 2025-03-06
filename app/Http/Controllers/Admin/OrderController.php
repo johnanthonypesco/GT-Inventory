@@ -9,12 +9,12 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function showOrder()
+public function showOrder()
     {
         $orders = Order::with(['user.company', 'exclusive_deal.product'])
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
-        ->get()
+        ->get()    
         ->groupBy(function ($order)  {
             return $order->date_ordered;
         });

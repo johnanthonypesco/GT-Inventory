@@ -22,33 +22,50 @@ class StaffAuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+   
+    
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
+    
         if (Auth::guard('staff')->attempt($credentials, $request->filled('remember'))) {
             $staff = Auth::guard('staff')->user();
-
-            // ✅ Store session using `authenticatable_id`
-            Session::put([
-                'authenticatable_id' => $staff->id,
-                'authenticatable_type' => \App\Models\Staff::class, // ✅ Use Staff model
-            ]);
-
-            // ✅ Regenerate session after login
-            $request->session()->regenerate();
-
-            return redirect()->route('admin.dashboard');
+    
+            // ✅ Generate a 6-digit 2FA code
+            $twoFactorCode = (string) rand(100000, 999999);
+    
+            // ✅ Save the 2FA code and expiration time
+            $staff->two_factor_code = $twoFactorCode;
+            $staff->two_factor_expires_at = now()->addMinutes(10);
+    
+            if (!$staff->save()) {
+                return back()->withErrors(['error' => 'Failed to generate a two-factor authentication code. Please try again.']);
+            }
+    
+            // ✅ Send the 2FA code via email
+            try {
+                Mail::to($staff->email)->send(new TwoFactorCodeMail($twoFactorCode));
+            } catch (\Exception $e) {
+                return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
+            }
+    
+            // ✅ Log out the staff after generating the code
+            Auth::guard('staff')->logout();
+    
+            // ✅ Store staff ID in session for 2FA verification
+            session(['two_factor_staff_id' => $staff->id]);
+    
+            return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
         }
-
+    
         return back()->withErrors([
             'email' => 'Invalid credentials.',
         ]);
     }
-
+    
     /**
      * Destroy an authenticated session.
      */

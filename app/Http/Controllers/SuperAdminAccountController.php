@@ -51,7 +51,8 @@ class SuperAdminAccountController extends Controller
         ]));
 
         $locations = Location::all();
-        return view('admin.manageaccount', compact('accounts', 'locations', 'admins', 'companies'));
+        // return view('admin.manageaccount', compact('accounts', 'locations', 'admins', 'companies'));
+        return view('admin.manageaccount', ['accounts' => $accounts, 'locations' => $locations, 'admins' => $admins, 'companies' => $companies]);
     }
 
     /**

@@ -22,7 +22,7 @@
 
         @if (session('status') == 'verification-link-sent')
             <div class="bg-green-100 text-green-700 p-3 rounded-lg mt-4">
-                ✅ A new verification link has been sent to your email.
+                ✅ A verification link has been sent to your email.
             </div>
         @endif
 
@@ -31,7 +31,7 @@
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
                 <button type="submit" class="w-full bg-[#15ABFF] text-white p-3 rounded-lg hover:bg-[#0E8CD7] transition">
-                    Resend Verification Email
+                    Send Verification Email
                 </button>
             </form>
 

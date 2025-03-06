@@ -558,7 +558,7 @@ function toggleEditFields(role) {
 
 
 
-<script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
+{{-- <script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script> --}}
 {{-- <script src="{{asset ('js/manageaccount.js')}}"></script> --}}
 
 </html>

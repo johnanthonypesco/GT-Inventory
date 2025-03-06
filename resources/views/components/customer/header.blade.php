@@ -1,18 +1,36 @@
 @props(['title'=> '', 'icon' => 'fa-solid'])
 
-<header class="w-full bg-white px-5 py-3 rounded-xl flex justify-between items-center">
-    <h1 class="font-bold text-2xl flex items-center gap-2"><i {{$attributes->merge(['class'=> 'text-[#005382] ' .$icon])}}></i>{{ $title }}</h1>
-    <div class="hidden lg:flex gap-2 px-3 py-1 items-center border border-[#005382] w-fit rounded-lg">
-            <i class="fa-regular fa-user text-white text-lg w-fit bg-[#005382] p-2 rounded-full"></i>
+@php
+// Check which guard is logged in
+if(auth('web')->check()) {
+    $user = auth('web')->user();
+    $name = $user->name;
+    $email = $user->email;
+    $company = $user->company->name;
+
+} else {
+    $name = 'Guest';
+    $email = 'guest@example.com';
+}
+@endphp
+<header class="flex justify-between items-center w-full py-2 px-5 bg-white rounded-lg">
+<div class="flex items-center gap-2">
+    <i {{ $attributes->merge(['class'=> 'text-[#005382] text-2xl '. $icon]) }}></i>
+    <h1 class="font-bold text-lg uppercase">{{$title}}</h1>
+</div>
+
+<div class="flex items-center gap-4">
+    {{-- Ensure user info container is visible in all breakpoints where needed --}}
+    <div class="hidden md:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-lg">
+        <i class="fa-solid fa-user text-2xl bg-[#005382] text-white p-2 rounded-full"></i>
         <div>
-            <h1 class="font-bold text-md">Wesleyan Hospital</h1>
-            <p class="text-sm">wesleyan@gmail.com</p>
+            <p class="font-semibold text-sm">{{ $company }}</p>
+            <p class="text-[12px]">{{ $name}}</p>
+            <p class="text-[12px]">{{ $email }}</p>
         </div>
     </div>
-    <div class="lg:hidden">
-        <i class="fa-solid fa-bars text-2xl hover:cursor-pointer" onclick="sidebar()"></i>
-    </div>
 </header>
+   
 
 <x-customer.sidebar/>
 
