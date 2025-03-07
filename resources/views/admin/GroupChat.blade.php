@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Company Messenger</title>
 </head>
@@ -11,7 +12,7 @@
     <div class="w-full max-w-lg bg-white shadow-lg rounded-lg flex flex-col h-[600px]">
         <!-- Header -->
         <div class="bg-blue-700 text-white p-4 text-center text-lg font-bold flex justify-between items-center">
-            🏆 Company Messenger
+            🏆 Company Group Chat
         </div>
 
         <!-- Chat Messages -->
@@ -69,20 +70,21 @@
         <form action="{{ route('admin.group.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
             @csrf
             <input type="text" name="message" class="flex-1 p-2 border rounded-full px-4 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type a message...">
-            <label class="cursor-pointer ml-2">
-                <input type="file" name="file" class="hidden" onchange="previewFile(event)">
-                📎
-            </label>
+            <input type="file" name="file" class="hidden">
+            <label for="file" class="cursor-pointer text-xl ml-2"><i class="fa-solid fa-paperclip"></i></label>
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-full ml-2">Send</button>
         </form>
     </div>
+
+    <a href="{{ route('admin.chat') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
+
+    
 
     <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden">
         <img id="modalImage" class="max-w-full max-h-full">
         <button class="absolute top-4 right-4 text-white text-2xl" onclick="closeImageModal()">✖</button>
     </div>
-
     <script>
         function openImageModal(src) {
             document.getElementById('modalImage').src = src;
