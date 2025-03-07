@@ -123,3 +123,14 @@ li a .active{
         opacity: 1;
     }
 }
+.customer-container:hover{
+    background-color: #005382;
+    color: white;
+    transition: all 0.3s;
+}
+.customer-container:hover p{
+    color: white;
+}
+.customer-container:hover i{
+    border: 1px solid white;
+}

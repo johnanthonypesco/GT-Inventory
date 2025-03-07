@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-public function showOrder()
+    public function showOrder()
     {
         $orders = Order::with(['user.company', 'exclusive_deal.product'])
         ->whereNotIn('status', ['delivered', 'cancelled'])

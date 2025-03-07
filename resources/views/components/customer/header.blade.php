@@ -24,11 +24,17 @@ if(auth('web')->check()) {
     <div class="hidden md:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-lg">
         <i class="fa-solid fa-user text-2xl bg-[#005382] text-white p-2 rounded-full"></i>
         <div>
-            <p class="font-semibold text-sm">{{ $company }}</p>
-            <p class="text-[12px]">{{ $name}}</p>
+            <div class="flex items-center gap-2">
+                <p class="font-semibold text-sm">{{ $company }}</p>
+                <p class="text-[12px] uppercase">{{ $name}}</p>
+            </div>
             <p class="text-[12px]">{{ $email }}</p>
         </div>
     </div>
+</div>
+<div class="lg:hidden">
+    <i class="fa-solid fa-bars text-2xl hover:cursor-pointer" onclick="sidebar()"></i>
+</div>
 </header>
    
 
