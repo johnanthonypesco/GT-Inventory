@@ -17,6 +17,7 @@ class Order extends Model
         'date',
         'status',
         'quantity',
+        'qr_code',
     ];
 
     public function user(): BelongsTo {
@@ -24,6 +25,6 @@ class Order extends Model
     }
 
     public function exclusive_deal():BelongsTo {
-        return $this->belongsTo(ExclusiveDeal::class);
+        return $this->belongsTo(ExclusiveDeal::class, 'exclusive_deal_id', 'id');
     }
 }

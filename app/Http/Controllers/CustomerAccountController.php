@@ -21,14 +21,15 @@ class CustomerAccountController extends Controller
             $user = Auth::user();
     
             // Validate input
-            $request->validate([
+          $validated =  $request->validate([
                 'name' => 'required|string|max:255|unique:users,name,' . $user->id,
                 'email' => 'required|email|max:255|unique:users,email,' . $user->id,
                 'contact_number' => 'required|string|unique:users,contact_number,' . $user->id,
                 'password' => 'nullable|min:8',
                 'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // ✅ New rule for profile image
             ]);
-    
+            $validated = array_map("strip_tags", $validated);
+
             // Assign values
             $user->name = $request->name;
             $user->email = $request->email;

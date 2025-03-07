@@ -3,60 +3,63 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MessageController;
+use App\Http\Controllers\QRCodeController;
 
 
 // Admin Controller
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\ItemQrCodeController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\InventoryController;
-use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\SuperAdminAccountController;
+use App\Http\Controllers\Admin\ChattingController;
 
 
 // Staff Controller
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GroupChatController;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\Customer\ChatRepsController;
+use App\Http\Controllers\SuperAdminAccountController;
+
+// Customer Controller
 use App\Http\Controllers\Auth\TwoFactorAuthController;
+
+
+//Super Admin Login
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
-
-// Customer Controller
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 
 
-//Super Admin Login
+
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
+
+// chat
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
-use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-use App\Http\Controllers\Customer\ChatController as CustomerChatController;
-
-
-
-use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
-
-// chat
-use App\Http\Controllers\Admin\ChattingController;
-use App\Http\Controllers\Admin\ChatController;
-use App\Http\Controllers\Customer\ChatRepsController;
 
 // GroupChat
-use App\Http\Controllers\Admin\GroupChatController;
+use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 
 
 
 
+use App\Http\Controllers\Customer\ChatController as CustomerChatController;
+use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+
 
 
 
@@ -81,6 +84,18 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::delete('admin/productlisting/{deal_id}/{company}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
     
         Route::get('admin/manageaccount', [ManageaccountController::class, 'showManageaccount'])->name('admin.manageaccount');
+
+        // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
+        //     ->name('orders.generateQrCode');
+
+Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
+     ->name('orders.showQrCode');
+
+                // routes/web.php
+
+
+     
+
     });
 
     // AVAILABLE ROUTES EVEN FOR STAFF
