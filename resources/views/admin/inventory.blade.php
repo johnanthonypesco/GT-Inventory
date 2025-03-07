@@ -281,7 +281,7 @@
         $addMultiStockFailed = session('stockFailType') === 'multiple' ? true : false;
     @endphp
 
-    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed">
+    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed overflow-auto">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
             <x-modalclose click="closeaddmultiplestock"/>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
