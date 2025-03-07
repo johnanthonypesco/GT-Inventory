@@ -18,7 +18,7 @@
 
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full">
+    <main class="md:w-full h-full md:ml-[16%]">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
@@ -63,8 +63,9 @@
         <x-stock-overview-modal  modalType="out-stock" :variable="$noStockProducts" /> 
         {{-- Shows An Overview Modal for Certain Product Categories --}}
 
-        {{-- Filters Location --}}
-        <div class="flex justify-between flex-col lg:flex-row mt-4">
+        <div class="h-[66vh] overflow-auto mt-4">
+            {{-- Filters Location --}}
+        <div class="flex justify-between flex-col lg:flex-row">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
 
@@ -84,8 +85,8 @@
 
         @foreach ($inventories as $inventory)
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
-            <h1 class="text-2xl font-bold text-blue-600">
-                {{ $inventory->first()->location->province }}
+            <h1 class="text-xl font-bold mb-5">
+                Inventory of: {{ $inventory->first()->location->province }}
             </h1>
             {{-- since it already has a select location what if, remove the location --}}
             <div class="flex flex-wrap justify-between items-center">
@@ -125,6 +126,7 @@
                 {{-- Pagination --}}
             </div>
         @endforeach
+        </div>
     </main>
 
     {{-- Modal for View All Products --}}
@@ -235,9 +237,9 @@
                 
                 <input type="hidden" id="single_product_id" value="{{ $failedToAddStock ? old('product_id.0') : '' }}" name="product_id[]">
 
-                <div>
+                <div class="flex flex-col">
                     <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
-                    <select name="location_id[]" id="single_location_id">
+                    <select name="location_id[]" id="single_location_id" class="w-fit p-3 outline-none rounded-lg">
                         @foreach ($locations as $location)
                             <option value="{{ $location->id }}">{{ $location->province }}</option>
                         @endforeach
@@ -318,15 +320,15 @@
             <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  
                 @csrf
 
+                <div class="flex flex-col">
+                    <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
+                    <select name="location_id[]" id="single_location_id" class="w-fit p-[12.5px] outline-none rounded-lg">
+                        @foreach ($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->province }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="flex gap-2 mt-2">
-                    <div>
-                        <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
-                        <select name="location_id[]" id="single_location_id">
-                            @foreach ($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->province }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
                     <x-label-input label="Batch No:" name="batch_number[]" type="text" for="batch_number" divclass="w-1/2" inputclass="p-3"  placeholder="Enter Quantity"/>
                     <div class="flex flex-col w-1/2" inputclass="p-3">
@@ -357,7 +359,7 @@
                     <div class="flex gap-2 mt-2">
                         <div>
                             <label for="location_id[]">Delivery Location: {{ $errors->first('location_id') }}</label>
-                            <select name="location_id[]" id="single_location_id">
+                            <select name="location_id[]" id="single_location_id" class="w-fit p-3 outline-none rounded-lg">
                                 @foreach ($locations as $location)
                                     <option value="{{ $location->id }}">{{ $location->province }}</option>
                                 @endforeach

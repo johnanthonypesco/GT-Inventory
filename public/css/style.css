@@ -84,7 +84,7 @@ input:focus{
     outline: 2px solid #005382;
 }
 ::-webkit-scrollbar {
-    width: 10px; 
+    width: 4px; 
 }
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
@@ -111,4 +111,24 @@ input:focus{
         top: 0; 
         opacity: 1;
     }
+}
+table thead th{
+    background-color: #00528237;
+    font-weight: semibold;
+    text-transform: uppercase;
+    padding: 10px;
+    font-size: 17px;
+}
+table{
+    width: 100%;
+}
+table tbody td{
+    padding: 10px;
+    font-size: 16px;
+}
+table tbody tr{
+    border-bottom: 2px solid #0052825e;
+}
+table tr{
+    text-align: center;
 }

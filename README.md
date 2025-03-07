@@ -21,7 +21,8 @@
     - MAIL_FROM_NAME=RMPOIMS
     ```
 3. run: `php artisan migrate:fresh --seed`
-4. Project is now ready for: `php artisan serve`
+4. run: `php artisan storage:link`
+5. Project is now ready for: `php artisan serve`
 
 ---
 ---

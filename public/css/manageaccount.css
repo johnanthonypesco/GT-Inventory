@@ -1,28 +1,8 @@
-table thead th{
-    background-color: #00528237;
-    font-weight: semibold;
-    text-transform: uppercase;
-    padding: 10px;
-    font-size: 20px;
+#addAccountModal select{
+    border: 1px solid #005382;
+    border-radius: 5x;
 }
-table{
-    width: 100%;
-}
-table tbody td{
-    padding: 10px;
-    font-size: 18px;
-}
-table tbody tr{
-    border-bottom: 2px solid #0052825e;
-}
-table tr{
-    text-align: center;
-}
-.modal{
-    animation-name: animatetop;
-    animation-duration: 0.4s
-}
-@keyframes animatetop {
-    from {top: -300px; opacity: 0}
-    to {top: 0; opacity: 1}
+#addAccountModal input{
+    border: 1px solid #005382;
+    border-radius: 5px;
 }

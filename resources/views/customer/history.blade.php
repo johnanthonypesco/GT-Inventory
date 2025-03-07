@@ -18,7 +18,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full">
+    <main class="w-full md:ml-[17%]">
         <x-customer.header title="Order History" icon="fa-solid fa-clock-rotate-left"/>
         
         {{-- Table for Order --}}

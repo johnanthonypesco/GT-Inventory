@@ -78,4 +78,17 @@ class SuperAdmin extends Authenticatable
     {
         return $this->hasMany(Admin::class, 'super_admin_id'); // ✅ Use `super_admin_id` as FK
     }
+    // jm added
+    public function getNameAttribute()
+    {
+        return $this->s_admin_username;
+    }
+    public function groupChats()
+    {
+        return $this->hasMany(GroupChat::class, 'super_admin_id'); // ✅ Relationship to GroupChats
+    }
+    public function messages() {
+        return $this->morphMany(GroupChat::class, 'sender');
+    }
+    
 }
