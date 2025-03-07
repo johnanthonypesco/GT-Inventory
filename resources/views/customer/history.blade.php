@@ -35,7 +35,7 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[360px] mt-5">
+            <div class="overflow-auto h-[57vh] mt-5">
                 {{-- Table --}}
                 <table>
                     <thead>
@@ -65,8 +65,8 @@
                     </table>
                 </div>
                 {{-- Table --}}
+                <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
             </div>
-            <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
         </div>
         {{-- Table for Order --}}
 
