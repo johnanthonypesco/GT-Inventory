@@ -9,6 +9,7 @@
         "php": "^8.2",
         "box/spout": "^3.3",
         "endroid/qr-code": "^6.0",
+        "khanamiryan/qrcode-detector-decoder": "^2.0",
         "laravel/framework": "11.44",
         "laravel/reverb": "^1.4",
         "laravel/tinker": "^2.9"
