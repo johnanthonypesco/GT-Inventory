@@ -212,6 +212,10 @@ class InventoryController extends Controller
             $quantity    = $data['quantity'] ?? 1;
     
             Log::info("Received QR Data:", $data); // Debug log
+
+            if (ScannedQrCode::where('order_id', $orderId)->exists()) {
+                return response()->json(['message' => ' Error: This QR code has already been scanned!'], 400);
+            }
         
             // Step 1: Get `location_id`
             $locationId = Location::where('province', $location)->value('id');
