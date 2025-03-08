@@ -90,6 +90,14 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
 Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
      ->name('orders.showQrCode');
+     Route::get('/scan', function () {
+        return view('orders.scan');
+    })->name('orders.scan');
+    
+
+
+Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+
 
                 // routes/web.php
 

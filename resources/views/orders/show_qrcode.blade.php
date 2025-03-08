@@ -7,9 +7,10 @@
 <body>
 
     <h1>QR Code for Order #{{ $order->id }}</h1>
+    {{-- src="{{ asset('storage/' . Auth::user()->company->profile_image) }}" --}}
 
     @if($qrCodeUrl)
-        <img src="{{ $qrCodeUrl }}" alt="Order QR Code" style="max-width: 300px;">
+        <img src="{{ asset($qrCodeUrl) }}" alt="Order QR Code" style="max-width: 300px;">
     @else
         <p>No QR code available.</p>
     @endif

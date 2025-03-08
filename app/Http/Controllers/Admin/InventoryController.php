@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Inventory;
-use App\Models\Location;
 use App\Models\Product;
+use App\Models\Location;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
+use App\Models\ScannedQrCode;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class InventoryController extends Controller
@@ -192,4 +194,81 @@ class InventoryController extends Controller
 
         return to_route("admin.inventory");
     }
-}
+
+
+
+  
+    public function deductInventory(Request $request)
+    {
+        try {
+            // Extract data from QR code
+            $data = $request->all();
+    
+            $orderId     = $data['order_id'] ?? null;
+            $productName = $data['product_name'] ?? null;
+            $batchNumber = $data['batch_number'] ?? null;
+            $expiryDate  = $data['expiry_date'] ?? null;
+            $location    = $data['location'] ?? null;
+            $quantity    = $data['quantity'] ?? 1;
+    
+            Log::info("Received QR Data:", $data); // Debug log
+        
+            // Step 1: Get `location_id`
+            $locationId = Location::where('province', $location)->value('id');
+    
+            if (!$locationId) {
+                return response()->json(['message' => 'Error: Location "' . $location . '" not found in the database'], 400);
+            }
+    
+            // Step 2: Get `product_id`
+            $productId = Product::where('generic_name', $productName)->value('id');
+    
+            if (!$productId) {
+                return response()->json(['message' => 'Error: Product "' . $productName . '" not found in the database'], 400);
+            }
+    
+            // Step 3: Find inventory using `batch_number` and `expiry_date`
+            $inventory = Inventory::where('location_id', $locationId)
+                                  ->where('product_id', $productId)
+                                  ->where('batch_number', $batchNumber)
+                                  ->where('expiry_date', $expiryDate)
+                                  ->where('quantity', '>', 0)
+                                  ->orderBy('expiry_date', 'asc')
+                                  ->orderBy('created_at', 'asc')
+                                  ->first();
+    
+            if (!$inventory) {
+                return response()->json(['message' => 'Error: Inventory not found for batch "' . $batchNumber . '" at location "' . $location . '"'], 400);
+            }
+    
+            // Step 4: Deduct the quantity
+            if ($inventory->quantity >= $quantity) {
+                $inventory->update([
+                    'quantity' => $inventory->quantity - $quantity
+                ], ['inventory_id' => $inventory->inventory_id]); // Fix: Use inventory_id instead of id
+    
+                // Step 5: Record the scan
+                ScannedQrCode::create([
+                    'order_id'      => $orderId,
+                    'product_name'  => $productName,
+                    'batch_number'  => $batchNumber,
+                    'expiry_date'   => $expiryDate,
+                    'location'      => $location,
+                    'quantity'      => $quantity,
+                    'scanned_at'    => now(),
+                ]);
+    
+                return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
+            } else {
+                return response()->json(['message' => 'Error: Not enough stock available. Requested: ' . $quantity . ', Available: ' . $inventory->quantity], 400);
+            }
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => '❌ Server error: ' . $e->getMessage(),
+                'line'    => $e->getLine(),
+                'file'    => $e->getFile()
+            ], 500);
+        }
+    }
+}    

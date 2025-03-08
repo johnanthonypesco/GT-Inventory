@@ -36,8 +36,10 @@
                          divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                 {{-- Table Button --}}
                 <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                    <button><i class="fa-solid fa-qrcode"></i>Scan</button>
-                    <button><i class="fa-solid fa-download"></i>Export</button>
+                    <button onclick="window.location.href='{{ route('orders.scan') }}'">
+                        <i class="fa-solid fa-qrcode"></i> Scan
+                    </button>
+                                        <button><i class="fa-solid fa-download"></i>Export</button>
                 </div>
                 {{-- Table Button --}}
             </div>
@@ -66,6 +68,7 @@
                             rounded-lg relative shadow-lg">
                     
                     {{-- Close button, etc. --}}
+                    <x-modalclose id="order-modal-{{ $ordersGroup->first()->id }}" click="closeOrderModal({{ $ordersGroup->first()->id }})"/>
 
                     <h1 class="text-[20px] sm:text-[20px] font-regular">
                         <span class="text-[#005382] text-[20px] font-bold mr-2">
