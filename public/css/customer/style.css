@@ -53,7 +53,7 @@ ul a:hover i, a:hover i{
     color: white;
 }
 ::-webkit-scrollbar {
-    width: 10px; 
+    width: 4px; 
 }
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
@@ -122,4 +122,15 @@ li a .active{
         top: 0; 
         opacity: 1;
     }
+}
+.customer-container:hover{
+    background-color: #005382;
+    color: white;
+    transition: all 0.3s;
+}
+.customer-container:hover p{
+    color: white;
+}
+.customer-container:hover i{
+    border: 1px solid white;
 }

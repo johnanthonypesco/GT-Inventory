@@ -22,3 +22,6 @@ table tbody td{
 table tbody tr{
     border-bottom: 2px solid #0052825e;
 }
+table tbody tr:hover{
+    background-color: #78787824;
+}
