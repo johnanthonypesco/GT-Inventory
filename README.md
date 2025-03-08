@@ -1,7 +1,11 @@
 # How to Make the Project Run
 
-1. run in terminal: `composer install`
-2. change .env variables to this:
+1. Go to XAMPP's apache php.ini file
+2. CTRL + F then find this line: `;extension=gd`
+3. Remove the ';', turning it into: `extension=gd`
+4. Go Back to the Project Folder
+5. run in terminal: `composer install`
+6. change .env variables to this:
     ```dotenv
     - DB_CONNECTION=mysql
     - DB_HOST=127.0.0.1
@@ -20,9 +24,9 @@
     - MAIL_FROM_ADDRESS=arkquestdev@gmail.com
     - MAIL_FROM_NAME=RMPOIMS
     ```
-3. run: `php artisan migrate:fresh --seed`
-4. run: `php artisan storage:link`
-5. Project is now ready for: `php artisan serve`
+7. run: `php artisan migrate:fresh --seed`
+8. run: `php artisan storage:link`
+9. Project is now ready for: `php artisan serve`
 
 ---
 ---
