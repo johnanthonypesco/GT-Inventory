@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->morphs('sender'); // This creates `sender_id` and `sender_type`
             // $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id');
-            $table->text('message');
+            $table->text('message')->nullable();
             $table->timestamps();
         });
         

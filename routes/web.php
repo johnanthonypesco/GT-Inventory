@@ -231,6 +231,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     // Route::get('/admin/chat/{id}', [ChattingController::class, 'chatWithUser'])->name('admin.chat');
     // Route::post('/admin/chat/send', [ChattingController::class, 'storeMessage'])->name('admin.chat.store');
     // Route::post('/chat/send', [ChattingController::class, 'storeMessage'])->name('chat.send');
+    Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
+    Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
+
 });
 
 // ✅ Keep Laravel Auth Routes
