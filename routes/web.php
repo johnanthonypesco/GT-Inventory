@@ -88,29 +88,20 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
         //     ->name('orders.generateQrCode');
 
-Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
-     ->name('orders.showQrCode');
+        Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
+            ->name('orders.showQrCode');
 
-     Route::get('/scan-qr', function () {
-         return view('orders.scan'); // Blade file for scanning QR codes
-     })->name('orders.scan');
-     
-     Route::get('/upload-qr', function () {
-         return view('orders.upload_qr'); // Blade file for uploading QR codes
-     })->name('upload.qr');
-     
-     Route::post('/upload-qr-code', [InventoryController::class, 'uploadQrCode'])->name('upload.qr.code');
-     
+        Route::get('/scan-qr', function () {
+            return view('orders.scan'); // Blade file for scanning QR codes
+        })->name('orders.scan');
 
+        Route::get('/upload-qr', function () {
+            return view('orders.upload_qr'); // Blade file for uploading QR codes
+        })->name('upload.qr');
 
-Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+        Route::post('/upload-qr-code', [InventoryController::class, 'uploadQrCode'])->name('upload.qr.code');
 
-
-                // routes/web.php
-
-
-     
-
+        Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
     });
 
     // AVAILABLE ROUTES EVEN FOR STAFF

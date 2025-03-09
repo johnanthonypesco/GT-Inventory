@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,97 +53,126 @@
                 {{-- Table Button --}}
             </div>
 
-            <div class="overflow-auto h-[270px] mt-5">
-                {{-- Table --}}
-                <x-table 
-                    :headings="['Order ID', 'Company', 'Customer Name', 'Date Ordered', 'Status', 'Action']" 
-                    :variable="$orders"
-                    category="order"
-                />
-                {{-- Table --}}
-            </div>
-            <x-pagination/>
+            @foreach ($companies as $companyName => $employees)
+                
+                <h1 class="text-[20px] sm:text-[20px] font-regular mt-8 font-bold">
+                    <span class="text-[#005382] text-[20px] font-bold mr-2">
+                        Orders From:
+                    </span>
+                    {{ $companyName }}
+                </h1>
+
+                <div class="overflow-auto max-h-[200px] h-fit mt-5">
+                    {{-- Table --}}
+                    <x-table 
+                        :headings="['Employee Name', 'Date Ordered', 'Action']" 
+                        :variable="$employees"
+                        category="order"
+                    />
+                    {{-- Table --}}
+                </div>
+                @endforeach
+                <x-pagination/>
         </div>
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        {{-- Here we do a "double loop" because $orders is grouped by date_ordered --}}
-        @foreach ($orders as $date => $ordersGroup)
-            {{-- $ordersGroup is a collection of Order models for that date --}}
-            <div class="order-modal hidden fixed top-0 left-0 pt-[70px] w-full h-full 
-                        items-center justify-center px-4"
-                 id="order-modal-{{ $ordersGroup->first()->id }}">
-                <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 
-                            rounded-lg relative shadow-lg">
-                    
-                    {{-- Close button, etc. --}}
-                    <x-modalclose id="order-modal-{{ $ordersGroup->first()->id }}" click="closeOrderModal({{ $ordersGroup->first()->id }})"/>
+        @foreach ($companies as $employees)
+            @foreach ($employees as $employeeNameAndDate => $groupedStatuses)
+                @php
+                    $total = 0;
+                @endphp
+                <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full 
+                            items-center justify-center px-4"
+                    id="order-modal-{{ $employeeNameAndDate }}">
+                    <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5 
+                                rounded-lg relative shadow-lg">
+                        {{-- Close button, etc. --}}
+                        <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
 
-                    <h1 class="text-[20px] sm:text-[20px] font-regular">
-                        <span class="text-[#005382] text-[20px] font-bold mr-2">
-                            Orders for date:
-                        </span>
-                        {{ $date }}
-                    </h1>
+                        <h1 class="text-4xl font-bold uppercase mb-6">
+                            @php 
+                                $separatedInModal = explode('|', $employeeNameAndDate);  
+                            @endphp
+                            Orders By: 
+                            <span class="text-blue-800"> 
+                                {{ $separatedInModal[0] }} -
+                                [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
+                            </span>
+                        </h1>
+                        
+                        <div class="table-container h-[360px] overflow-y-auto">
+                            @foreach ($groupedStatuses as $statusName => $orders)
+                                <h1 class="text-2xl text-black font-bold uppercase mb-3
+                                    {{
+                                        match ($statusName) {
+                                            'pending' => 'text-orange-600',
+                                            'completed' => 'text-blue-600',
+                                            'partial-delivery' => 'text-purple-700',
+                                            default => 'text-black'
+                                        }
+                                    }}
+                                "> 
+                                    {{ $statusName }} Orders:
+                                </h1>
+                                <table class="w-full mb-5">
+                                    <thead>
+                                        <tr>
+                                            <th>Generic Name</th>
+                                            <th>Brand Name</th>
+                                            <th>Form</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>QR Code</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($orders as $order)
+                                            {{-- @foreach ($orders as $order) --}}
+                                                @php
+                                                    $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                                    $total += $order_calc;
+                                                @endphp
+                                                <tr class="text-center">
+                                                    <td>{{ $order->exclusive_deal->product->generic_name }}</td>
+                                                    <td>{{ $order->exclusive_deal->product->brand_name }}</td>
+                                                    <td>{{ $order->exclusive_deal->product->form }}</td>
+                                                    <td>{{ $order->quantity }}</td>
+                                                    <td>₱ {{ number_format($order_calc) }}</td>
+                                                    <td>
+                                                        <!-- Link to generate the QR code for this single order -->
+                                                        <a href="{{ route('orders.showQrCode', $order->id) }}"
+                                                        class="btn btn-primary">
+                                                            Generate QR Code
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {{-- @endforeach --}}
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endforeach
+                        </div>
 
-                    <div class="table-container h-[260px] overflow-y-auto mt-5">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th>Generic Name</th>
-                                    <th>Brand Name</th>
-                                    <th>Form</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>QR Code</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $total = 0;
-                                @endphp
-                                @foreach ($ordersGroup as $item)
-                                    @php
-                                        $item_calc = $item->exclusive_deal->price * $item->quantity;
-                                        $total += $item_calc;
-                                    @endphp
-                                    <tr class="text-center">
-                                        <td>{{ $item->exclusive_deal->product->generic_name }}</td>
-                                        <td>{{ $item->exclusive_deal->product->brand_name }}</td>
-                                        <td>{{ $item->exclusive_deal->product->form }}</td>
-                                        <td>{{ $item->quantity }}</td>
-                                        <td>₱ {{ number_format($item_calc) }}</td>
-                                        <td>
-                                            <!-- Link to generate the QR code for this single order -->
-                                            <a href="{{ route('orders.showQrCode', $item->id) }}"
-                                               class="btn btn-primary">
-                                                Generate QR Code
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">
-                        Grand Total: ₱ {{ number_format($total) }}
-                    </p>
-
-                    {{-- Print Buttons etc. (optional) --}}
-                    <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
-                        <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
-                            <i class="fa-solid fa-qrcode"></i>Qr Code
-                        </button>
-                        {{-- Example: if the last order in the group is "completed" --}}
-                        @if ($ordersGroup->last()->status === "completed")
+                        
+                        {{-- Print Buttons etc. (optional) --}}
+                        <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
                             <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
-                                <i class="fa-solid fa-print"></i>Invoice
+                                <i class="fa-solid fa-qrcode"></i>Qr Code
                             </button>
-                        @endif
+                            <p class="text-right text-[18px] sm:text-[20px] font-bold">
+                                Grand Total: ₱ {{ number_format($total) }}
+                            </p>
+                            {{-- Example: if the last order in the group is "completed" --}}
+                            {{-- @if ($groupedOrdersByCompanyName->last()->status === "completed")
+                                <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
+                                    <i class="fa-solid fa-print"></i>Invoice
+                                </button>
+                            @endif --}}
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
         @endforeach
         {{-- View Order Modal --}}
 

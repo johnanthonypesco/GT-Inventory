@@ -11,13 +11,30 @@ class OrderController extends Controller
 {
     public function showOrder()
     {
-        $orders = Order::with(['user.company', 'exclusive_deal.product'])
+        $orders = Order::with(['user.company', 'exclusive_deal.product']) // NEED TO ALSO GROUP THIS BY LOCATION
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
         ->get()    
-        ->groupBy(function ($order)  {
-            return $order->date_ordered;
+        // groups orders by company name
+        ->groupBy(function ($orders)  { 
+            return $orders->user->company->name;
+        })
+        // groups the grouped orders into employee names & the corresponding date
+        ->map(function ($companies) { 
+            return $companies->groupBy(function ($employees) {
+                return $employees->user->name . '|' . $employees->date_ordered;
+            });
+        })
+        // groups the grouped orders into statuses
+        ->map(function ($employees) { 
+            return $employees->map(function ($statuses) {
+                return $statuses->groupBy(function ($orders) {
+                    return $orders->status;
+                });
+            });
         });
+
+        // dd($orders->toArray());
 
         $ordersThisWeek = Order::whereBetween('date_ordered', [
             Carbon::now()->startOfWeek(),
@@ -29,7 +46,7 @@ class OrderController extends Controller
         // dd($orders->toArray());
 
         return view('admin.order', [
-            'orders' => $orders,
+            'companies' => $orders,
             'ordersThisWeek' => $ordersThisWeek,
             'currentPendings' => $currentPendings,
             'currentPartials' => $currentPartials,

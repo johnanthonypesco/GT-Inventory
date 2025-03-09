@@ -1,10 +1,10 @@
 function viewOrder(id) {
     var viewOrderModal = document.getElementById("order-modal-" + id);
-    viewOrderModal.style.display = "block";
+    viewOrderModal.classList.replace("hidden", "flex");
 }
 function closeOrderModal(id) {
     var viewOrderModal = document.getElementById("order-modal-" + id);
-    viewOrderModal.style.display = "none";
+    viewOrderModal.classList.replace("flex", "hidden");
 }
 
 // window.addEventListener("click", function (e) {
