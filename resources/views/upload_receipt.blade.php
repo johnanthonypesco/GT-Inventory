@@ -8,32 +8,22 @@
 <body>
     <h1>Upload Receipt Image</h1>
 
+    <!-- Upload Form -->
     <form id="uploadForm" enctype="multipart/form-data">
         <input type="file" name="receipt_image" id="receipt_image" accept="image/*" required>
         <button type="submit">Upload</button>
     </form>
 
     <h2>Extracted Data</h2>
+
+    <!-- Review & Confirm Form -->
     <form id="saveForm">
-        <label>Product Name:</label>
-        <input type="text" id="product_name" name="product_name"><br>
-
-        <label>Batch Number:</label>
-        <input type="text" id="batch_number" name="batch_number"><br>
-
-        <label>Expiry Date:</label>
-        <input type="date" id="expiry_date" name="expiry_date"><br>
-
-        <label>Quantity:</label>
-        <input type="number" id="quantity" name="quantity"><br>
-
-        <label>Location:</label>
-        <input type="text" id="location" name="location"><br>
-
+        <div id="products-container"></div>
         <button type="submit">Confirm & Save</button>
     </form>
 
     <script>
+        // Handle Receipt Upload
         document.getElementById('uploadForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -48,43 +38,54 @@
             .then(response => response.json())
             .then(data => {
                 if (data.data) {
-                    document.getElementById('product_name').value = data.data.product_name;
-                    document.getElementById('batch_number').value = data.data.batch_number;
-                    document.getElementById('expiry_date').value = data.data.expiry_date;
-                    document.getElementById('quantity').value = data.data.quantity;
-                    document.getElementById('location').value = data.data.location;
+                    let container = document.getElementById('products-container');
+                    container.innerHTML = '';
+
+                    data.data.forEach((product, index) => {
+                        container.innerHTML += `
+                            <div>
+                                <label>Product Name:</label>
+                                <input type="text" name="products[${index}][product_name]" value="${product.product_name}">
+                                <label>Batch Number:</label>
+                                <input type="text" name="products[${index}][batch_number]" value="${product.batch_number}">
+                                <label>Expiry Date:</label>
+                                <input type="date" name="products[${index}][expiry_date]" value="${product.expiry_date}">
+                                <label>Quantity:</label>
+                                <input type="number" name="products[${index}][quantity]" value="${product.quantity}">
+                                <label>Location:</label>
+                                <input type="text" name="products[${index}][location]" value="${product.location ?? ''}">
+                            </div>
+                        `;
+                    });
                 }
             })
             .catch(() => Swal.fire("Error", "Failed to process receipt.", "error"));
         });
-    </script>
-    <script>
+
+        // Handle Save Form Submission
         document.getElementById('saveForm').addEventListener('submit', function(event) {
             event.preventDefault();
-    
-            let formData = new FormData();
-            formData.append('product_name', document.getElementById('product_name').value);
-            formData.append('batch_number', document.getElementById('batch_number').value);
-            formData.append('expiry_date', document.getElementById('expiry_date').value);
-            formData.append('quantity', document.getElementById('quantity').value);
-            formData.append('location', document.getElementById('location').value);
-    
-            fetch("{{ route('save.receipt') }}", { // ✅ Use save.receipt route instead of process.receipt
+
+            let formData = new FormData(this);
+
+            fetch("{{ route('save.receipt') }}", {
                 method: "POST",
-                body: formData,
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+                body: new URLSearchParams(new FormData(this)), // Convert FormData to URL params
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
                     Swal.fire("Success", data.message, "success");
                 } else {
-                    Swal.fire("Error", "Failed to save data.", "error");
+                    Swal.fire("Error", "Something went wrong!", "error");
                 }
             })
-            .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+            .catch(() => Swal.fire("Error", "Failed to save inventory.", "error"));
         });
     </script>
-    
 </body>
 </html>
