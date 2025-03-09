@@ -149,7 +149,7 @@ if ($deal && $deal->product) {
                             $qrData = [
                                 'order_id'      => $order->id,
                                 'user_name'     => $order->user->name,
-                                'location'      => $order->user->location ? $order->user->location->province : 'Unknown',
+                                'location'      => $order->user->company->location ? $order->user->company->location->province : 'Unknown',
                                 'product_name'  => $product->generic_name,
                                 'batch_number'  => $inventory->batch_number,
                                 'expiry_date'   => $inventory->expiry_date,
