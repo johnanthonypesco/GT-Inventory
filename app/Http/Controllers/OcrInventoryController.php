@@ -145,6 +145,7 @@ class OcrInventoryController extends Controller
 {
     public function uploadReceipt(Request $request)
     {
+        // dd($request->toArray());
         try {
             // ✅ Validate uploaded image
             $request->validate([
@@ -269,3 +270,158 @@ class OcrInventoryController extends Controller
         }
     }
 }
+
+
+// namespace App\Http\Controllers;
+
+// use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Http;
+// use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Log;
+// use App\Models\Inventory;
+// use App\Models\Product;
+// use App\Models\Location;
+// use App\Models\OcrInventoryLog;
+
+// class OcrInventoryController extends Controller
+// {
+//     public function uploadReceipt(Request $request)
+//     {
+//         try {
+//             $request->validate([
+//                 'receipt_image' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+//             ]);
+
+//             $path = $request->file('receipt_image')->store('receipts', 'public');
+//             $fullPath = public_path("storage/{$path}");
+
+//             if (!file_exists($fullPath)) {
+//                 return response()->json(['message' => '❌ Error: File not found in storage.'], 400);
+//             }
+
+//             $imageData = base64_encode(file_get_contents($fullPath));
+
+//             $apiKey = env('GOOGLE_VISION_API_KEY');
+//             if (!$apiKey) {
+//                 return response()->json(['message' => '❌ Error: Google API Key is missing.'], 400);
+//             }
+
+//             $visionApiUrl = "https://vision.googleapis.com/v1/images:annotate?key={$apiKey}";
+
+//             $payload = [
+//                 "requests" => [
+//                     [
+//                         "image" => ["content" => $imageData],
+//                         "features" => [["type" => "TEXT_DETECTION"]]
+//                     ]
+//                 ]
+//             ];
+
+//             $response = Http::post($visionApiUrl, $payload);
+//             $visionResult = $response->json();
+
+//             if (!isset($visionResult['responses'][0]['fullTextAnnotation']['text'])) {
+//                 return response()->json(['message' => '❌ Error: No text detected.'], 400);
+//             }
+
+//             $extractedText = $visionResult['responses'][0]['fullTextAnnotation']['text'];
+//             Log::info("OCR Extracted Text: \n" . $extractedText);
+
+//             OcrInventoryLog::create(['raw_text' => $extractedText]);
+
+//             $lines = explode("\n", $extractedText);
+//             $products = [];
+//             $currentProduct = null;
+
+//             foreach ($lines as $line) {
+//                 if (preg_match('/(\d+)\s+amps\s+(.+)/', $line, $matches)) {
+//                     if ($currentProduct) {
+//                         $products[] = $currentProduct;
+//                     }
+//                     $currentProduct = [
+//                         'product_name' => trim($matches[2]),
+//                         'quantity'     => (int) trim($matches[1]),
+//                         'batch_number' => '',
+//                         'expiry_date'  => '',
+//                         'location'     => null,
+//                     ];
+//                 }
+
+//                 if (preg_match('/Batch\s*no\.\s*([A-Za-z0-9]+)/', $line, $matches)) {
+//                     if ($currentProduct) {
+//                         $currentProduct['batch_number'] = trim($matches[1]);
+//                     }
+//                 }
+
+//                 if (preg_match('/Exp[:.]?\s*(\w+\s*\d{4})/', $line, $matches)) {
+//                     if ($currentProduct) {
+//                         $currentProduct['expiry_date'] = trim($matches[1]);
+//                     }
+//                 }
+//             }
+
+//             if ($currentProduct) {
+//                 $products[] = $currentProduct;
+//             }
+
+//             if (empty($products)) {
+//                 return response()->json(['message' => '❌ Error: No valid product data detected.'], 400);
+//             }
+
+//             return response()->json(['message' => '✅ Data extracted successfully!', 'data' => $products], 200);
+
+//         } catch (\Exception $e) {
+//             return response()->json([
+//                 'message' => '❌ Server error: ' . $e->getMessage(),
+//                 'line'    => $e->getLine(),
+//                 'file'    => $e->getFile()
+//             ], 500);
+//         }
+//     }
+
+//     public function saveInventory(Request $request)
+//     {
+//         try {
+//             $request->validate([
+//                 'products' => 'required|array',
+//                 'products.*.product_name' => 'required|string',
+//                 'products.*.batch_number' => 'required|string',
+//                 'products.*.expiry_date'  => 'required|string',
+//                 'products.*.quantity'     => 'required|integer|min:1',
+//                 'products.*.location'     => 'nullable|string',
+//             ]);
+    
+//             foreach ($request->products as $data) {
+//                 // ✅ Check if the product exists in the `products` table
+//                 $product = Product::where('generic_name', $data['product_name'])->first();
+    
+//                 // ✅ If product does not exist, create a new entry
+//                 if (!$product) {
+//                     $product = Product::create([
+//                         'generic_name' => $data['product_name'],
+//                         'brand_name'   => 'Unknown',   // 🔹 Provide a default value
+//                         'form'         => 'Unknown',   // 🔹 Provide a default value
+//                         'strength'     => 'Unknown',   // 🔹 Provide a default value
+//                     ]);
+//                 }
+    
+//                 // ✅ Find or create location
+//                 $location = $data['location'] ? Location::firstOrCreate(['province' => $data['location']]) : null;
+    
+//                 // ✅ Add to inventory
+//                 Inventory::create([
+//                     'location_id'  => $location ? $location->id : null,
+//                     'product_id'   => $product->id,
+//                     'batch_number' => $data['batch_number'],
+//                     'expiry_date'  => $data['expiry_date'],
+//                     'quantity'     => $data['quantity'],
+//                 ]);
+//             }
+    
+//             return response()->json(['message' => '✅ Inventory successfully added!'], 200);
+    
+//         } catch (\Exception $e) {
+//             return response()->json(['message' => '❌ Server error: ' . $e->getMessage()], 500);
+//         }
+//     }
+// }    
