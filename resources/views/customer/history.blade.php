@@ -44,20 +44,20 @@
                         <th>Action</th>
                     </thead>
                     <tbody>
-                            @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
+                            @foreach ($groupedOrdersByDate as $dateName => $statuses)
                                 @php
                                     $total = 0;
-                                    foreach ($groupedOrdersByStatus as $orders) {
+                                    foreach ($statuses as $orders) {
                                         foreach ($orders as $item) {
                                             $total += ($item->quantity * $item->exclusive_deal->price);
                                         }
                                     }
                                 @endphp
                                 <tr class="text-center">
-                                    <td> {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y') }} </td>
+                                    <td> {{ Carbon::parse($statuses->first()->first()->date_ordered)->translatedFormat('M d, Y') }} </td>
                                     <td> ₱ {{ number_format($total) }} </td>
                                     <td>
-                                        <x-vieworder onclick="viewOrder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" name="View Ordered Items"/>
+                                        <x-vieworder onclick="viewOrder('{{ $dateName }}')" name="View Ordered Items"/>
                                     </td>
                                 </tr>
                             @endforeach
@@ -71,19 +71,19 @@
         {{-- Table for Order --}}
 
         {{-- View Order Modal --}}
-        @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
-            <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
+        @foreach ($groupedOrdersByDate as $dateName => $statuses)
+            <div id="view-order-modal-{{ $dateName }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
                 <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
-                    <span onclick="closeOrderModal('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                    <span onclick="closeOrderModal('{{ $dateName }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                     <h1 class="text-xl font-semibold text-[#005382]">
-                        Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}} 
+                        Orders in: {{ Carbon::parse($dateName)->translatedFormat('M d, Y')}} 
                     </h1>
                     
                     <div class="table-container mt-5 h-[300px] overflow-auto">
                         @php
                             $totes = 0;
                         @endphp
-                        @foreach ($groupedOrdersByStatus as $orders)
+                        @foreach ($statuses as $orders)
                             @php
                                 $currentStatus = $orders->first()->status;
                             @endphp
@@ -142,4 +142,4 @@
 </body>
 </html>
 
-<script src="{{ asset('js/history.js') }}"></script>
+<script src="{{ asset('js/customer/history.js') }}"></script>

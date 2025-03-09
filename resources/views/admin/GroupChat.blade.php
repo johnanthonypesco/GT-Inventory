@@ -76,7 +76,7 @@
         </form>
     </div>
 
-    <a href="{{ route('admin.chat') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
+    <a href="{{ route('employee.chat') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
 
     
 

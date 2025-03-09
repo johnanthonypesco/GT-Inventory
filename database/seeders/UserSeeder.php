@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         User::create([
             'id' => 69,
-            'location_id' => 2,
             'company_id' => 1,
             'name' => 'yahoo baby!',
             'email' => 'sies.gabriel.au@phinmaed.com',
@@ -26,9 +25,8 @@ class UserSeeder extends Seeder
         ]);
         User::create([
             'id' => 2000,
-            'location_id' => 2,
             'company_id' => 1,
-            'name' => 'yahoo baby!',
+            'name' => 'John Pesgo',
             'email' => 'pescojohnanthony@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
@@ -36,9 +34,8 @@ class UserSeeder extends Seeder
         ]);
         User::create([
             'id' => 70,
-            'location_id' => 2,
             'company_id' => 1,
-            'name' => 'yahoo baby!',
+            'name' => 'Test Name 1',
             'email' => 'test@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
@@ -46,9 +43,8 @@ class UserSeeder extends Seeder
         ]);
         User::create([
             'id' => 71,
-            'location_id' => 2,
             'company_id' => 1,
-            'name' => 'yahoo baby!',
+            'name' => 'Test Name 2',
             'email' => 'test1@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
@@ -56,9 +52,8 @@ class UserSeeder extends Seeder
         ]);
         User::create([
             'id' => 72,
-            'location_id' => 2,
             'company_id' => 1,
-            'name' => 'yahoo baby!',
+            'name' => 'Test Name 3',
             'email' => 'test2@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),

@@ -11,25 +11,35 @@ class OrderController extends Controller
 {
     public function showOrder()
     {
-        $orders = Order::with(['user.company', 'exclusive_deal.product']) // NEED TO ALSO GROUP THIS BY LOCATION
+        $orders = Order::with(['user.company.location', 'exclusive_deal.product']) // NEED TO ALSO GROUP THIS BY LOCATION
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
         ->get()    
-        // groups orders by company name
+        // groups orders by province
         ->groupBy(function ($orders)  { 
-            return $orders->user->company->name;
+            return $orders->user->company->location->province;
         })
-        // groups the grouped orders into employee names & the corresponding date
-        ->map(function ($companies) { 
-            return $companies->groupBy(function ($employees) {
-                return $employees->user->name . '|' . $employees->date_ordered;
+        // groups the province orders by company name
+        ->map(function ($provinces) { 
+            return $provinces->groupBy(function ($orders) {
+                return $orders->user->company->name;
             });
         })
-        // groups the grouped orders into statuses
-        ->map(function ($employees) { 
-            return $employees->map(function ($statuses) {
-                return $statuses->groupBy(function ($orders) {
-                    return $orders->status;
+        // groups the company name orders by employee name & order date
+        ->map(function ($provinces) { 
+            return $provinces->map(function ($companies) {
+                return $companies->groupBy(function ($orders) {
+                    return $orders->user->name . '|' . $orders->date_ordered;
+                });
+            });
+        })
+        //  groups the employee name & order date orders by status
+        ->map(function ($provinces) {
+            return $provinces->map(function ($companies) {
+                return $companies->map(function ($employees) {
+                    return $employees->groupBy(function ($orders) {
+                        return $orders->status;
+                    });
                 });
             });
         });
@@ -46,7 +56,7 @@ class OrderController extends Controller
         // dd($orders->toArray());
 
         return view('admin.order', [
-            'companies' => $orders,
+            'provinces' => $orders,
             'ordersThisWeek' => $ordersThisWeek,
             'currentPendings' => $currentPendings,
             'currentPartials' => $currentPartials,

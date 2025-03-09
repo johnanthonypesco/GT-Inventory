@@ -51,10 +51,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',  // ✅ Standardized field name (was `customer_email`)
         'password',  // ✅ Standardized field name (was `customer_password`)
         'contact_number',  // ✅ Standardized field name (was `customer_cnum`)
-        'location_id', // ✅ Foreign key to `locations` table
         'email_verified_at',
-        'company_id'
-
+        'company_id',
     ];
 
     /**
@@ -79,10 +77,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * ✅ Relationship: User belongs to a Location.
      */
-    public function location():BelongsTo
-    {
-        return $this->belongsTo(Location::class, 'location_id');
-    }
 
     public function company(): BelongsTo
     {

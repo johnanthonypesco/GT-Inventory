@@ -26,7 +26,6 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'location_id' => Location::pluck('id')->random(),
             'company_id' => Company::pluck('id')->random(),
             'name' => fake()->name(),
             

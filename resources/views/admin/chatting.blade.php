@@ -71,7 +71,7 @@
         </form>
     </div>
     
-    <a href="{{ route('admin.chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
+    <a href="{{ route('employee.chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
