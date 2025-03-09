@@ -183,6 +183,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::get('admin/chat', [ChatController::class, 'showChat'])->name('employee.chat');
     Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
     Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
+
+    Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
+    Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
     //9///////////////////////// << EMPLOYEE CHAT ROUTES >> //////////////////////////////9//
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED STAFF ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
@@ -233,6 +236,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
     Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
     Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
+    Route::get('fetch-new-messages/{last_id?}', [ChatRepsController::class, 'fetchNewMessages'])->name('fetch.new.messages');
 
     Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
     Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');

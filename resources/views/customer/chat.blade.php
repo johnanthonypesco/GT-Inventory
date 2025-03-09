@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <title>Chat</title>
 </head>
+
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
 
@@ -22,9 +23,31 @@
             @foreach ($superAdmins as $admin)
                 <div onclick="window.location.href='{{ route('customer.chat.show', $admin->id) }}'" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-[#005382] p-5 rounded-full"></i>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xl font-bold">{{ $admin->s_admin_username }}</p>
-                        <p class="text-gray-500">Click to chat</p>
+                        @if($admin->last_message || $admin->last_file)
+                            @php
+                                $timeDifference = \Carbon\Carbon::parse($admin->last_message_time)->diffInSeconds(now());
+                                if ($timeDifference < 60) {
+                                    $timeText = "Now";
+                                } elseif ($timeDifference < 3600) {
+                                    $timeText = floor($timeDifference / 60) . " min" . (floor($timeDifference / 60) > 1 ? "s" : "") . " ago";
+                                } else {
+                                    $timeText = \Carbon\Carbon::parse($admin->last_message_time)->format('h:i A');
+                                }
+                            @endphp
+        
+                            @if($admin->last_sender_id == $authUserId)
+                                <strong>You:</strong> 
+                                {{ $admin->last_file ? 'File' : $admin->last_message }}
+                            @else
+                                <strong>{{ $admin->s_admin_username }}:</strong> 
+                                {{ $admin->last_file ? 'File' : $admin->last_message }}
+                            @endif
+                            <span class="text-xs text-gray-400"> • {{ $timeText }}</span>
+                        @else
+                            <p class="text-gray-500">No messages yet.</p>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -35,27 +58,3 @@
 </body>
 </html>
 
-
-{{-- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Chat</title>
-</head>
-<body class="bg-gray-100 p-5">
-    <h1 class="text-xl font-bold">Select a Super Admin to Chat</h1>
-    
-    <div class="bg-white p-5 mt-5 shadow-lg rounded-lg">
-        @foreach ($superAdmins as $admin)
-            <a href="{{ route('customer.chat.show', $admin->id) }}" class="block p-3 border rounded-lg mb-2 bg-gray-100 hover:bg-gray-200">
-                <p class="text-lg font-semibold">{{ $admin->s_admin_username }}</p>
-            </a>
-        @endforeach
-
-    </div>
-</body>
-</html> --}}
