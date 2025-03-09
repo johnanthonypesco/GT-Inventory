@@ -122,6 +122,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
     Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
     ->name('customer.chat.fetch');
+    
+    Route::get('fetch-new-messages/{last_id?}', [ChatRepsController::class, 'fetchNewMessages'])->name('fetch.new.messages');
 
     Route::get('/admin/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
     
@@ -233,8 +235,12 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     // Route::post('/chat/send', [ChattingController::class, 'storeMessage'])->name('chat.send');
     Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
     Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
-
+    Route::post('/admin/chat/mark-as-notified', [ChatController::class, 'markAsNotified'])
+    ->name('admin.chat.markAsNotified');
 });
+
+
+
 
 // ✅ Keep Laravel Auth Routes
 require __DIR__.'/auth.php';

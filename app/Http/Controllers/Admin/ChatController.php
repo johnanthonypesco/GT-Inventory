@@ -10,48 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-//     public function showChat()
-// {
-//     $users = User::select('users.id', 'users.name')
-//         ->leftJoin('conversations', function ($join) {
-//             $join->on('users.id', '=', 'conversations.sender_id')
-//                  ->orOn('users.id', '=', 'conversations.receiver_id');
-//         })
-//         ->selectRaw('users.id, users.name, MAX(conversations.created_at) as last_message_time, 
-//                      (SELECT message FROM conversations 
-//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
-//                       ORDER BY created_at DESC LIMIT 1) as last_message')
-//         ->groupBy('users.id', 'users.name')
-//         ->orderBy('last_message_time', 'DESC')
-//         ->get();
 
-//     return view('admin.chat', compact('users'));
-// }
-
-
-// public function showChat()
-// {
-//     $authUserId = auth()->id(); // Get the logged-in user ID
-
-//     $users = User::select('users.id', 'users.name')
-//         ->leftJoin('conversations', function ($join) {
-//             $join->on('users.id', '=', 'conversations.sender_id')
-//                  ->orOn('users.id', '=', 'conversations.receiver_id');
-//         })
-//         ->selectRaw('users.id, users.name, 
-//                      MAX(conversations.created_at) as last_message_time, 
-//                      (SELECT sender_id FROM conversations 
-//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
-//                       ORDER BY created_at DESC LIMIT 1) as last_sender_id,
-//                      (SELECT message FROM conversations 
-//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
-//                       ORDER BY created_at DESC LIMIT 1) as last_message')
-//         ->groupBy('users.id', 'users.name')
-//         ->orderBy('last_message_time', 'DESC')
-//         ->get();
-
-//     return view('admin.chat', compact('users', 'authUserId'));
-// }
 public function showChat()
 {
     $authUserId = auth()->id(); // Get the logged-in user ID

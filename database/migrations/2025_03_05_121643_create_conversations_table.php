@@ -13,6 +13,7 @@ return new class extends Migration {
             // $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id');
             $table->text('message')->nullable();
+            // $table->boolean('is_notified')->default(0); // Default: message is not notified
             $table->timestamps();
         });
         

@@ -41,32 +41,7 @@ class ChatRepsController extends Controller
         return view('customer.chatting', compact('user', 'conversations', 'superAdmin'));
     }
 
-    public function fetchNewMessages(Request $request)
-    {
-        $lastId = $request->query('last_id', 0);
-
-        // ✅ Get the SuperAdmin ID (Assuming Only One SuperAdmin)
-        $superAdmin = SuperAdmin::first(); 
-        if (!$superAdmin) {
-            return response()->json(['error' => 'SuperAdmin not found'], 404);
-        }
-        $superAdminId = $superAdmin->id;
-
-        $newMessages = Conversation::where('id', '>', $lastId)
-            ->where(function ($query) use ($superAdminId) {
-                $query->where('sender_id', Auth::id())->where('receiver_id', $superAdminId)
-                      ->orWhere('sender_id', $superAdminId)->where('receiver_id', Auth::id());
-            })
-            ->orderBy('id')
-            ->get();
-
-        // ✅ Convert message text to clickable links
-        foreach ($newMessages as $message) {
-            $message->message = nl2br($this->makeClickableLinks($message->message));
-        }
-
-        return response()->json($newMessages);
-    }
+    
 
     public function store(Request $request)
     {
@@ -99,6 +74,42 @@ class ChatRepsController extends Controller
 
         return back();
     }
+    public function fetchNewMessages(Request $request, $last_id= null)
+{
+    // dd("ROUTE WORKS");
+    $userId = Auth::id(); // Get the logged-in user ID
+
+    // ✅ Fetch the latest message if no last_id is provided
+    if ($last_id == 0) {
+        $latestMessage = Conversation::where('receiver_id', $userId)
+            ->orWhere('sender_id', $userId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if (!$latestMessage) {
+            return response()->json(['new_messages' => [], 'last_id' => 0]);
+        }
+
+        return response()->json([
+            'new_messages' => [$latestMessage], // Return as an array
+            'last_id' => $latestMessage->id
+        ]);
+    }
+
+    // ✅ Fetch only new messages after `last_id`
+    $newMessages = Conversation::where('id', '>', $last_id)
+        ->where(function ($query) use ($userId) {
+            $query->where('receiver_id', $userId)->orWhere('sender_id', $userId);
+        })
+        ->orderBy('id', 'asc')
+        ->get();
+
+    return response()->json([
+        'new_messages' => $newMessages,
+        'last_id' => $newMessages->isNotEmpty() ? $newMessages->last()->id : $last_id
+    ]);
+}
+
 
     /**
      * ✅ Convert URLs in text into clickable links.

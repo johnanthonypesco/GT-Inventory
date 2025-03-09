@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Messenger</title>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Company Messenger</title>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
 
@@ -36,34 +36,33 @@
             // Format the timestamp for both time and date
             $formattedTime = \Carbon\Carbon::parse($chat->created_at)->format('h:i A');
             $formattedDate = \Carbon\Carbon::parse($chat->created_at)->format('M d, Y');
-        @endphp
+            @endphp
         
 
-    <div class="flex {{ $isCurrentUser ? 'justify-end' : 'justify-start' }}">
-        <div class="max-w-xs p-3 rounded-lg shadow-md 
-            {{ $isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black' }}">
+            <div class="flex {{ $isCurrentUser ? 'justify-end' : 'justify-start' }}">
+                <div class="max-w-xs p-3 rounded-lg shadow-md 
+                    {{ $isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black' }}">
 
-            <strong class="block text-sm mb-1">{{ $senderName }}</strong>
+                    <strong class="block text-sm mb-1">{{ $senderName }}</strong>
 
-            @if ($chat->message)
-                <p class="text-sm">{{ $chat->message }}</p>
-            @endif
+                    @if ($chat->message)
+                        <p class="text-sm">{{ $chat->message }}</p>
+                    @endif
 
-            @if ($chat->file_path)
-                <img src="{{ asset('storage/' . $chat->file_path) }}" 
-                     alt="Uploaded Image" 
-                     class="mt-2 rounded-lg w-full max-h-40 object-cover cursor-pointer"
-                     onclick="openImageModal('{{ asset('storage/' . $chat->file_path) }}')">
-            @endif
+                    @if ($chat->file_path)
+                        <img src="{{ asset('storage/' . $chat->file_path) }}" 
+                             alt="Uploaded Image" 
+                             class="mt-2 rounded-lg w-full max-h-40 object-cover cursor-pointer"
+                             onclick="openImageModal('{{ asset('storage/' . $chat->file_path) }}')">
+                    @endif
 
-            <!-- Timestamp Display -->
-            <span class="block text-xs text-gray-400 mt-1 text-right">
-                {{ $formattedDate }} at {{ $formattedTime }}
-            </span>
-        </div>
-    </div>
-@endforeach
-
+                    <!-- Timestamp Display -->
+                    <span class="block text-xs text-gray-400 mt-1 text-right">
+                        {{ $formattedDate }} at {{ $formattedTime }}
+                    </span>
+                </div>
+            </div>
+            @endforeach
         </div>
 
         <!-- Message Input with File Upload -->
@@ -78,27 +77,41 @@
 
     <a href="{{ route('admin.chat') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
 
-    
-
     <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden">
         <img id="modalImage" class="max-w-full max-h-full">
         <button class="absolute top-4 right-4 text-white text-2xl" onclick="closeImageModal()">✖</button>
     </div>
+
     <script>
+        // Function to open image modal
         function openImageModal(src) {
             document.getElementById('modalImage').src = src;
             document.getElementById('imageModal').classList.remove('hidden');
         }
 
+        // Function to close image modal
         function closeImageModal() {
             document.getElementById('imageModal').classList.add('hidden');
         }
 
-        function previewFile(event) {
-            // Optional: Preview selected file before uploading
+        // Function to reload the chat messages
+        function reloadChat() {
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(html, 'text/html');
+                    let newChatBox = doc.getElementById('chatBox');
+                    if (newChatBox) {
+                        document.getElementById('chatBox').innerHTML = newChatBox.innerHTML;
+                    }
+                })
+                .catch(error => console.error('Error reloading chat:', error));
         }
-    </script>
 
+        // Reload chat every 5 seconds
+        setInterval(reloadChat, 5000);
+    </script>
 </body>
 </html>
