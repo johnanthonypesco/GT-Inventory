@@ -7,11 +7,51 @@ use App\Models\SuperAdmin;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 
 class ChatController extends Controller
 {
-// encrypt and decrypt messages
+//     public function showChat()
+// {
+//     $users = User::select('users.id', 'users.name')
+//         ->leftJoin('conversations', function ($join) {
+//             $join->on('users.id', '=', 'conversations.sender_id')
+//                  ->orOn('users.id', '=', 'conversations.receiver_id');
+//         })
+//         ->selectRaw('users.id, users.name, MAX(conversations.created_at) as last_message_time, 
+//                      (SELECT message FROM conversations 
+//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
+//                       ORDER BY created_at DESC LIMIT 1) as last_message')
+//         ->groupBy('users.id', 'users.name')
+//         ->orderBy('last_message_time', 'DESC')
+//         ->get();
+
+//     return view('admin.chat', compact('users'));
+// }
+
+
+// public function showChat()
+// {
+//     $authUserId = auth()->id(); // Get the logged-in user ID
+
+//     $users = User::select('users.id', 'users.name')
+//         ->leftJoin('conversations', function ($join) {
+//             $join->on('users.id', '=', 'conversations.sender_id')
+//                  ->orOn('users.id', '=', 'conversations.receiver_id');
+//         })
+//         ->selectRaw('users.id, users.name, 
+//                      MAX(conversations.created_at) as last_message_time, 
+//                      (SELECT sender_id FROM conversations 
+//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
+//                       ORDER BY created_at DESC LIMIT 1) as last_sender_id,
+//                      (SELECT message FROM conversations 
+//                       WHERE (sender_id = users.id OR receiver_id = users.id) 
+//                       ORDER BY created_at DESC LIMIT 1) as last_message')
+//         ->groupBy('users.id', 'users.name')
+//         ->orderBy('last_message_time', 'DESC')
+//         ->get();
+
+//     return view('admin.chat', compact('users', 'authUserId'));
+// }
 public function showChat()
 {
     $authUserId = auth()->id(); // Get the logged-in user ID
@@ -36,50 +76,27 @@ public function showChat()
         ->orderBy('last_message_time', 'DESC')
         ->get();
 
-    // Decrypt messages bago ito ipasa sa view
-    foreach ($users as $user) {
-        if (!empty($user->last_message)) {
-            try {
-                $user->last_message = Crypt::decryptString($user->last_message);
-            } catch (\Exception $e) {
-                $user->last_message = "[Encrypted Message]";
-            }
-        }
-    }
-
     return view('admin.chat', compact('users', 'authUserId'));
 }
 
 
-// show chat with user decrypted messages
-public function chatWithUser($id)
-{
-    $user = User::findOrFail($id); // Get the user being chatted with
+    public function chatWithUser($id)
+    {
+        $user = User::findOrFail($id); // Get the user being chatted with
 
-    $conversations = Conversation::where(function ($query) use ($id) {
-            $query->where('sender_id', auth()->id())
-                  ->where('receiver_id', $id);
-        })
-        ->orWhere(function ($query) use ($id) {
-            $query->where('sender_id', $id)
-                  ->where('receiver_id', auth()->id());
-        })
-        ->orderBy('created_at', 'asc')
-        ->get(); // Get conversation history
+        $conversations = Conversation::where(function ($query) use ($id) {
+                $query->where('sender_id', auth()->id())
+                      ->where('receiver_id', $id);
+            })
+            ->orWhere(function ($query) use ($id) {
+                $query->where('sender_id', $id)
+                      ->where('receiver_id', auth()->id());
+            })
+            ->orderBy('created_at', 'asc')
+            ->get(); // Get conversation history
 
-    // Decrypt messages bago ito ipakita
-    foreach ($conversations as $conversation) {
-        if (!empty($conversation->message)) {
-            try {
-                $conversation->message = Crypt::decryptString($conversation->message);
-            } catch (\Exception $e) {
-                $conversation->message = "[Encrypted Message]";
-            }
-        }
+        return view('admin.chatting', compact('user', 'conversations'));
     }
-
-    return view('admin.chatting', compact('user', 'conversations'));
-}
 
     public function store(Request $request)
 {
@@ -109,18 +126,16 @@ public function chatWithUser($id)
         return redirect()->back()->with('error', 'Message or file is required');
     }
 
-    // Encrypt the message bago ito i-save sa database
-    $encryptedMessage = $request->message ? Crypt::encryptString($request->message) : null;
-
     // Save the chat message
     Conversation::create([
         'sender_id' => $user->id,
         'sender_type' => $senderType,
         'receiver_id' => $request->receiver_id,
-        'message' => $encryptedMessage,
+        'message' => $request->message ?? '',
         'file_path' => $filePath,
     ]);
 
     return redirect()->back();
 }
+
 }
