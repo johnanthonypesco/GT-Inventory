@@ -16,7 +16,6 @@ use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\ChattingController;
 
-
 // Staff Controller
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
@@ -28,7 +27,6 @@ use App\Http\Controllers\SuperAdminAccountController;
 // Customer Controller
 use App\Http\Controllers\Auth\TwoFactorAuthController;
 
-
 //Super Admin Login
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
@@ -36,6 +34,7 @@ use App\Http\Controllers\Admin\ProductlistingController;
 use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+
 
 
 
@@ -48,10 +47,6 @@ use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 
 // GroupChat
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-
-
-
-
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -60,7 +55,7 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
-
+use App\Http\Controllers\OcrInventoryController;
 
 
 // ADMIN ROUTES
@@ -125,6 +120,15 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
+
+        //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
+        Route::get('/upload-receipt', function () {
+            return view('upload_receipt');
+        })->name('upload.receipt');
+        
+        Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
+        Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
+        //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
     });
 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//

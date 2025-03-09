@@ -267,8 +267,9 @@
                     <p class="lg:text-[20px] text-[15px]">Drop & Drop your files here</p>
                     <p class="text-[10px] lg:text-[15px] mb-2">or</p>
                     <input type="file" name="file" id="file" class="hidden">
-                    <label for="file" class="px-[25px] py-1 bg-[#D9D9D9] rounded-lg cursor-pointer">Browse</label>
-                </div>
+                    <button onclick="window.location.href='{{ route('upload.receipt') }}'">
+                        <i class="fa-solid fa-file-alt"></i> Upload Receipt
+                    </button>                </div>
             </div>
             {{-- drop file area --}}
 

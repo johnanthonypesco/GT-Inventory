@@ -11,8 +11,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/order.css') }}">
+    <link rel="stylesheet" href="{{asset ('css/style.css')}}">
+    <link rel="stylesheet" href="{{asset ('css/order.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Orders</title>
 </head>
@@ -201,19 +201,15 @@
                     </div>
 
                     <div class="flex justify-between absolute bottom-0 w-full p-2 bg-white left-0">
-                        <button id="addnewworder-button" class="bg-white flex items-center">
-                            <i class="fa-solid fa-plus"></i>Add More
-                        </button>
-                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center">
-                            <img src="{{ asset('image/image 51.png') }}" class="w-[20px]">
-                            Submit
-                        </button>
+                        <button id="addnewworder-button" class="bg-white flex items-center"><i class="fa-solid fa-plus"></i>Add More</button>
+                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Submit</button>
                     </div>
                 </form>
             </div>
         </div>
         {{-- Add New Order Modal --}} 
     </main>
+    
 </body>
 <script src="{{ asset('js/order.js') }}"></script>
 </html>
