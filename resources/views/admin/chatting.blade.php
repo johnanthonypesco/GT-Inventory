@@ -19,16 +19,18 @@
             @foreach ($conversations as $message)
                 <div class="mb-4 flex {{ $message->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
                     <div class="max-w-xs">
+                        <!-- Message Bubble -->
                         <p class="p-2 rounded-lg {{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black' }}">
                             {{ $message->message }}
                         </p>
-
+        
+                        <!-- Display Media Files -->
                         @if ($message->file_path)
                             <div class="mt-2">
                                 @php
                                     $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION);
                                 @endphp
-
+        
                                 @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
                                     <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
                                         <img src="{{ asset('storage/' . $message->file_path) }}" alt="Uploaded Image" class="w-40 rounded-lg mt-1 cursor-pointer">
@@ -45,8 +47,8 @@
                                 @endif
                             </div>
                         @endif
-
-                        <!-- Timestamp -->
+        
+                        <!-- Timestamp (PH Time) -->
                         <div class="text-xs text-gray-500 text-right mt-1">
                             {{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}
                         </div>
@@ -71,39 +73,18 @@
     
     <a href="{{ route('admin.chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
 
-    <!-- JavaScript for Auto Updating is_notified -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            let userId = "{{ auth()->id() }}";  // Get authenticated user ID
             let messageInput = document.getElementById('messageInput');
             let fileInput = document.getElementById('fileInput');
             let sendButton = document.getElementById('sendButton');
             let fileError = document.getElementById('fileError');
-            let chatBox = document.getElementById('chatBox');
-            let isActive = true;
+            let isActive = true; // Track if the tab is active
             let chatRefreshInterval;
 
-            // Mark unread messages as notified
-            function markMessagesAsNotified() {
-    fetch("{{ route('admin.chat.markAsNotified') }}", {
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_id: userId })
-    })
-    .then(response => response.json())
-    .then(data => console.log(data.message))
-    .catch(error => console.error('Error updating notification status:', error));
-}
-
-            markMessagesAsNotified();
-
-            // Enable/Disable send button
             function checkInput() {
                 let file = fileInput.files[0];
-                if (file && file.size > 6 * 1024 * 1024) {
+                if (file && file.size > 6 * 1024 * 1024) { // Check if file is greater than 6MB
                     sendButton.disabled = true;
                     sendButton.classList.add('opacity-50', 'cursor-not-allowed');
                     fileError.classList.remove('hidden');
@@ -122,7 +103,6 @@
             messageInput.addEventListener('input', checkInput);
             fileInput.addEventListener('change', checkInput);
 
-            // Refresh chat every 6 seconds
             function refreshChat() {
                 if (isActive) {
                     fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
@@ -132,7 +112,7 @@
                             let doc = parser.parseFromString(html, 'text/html');
                             let newChatBox = doc.getElementById('chatBox');
                             if (newChatBox) {
-                                chatBox.innerHTML = newChatBox.innerHTML;
+                                document.getElementById('chatBox').innerHTML = newChatBox.innerHTML;
                             }
                         })
                         .catch(error => console.error('Error refreshing chat:', error));

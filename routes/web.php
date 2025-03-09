@@ -228,15 +228,10 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
     Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
     Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
-    // Route::post('admin/chat/send', [ChattingController::class, 'sendMessage'])->name('send.message');
-    // Route::post('/admin/chat/send', [ChattingController::class, 'storeMessage'])->name('admin.chat.send');
-    // Route::get('/admin/chat/{id}', [ChattingController::class, 'chatWithUser'])->name('admin.chat');
-    // Route::post('/admin/chat/send', [ChattingController::class, 'storeMessage'])->name('admin.chat.store');
-    // Route::post('/chat/send', [ChattingController::class, 'storeMessage'])->name('chat.send');
+    
     Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
     Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
-    Route::post('/admin/chat/mark-as-notified', [ChatController::class, 'markAsNotified'])
-    ->name('admin.chat.markAsNotified');
+    
 });
 
 
