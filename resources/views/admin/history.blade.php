@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,76 +37,129 @@
             </select>
         </div>
 
-        {{-- Table for Order --}}
-        <div class="table-container mt-2 bg-white p-5 rounded-lg">
-            <div class="flex flex-wrap justify-between items-center">
-                {{-- Search --}}
-                <x-input name="search" placeholder="Search Customer by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
-                {{-- Search --}}
+        @foreach ($provinces as $provinceName => $companies)
+            {{-- Table for Order --}}
+            <h1 class="text-[20px] sm:text-[30px] font-regular mt-8 font-bold">
+                <span class="text-[#005382] text-[30px] font-bold mr-2">
+                    Orderered In:
+                    {{ $provinceName }}
+                </span>
+            </h1>
 
-                {{-- Table Button --}}
-                <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                    <button><i class="fa-solid fa-download"></i>Export</button>
+            <div class="table-container mt-2 bg-white p-5 rounded-lg">
+                <div class="flex flex-wrap justify-between items-center">
+                    {{-- Search --}}
+                    <x-input name="search" placeholder="Search Employee by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
+                    {{-- Search --}}
+
+                    {{-- Table Button --}}
+                    <div class="table-button flex gap-4 mt-5 lg:mt-0">
+                        <button><i class="fa-solid fa-download"></i>Export</button>
+                    </div>
+                    {{-- Table Button --}}
                 </div>
-                {{-- Table Button --}}
-            </div>
 
-            <div class="overflow-auto h-[330px] mt-5">
-                {{-- Table --}}
-                <x-table :headings="['Order ID' , 'Customer Name', 'Total Amount', 'Date', 'Status', 'Action']" category="history"/>
-                {{-- Table --}}
+                @foreach ($companies as $companyName => $employees)
+                    <h1 class="text-[20px] sm:text-[20px] font-regular mt-8 font-bold">
+                        <span class="text-[#005382] text-[20px] font-bold mr-2">
+                            Orderd By:
+                        </span>
+                        {{ $companyName }}
+                    </h1>
+
+                    <div class="overflow-auto max-h-[200px] h-fit mt-5">
+                        {{-- Table --}}
+                        <x-table 
+                        :headings="['Employee Name', 'Date', 'Total Amount', 'Action']" 
+                        :variable="$employees"
+                        category="history"
+                        />
+                        {{-- Table --}}
+                    </div>
+                @endforeach
+                {{-- Pagination --}}
+                <x-pagination/>
             </div>
-            {{-- Pagination --}}
-            <x-pagination/>
-        </div>
-        {{-- Table for Order --}}
+            {{-- Table for Order --}}
+        @endforeach
 
         {{-- View Order Modal --}}
-        <div id="order-modal" class="order-modal hidden bg-black/60 fixed top-0 left-0 pt-[70px] w-full h-full px-4" id="order-modal">
-            <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                <x-modalclose click="closeOrderModal"/>
-                {{-- Name of Selected Customer --}}
-                <h1 class="text-[20px] sm:text-[20px] font-regular"><span class="text-[#005382] text-[20px] font-bold mr-2">Orders of:</span>Jewel Velasquez</h1>
-                {{-- Name of Selected Customer --}}
+        @foreach ($provinces as $companies)
+            @foreach ($companies as $companyName => $employees)
+                @foreach ($employees as $employeeNameAndDate => $statuses)
+                    @php
+                        $totalPrice = 0;
+                    @endphp
 
-
-                {{-- Order Details --}}
-                <div class="table-container overflow-y-auto mt-5">
-                    <table class="w-full">
-                        <thead>
-                            <tr>
-                                <th>Brand Name</th>
-                                <th>Generic Name</th>
-                                <th>Form</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="text-center">
-                                <td>Arcimet</td>
-                                <td>Metoclopramide 20mg/10ml</td>
-                                <td>Vials</td>
-                                <td>10</td>
-                                <td>₱ 1,000</td>
-                            </tr>
-                            <tr class="text-center">
-                                <td>Arcimet</td>
-                                <td>Metoclopramide 20mg/10ml</td>
-                                <td>Vials</td>
-                                <td>10</td>
-                                <td>₱ 1,000</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱10,000</p>
-                {{-- Order Details --}}
-
-            </div>
-        </div>        
+                    <div id="order-modal-{{ $employeeNameAndDate }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center px-4">
+                        <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
+                            <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
+                            {{-- Name of Selected Customer --}}
+                            <h1 class="text-4xl font-bold uppercase mb-6">
+                                @php 
+                                    $separatedInModal = explode('|', $employeeNameAndDate);  
+                                @endphp
+                                Orders By: 
+                                <span class="text-blue-800"> 
+                                    {{ $separatedInModal[0] }} -
+                                    [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
+                                </span>
+                            </h1> 
+                            {{-- Name of Selected Customer --}}
+            
+            
+                            {{-- Order Details --}}
+                            <div class="table-container h-[360px] overflow-y-auto">
+                                @foreach ($statuses as $statusName => $orders)
+                                    <h1 class="text-2xl text-black font-bold uppercase mb-3
+                                        {{
+                                            match ($statusName) {
+                                                'cancelled' => 'text-red-600',
+                                                'delivered' => 'text-blue-600',
+                                                default => 'text-black'
+                                            }
+                                        }}
+                                    "> 
+                                        {{ $statusName }} Orders:
+                                    </h1>
+                                    <table class="w-full mb-5">
+                                        <thead>
+                                            <tr>
+                                                <th>Generic Name</th>
+                                                <th>Brand Name</th>
+                                                <th>Form</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($orders as $order)
+                                                {{-- @foreach ($orders as $order) --}}
+                                                    @php
+                                                        $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                                        $totalPrice += $order_calc;
+                                                    @endphp
+                                                    <tr class="text-center">
+                                                        <td>{{ $order->exclusive_deal->product->generic_name }}</td>
+                                                        <td>{{ $order->exclusive_deal->product->brand_name }}</td>
+                                                        <td>{{ $order->exclusive_deal->product->form }}</td>
+                                                        <td>{{ $order->quantity }}</td>
+                                                        <td>₱ {{ number_format($order_calc) }}</td>
+                                                    </tr>
+                                                {{-- @endforeach --}}
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endforeach
+                            </div>
+                            <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱ {{ number_format($totalPrice) }}</p>
+                            {{-- Order Details --}}
+                        </div>
+                    </div>        
+                @endforeach
+            @endforeach
+        @endforeach
         {{-- View Order Modal --}}
-
     </main>
     
 </body>

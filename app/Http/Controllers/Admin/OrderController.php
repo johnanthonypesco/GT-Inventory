@@ -9,15 +9,42 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-public function showOrder()
+    public function showOrder()
     {
-        $orders = Order::with(['user.company', 'exclusive_deal.product'])
+        $orders = Order::with(['user.company.location', 'exclusive_deal.product']) // NEED TO ALSO GROUP THIS BY LOCATION
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
         ->get()    
-        ->groupBy(function ($order)  {
-            return $order->date_ordered;
+        // groups orders by province
+        ->groupBy(function ($orders)  { 
+            return $orders->user->company->location->province;
+        })
+        // groups the province orders by company name
+        ->map(function ($provinces) { 
+            return $provinces->groupBy(function ($orders) {
+                return $orders->user->company->name;
+            });
+        })
+        // groups the company name orders by employee name & order date
+        ->map(function ($provinces) { 
+            return $provinces->map(function ($companies) {
+                return $companies->groupBy(function ($orders) {
+                    return $orders->user->name . '|' . $orders->date_ordered;
+                });
+            });
+        })
+        //  groups the employee name & order date orders by status
+        ->map(function ($provinces) {
+            return $provinces->map(function ($companies) {
+                return $companies->map(function ($employees) {
+                    return $employees->groupBy(function ($orders) {
+                        return $orders->status;
+                    });
+                });
+            });
         });
+
+        // dd($orders->toArray());
 
         $ordersThisWeek = Order::whereBetween('date_ordered', [
             Carbon::now()->startOfWeek(),
@@ -29,7 +56,7 @@ public function showOrder()
         // dd($orders->toArray());
 
         return view('admin.order', [
-            'orders' => $orders,
+            'provinces' => $orders,
             'ordersThisWeek' => $ordersThisWeek,
             'currentPendings' => $currentPendings,
             'currentPartials' => $currentPartials,

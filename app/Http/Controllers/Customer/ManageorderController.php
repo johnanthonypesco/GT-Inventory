@@ -14,12 +14,12 @@ class ManageorderController extends Controller
         ->whereIn('status', ['pending', 'completed', 'partial-delivery'])
         ->with('exclusive_deal.product')
         ->orderBy('date_ordered', 'desc')->get()
-        ->groupBy(function ($order) {
-            return $order->date_ordered;
+        ->groupBy(function ($orders) {
+            return $orders->date_ordered;
         })
-        ->map(function ($groupedOrders) {
-            return $groupedOrders->groupBy(function ($order) {
-                return $order->status;
+        ->map(function ($dates) {
+            return $dates->groupBy(function ($orders) {
+                return $orders->status;
             });
         });
         

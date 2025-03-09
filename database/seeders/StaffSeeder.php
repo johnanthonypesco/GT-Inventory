@@ -16,12 +16,12 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!Staff::where('email', 'gab@gmail.com')->exists()) {
+        if (!Staff::where('email', 'testersdegYAH@gmail.com')->exists()) {
             Staff::create([
                 'admin_id' => Admin::pluck('id')->random(),
                 'location_id' => Location::pluck('id')->random(),
-                'staff_username' => 'SDEG77',
-                'email' => 'gab@gmail.com',
+                'staff_username' => 'SDEG77 (Staff)',
+                'email' => 'testersdegYAH@gmail.com',
                 'password' => Hash::make('12345678'),
                 'job_title' => 'Janitor',
                 'is_staff' => true,

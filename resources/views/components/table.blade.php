@@ -54,42 +54,19 @@
 
             {{-- order --}}
             @case($category === 'order')
-                @foreach ($variable as $order)
+                @foreach ($variable as $employeeNameAndDate => $statuses)   
+                    @php
+                        $separatedNameAndDate = explode('|', $employeeNameAndDate);    
+                    @endphp
+                    
                     <tr class="text-center">
-                        <td> {{ $order->first()->id }} </td>
-                        <td> {{ $order->first()->user->company->name }} </td>
-                        <td> {{ $order->first()->user->name }} </td>
+                        <td> {{ $separatedNameAndDate[0] }} </td>
                         <td> 
-                            {{ Carbon::parse($order->first()
-                            ->date_ordered)->translatedFormat('M d, Y') 
-                            }} 
+                            {{ Carbon::parse($separatedNameAndDate[1])->translatedFormat('M d, Y') }}
                         </td>
+                        
                         <td>
-                            <form action="{{ route('admin.order.update', $order->first()->id) }}" method="post">
-                                @csrf
-                                @method("PUT")
-                                
-                                <select onchange="this.form.submit()" name="status" id="status" 
-                                class="py-1 px-2 rounded-lg border-3 outline-none text-center
-                                {{
-                                    match ($order->first()->status) {
-                                        'pending' => 'border-orange-400',
-                                        'completed' => 'border-blue-500',
-                                        'partial-delivery' => 'border-purple-600',
-                                        default => 'border-black'
-                                    }
-                                }}
-                                ">
-                                    <option @selected($order->first()->status == 'pending') value="pending">Pending</option>
-                                    <option @selected($order->first()->status == 'completed') value="completed">Completed</option>
-                                    <option @selected($order->first()->status == 'cancelled') value="cancelled">Cancelled</option>
-                                    <option @selected($order->first()->status == 'partial-delivery') value="partial-delivery">Partial-Delivery</option>
-                                    <option @selected($order->first()->status == 'delivered') value="delivered">Delivered</option>
-                                </select>
-                            </form>
-                        </td>
-                        <td>
-                            <x-vieworder onclick="viewOrder('{{ $order->first()->id }}')" name="View Order"/>
+                            <x-vieworder onclick="viewOrder('{{ $employeeNameAndDate }}')" name="View Order"/>
                         </td>
                     </tr>
                 @endforeach
@@ -136,16 +113,37 @@
 
             {{-- history --}}
             @case($category === 'history')
-                <tr class="text-center">
-                    <td>#123456</td>
-                    <td>Jewel Velasquez</td>
-                    <td>₱ 10,000</td>
-                    <td>12/15/2023</td>
-                    <td><p class="bg-[#172A95]/76 text-white py-1 px-2 rounded-lg w-fit m-auto uppercase">Delivered</p></td>
-                    <td>
-                        <x-vieworder onclick="viewOrder()" name="View Order"/>
-                    </td>
-                </tr> 
+                @foreach ($variable as $employeeName => $statuses)
+                    {{-- FOR THE TOTAL PRICE COLUMN --}}
+                    @php
+                        $totalPrice = 0;
+                    @endphp
+
+                    @foreach ($statuses as $orders)
+                        @foreach ($orders as $order)
+                            @php
+                                $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                $totalPrice += $order_calc;
+                            @endphp
+                        @endforeach
+                    @endforeach
+                    {{-- FOR THE TOTAL PRICE COLUMNS --}}
+
+                    {{-- FOR THE NAME AND DATE COLUMNS --}}
+                    @php
+                        $separated = explode('|', $employeeName);
+                    @endphp
+                    {{-- FOR THE NAME AND DATE COLUMNS --}}
+
+                    <tr>
+                        <td>{{ $separated[0] }}</td>
+                        <td>{{ Carbon::parse($separated[1])->translatedFormat('M d, Y') }}</td>
+                        <td>₱ {{ number_format($totalPrice) }}</td>
+                        <td>
+                            <x-vieworder onclick="viewOrder('{{ $employeeName }}')" name="View Order"/>
+                        </td>
+                    </tr> 
+                @endforeach
             @break
 
             @default

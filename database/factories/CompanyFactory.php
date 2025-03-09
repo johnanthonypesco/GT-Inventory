@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,11 +18,12 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
+            'location_id' => Location::pluck('id')->random(),
             'name' => fake()->unique()->randomElement([
                 'Accenture Co.',
                 'Fake Jeep Inc.',
-                'Grazzers Co.',
-                'CornHud Inc.'
+                'Grassers Co.',
+                'CornHud Inc.',
             ]),
 
             'address' => fake()->address(),

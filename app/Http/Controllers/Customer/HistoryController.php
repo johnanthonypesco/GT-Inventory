@@ -17,9 +17,9 @@ class HistoryController extends Controller
         ->groupBy(function ($order) {
             return $order->date_ordered;
         })
-        ->map(function ($groupedOrders) {
-            return $groupedOrders->groupBy(function ($order) {
-                return $order->status;
+        ->map(function ($dates) {
+            return $dates->groupBy(function ($orders) {
+                return $orders->status;
             });
         });
 

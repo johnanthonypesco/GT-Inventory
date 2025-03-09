@@ -22,8 +22,8 @@ class SuperAdminSeeder extends Seeder
             ]);
 
             SuperAdmin::create([
-                's_admin_username' => 'sigrae-super-admin',
-                'email' => 'sig@gmail.com',
+                's_admin_username' => 'Tester Super Admin',
+                'email' => 'testersdeg@gmail.com',
                 'password' => Hash::make('12345678'), // Securely hash password
                 'two_factor_code' => '696969',
                 'two_factor_expires_at' => fake()->dateTimeBetween('+1 day', '+1 year')->format('Y-m-d H:i:s'),

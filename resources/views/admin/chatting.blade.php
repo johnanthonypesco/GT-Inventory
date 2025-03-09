@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with {{ $user->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
 
@@ -14,7 +15,7 @@
         </div>
 
         <!-- Chat Box -->
-        <div id="chatBox" class="p-4 h-80 overflow-y-auto">
+        <div id="chatBox" class="p-4 h-[70vh] overflow-y-auto">
             @foreach ($conversations as $message)
                 <div class="mb-4 flex {{ $message->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
                     <div class="max-w-xs">
@@ -62,12 +63,15 @@
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
             <div class="flex items-center space-x-2">
                 <input type="text" id="messageInput" name="message" class="flex-1 p-2 border rounded-lg" placeholder="Type your message...">
-                <input type="file" id="fileInput" name="file" class="p-2 border">
+                <input type="file" id="fileInput" name="file" class="p-2 border hidden">
+                <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
                 <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-lg opacity-50 cursor-not-allowed" disabled>Send</button>
             </div>
             <p id="fileError" class="text-red-500 text-sm mt-2 hidden">⚠ File size must not exceed 6MB.</p>
         </form>
     </div>
+    
+    <a href="{{ route('employee.chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

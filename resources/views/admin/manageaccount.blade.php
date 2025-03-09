@@ -136,8 +136,16 @@
                             <label for="new_company">Company Name</label>
                             <input type="text" name="new_company" id="new_company" placeholder="Enter New Company Name" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-                            <label for="new_company_address" class="mt-2">Company Address</label>
+                            <label for="new_company_address" class="mt-2">Full Company Address</label>
                             <input type="text" name="new_company_address" id="new_company_address" placeholder="Enter Company Address" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+
+                            <label for="company_location_id"> Assigned Delivery Province: </label>
+                            <select name="company_location_id" id="company_location_id" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <option value="">-- Select Delivery Location --</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->province }}</option>
+                                @endforeach
+                            </select>
 
                             <button type="button" onclick="hideNewCompanyFields()" class="mt-2 text-red-500 hover:underline">Cancel</button>
                         </div>

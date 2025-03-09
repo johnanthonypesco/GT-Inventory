@@ -24,10 +24,10 @@
                 <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>
 
         
-                @foreach ($listedDeals as $deal)
-                    <div class="h-fit lg:h-[30vh] overflow-y-auto mt-5">
-                        <!-- Product Form -->
-                        <form class="product-form shadow-md shadow-[#005382]/70 flex flex-col lg:flex-row justify-between rounded-xl p-5">
+                <div class="h-fit lg:h-[60vh] overflow-y-auto mt-5 px-5">
+                    <!-- Product Form -->
+                    @foreach ($listedDeals as $deal)
+                        <form class="product-form shadow-sm shadow-[#005382]/50 flex flex-col lg:flex-row justify-between rounded-xl p-5 mt-2">
                             <div class="flex gap-2">
                                 <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
                                 
@@ -53,9 +53,9 @@
                                 </div>
                             </div>
                         </form>
-                        <!-- End of Product Form -->
-                    </div>
-                @endforeach
+                    @endforeach
+                    <!-- End of Product Form -->
+                </div>
             </div>
         
             <!-- Summary of Orders -->

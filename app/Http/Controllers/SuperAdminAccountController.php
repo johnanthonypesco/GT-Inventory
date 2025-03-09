@@ -17,7 +17,8 @@ class SuperAdminAccountController extends Controller
      * Display all accounts (Admins, Staff, Customers).
      */
     public function index()
-    { $admins = Admin::all(); // ✅ Fetch all admins
+    { 
+        $admins = Admin::all(); // ✅ Fetch all admins
         $locations = Location::all(); // ✅ Fetch locations
         $companies = Company::all();
         $accounts = collect()
@@ -84,6 +85,7 @@ class SuperAdminAccountController extends Controller
 'contact_number' => 'nullable|numeric|unique:users,contact_number',
             'location_id' => 'nullable|exists:locations,id',
             'job_title' => 'nullable|string|max:255',
+            'company_location_id' => 'nullable|string|numeric',
             'company_id' => 'nullable|exists:companies,id', // Validate existing company
             'new_company' => 'nullable|string|max:255|unique:companies,name',
             'new_company_address' => 'nullable|string|max:255', // Address field for new company
@@ -99,6 +101,7 @@ class SuperAdminAccountController extends Controller
                 // ✅ Create new company with address
                 $company = Company::create([
                     'name' => $validated['new_company'],
+                    'location_id' => $validated['company_location_id'],
                     'address' => $validated['new_company_address'], // ✅ Save address
                     'status' => 'active'
                 ]);
@@ -130,7 +133,6 @@ class SuperAdminAccountController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'contact_number' => $validated['contact_number'],
-            'location_id' => $validated['location_id'],
             'company_id' => $validated['company_id'] ?? null, // Assign Company ID
             'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
             'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
@@ -242,7 +244,6 @@ dd($e);
                 'name' => $validatedData['name'] ?? $model->name,
                 'email' => $validatedData['email'] ?? $model->email,
                 'password' => $validatedData['password'] ?? $model->password,
-                'location_id' => $validatedData['location_id'] ?? $model->location_id,
             ]),
         };
 
