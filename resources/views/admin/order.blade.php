@@ -30,15 +30,16 @@
         </div>
         {{-- Total Container --}}
 
-        @foreach ($provinces as $provinceName => $companies)
+        <div class="h-[60vh] overflow-auto mt-8">
+            @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regular mt-8 font-bold">
+            <h1 class="text-[20px] sm:text-[30px] font-regularfont-bold">
                 <span class="text-[#005382] text-[30px] font-bold mr-2">
                     Orders In:
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container mt-5 bg-white p-5 rounded-lg">
+            <div class="table-container bg-white p-5 rounded-lg">
                 <div class="flex flex-wrap justify-between items-center">
                     {{-- Search --}}
                     <x-input name="searchconvo"
@@ -49,7 +50,7 @@
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
 
 
-                            <button onclick="window.location.href='{{ route('upload.qr') }}'">
+                            <button onclick="uploadqr()">
                                 <i class="fa-solid fa-upload"></i> Upload QR Code
                             </button>
                         <button onclick="window.location.href='{{ route('orders.scan') }}'">
@@ -83,6 +84,7 @@
             </div>
             {{-- Table for Order --}}
         @endforeach
+        </div>
 
         {{-- View Order Modal --}}
         @foreach ($provinces as $companies)
@@ -99,7 +101,7 @@
                             {{-- Close button, etc. --}}
                             <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
 
-                            <h1 class="text-4xl font-bold uppercase mb-6">
+                            <h1 class="text-xl font-bold uppercase mb-6">
                                 @php 
                                     $separatedInModal = explode('|', $employeeNameAndDate);  
                                 @endphp
@@ -112,7 +114,7 @@
                             
                             <div class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($groupedStatuses as $statusName => $orders)
-                                    <h1 class="text-2xl text-black font-bold uppercase mb-3
+                                    <h1 class="text-lg text-black font-bold uppercase mb-3
                                         {{
                                             match ($statusName) {
                                                 'pending' => 'text-orange-600',
@@ -166,12 +168,12 @@
                             
                             {{-- Print Buttons etc. (optional) --}}
                             <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
-                                <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
-                                    <i class="fa-solid fa-qrcode"></i>Qr Code
-                                </button>
                                 <p class="text-right text-[18px] sm:text-[20px] font-bold">
                                     Grand Total: ₱ {{ number_format($total) }}
                                 </p>
+                                <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
+                                    <i class="fa-solid fa-qrcode"></i>Qr Code
+                                </button>
                                 {{-- Example: if the last order in the group is "completed" --}}
                                 {{-- @if ($groupedOrdersByCompanyName->last()->status === "completed")
                                     <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
@@ -208,6 +210,24 @@
             </div>
         </div>
         {{-- Add New Order Modal --}} 
+        
+        {{-- Upload qr code modal --}}
+        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+            <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
+                <x-modalclose id="uploadqrmodalclose" click="closeuploadqrmodal"/>
+                <!-- Title -->
+                <h1 class="text-xl font-semibold text-gray-800 mb-4">Upload QR Code</h1>
+
+                <!-- Upload Form -->
+                <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
+                    <input type="file" name="qr_code" id="qr_code" accept="image/*" class="border border-gray-300 rounded-lg px-4 py-2 w-full text-gray-700 focus:ring focus:ring-blue-200 focus:outline-none" required>
+                    <button type="submit" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Upload</span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </main>
     
 </body>

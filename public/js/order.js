@@ -23,4 +23,14 @@ function closeaddneworder() {
     addOrderModal.style.display = "none";
 }
 
+function uploadqr() {
+    var uploadQrModal = document.querySelector(".upload-qr-modal");
+    uploadQrModal.style.display = "block";
+}
+
+function closeuploadqrmodal() {
+    var uploadQrModal = document.querySelector(".upload-qr-modal");
+    uploadQrModal.style.display = "none";
+}
+
 
