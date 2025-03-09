@@ -33,54 +33,6 @@
                 </div>        
                 <!-- Divider -->
                 <hr class="border-t border-blue-500 mt-2">
-            
-                <!-- Dynamic User List -->
-                <!-- Dynamic User List -->
-{{-- <div class="h-[50vh] overflow-auto">
-    @foreach($users as $user)
-        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-            onclick="window.location.href='{{ route('admin.chatting', $user->id) }}'">
-            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
-            <div>
-                <p class="text-[12px] font-bold sm:text-2xl">{{ $user->name }}</p>
-                <p class="text-sm text-gray-500">
-                    {{ $user->last_message ? $user->last_message : 'No messages yet' }}
-                </p>
-                <p class="text-xs text-gray-400">
-                    {{ $user->last_message_time ? \Carbon\Carbon::parse($user->last_message_time)->diffForHumans() : '' }}
-                </p>
-            </div>
-        </div>
-    @endforeach
-</div> --}}
-<!-- Dynamic User List -->
-
-{{-- 
-<div class="h-[50vh] overflow-auto">
-    @foreach($users as $user)
-        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-            onclick="window.location.href='{{ route('admin.chatting', $user->id) }}'">
-            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
-            <div>
-                <p class="text-[12px] font-bold sm:text-2xl">{{ $user->name }}</p>
-                <p class="text-sm text-gray-500">
-                    @if($user->last_message)
-                        @if($user->last_sender_id == $authUserId)
-                            <strong>You:</strong> {{ $user->last_message }}
-                        @else
-                            <strong>{{ $user->name }}:</strong> {{ $user->last_message }}
-                        @endif
-                    @else
-                        No messages yet
-                    @endif
-                </p>
-                <p class="text-xs text-gray-400">
-                    {{ $user->last_message_time ? \Carbon\Carbon::parse($user->last_message_time)->diffForHumans() : '' }}
-                </p>
-            </div>
-        </div>
-    @endforeach
-</div> --}}
 
 <!-- Dynamic User List -->
 <div class="h-[50vh] overflow-auto">

@@ -227,7 +227,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     // admins and staff chats
     Route::get('admin/chat', [ChatController::class, 'showChat'])->name('admin.chat');
     Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
-    Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
     
     Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
     Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
