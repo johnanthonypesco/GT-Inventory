@@ -59,6 +59,8 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+use App\Http\Controllers\OcrInventoryController;
+
 
 
 
@@ -104,6 +106,16 @@ Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQ
 
 
 Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+
+
+Route::get('/upload-receipt', function () {
+    return view('upload_receipt');
+})->name('upload.receipt');
+
+Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
+Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
+
+
 
 
                 // routes/web.php
