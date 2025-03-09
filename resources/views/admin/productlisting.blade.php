@@ -20,20 +20,23 @@
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
                 <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
             </div>
             {{-- Customer List Search Function --}}
 
-            {{-- Table for customer List --}}
-            <div class="table-container mt-5 overflow-auto h-[380px]">
-                <x-table 
-                :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB" 
-                category="productdeals"/>
-            </div>
-            {{-- Table for customer List --}}
 
+            @foreach ($locations as $locationName => $companies)
+                {{-- Table for customer List --}}
+                <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
+                <div class="table-container mb-8 overflow-auto h-fit h-max-[190px]">
+                    <x-table 
+                    :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB" 
+                    category="productdeals"/>
+                </div>
+                {{-- Table for customer List --}}
+            @endforeach
             {{-- pagination --}}
             <x-pagination/>
             {{-- pagination --}}
@@ -46,6 +49,7 @@
 
     
     {{-- View Product Listing --}}
+
     @foreach ($dealsDB as $deals)
         <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $deals->first()->company->name }}">
             @if (session("reSummon"))
@@ -75,6 +79,7 @@
                     </div> 
                     {{-- Button for Search --}}           
                 </div>
+                
                 {{-- Table for all products --}}
                 <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
                     <table>
