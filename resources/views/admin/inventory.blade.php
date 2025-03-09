@@ -105,7 +105,7 @@
                     {{-- Search --}}
                     
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                        <button id="openModal" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
+                        <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export') }}" method="get">
                             @csrf
@@ -255,10 +255,9 @@
     {{-- Add stock to specific product --}}
 
     {{--  Scan Receipt--}}
-    <div class="addmodal hidden fixed bg-black w-full h-full p-10 top-0 left-0 px-[50px]" id="addmodal">
+    {{-- <div class="addmodal hidden fixed bg-black w-full h-full p-10 top-0 left-0 px-[50px]" id="addmodal">
         <div class="modal addmodal-content relative bg-white w-full lg:w-[40%] p-5 rounded-lg mx-auto mt-20 flex flex-col md:flex-row gap-[40px]">
             <x-modalclose class="close"/>
-            {{-- drop file area --}}
             <div class="w-full lg:w-full h-full overflow-y-hidden">
                 <h1 class="text-center text-[25px] font-bold">Upload Acknowledgment Receipt</h1>
                 <p class="text-left">When the acknowledgment receipt is uploaded, the data is automatically inputted into the system.</p>
@@ -269,12 +268,11 @@
                     <input type="file" name="file" id="file" class="hidden">
                     <button onclick="window.location.href='{{ route('upload.receipt') }}'">
                         <i class="fa-solid fa-file-alt"></i> Upload Receipt
-                    </button>                </div>
+                    </button>                
+                </div>
             </div>
-            {{-- drop file area --}}
-
         </div>
-    </div>
+    </div> --}}
     {{-- SCan Receipt --}}
 
     {{-- Add Multiple Stocks --}}

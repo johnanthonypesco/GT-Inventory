@@ -37,10 +37,11 @@
             </select>
         </div>
 
-        @foreach ($provinces as $provinceName => $companies)
+        <div class="h-[70vh] mt-5 overflow-auto">
+            @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regular mt-8 font-bold">
-                <span class="text-[#005382] text-[30px] font-bold mr-2">
+            <h1 class="font-bold">
+                <span class="text-[#005382] text-2xl font-bold mr-2">
                     Orderered In:
                     {{ $provinceName }}
                 </span>
@@ -82,6 +83,7 @@
             </div>
             {{-- Table for Order --}}
         @endforeach
+        </div>
 
         {{-- View Order Modal --}}
         @foreach ($provinces as $companies)
@@ -95,7 +97,7 @@
                         <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
                             <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
                             {{-- Name of Selected Customer --}}
-                            <h1 class="text-4xl font-bold uppercase mb-6">
+                            <h1 class="text-xl font-bold uppercase mb-6">
                                 @php 
                                     $separatedInModal = explode('|', $employeeNameAndDate);  
                                 @endphp
@@ -111,7 +113,7 @@
                             {{-- Order Details --}}
                             <div class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($statuses as $statusName => $orders)
-                                    <h1 class="text-2xl text-black font-bold uppercase mb-3
+                                    <h1 class="text-lg text-black font-bold uppercase mb-3
                                         {{
                                             match ($statusName) {
                                                 'cancelled' => 'text-red-600',
