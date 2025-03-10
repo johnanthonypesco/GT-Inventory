@@ -380,7 +380,7 @@ function togglePasswordVisibility(fieldId, iconId) {
         document.querySelector("input[name='username']").required = (role === "admin" || role === "staff");
 
         // Show "location" only for staff and customers
-        document.getElementById("locationField").style.display = (role === "staff" || role === "customer") ? "block" : "none";
+        document.getElementById("locationField").style.display = (role === "staff") ? "block" : "none";
         document.querySelector("select[name='location_id']").required = (role === "staff" || role === "customer");
 
         // Show "job title" only for staff

@@ -152,13 +152,13 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::post('user/logout', function (Request $request) {
         if (Auth::guard('superadmin')->check()) {
             Auth::guard('superadmin')->logout();
-            return redirect()->route('superadmin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('superadmins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
-            return redirect()->route('admin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('admins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('staff')->check()) {
             Auth::guard('staff')->logout();
-            return redirect()->route('staff.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('staffs.login')->with('status', 'Logged out successfully.');
         }
 
         return redirect('/login');
@@ -254,7 +254,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //16////////////////////// << SUPERADMIN LOGIN ROUTES >> ///////////////////////////16//
 Route::middleware('guest:superadmin')->group(function () {
     Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
-        ->name('superadmin.login');
+        ->name('superadmins.login');
     
     Route::post('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'store'])
         ->name('superadmin.login.store');
@@ -265,7 +265,7 @@ Route::middleware('guest:superadmin')->group(function () {
 //17////////////////////// << ADMIN LOGIN ROUTES >> ///////////////////////////17//
 Route::middleware('guest:admin')->group(function () {
     Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])
-        ->name('admin.login');
+        ->name('admins.login');
     
     Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'])
         ->name('admin.login.store');
@@ -275,7 +275,7 @@ Route::middleware('guest:admin')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 Route::middleware('guest:staff')->group(function () {
     Route::get('/staff/login', [StaffAuthenticatedSessionController::class, 'create'])
-        ->name('staff.login');
+        ->name('staffs.login');
     
     Route::post('/staff/login', [StaffAuthenticatedSessionController::class, 'store'])
         ->name('staff.login.store');

@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\PasswordResetMailController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -22,18 +23,94 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
+    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+    //     ->name('password.request');
 
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
+    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+    //     ->name('password.email');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+    //     ->name('password.reset');
 
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    // Route::post('reset-password', [NewPasswordController::class, 'store'])
+    
+    //     ->name('password.store');
+
+
+
+   // Superadmin Routes
+// Route::prefix('superadmin')->group(function () {
+    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('superadmin.password.request');
+    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('superadmins.password.email');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('superadmin.password.reset');
+    // Route::post('reset-password', [NewPasswordController::class, 'store'])->name('superadmins.password.store');
 });
+
+// Admin Routes
+// Route::prefix('admin')->group(function () {
+//     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('admins.password.request');
+    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('admins.password.email');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('admin.password.reset');
+    // Route::post('reset-password', [NewPasswordController::class, 'store'])->name('admins.password.store');
+
+// Staff Routes
+// Route::prefix('staff')->group(function () {
+//     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('staffs.password.request');
+    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('staffs.password.email');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('staff.password.reset');
+    // Route::post('reset-password', [NewPasswordController::class, 'store'])->name('staffs.password.store');
+
+// Default User Routes
+// Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('users.password.request');
+// Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+// Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+// Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+
+
+// Default User Routes
+Route::middleware('guest')->group(function () {
+    Route::get('forgot-password', function() {
+        return view('auth.forgot-password', ['userType' => 'users']);
+    })->name('users.password.request');
+    Route::post('forgot-password', [PasswordResetMailController::class, 'sendResetLink'])->name('users.password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('users.password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('users.password.store');
+});
+
+// Admin Routes
+Route::prefix('admin')->middleware('guest')->group(function () {
+    Route::get('forgot-password', function() {
+        return view('auth.forgot-password', ['userType' => 'admins']);
+    })->name('admin.password.request');
+    Route::post('forgot-password', [PasswordResetMailController::class, 'sendResetLink'])->name('admins.password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('admins.password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('admins.password.store');
+});
+
+// Staff Routes
+Route::prefix('staff')->middleware('guest')->group(function () {
+    Route::get('forgot-password', function() {
+        return view('auth.forgot-password', ['userType' => 'staffs']);
+    })->name('staff.password.request');
+    Route::post('forgot-password', [PasswordResetMailController::class, 'sendResetLink'])->name('staffs.password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('staffs.password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('staffs.password.store');
+});
+
+// // Superadmin Routes
+Route::prefix('superadmin')->middleware('guest')->group(function () {
+    Route::get('forgot-password', function() {
+        return view('auth.forgot-password', ['userType' => 'superadmins']);
+    })->name('superadmin.password.request');
+    Route::post('forgot-password', [PasswordResetMailController::class, 'sendResetLink'])->name('superadmins.password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('superadmins.password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('superadmins.password.store');
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
@@ -58,7 +135,8 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
        
    
-        
+
+
        
         
 });
