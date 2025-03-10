@@ -27,14 +27,18 @@
                 <div class="h-fit lg:h-[60vh] overflow-y-auto mt-5 px-5">
                     <!-- Product Form -->
                     @foreach ($listedDeals as $deal)
-                        <form class="product-form shadow-sm shadow-[#005382]/50 flex flex-col lg:flex-row justify-between rounded-xl p-5 mt-2">
+                        <div class="product-form shadow-sm shadow-[#005382]/50 flex flex-col lg:flex-row justify-between rounded-xl p-5 mt-2">
                             <div class="flex gap-2">
                                 <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
                                 
                                 <div class="flex flex-col gap-2 justify-center">
-                                    <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->product->form }}</p>
-                                    <h1 class="product-name">{{ $deal->product->generic_name }}</h1>
-                                    <p class="font-bold uppercase">{{ $deal->product->brand_name }}</p>
+                                    <div class="flex gap-2">
+                                        <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->product->form }}</p>
+                                        <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->deal_type }}</p>
+                                    </div>
+
+                                    <h1 class="product-name">{{ $deal->product->generic_name ?? "No Generic Name" }}</h1>
+                                    <p class="font-bold uppercase">{{ $deal->product->brand_name ?? "No Brand Name" }}</p>
                                     <div class="flex gap-2">
                                         {{-- <p class="flex items-center"><span class="text-[#005382] font-semibold">Form:</span> {{ $deal->product->form }}</p> --}}
                                         <p class="flex items-center"><span class="text-[#005382] font-semibold">Strength:</span> {{ $deal->product->strength }} </p>
@@ -48,33 +52,78 @@
                                 </p>
                                 <!-- Quantity Input -->
                                 <div class="flex gap-2 mt-2">
-                                    <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1">
-                                    <button type="submit" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl">Add to Order</button>
+                                    <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1" id="quantity-{{$deal->id}}">
+                                    
+                                    <button type="button" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl"
+                                    onclick="
+                                        //the deal ID
+                                        updatePurchaseOrder({{$deal->id}}, 
+                                        //the order quantity
+                                        document.getElementById('quantity-{{$deal->id}}').value,  
+                                        // the product name
+                                        `{{$deal->product->generic_name ?? 'No Generic Name'}} -- {{$deal->product->brand_name ?? 'No Generic Name'}}`,
+                                        // the deal price
+                                        {{ $deal->price }}
+                                    );">
+                                        Add to Order
+                                    </button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     @endforeach
                     <!-- End of Product Form -->
                 </div>
             </div>
         
             <!-- Summary of Orders -->
-            <form action="" id="ordersummaryform" class="w-full sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-xl">
+            <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl">
+                @csrf
+                <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}">
+
                 <h1 class="hidden lg:block text-center font-semibold text-2xl mb-5">Summary of Orders</h1>
-                <div id="order-summary" class="hidden lg:block h-[30vh] lg:h-[45vh] overflow-y-auto">
-                    <!-- Orders will be appended here -->
+                
+                {{-- This div is where all the magic happens ;) --}}
+                <div id="order-summary-content" class="flex flex-col justify-center lg:block pt-10 lg:pt-2 sm:pt-10 h-fit max-h-[20vh] lg:max-h-none lg:h-[45vh] overflow-y-auto">
                 </div>
         
                 <hr class="hidden lg:block my-5">
         
                 <div class="flex justify-between gap-20 lg:gap-0 lg:flex-col items-center lg:items-start">
                     <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">₱0</span></h1>
-                    <button type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
+                    
+                    {{-- will only submit if the form has contents in it --}}
+                    <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="submit" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
                 </div>
             </form>
         </div>      
     </main>
+
+
+
+    @if (session("success"))
+        <div id="yahoo" class="fixed px-24 py-10 transition-all duration-500 bg-white rounded-lg border-4 animate-pulse border-green-600 h-fit w-fit left-[40%] top-5 z-50">
+            <p class="text-xl text-green-600 uppercase font-bold">
+                ORDER SUCCESSFULL
+            </p>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const popup = document.getElementById('yahoo');
+                    
+                    // moves the popup up after 5s
+                    setTimeout(() => {
+                        popup.style.marginTop = '-1000px'
+
+                        // deletes any trace of this script ever running to make the code clean
+                        setTimeout(() => {popup.remove(); document.currentScript.remove()}, 1500)
+                    }, 6000);
+                })
+            </script>
+        </div>
+    @endif
 </body>
+
+
 <script src="{{ asset('js/customer/order.js') }}"></script>
-<script src="{{ asset('js/customer/sweetalert/order.js') }}"></script>
+{{-- <script src="{{ asset('js/customer/sweetalert/order.js') }}"></script> --}}
 </html>

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('generic_name');
-            $table->string('brand_name');
+            $table->string('generic_name')->nullable();
+            $table->string('brand_name')->nullable();
             $table->string('form');
             $table->string('strength');
             $table->string('img_file_path')->nullable();

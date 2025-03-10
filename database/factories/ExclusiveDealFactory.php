@@ -29,7 +29,8 @@ class ExclusiveDealFactory extends Factory
             // 'product_id' => Product::pluck("id")->random(),
             'price' => fake()->numberBetween(1, 1_000),
             'deal_type' => fake()->randomElement([
-                'discount', 'freebie'
+                'discounted',
+                'regular',
             ]),
         ];
     }

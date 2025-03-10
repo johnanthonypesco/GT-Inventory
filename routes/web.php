@@ -211,12 +211,13 @@ Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
+    Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
 
     
-    //12////////////////////// << CUSTOMER CURRENT ORDER ROUTES >> ///////////////////////////12//
+    //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
     Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
-    //12////////////////////// << CUSTOMER CURRENT ORDER ROUTES >> ///////////////////////////12//
+    //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
     
 
     //13////////////////////// << CUSTOMER ORDER HISTORY ROUTES >> ///////////////////////////13//
