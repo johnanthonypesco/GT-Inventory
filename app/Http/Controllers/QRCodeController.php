@@ -125,8 +125,8 @@
            
 
          // Fetch the user's location
-$locationName = $order->user->location ? $order->user->location->province : 'Unknown Location';
-
+$locationName = $order->user->company->location ? $order->user->company->location->province : 'Unknown';
+$locationId =  $order->user->company->location->id ? $order->user->company->location->id : 'Unknown';
 // Start building QR content
 $qrContent = "Order ID: {$order->id}\n"
            . "User: {$order->user->name}\n"
@@ -139,6 +139,8 @@ if ($deal && $deal->product) {
 
     // Find the inventory entry for this product (FIFO + FEFO)
     $inventory = $product->inventories()
+                        ->where('location_id', $locationId) // Filter by user's location
+
                          ->where('quantity', '>', 0) // Ensure there's stock
                          ->orderBy('expiry_date', 'asc')  // First, get the nearest expiry
                          ->orderBy('created_at', 'asc')  // Then, get the oldest acquired
