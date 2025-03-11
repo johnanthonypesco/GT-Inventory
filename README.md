@@ -46,7 +46,12 @@
 2. Copy the .env file and then paste it.
 3. rename the pasted file to: `.env.testing`
 4. change database name in .env.testing to: `rmpoims_breeze_test` 
-5. Now the project is able to run: 
+5. run this to create the new Testing database: 
+   `php artisan migrate --env=testing`
+6. Choose yes to create new DB.
+7. run this to fill up the test database with data:
+   `php artisan migrate:fresh --seed --env=testing`
+8. Now the project is able to run: 
     ```bash 
     php artisan test 
     ```
