@@ -6,133 +6,200 @@
     <title>Chat with {{ $user->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
-
     <div class="w-full max-w-2xl bg-white shadow-md rounded-lg overflow-hidden">
         <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-center items-center">
             <span>Chat with {{ $user->name }}</span>
         </div>
-
-        <!-- Chat Box -->
+        
         <div id="chatBox" class="p-4 h-[70vh] overflow-y-auto">
             @foreach ($conversations as $message)
                 <div class="mb-4 flex {{ $message->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
                     <div class="max-w-xs p-2 rounded-lg shadow-md 
                         {{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black' }}">
-                        <p class="text-sm">{{ $message->message }}</p>
-                        <p class="text-xs text-gray-200 mt-1 text-right">
-                            {{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}
-                        </p>
+                        
+                        @if($message->message)
+                            <p class="text-sm">{{ $message->message }}</p>
+                        @endif
 
-                        <!-- File Attachments -->
                         @if ($message->file_path)
                             <div class="mt-2">
-                                @if (preg_match('/\.(jpg|jpeg|png|gif)$/i', $message->file_path))
+                                @php $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); @endphp
+                                @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
                                     <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $message->file_path) }}" alt="Image" class="w-40 rounded-lg">
+                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="w-40 rounded-lg mt-1">
                                     </a>
-                                @elseif (preg_match('/\.(mp4|mov|avi)$/i', $message->file_path))
-                                    <div class="relative">
-                                        <video controls class="w-40 rounded-lg">
-                                            <source src="{{ asset('storage/' . $message->file_path) }}" type="video/mp4">
-                                        </video>
-                                        <a href="{{ asset('storage/' . $message->file_path) }}" download 
-                                           class="block mt-2 text-blue-600 text-sm underline">
-                                            Download Video
-                                        </a>
-                                    </div>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank" 
-                                       class="text-blue-600 underline">
-                                        Download File
-                                    </a>
+                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-blue-600 underline block mt-1">📎 Download File</a>
                                 @endif
                             </div>
                         @endif
+
+                        <p class="text-xs text-gray-200 mt-1 text-right">{{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}</p>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Message Input -->
-        <form action="{{ route('chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
+        <form id="chatForm" action="{{ route('chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
-            <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4" placeholder="Type a message...">
-            <input type="file" id="fileInput" name="file" class="p-2 border hidden">
-            <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
-            <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full ml-2 opacity-50 cursor-not-allowed" disabled>Send</button>
+            
+            <div class="flex items-center space-x-2">
+                <input type="text" id="messageInput" name="message" class="flex-1 p-2 border rounded-lg" placeholder="Type your message...">
+                <input type="file" id="fileInput" name="file" class="hidden" accept="image/*,video/*">
+                <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
+                <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-lg opacity-50 cursor-not-allowed" disabled>Send</button>
+            </div>
+            <p id="fileError" class="text-red-500 text-sm mt-2 hidden">⚠ File size must not exceed 6MB.</p>
         </form>
-        <p id="fileError" class="text-red-500 text-sm mt-2 hidden text-center">⚠ File size must not exceed 6MB.</p>
     </div>
-
-    <a href="{{ route('chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
+    <audio id="notificationSound" src="{{ asset('sounds/notification.mp3') }}"></audio>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let isActive = true;
-            let chatRefreshInterval;
-            const messageInput = document.getElementById('messageInput');
-            const fileInput = document.getElementById('fileInput');
-            const sendButton = document.getElementById('sendButton');
-            const fileError = document.getElementById('fileError');
-
-            function refreshChat() {
-                if (isActive) {
-                    fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                        .then(response => response.text())
-                        .then(html => {
-                            let parser = new DOMParser();
-                            let doc = parser.parseFromString(html, 'text/html');
-                            let newChatBox = doc.getElementById('chatBox');
-                            if (newChatBox) {
-                                document.getElementById('chatBox').innerHTML = newChatBox.innerHTML;
+        var userId = {{ auth()->id() }}; // Get logged-in user ID from Blade
+    
+        $(document).ready(function () {
+            let lastMessageId = {{ $conversations->last() ? $conversations->last()->id : 0 }};
+            let audioAllowed = false;
+            const chatBox = $("#chatBox");
+    
+            // ✅ Request browser notification permission
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+    
+            // ✅ Allow sound on first click
+            document.addEventListener("click", () => { audioAllowed = true; }, { once: true });
+    
+            // ✅ Auto-reload chat every 5 seconds
+            setInterval(fetchNewMessages, 5000);
+    
+            function fetchNewMessages() {
+                $.ajax({
+                    url: "{{ route('fetch.new.messages', ['last_id' => '__LAST_ID__']) }}".replace('__LAST_ID__', lastMessageId),
+                    method: "GET",
+                    success: function (data) {
+                        if (data.new_messages && data.new_messages.length > 0) {
+                            let atBottom = chatBox[0].scrollHeight - chatBox.scrollTop() <= chatBox.outerHeight() + 50;
+                            let newSoundTrigger = false;
+    
+                            data.new_messages.forEach(message => {
+                                if (message.id > lastMessageId) { 
+                                    lastMessageId = message.id;
+                                    
+                                    // Avoid duplicate messages
+                                    if (!$(`#msg-${message.id}`).length) {
+                                        chatBox.append(renderMessage(message));
+                                        newSoundTrigger = true;
+    
+                                        // ✅ Show desktop notification if tab is inactive & message is NOT from the current user
+                                        if (!document.hasFocus() && message.sender_id !== userId) {
+                                            showDesktopNotification(message);
+                                        }
+                                    }
+                                }
+                            });
+    
+                            if (atBottom) {
+                                chatBox.scrollTop(chatBox[0].scrollHeight);
                             }
-                        })
-                        .catch(error => console.error('Error refreshing chat:', error));
-                }
-            }
-
-            function startChatRefresh() {
-                chatRefreshInterval = setInterval(refreshChat, 6000);
-            }
-
-            function stopChatRefresh() {
-                clearInterval(chatRefreshInterval);
-            }
-
-            function checkInput() {
-                let file = fileInput.files[0];
-                if (file && file.size > 6 * 1024 * 1024) {
-                    sendButton.disabled = true;
-                    sendButton.classList.add('opacity-50', 'cursor-not-allowed');
-                    fileError.classList.remove('hidden');
-                } else {
-                    fileError.classList.add('hidden');
-                    if (messageInput.value.trim() || fileInput.files.length > 0) {
-                        sendButton.disabled = false;
-                        sendButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        sendButton.disabled = true;
-                        sendButton.classList.add('opacity-50', 'cursor-not-allowed');
+    
+                            // ✅ Play sound only for messages from other users
+                            if (newSoundTrigger && audioAllowed && data.new_messages.some(msg => msg.sender_id !== userId)) {
+                                let sound = document.getElementById('notificationSound');
+                                if (sound) {
+                                    sound.play().catch(error => console.log("Audio playback blocked:", error));
+                                }
+                            }
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching messages:", error);
                     }
+                });
+            }
+    
+            function renderMessage(msg) {
+                return `
+                    <div id="msg-${msg.id}" class="mb-4 flex ${msg.sender_id == userId ? 'justify-end' : 'justify-start'}">
+                        <div class="max-w-xs p-2 rounded-lg shadow-md ${msg.sender_id == userId ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}">
+                            ${msg.message ? `<p class="text-sm">${msg.message}</p>` : ""}
+                            ${msg.file_path ? renderFile(msg.file_path) : ""}
+                            <p class="text-xs text-gray-200 mt-1 text-right">${new Date(msg.created_at).toLocaleTimeString()}</p>
+                        </div>
+                    </div>
+                `;
+            }
+    
+            function renderFile(filePath) {
+                let fileExt = filePath.split('.').pop().toLowerCase();
+                let basePath = `/storage/${filePath}`;
+                return `<a href="${basePath}" download class="text-blue-600 underline block mt-1">📎 Download File</a>`;
+            }
+    
+            // ✅ Desktop Notification Function
+            function showDesktopNotification(msg) {
+                if (Notification.permission === "granted") {
+                    let notification = new Notification("New Message", {
+                        body: msg.message ? msg.message : "📎 You received a file.",
+                        icon: "{{ asset('image/Logowname.png') }}", // Change to your icon
+                        requireInteraction: true
+                    });
+    
+                    notification.onclick = function () {
+                        window.focus(); // Bring the chat window to focus when clicked
+                    };
                 }
             }
-
-            document.addEventListener("visibilitychange", function () {
-                isActive = !document.hidden;
-                if (isActive) {
-                    startChatRefresh();
+    
+            // ✅ Enable send button if message OR file is provided
+            $("#messageInput, #fileInput").on("input change", function () {
+                let message = $("#messageInput").val().trim();
+                let file = $("#fileInput")[0].files.length > 0;
+                
+                if (message || file) {
+                    $("#sendButton").removeClass("opacity-50 cursor-not-allowed").prop("disabled", false);
                 } else {
-                    stopChatRefresh();
+                    $("#sendButton").addClass("opacity-50 cursor-not-allowed").prop("disabled", true);
                 }
             });
-
-            messageInput.addEventListener('input', checkInput);
-            fileInput.addEventListener('change', checkInput);
-            
-            startChatRefresh();
+    
+            // ✅ Handle form submission without reloading the page
+            $("#chatForm").on("submit", function (e) {
+                e.preventDefault(); // Prevent the default form submission
+    
+                let formData = new FormData(this); // Create FormData object from the form
+    
+                $.ajax({
+                    url: $(this).attr("action"), // Get the form action URL
+                    method: "POST", // Use POST method
+                    data: formData, // Pass the FormData object
+                    processData: false, // Don't process the data
+                    contentType: false, // Don't set content type
+                    success: function (response) {
+                        if (response.success) {
+                            // ✅ Clear the input fields
+                            $("#messageInput").val(""); // Clear the message input
+                            
+                            // ✅ Clear the file input (reliable method for all browsers)
+                            $("#fileInput").val(""); // Clear the file input
+                            $("#fileInput").replaceWith($("#fileInput").clone(true)); // Reset the file input
+    
+                            // ✅ Disable the send button
+                            $("#sendButton").prop("disabled", true).addClass("opacity-50 cursor-not-allowed");
+    
+                            // ✅ Optionally, fetch new messages to update the chat box
+                            fetchNewMessages();
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error sending message:", error);
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -33,20 +33,45 @@
                 </div>        
                 <!-- Divider -->
                 <hr class="border-t border-blue-500 mt-2">
-            
-                <!-- Dynamic User List -->
-                <div class="h-[50vh] overflow-auto">
-                    @foreach($users as $user)
-                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-                            onclick="window.location.href='{{ route('admin.chatting', $user->id) }}'">
-                            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
-                            <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $user->name }}</p>
-                                <p class="text-sm text-gray-500">Click to chat</p>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+
+<!-- Dynamic User List -->
+<div class="h-[50vh] overflow-auto">
+    @foreach($users as $user)
+        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+            onclick="window.location.href='{{ route('admin.chatting', $user->id) }}'">
+            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
+            <div>
+                <p class="text-[12px] font-bold sm:text-2xl">{{ $user->name }}</p>
+                <p class="text-sm text-gray-500">
+                    @if($user->last_message || $user->last_file)
+                        @php
+                            $timeDifference = \Carbon\Carbon::parse($user->last_message_time)->diffInSeconds(now());
+                            if ($timeDifference < 60) {
+                                $timeText = "Now";
+                            } elseif ($timeDifference < 3600) {
+                                $timeText = floor($timeDifference / 60) . " min" . (floor($timeDifference / 60) > 1 ? "s" : "") . " ago";
+                            } else {
+                                $timeText = \Carbon\Carbon::parse($user->last_message_time)->format('h:i A');
+                            }
+                        @endphp
+
+                        @if($user->last_sender_id == $authUserId)
+                            <strong>You:</strong> 
+                            {{ $user->last_file ? 'File' : $user->last_message }}
+                        @else
+                            <strong>{{ $user->name }}:</strong> 
+                            {{ $user->last_file ? 'File' : $user->last_message }}
+                        @endif
+                        <span class="text-xs text-gray-400"> • {{ $timeText }}</span>
+                    @else
+                        No messages yet
+                    @endif
+                </p>
+            </div>
+        </div>
+    @endforeach
+</div>
+
             </div>
  
         </div>

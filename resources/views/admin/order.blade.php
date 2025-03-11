@@ -11,8 +11,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <link rel="stylesheet" href="{{asset ('css/order.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/order.css') }}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Orders</title>
 </head>
@@ -48,22 +48,29 @@
                             divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
-
-
-                            <button onclick="uploadqr()">
-                                <i class="fa-solid fa-upload"></i> Upload QR Code
-                            </button>
-                        <button onclick="window.location.href='{{ route('orders.scan') }}'">
-                            <i class="fa-solid fa-qrcode"></i> Scan
+                        <button onclick="uploadqr()">
+                            <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
-                        <button><i class="fa-solid fa-download"></i>Export</button>
+                            <button onclick="window.location.href='{{ route('orders.scan') }}'">
+                        <i class="fa-solid fa-qrcode"></i> Scan
+                        </button>
+                        <button>
+                            <i class="fa-solid fa-download"></i>
+                            Export
+                        </button>
                     </div>
                     {{-- Table Button --}}
                 </div>
+                <select name="company" class="rounded-lg px-4 py-2 outline-none mt-5" style="box-shadow: 0 0 5px #00528288;">
+                    <option value="company">All Company</option>
+                    @foreach ($companies as $companyName => $employees)
+                        <option value="{{ $companyName }}">{{ $companyName }}</option>
+                    @endforeach
+                </select>
 
                 @foreach ($companies as $companyName => $employees)
                     
-                    <h1 class="text-[20px] sm:text-[20px] font-regular mt-8 font-bold">
+                    <h1 class="text-[20px] sm:text-[20px] font-regular mt-6 font-bold">
                         <span class="text-[#005382] text-[20px] font-bold mr-2">
                             Orders From:
                         </span>
@@ -203,8 +210,13 @@
                     </div>
 
                     <div class="flex justify-between absolute bottom-0 w-full p-2 bg-white left-0">
-                        <button id="addnewworder-button" class="bg-white flex items-center"><i class="fa-solid fa-plus"></i>Add More</button>
-                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center"><img src="{{asset('image/image 51.png')}}" class="w-[20px]">Submit</button>
+                        <button id="addnewworder-button" class="bg-white flex items-center">
+                            <i class="fa-solid fa-plus"></i>Add More
+                        </button>
+                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center">
+                            <img src="{{ asset('image/image 51.png') }}" class="w-[20px]">
+                            Submit
+                        </button>
                     </div>
                 </form>
             </div>
@@ -229,7 +241,6 @@
             </div>
         </div>
     </main>
-    
 </body>
 <script src="{{ asset('js/order.js') }}"></script>
 </html>

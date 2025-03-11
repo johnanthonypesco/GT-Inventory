@@ -24,7 +24,7 @@
     - MAIL_FROM_ADDRESS=arkquestdev@gmail.com
     - MAIL_FROM_NAME=RMPOIMS
 
-    GOOGLE_VISION_API_KEY=(((MESSAGE SI KUYA PARA SA API KEY)))
+    - GOOGLE_VISION_API_KEY=(((MESSAGE SI KUYA PARA SA API KEY)))
     ```
 7. run: `php artisan migrate:fresh --seed`
 8. run: `php artisan storage:link`

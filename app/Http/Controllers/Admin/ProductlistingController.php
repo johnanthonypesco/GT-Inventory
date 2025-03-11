@@ -12,11 +12,14 @@ use Illuminate\Http\Request;
 class ProductlistingController extends Controller
 {    
     public function showProductListingPage(){
-        $companies = Company::all();
+        $companies = Company::with('location')->get()
+        ->groupBy(function ($companies) {
+            return $companies->location->province;
+        });
         $products = Product::all();
 
         return view('admin.productlisting', [
-            "companies" => $companies,
+            "locations" => $companies,
             "products" => $products,
 
             "dealsDB" => ExclusiveDeal::with("company")->get()
