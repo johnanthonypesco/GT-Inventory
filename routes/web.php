@@ -228,22 +228,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
     //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
 
+});
+    // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+    // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
+    // Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
+    // Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
 
+    // Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
+    // Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
+    // Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+
+    // Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
+    // Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
+    // ->name('customer.chat.fetch');
+
+    // Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
-    Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
-    Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
-    Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
 
-    Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
-    Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
-    Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+// ========================= CUSTOMER CHAT ROUTES ========================= //
+Route::prefix('customer/chat')->middleware('auth')->group(function () {
+    Route::get('/', [ChatRepsController::class, 'index'])->name('customer.chat.index'); // List SuperAdmins, Admins, and Staff to chat with
+    Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('customer.chat.show'); // Open chat
+    Route::post('/store', [ChatRepsController::class, 'store'])->name('customer.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
-    Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
-    ->name('customer.chat.fetch');
+// ========================= ADMIN, STAFF, SUPERADMIN CHAT ROUTES ========================= //
+Route::prefix('admin/chat')->middleware('auth:admin,superadmin,staff')->group(function () {
+    Route::get('/', [ChatController::class, 'showChat'])->name('admin.chat.index'); // List available chats for Admins, Staff, and SuperAdmins
+    Route::get('/{id}/{type}', [ChatController::class, 'chatWithUser'])->name('admin.chat.show'); // Open chat
+    Route::post('/send', [ChatController::class, 'store'])->name('admin.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatController::class, 'fetchNewMessages'])->name('admin.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
-    //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+// ========================= COMMON CHAT ROUTES ========================= //
+Route::prefix('chat')->middleware('auth')->group(function () {
+    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('chat.newMessages'); // Fetch new messages for all chat types
 });
 
 //##~~~~~~~~~~~~~~~~~~~~~~~~~ << AUTHENTICATED USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~##//

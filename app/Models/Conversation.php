@@ -9,12 +9,11 @@ class Conversation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sender_id', 'sender_type', 'receiver_id', 'message', 'file_path'];
-
+    protected $fillable = ['sender_id', 'sender_type', 'receiver_id', 'receiver_type', 'message', 'file_path'];
 
     /**
      * Polymorphic relationship for sender.
-     * Sender can be either a User or a SuperAdmin.
+     * Sender can be either a User, Admin, Staff, or SuperAdmin.
      */
     public function sender()
     {
@@ -22,10 +21,11 @@ class Conversation extends Model
     }
 
     /**
-     * Receiver relationship (always a User).
+     * Polymorphic relationship for receiver.
+     * Receiver can be an Admin, Staff, or SuperAdmin (NOT a Customer).
      */
     public function receiver()
     {
-        return $this->belongsTo(User::class, 'receiver_id');
+        return $this->morphTo();
     }
 }

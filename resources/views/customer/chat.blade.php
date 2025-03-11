@@ -19,16 +19,37 @@
         
         
         <div class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col">
-            @foreach ($superAdmins as $admin)
-                <div onclick="window.location.href='{{ route('customer.chat.show', $admin->id) }}'" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
+            @foreach ($superAdmins as $superadmin)
+                <div onclick="window.location.href='{{ route('customer.chat.show', [$superadmin->id, 'super_admin']) }}'" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-[#005382] p-5 rounded-full"></i>
                     <div>
-                        <p class="text-xl font-bold">{{ $admin->s_admin_username }}</p>
+                        <p class="text-xl font-bold">{{ $superadmin->s_admin_username }}</p>
+                        <p class="text-gray-500">Click to chat</p>
+                    </div>
+                </div>
+            @endforeach
+        
+            @foreach ($admins as $admin)
+                <div onclick="window.location.href='{{ route('customer.chat.show', [$admin->id, 'admin']) }}'" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-user text-white text-2xl bg-blue-500 p-5 rounded-full"></i>
+                    <div>
+                        <p class="text-xl font-bold">{{ $admin->email }}</p>
+                        <p class="text-gray-500">Click to chat</p>
+                    </div>
+                </div>
+            @endforeach
+        
+            @foreach ($staff as $staffMember)
+                <div onclick="window.location.href='{{ route('customer.chat.show', [$staffMember->id, 'staff']) }}'" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-user text-white text-2xl bg-green-500 p-5 rounded-full"></i>
+                    <div>
+                        <p class="text-xl font-bold">{{ $staffMember->email }}</p>
                         <p class="text-gray-500">Click to chat</p>
                     </div>
                 </div>
             @endforeach
         </div>
+        
 
         
     </main>

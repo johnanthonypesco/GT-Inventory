@@ -10,7 +10,7 @@
 
         <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
 
-        <a href="{{ route ('employee.chat')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
+        <a href="{{ route ('admin.chat.index')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
 
         <a href="{{ route ('superadmin.account.index')}}" class="text-md whitespace-nowrap"><i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Account</a>
 
@@ -22,7 +22,7 @@
     @if (auth('staff')->check())
         <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
 
-        <a href="{{ route ('employee.chat')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
+        <a href="{{ route ('admin.chat.index')}}" class="text-md"><i class="fa-solid fa-message text-[#005382] text-md"></i>Chat</a>
     @endif
 
     <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">

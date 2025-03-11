@@ -11,7 +11,7 @@
 
     <div class="w-full max-w-2xl bg-white shadow-md rounded-lg overflow-hidden">
         <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-center items-center">
-            <span>Chat with {{ $user->name }}</span>
+            <span>Chat with {{ $user->email }}</span>
         </div>
 
         <!-- Chat Box -->
@@ -56,9 +56,11 @@
         </div>
 
         <!-- Message Input -->
-        <form action="{{ route('chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
+        <form action="{{ route('customer.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
+            <input type="hidden" name="receiver_type" value="{{ $receiverType }}"> <!-- ✅ Fix added -->
+
             <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4" placeholder="Type a message...">
             <input type="file" id="fileInput" name="file" class="p-2 border hidden">
             <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
@@ -67,7 +69,7 @@
         <p id="fileError" class="text-red-500 text-sm mt-2 hidden text-center">⚠ File size must not exceed 6MB.</p>
     </div>
 
-    <a href="{{ route('chat') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
+    <a href="{{ route('customer.chat.index') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
