@@ -25,34 +25,86 @@
                     <label class="block text-gray-600">Product Name:</label>
                     <input type="text" id="product_name" name="product_name" class="w-full p-2 border border-[#003852] rounded-lg outline-none">
                 </div>
-    
+        
                 <div class="w-full">
                     <label class="block text-gray-600">Batch Number:</label>
                     <input type="text" id="batch_number" name="batch_number" class="w-full p-2 border border-[#003852] rounded-lg outline-none">
                 </div>
             </div>
-
+        
             <div>
                 <label class="block text-gray-600">Expiry Date:</label>
                 <input type="date" id="expiry_date" name="expiry_date" class="w-full p-2 border border-[#003852] rounded-lg outline-none">
             </div>
-
+        
             <div>
                 <label class="block text-gray-600">Quantity:</label>
                 <input type="number" id="quantity" name="quantity" class="w-full p-2 border border-[#003852] rounded-lg outline-none">
             </div>
-
+        
             <div>
                 <label class="block text-gray-600">Location:</label>
                 <input type="text" id="location" name="location" class="w-full p-2 border border-[#003852] rounded-lg outline-none">
             </div>
-            
+        
             <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">Confirm & Save</button>
         </form>
-
-        <i class="fa-solid fa-arrow-left text-3xl absolute top-5 left-4 cursor-pointer" onclick="window.location.href = '{{ route('admin.inventory') }}'"></i>
+        
+        <i class="fa-solid fa-arrow-left text-3xl absolute top-5 left-4 cursor-pointer" onclick="window.location.href = '{{ route('admin.inventory') }}'"></i>        
     </div>
 </body>
-<script src="{{ asset('js/uploadreceipt.js') }}"></script>
+<script>
+    document.getElementById('saveForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('product_name', document.getElementById('product_name').value);
+    formData.append('batch_number', document.getElementById('batch_number').value);
+    formData.append('expiry_date', document.getElementById('expiry_date').value);
+    formData.append('quantity', document.getElementById('quantity').value);
+    formData.append('location', document.getElementById('location').value);
+
+    fetch("{{ route('save.receipt') }}", { 
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            Swal.fire("Success", data.message, "success");
+        } else {
+            Swal.fire("Error", "Failed to save data.", "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+
+
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('receipt_image', document.getElementById('receipt_image').files[0]);
+
+    fetch("{{ route('process.receipt') }}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.data) {
+            document.getElementById('product_name').value = data.data.product_name;
+            document.getElementById('batch_number').value = data.data.batch_number;
+            document.getElementById('expiry_date').value = data.data.expiry_date;
+            document.getElementById('quantity').value = data.data.quantity;
+            document.getElementById('location').value = data.data.location;
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to process receipt.", "error"));
+});
+
+</script>
 </html>
 

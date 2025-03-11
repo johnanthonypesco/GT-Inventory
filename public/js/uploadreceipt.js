@@ -8,7 +8,7 @@ document.getElementById('saveForm').addEventListener('submit', function(event) {
     formData.append('quantity', document.getElementById('quantity').value);
     formData.append('location', document.getElementById('location').value);
 
-    fetch("{{ route('save.receipt') }}", { // ✅ Use save.receipt route instead of process.receipt
+    fetch("{{ route('save.receipt') }}", { 
         method: "POST",
         body: formData,
         headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
