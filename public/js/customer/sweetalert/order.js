@@ -1,6 +1,7 @@
 const checkoutBtn = document.getElementById("checkoutbtn");
 const ordersummary = document.getElementById("ordersummaryform");
 
+
 checkoutBtn.addEventListener("click", (event) => {
     event.preventDefault(); 
 
