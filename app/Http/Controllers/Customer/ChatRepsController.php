@@ -130,6 +130,7 @@ class ChatRepsController extends Controller
 
         return redirect()->back();
     }
+    
 
     /**
      * Convert URLs in text into clickable links.

@@ -7,22 +7,22 @@
 5. run in terminal: `composer install`
 6. change .env variables to this:
     ```dotenv
-    - DB_CONNECTION=mysql
-    - DB_HOST=127.0.0.1
-    - DB_PORT=3306
-    - DB_DATABASE=rmpoims_breeze
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=rmpoims_breeze
     
-    - SESSION_DRIVER=cookie
+    SESSION_DRIVER=cookie
     
-    - MAIL_MAILER=smtp
-    - MAIL_SCHEME=null
-    - MAIL_HOST=smtp.gmail.com
-    - MAIL_PORT=587
-    - MAIL_USERNAME=arkquestdev@gmail.com
-    - MAIL_PASSWORD=wxydytlvdlgeirdj
-    - MAIL_ENCRYPTION=tls
-    - MAIL_FROM_ADDRESS=arkquestdev@gmail.com
-    - MAIL_FROM_NAME=RMPOIMS
+    MAIL_MAILER=smtp
+    MAIL_SCHEME=null
+    MAIL_HOST=smtp.gmail.com
+    MAIL_PORT=587
+    MAIL_USERNAME=arkquestdev@gmail.com
+    MAIL_PASSWORD=wxydytlvdlgeirdj
+    MAIL_ENCRYPTION=tls
+    MAIL_FROM_ADDRESS=arkquestdev@gmail.com
+    MAIL_FROM_NAME=RMPOIMS
 
     GOOGLE_VISION_API_KEY=(((MESSAGE SI KUYA PARA SA API KEY)))
     ```
@@ -32,3 +32,26 @@
 
 ---
 ---
+
+# How to Make the Project Testing Side Work
+
+1. Run these commands to install Pest: 
+    ```bash
+   
+   composer remove phpunit/phpunit
+   composer require pestphp/pest --dev --with-all-dependencies
+    
+    ./vendor/bin/pest --init
+    ```
+2. Copy the .env file and then paste it.
+3. rename the pasted file to: `.env.testing`
+4. change database name in .env.testing to: `rmpoims_breeze_test` 
+5. run this to create the new Testing database: 
+   `php artisan migrate --env=testing`
+6. Choose yes to create new DB.
+7. run this to fill up the test database with data:
+   `php artisan migrate:fresh --seed --env=testing`
+8. Now the project is able to run: 
+    ```bash 
+    php artisan test 
+    ```

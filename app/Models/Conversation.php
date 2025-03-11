@@ -28,4 +28,8 @@ class Conversation extends Model
     {
         return $this->morphTo();
     }
+    public function conversations()
+{
+    return $this->hasMany(Conversation::class, 'sender_id')->orWhere('receiver_id', $this->id);
+}
 }

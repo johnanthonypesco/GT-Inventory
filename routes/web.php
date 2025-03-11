@@ -183,6 +183,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::get('admin/chat', [ChatController::class, 'showChat'])->name('employee.chat');
     Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
     Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
+
+    Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
+    Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
     //9///////////////////////// << EMPLOYEE CHAT ROUTES >> //////////////////////////////9//
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED STAFF ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
@@ -208,12 +211,13 @@ Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
+    Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
 
     
-    //12////////////////////// << CUSTOMER CURRENT ORDER ROUTES >> ///////////////////////////12//
+    //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
     Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
-    //12////////////////////// << CUSTOMER CURRENT ORDER ROUTES >> ///////////////////////////12//
+    //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
     
 
     //13////////////////////// << CUSTOMER ORDER HISTORY ROUTES >> ///////////////////////////13//

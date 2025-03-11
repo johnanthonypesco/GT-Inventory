@@ -33,7 +33,7 @@
         <div class="h-[60vh] overflow-auto mt-8">
             @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regularfont-bold">
+            <h1 class="text-[20px] sm:text-[30px] font-regular font-bold">
                 <span class="text-[#005382] text-[30px] font-bold mr-2">
                     Orders In:
                     {{ $provinceName }}
@@ -56,14 +56,23 @@
                         <button onclick="window.location.href='{{ route('orders.scan') }}'">
                             <i class="fa-solid fa-qrcode"></i> Scan
                         </button>
-                        <button><i class="fa-solid fa-download"></i>Export</button>
+                        <button>
+                            <i class="fa-solid fa-download"></i>
+                            Export
+                        </button>
                     </div>
                     {{-- Table Button --}}
                 </div>
+                <select name="company" class="rounded-lg px-4 py-2 outline-none mt-5" style="box-shadow: 0 0 5px #00528288;">
+                    <option value="company">All Company</option>
+                    @foreach ($companies as $companyName => $employees)
+                        <option value="{{ $companyName }}">{{ $companyName }}</option>
+                    @endforeach
+                </select>
 
                 @foreach ($companies as $companyName => $employees)
                     
-                    <h1 class="text-[20px] sm:text-[20px] font-regular mt-8 font-bold">
+                    <h1 class="text-[20px] sm:text-[20px] font-regular mt-6 font-bold">
                         <span class="text-[#005382] text-[20px] font-bold mr-2">
                             Orders From:
                         </span>

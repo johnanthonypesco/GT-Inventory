@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <title>Chat</title>
 </head>
+
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
 
@@ -56,27 +57,3 @@
 </body>
 </html>
 
-
-{{-- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Chat</title>
-</head>
-<body class="bg-gray-100 p-5">
-    <h1 class="text-xl font-bold">Select a Super Admin to Chat</h1>
-    
-    <div class="bg-white p-5 mt-5 shadow-lg rounded-lg">
-        @foreach ($superAdmins as $admin)
-            <a href="{{ route('customer.chat.show', $admin->id) }}" class="block p-3 border rounded-lg mb-2 bg-gray-100 hover:bg-gray-200">
-                <p class="text-lg font-semibold">{{ $admin->s_admin_username }}</p>
-            </a>
-        @endforeach
-
-    </div>
-</body>
-</html> --}}
