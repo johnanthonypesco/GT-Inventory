@@ -33,7 +33,7 @@
         <div class="h-[60vh] overflow-auto mt-8">
             @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regularfont-bold">
+            <h1 class="text-[20px] sm:text-[30px] font-regular font-bold">
                 <span class="text-[#005382] text-[30px] font-bold mr-2">
                     Orders In:
                     {{ $provinceName }}
@@ -48,11 +48,13 @@
                             divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                        <button onclick="uploadqr()">
-                            <i class="fa-solid fa-upload"></i> Upload QR Code
-                        </button>
-                            <button onclick="window.location.href='{{ route('orders.scan') }}'">
-                        <i class="fa-solid fa-qrcode"></i> Scan
+
+
+                            <button onclick="uploadqr()">
+                                <i class="fa-solid fa-upload"></i> Upload QR Code
+                            </button>
+                        <button onclick="window.location.href='{{ route('orders.scan') }}'">
+                            <i class="fa-solid fa-qrcode"></i> Scan
                         </button>
                         <button>
                             <i class="fa-solid fa-download"></i>
@@ -243,4 +245,30 @@
     </main>
 </body>
 <script src="{{ asset('js/order.js') }}"></script>
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('qr_code', document.getElementById('qr_code').files[0]);
+
+    fetch("{{ route('upload.qr.code') }}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message.includes('Error')) {
+            Swal.fire("Error", data.message, "error");
+        } else {
+            Swal.fire("Success", data.message, "success");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire("Error", "Failed to process QR code upload.", "error");
+    });
+});
+</script>
 </html>

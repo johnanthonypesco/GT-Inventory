@@ -75,7 +75,7 @@
         </form>
     </div>
 
-    <a href="{{ route('employee.chat') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
+    <a href="" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back (Pakiayos ito, inalis ko yung href dahil may error - sigrae)</a>
 
     <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden">

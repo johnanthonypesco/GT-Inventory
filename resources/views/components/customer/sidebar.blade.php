@@ -4,7 +4,7 @@
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
         <a href="{{ route('customer.manageorder') }}" class="text-md"><i class="fa-solid fa-list-check"></i>Manage Order</a>
         <a href="{{ route('customer.history') }}" class="text-md"><i class="fa-regular fa-clock"></i>Order History</a>
-        <a href="{{ route('chat') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a>
+        <a href="{{ route('customer.chat.index') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a>
         <a href="{{ route('customer.manageaccount') }}" class="text-md"><i class="fa-solid fa-gear"></i>Account</a>
         {{-- <a href="{{ route('customer.chat') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a> --}}
     <li>

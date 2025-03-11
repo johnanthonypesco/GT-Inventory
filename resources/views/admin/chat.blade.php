@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Chat</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+<body class="flex flex-col md:flex-row gap-4 h-[100vh]">    
     <x-admin.navbar />
 
     <main class="md:w-full h-full md:ml-[16%] ml-0">
@@ -20,7 +20,7 @@
         <div class="flex flex-col bg-white mt-5 p-5 rounded-lg">
             <!-- Chat List -->
             <div id="chat-list" class="flex flex-col gap-2">
-                <!-- Hardcoded Group Chat (Separated with Margin) -->
+                <!-- Hardcoded Group Chat -->
                 <div class="mb-2">
                     <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
                         onclick="window.location.href='{{ route('admin.group.chat') }}'">
@@ -33,58 +33,71 @@
                 </div>        
                 <!-- Divider -->
                 <hr class="border-t border-blue-500 mt-2">
+            
+                <!-- Dynamic User Lists -->
+                <div class="h-[50vh] overflow-auto">
+                    <!-- SuperAdmins List -->
+                    <h3 class="text-lg font-semibold mt-2 text-red-600">Super Admins</h3>
+                    @foreach($superAdmins as $superAdmin)
+                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                            onclick="window.location.href='{{ route('admin.chat.show', [$superAdmin->id, 'super_admin']) }}'">
+                            <i class="fa-solid fa-user text-white text-xl bg-red-500 p-5 rounded-full"></i>
+                            <div>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $superAdmin->s_admin_username ?? 'Super Admin' }}</p>
+                                <p class="text-sm text-gray-500">Click to chat</p>
+                            </div>
+                        </div>
+                    @endforeach
 
-<!-- Dynamic User List -->
-<div class="h-[50vh] overflow-auto">
-    @foreach($users as $user)
-        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-            onclick="window.location.href='{{ route('admin.chatting', $user->id) }}'">
-            <i class="fa-solid fa-user text-white text-xl bg-[#005382] p-5 rounded-full"></i>
-            <div>
-                <p class="text-[12px] font-bold sm:text-2xl">{{ $user->name }}</p>
-                <p class="text-sm text-gray-500">
-                    @if($user->last_message || $user->last_file)
-                        @php
-                            $timeDifference = \Carbon\Carbon::parse($user->last_message_time)->diffInSeconds(now());
-                            if ($timeDifference < 60) {
-                                $timeText = "Now";
-                            } elseif ($timeDifference < 3600) {
-                                $timeText = floor($timeDifference / 60) . " min" . (floor($timeDifference / 60) > 1 ? "s" : "") . " ago";
-                            } else {
-                                $timeText = \Carbon\Carbon::parse($user->last_message_time)->format('h:i A');
-                            }
-                        @endphp
+                    <!-- Admins List -->
+                    <h3 class="text-lg font-semibold mt-2 text-blue-600">Admins</h3>
+                    @foreach($admins as $admin)
+                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                            onclick="window.location.href='{{ route('admin.chat.show', [$admin->id, 'admin']) }}'">
+                            <i class="fa-solid fa-user text-white text-xl bg-blue-500 p-5 rounded-full"></i>
+                            <div>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->username ?? 'Admin' }}</p>
+                                <p class="text-sm text-gray-500">Click to chat</p>
+                            </div>
+                        </div>
+                    @endforeach
 
-                        @if($user->last_sender_id == $authUserId)
-                            <strong>You:</strong> 
-                            {{ $user->last_file ? 'File' : $user->last_message }}
-                        @else
-                            <strong>{{ $user->name }}:</strong> 
-                            {{ $user->last_file ? 'File' : $user->last_message }}
-                        @endif
-                        <span class="text-xs text-gray-400"> • {{ $timeText }}</span>
-                    @else
-                        No messages yet
-                    @endif
-                </p>
+                    <!-- Staff List -->
+                    <h3 class="text-lg font-semibold mt-2 text-green-600">Staff</h3>
+                    @foreach($staff as $staffMember)
+                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                            onclick="window.location.href='{{ route('admin.chat.show', [$staffMember->id, 'staff']) }}'">
+                            <i class="fa-solid fa-user text-white text-xl bg-green-500 p-5 rounded-full"></i>
+                            <div>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->staff_username ?? 'Staff' }}</p>
+                                <p class="text-sm text-gray-500">Click to chat</p>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <!-- Customers List -->
+                    <h3 class="text-lg font-semibold mt-2 text-yellow-600">Customers</h3>
+                    @foreach($customers as $customer)
+                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                            onclick="window.location.href='{{ route('admin.chat.show', [$customer->id, 'customer']) }}'">
+                            <i class="fa-solid fa-user text-white text-xl bg-yellow-500 p-5 rounded-full"></i>
+                            <div>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $customer->name ?? 'Customer' }}</p>
+                                <p class="text-sm text-gray-500">Click to chat</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    @endforeach
-</div>
-
-            </div>
- 
         </div>
     </main>
 
     <!-- JavaScript for Real-time Chat -->
     <script>
-       function selectChat(userId, userName) {
-        alert(`Chat selected with ${userName} (ID: ${userId})`);
-        // You can redirect or fetch messages here
-    }
+        function selectChat(userId, userName) {
+            alert(`Chat selected with ${userName} (ID: ${userId})`);
+        }
     </script>
-    
     
 </body>
 </html>

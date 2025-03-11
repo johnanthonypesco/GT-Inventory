@@ -1,100 +1,136 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Admin;
+use App\Models\Staff;
 use App\Models\SuperAdmin;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-
-public function showChat()
+    /**
+     * Show available users to chat with (Admins, Staff, SuperAdmins).
+     */
+    public function showChat()
 {
-    $authUserId = auth()->id(); // Get the logged-in user ID
+    $superAdmins = SuperAdmin::select('id', 's_admin_username')->get();
+    $admins = Admin::select('id', 'username')->get();
+    $staff = Staff::select('id', 'staff_username')->get();
+    $customers = User::select('id', 'name')->get(); // Include Customers
 
-    $users = User::select('users.id', 'users.name')
-        ->leftJoin('conversations', function ($join) {
-            $join->on('users.id', '=', 'conversations.sender_id')
-                 ->orOn('users.id', '=', 'conversations.receiver_id');
-        })
-        ->selectRaw('users.id, users.name, 
-                     MAX(conversations.created_at) as last_message_time, 
-                     (SELECT sender_id FROM conversations 
-                      WHERE (sender_id = users.id OR receiver_id = users.id) 
-                      ORDER BY created_at DESC LIMIT 1) as last_sender_id,
-                     (SELECT message FROM conversations 
-                      WHERE (sender_id = users.id OR receiver_id = users.id) 
-                      ORDER BY created_at DESC LIMIT 1) as last_message,
-                     (SELECT file_path FROM conversations 
-                      WHERE (sender_id = users.id OR receiver_id = users.id) 
-                      ORDER BY created_at DESC LIMIT 1) as last_file')
-        ->groupBy('users.id', 'users.name')
-        ->orderBy('last_message_time', 'DESC')
-        ->get();
-
-    return view('admin.chat', compact('users', 'authUserId'));
+    return view('admin.chat', compact('superAdmins', 'admins', 'staff', 'customers'));
 }
 
-
-    public function chatWithUser($id)
-    {
-        $user = User::findOrFail($id); // Get the user being chatted with
-
-        $conversations = Conversation::where(function ($query) use ($id) {
-                $query->where('sender_id', auth()->id())
-                      ->where('receiver_id', $id);
-            })
-            ->orWhere(function ($query) use ($id) {
-                $query->where('sender_id', $id)
-                      ->where('receiver_id', auth()->id());
-            })
-            ->orderBy('created_at', 'asc')
-            ->get(); // Get conversation history
-
-        return view('admin.chatting', compact('user', 'conversations'));
+    /**
+     * Show the chat conversation between the logged-in user and a recipient.
+     */
+    public function chatWithUser($id, $type)
+{
+    // Validate the receiver type
+    if (!in_array($type, ['super_admin', 'admin', 'staff', 'customer'])) {
+        abort(403, 'Invalid chat recipient.');
     }
 
-    public function store(Request $request)
-{
-    $request->validate([
-        'receiver_id' => 'required|integer',
-        'message' => 'nullable|string',
-        'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx|max:5120',
-    ]);
+    // Fetch the user based on type
+    $user = match ($type) {
+        'super_admin' => SuperAdmin::findOrFail($id),
+        'admin' => Admin::findOrFail($id),
+        'staff' => Staff::findOrFail($id),
+        'customer' => User::findOrFail($id),
+        default => abort(404),
+    };
 
-    $user = Auth::user();
-    if (!$user) {
+    // Get authenticated user
+    $authUser = Auth::user();
+    if (!$authUser) {
         return redirect()->back()->with('error', 'Unauthorized');
     }
 
-    // Determine sender type (SuperAdmin or User)
-    $isSuperAdmin = \App\Models\SuperAdmin::where('id', $user->id)->exists();
-    $senderType = $isSuperAdmin ? 'super_admin' : 'user';
+    // Determine sender type
+    $senderType = match (get_class($authUser)) {
+        'App\Models\SuperAdmin' => 'super_admin',
+        'App\Models\Admin' => 'admin',
+        'App\Models\Staff' => 'staff',
+        'App\Models\User' => 'customer',
+        default => abort(403, 'Invalid user type.'),
+    };
 
-    // Handle File Upload
-    $filePath = null;
-    if ($request->hasFile('file')) {
-        $filePath = $request->file('file')->store('chat_files', 'public');
-    }
+    // Fetch chat messages
+    $conversations = Conversation::where(function ($query) use ($id, $type, $authUser, $senderType) {
+        $query->where('sender_id', $authUser->id)
+              ->where('sender_type', $senderType)
+              ->where('receiver_id', $id)
+              ->where('receiver_type', $type);
+    })->orWhere(function ($query) use ($id, $type, $authUser, $senderType) {
+        $query->where('sender_id', $id)
+              ->where('sender_type', $type)
+              ->where('receiver_id', $authUser->id)
+              ->where('receiver_type', $senderType);
+    })->orderBy('created_at', 'asc')->get();
 
-    // Ensure at least one of `message` or `file` is present
-    if (!$request->message && !$filePath) {
-        return redirect()->back()->with('error', 'Message or file is required');
-    }
-
-    // Save the chat message
-    Conversation::create([
-        'sender_id' => $user->id,
-        'sender_type' => $senderType,
-        'receiver_id' => $request->receiver_id,
-        'message' => $request->message ?? '',
-        'file_path' => $filePath,
-    ]);
-
-    return redirect()->back();
+    // ✅ Fix: Pass receiverType correctly
+    return view('admin.chatting', compact('user', 'conversations'))
+        ->with('receiverType', $type);
 }
 
-}
+    /**
+     * Store a chat message.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'receiver_id' => 'required|integer',
+            'receiver_type' => 'required|string|in:super_admin,admin,staff,customer', // ✅ Allow messaging customers
+            'message' => 'nullable|string',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx|max:5120',
+        ]);
+    
+        // Get authenticated user
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+    
+        // Determine sender type
+        $senderType = match (get_class($user)) {
+            'App\Models\SuperAdmin' => 'super_admin',
+            'App\Models\Admin' => 'admin',
+            'App\Models\Staff' => 'staff',
+            'App\Models\User' => 'customer',
+            default => abort(403, 'Invalid user type.'),
+        };
+    
+        // Prevent customer-to-customer messaging
+        if ($senderType == 'customer' && $request->receiver_type == 'customer') {
+            return redirect()->back()->with('error', 'Customers cannot message other customers.');
+        }
+    
+        // Handle file upload
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('chat_files', 'public');
+        }
+    
+        // Ensure at least one of message or file is provided
+        if (!$request->message && !$filePath) {
+            return redirect()->back()->with('error', 'Message or file is required.');
+        }
+    
+        // Store the message
+        Conversation::create([
+            'sender_id' => $user->id,
+            'sender_type' => $senderType,
+            'receiver_id' => $request->receiver_id,
+            'receiver_type' => $request->receiver_type,
+            'message' => $request->message ?? '',
+            'file_path' => $filePath,
+        ]);
+    
+        return redirect()->back();
+    }
+}    

@@ -11,7 +11,7 @@
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-2xl bg-white shadow-md rounded-lg overflow-hidden">
         <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-center items-center">
-            <span>Chat with {{ $user->name }}</span>
+            <span>Chat with {{ $user->email }}</span>
         </div>
         
         <div id="chatBox" class="p-4 h-[70vh] overflow-y-auto">
@@ -43,20 +43,20 @@
             @endforeach
         </div>
 
-        <form id="chatForm" action="{{ route('chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white">
+        <!-- Message Input -->
+        <form action="{{ route('customer.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
-            
-            <div class="flex items-center space-x-2">
-                <input type="text" id="messageInput" name="message" class="flex-1 p-2 border rounded-lg" placeholder="Type your message...">
-                <input type="file" id="fileInput" name="file" class="hidden" accept="image/*,video/*">
-                <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
-                <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-lg opacity-50 cursor-not-allowed" disabled>Send</button>
-            </div>
-            <p id="fileError" class="text-red-500 text-sm mt-2 hidden">⚠ File size must not exceed 6MB.</p>
+            <input type="hidden" name="receiver_type" value="{{ $receiverType }}"> <!-- ✅ Fix added -->
+
+            <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4" placeholder="Type a message...">
+            <input type="file" id="fileInput" name="file" class="p-2 border hidden">
+            <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
+            <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full ml-2 opacity-50 cursor-not-allowed" disabled>Send</button>
         </form>
     </div>
-    <audio id="notificationSound" src="{{ asset('sounds/notification.mp3') }}"></audio>
+
+    <a href="{{ route('customer.chat.index') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
 
     <script>
         var userId = {{ auth()->id() }}; // Get logged-in user ID from Blade
@@ -79,7 +79,7 @@
     
             function fetchNewMessages() {
                 $.ajax({
-                    url: "{{ route('fetch.new.messages', ['last_id' => '__LAST_ID__']) }}".replace('__LAST_ID__', lastMessageId),
+                    url: "{{ route('customer.chat.fetch', ['last_id' => '__LAST_ID__']) }}".replace('__LAST_ID__', lastMessageId),
                     method: "GET",
                     success: function (data) {
                         if (data.new_messages && data.new_messages.length > 0) {

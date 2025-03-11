@@ -47,10 +47,6 @@ use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 
 // GroupChat
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-
-
-
-
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -152,13 +148,13 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::post('user/logout', function (Request $request) {
         if (Auth::guard('superadmin')->check()) {
             Auth::guard('superadmin')->logout();
-            return redirect()->route('superadmin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('superadmins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
-            return redirect()->route('admin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('admins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('staff')->check()) {
             Auth::guard('staff')->logout();
-            return redirect()->route('staff.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('staffs.login')->with('status', 'Logged out successfully.');
         }
 
         return redirect('/login');
@@ -232,23 +228,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
     //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
 
+});
+    // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+    // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
+    // Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
+    // Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
 
+    // Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
+    // Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
+    // Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+
+    // Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
+    // Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
+    // ->name('customer.chat.fetch');
+
+    // Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
-    Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
-    Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
-    Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
-    Route::get('fetch-new-messages/{last_id?}', [ChatRepsController::class, 'fetchNewMessages'])->name('fetch.new.messages');
 
-    Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
-    Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
-    Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+// ========================= CUSTOMER CHAT ROUTES ========================= //
+Route::prefix('customer/chat')->middleware('auth')->group(function () {
+    Route::get('/', [ChatRepsController::class, 'index'])->name('customer.chat.index'); // List SuperAdmins, Admins, and Staff to chat with
+    Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('customer.chat.show'); // Open chat
+    Route::post('/store', [ChatRepsController::class, 'store'])->name('customer.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
-    Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
-    ->name('customer.chat.fetch');
+// ========================= ADMIN, STAFF, SUPERADMIN CHAT ROUTES ========================= //
+Route::prefix('admin/chat')->middleware('auth:admin,superadmin,staff')->group(function () {
+    Route::get('/', [ChatController::class, 'showChat'])->name('admin.chat.index'); // List available chats for Admins, Staff, and SuperAdmins
+    Route::get('/{id}/{type}', [ChatController::class, 'chatWithUser'])->name('admin.chat.show'); // Open chat
+    Route::post('/send', [ChatController::class, 'store'])->name('admin.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatController::class, 'fetchNewMessages'])->name('admin.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
-    //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+// ========================= COMMON CHAT ROUTES ========================= //
+Route::prefix('chat')->middleware('auth')->group(function () {
+    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('chat.newMessages'); // Fetch new messages for all chat types
 });
 
 //##~~~~~~~~~~~~~~~~~~~~~~~~~ << AUTHENTICATED USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~##//
@@ -259,7 +274,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //16////////////////////// << SUPERADMIN LOGIN ROUTES >> ///////////////////////////16//
 Route::middleware('guest:superadmin')->group(function () {
     Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
-        ->name('superadmin.login');
+        ->name('superadmins.login');
     
     Route::post('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'store'])
         ->name('superadmin.login.store');
@@ -270,7 +285,7 @@ Route::middleware('guest:superadmin')->group(function () {
 //17////////////////////// << ADMIN LOGIN ROUTES >> ///////////////////////////17//
 Route::middleware('guest:admin')->group(function () {
     Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])
-        ->name('admin.login');
+        ->name('admins.login');
     
     Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'])
         ->name('admin.login.store');
@@ -280,7 +295,7 @@ Route::middleware('guest:admin')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 Route::middleware('guest:staff')->group(function () {
     Route::get('/staff/login', [StaffAuthenticatedSessionController::class, 'create'])
-        ->name('staff.login');
+        ->name('staffs.login');
     
     Route::post('/staff/login', [StaffAuthenticatedSessionController::class, 'store'])
         ->name('staff.login.store');

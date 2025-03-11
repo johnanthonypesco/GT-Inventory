@@ -4,145 +4,142 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\Staff;
 use App\Models\SuperAdmin;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
 
 class ChatRepsController extends Controller
 {
+    /**
+     * Show available users (SuperAdmins, Admins, Staff) that the customer can chat with.
+     */
     public function index()
-{
-    $superAdmins = SuperAdmin::all();
-    $authUserId = Auth::id();
-
-    foreach ($superAdmins as $admin) {
-        $latestConversation = Conversation::where(function ($query) use ($authUserId, $admin) {
-            $query->where('sender_id', $authUserId)
-                  ->where('receiver_id', $admin->id);
-        })->orWhere(function ($query) use ($authUserId, $admin) {
-            $query->where('sender_id', $admin->id)
-                  ->where('receiver_id', $authUserId);
-        })->orderBy('created_at', 'desc')->first();
-
-        if ($latestConversation) {
-            $admin->last_message = $latestConversation->message;
-            $admin->last_file = $latestConversation->file_path;
-            $admin->last_message_time = $latestConversation->created_at;
-            $admin->last_sender_id = $latestConversation->sender_id;
-        } else {
-            $admin->last_message = null;
-            $admin->last_file = null;
-            $admin->last_message_time = null;
-            $admin->last_sender_id = null;
-        }
-    }
-
-    return view('customer.chat', compact('superAdmins', 'authUserId'));
-}
-
-    public function show($id)
     {
-        $user = SuperAdmin::findOrFail($id);
-        $superAdmin = SuperAdmin::first(); // ✅ Ensure SuperAdmin exists
+        $superAdmins = SuperAdmin::select('id', 's_admin_username')->get(); // Ensure column name matches database
+        $admins = Admin::select('id', 'email')->get(); // Ensure column exists
+        $staff = Staff::select('id', 'email')->get(); // Ensure column exists
+        return view('customer.chat', compact('superAdmins', 'admins', 'staff'));
+    }
     
-        if (!$superAdmin) {
-            return back()->with('error', 'SuperAdmin not found.');
+    /**
+     * Show the chat conversation between the logged-in user and a recipient.
+     */
+    public function show($id, $type)
+    {
+        // Ensure the receiver type is valid (SuperAdmins, Admins, Staff)
+        if (!in_array($type, ['super_admin', 'admin', 'staff'])) {
+            abort(403, 'Invalid chat recipient.');
         }
-    
-        $conversations = Conversation::where(function ($query) use ($id) {
-            $query->where('sender_id', Auth::id())
-                  ->where('receiver_id', $id);
-        })->orWhere(function ($query) use ($id) {
-            $query->where('sender_id', $id)
-                  ->where('receiver_id', Auth::id());
-        })->orderBy('created_at')->get();
 
-        // ✅ Convert message text to clickable links
-        foreach ($conversations as $message) {
-            $message->message = nl2br($this->makeClickableLinks($message->message));
-        }
-    
-        return view('customer.chatting', compact('user', 'conversations', 'superAdmin'));
+        // Fetch the recipient based on type
+        $user = match ($type) {
+            'super_admin' => SuperAdmin::findOrFail($id),
+            'admin' => Admin::findOrFail($id),
+            'staff' => Staff::findOrFail($id),
+            default => abort(404),
+        };
+
+        // Fetch chat messages between the authenticated user and the recipient
+        $conversations = Conversation::where(function ($query) use ($id, $type) {
+            $query->where('sender_id', Auth::id())
+                  ->where('sender_type', 'customer')
+                  ->where('receiver_id', $id)
+                  ->where('receiver_type', $type);
+        })->orWhere(function ($query) use ($id, $type) {
+            $query->where('sender_id', $id)
+                  ->where('sender_type', $type)
+                  ->where('receiver_id', Auth::id())
+                  ->where('receiver_type', 'customer');
+        })->orderBy('created_at', 'asc')->get();
+
+        return view('customer.chatting', compact('user', 'conversations', 'type'))
+        ->with('receiverType', $type);
     }
 
-    
+    /**
+     * Fetch new messages dynamically (for real-time chat updates).
+     */
+    public function fetchNewMessages(Request $request)
+    {
+        $lastId = $request->query('last_id', 0);
+        $receiverId = $request->query('receiver_id');
+        $receiverType = $request->query('receiver_type');
 
+        if (!$receiverId || !$receiverType) {
+            return response()->json(['error' => 'Invalid request.'], 400);
+        }
+
+        $newMessages = Conversation::where('id', '>', $lastId)
+            ->where(function ($query) use ($receiverId, $receiverType) {
+                $query->where('sender_id', Auth::id())
+                      ->where('sender_type', 'customer')
+                      ->where('receiver_id', $receiverId)
+                      ->where('receiver_type', $receiverType)
+                      ->orWhere('sender_id', $receiverId)
+                      ->where('sender_type', $receiverType)
+                      ->where('receiver_id', Auth::id())
+                      ->where('receiver_type', 'customer');
+            })
+            ->orderBy('created_at')
+            ->get();
+
+        return response()->json($newMessages);
+    }
+
+    /**
+     * Store a chat message (text or file).
+     */
     public function store(Request $request)
     {
         $request->validate([
+            'receiver_id' => 'required|integer',
+            'receiver_type' => 'required|string|in:super_admin,admin,staff,customer',
             'message' => 'nullable|string',
-            'file' => 'nullable|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:1024000'
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mov,avi,pdf,doc,docx|max:10240', // 10MB max
         ]);
 
+        // Get authenticated user
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->back()->with('error', 'Unauthorized.');
+        }
+
+        // Ensure at least one of message or file is provided
+        if (!$request->message && !$request->file('file')) {
+            return redirect()->back()->with('error', 'Message or file is required.');
+        }
+
+        // Handle file upload (if any)
         $filePath = null;
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('chat_files', 'public');
         }
 
-        if (!$request->message && !$filePath) {
-            return back()->with('error', 'Message or file is required.');
-        }
-
-        $receiver = SuperAdmin::find($request->receiver_id);
-        if (!$receiver) {
-            return back()->with('error', 'Receiver not found.');
-        }
-
+        // Store the chat message
         Conversation::create([
-            'sender_id' => Auth::id(),
+            'sender_id' => $user->id,
             'sender_type' => 'customer',
             'receiver_id' => $request->receiver_id,
+            'receiver_type' => $request->receiver_type,
             'message' => $request->message,
-            'file_path' => $filePath
+            'file_path' => $filePath,
         ]);
 
-        return back();
+        return redirect()->back();
     }
-    public function fetchNewMessages(Request $request, $last_id= null)
-{
-    // dd("ROUTE WORKS");
-    $userId = Auth::id(); // Get the logged-in user ID
-
-    // ✅ Fetch the latest message if no last_id is provided
-    if ($last_id == 0) {
-        $latestMessage = Conversation::where('receiver_id', $userId)
-            ->orWhere('sender_id', $userId)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if (!$latestMessage) {
-            return response()->json(['new_messages' => [], 'last_id' => 0]);
-        }
-
-        return response()->json([
-            'new_messages' => [$latestMessage], // Return as an array
-            'last_id' => $latestMessage->id
-        ]);
-    }
-
-    // ✅ Fetch only new messages after `last_id`
-    $newMessages = Conversation::where('id', '>', $last_id)
-        ->where(function ($query) use ($userId) {
-            $query->where('receiver_id', $userId)->orWhere('sender_id', $userId);
-        })
-        ->orderBy('id', 'asc')
-        ->get();
-
-    return response()->json([
-        'new_messages' => $newMessages,
-        'last_id' => $newMessages->isNotEmpty() ? $newMessages->last()->id : $last_id
-    ]);
-}
-
+    
 
     /**
-     * ✅ Convert URLs in text into clickable links.
+     * Convert URLs in text into clickable links.
      */
     private function makeClickableLinks($text)
     {
         return preg_replace(
-            '/(https?:\/\/[^\s]+)/', 
-            '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>', 
+            '/(https?:\/\/[^\s]+)/',
+            '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>',
             e($text)
         );
     }
