@@ -79,11 +79,14 @@
             <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl">
                 @csrf
                 <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}">
-
-                <h1 class="hidden lg:block text-center font-semibold text-2xl mb-5">Summary of Orders</h1>
+                <div class="flex justify-between items-center pb-2">
+                    <h1 class="text-center font-semibold text-2xl">Summary of Orders</h1>
+                    <span class="block lg:hidden"><i onclick="viewOrderSummary()" id="ordersummaryicon" class="fa-solid fa-angles-up border border-[#005382] p-3 rounded-full text-center hover:bg-[#005382] hover:text-white transition-all duration-500"></i></span>
+                </div>
                 
                 {{-- This div is where all the magic happens ;) --}}
-                <div id="order-summary-content" class="flex flex-col justify-center lg:block pt-10 lg:pt-2 sm:pt-10 h-fit max-h-[20vh] lg:max-h-none lg:h-[45vh] overflow-y-auto">
+                <div id="order-summary-content" class="flex flex-col px-3 lg:block lg:pt-2 sm:pt-10 none h-[0] max-h-[20vh] lg:max-h-none lg:h-[45vh] overflow-auto trasnition-all duration-500">
+                    {{-- This is where the order summary will be displayed --}}
                 </div>
         
                 <hr class="hidden lg:block my-5">
@@ -92,7 +95,7 @@
                     <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">₱0</span></h1>
                     
                     {{-- will only submit if the form has contents in it --}}
-                    <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="submit" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
+                    <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
                 </div>
             </form>
         </div>      

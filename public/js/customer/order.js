@@ -26,7 +26,7 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
     Object.entries(purchaseFormState).forEach(([deal_id, orderData]) => {
         // orderData[0] = quantity, orderData[1] = product_name, orderData[2] = price
         orderSummaryContent.innerHTML += `
-            <div id="item-parent-${deal_id}" class="order-item">
+            <div id="item-parent-${deal_id}" class="order-item mt-2">
 
                 <input type="hidden" id="user_id" required type="number" value="${userIDInputValue}" name="user_id[]">
 
@@ -90,3 +90,45 @@ function updateSubtotalPrice() {
         maximumFractionDigits: 2
     });
 }
+function viewOrderSummary() {
+    document.getElementById("order-summary-content").classList.toggle("h-[45vh]");
+    document.getElementById("order-summary-content").classList.toggle("-h-[10px]");
+    document.getElementById("order-summary-content").classList.toggle("max-h-[20vh]");
+    document.getElementById("order-summary-content").classList.toggle("-max-h-[10px]");
+    document.getElementById("ordersummaryicon").classList.toggle("rotate-180");
+}
+
+
+const checkoutBtn = document.getElementById("checkoutbtn");
+const ordersummary = document.getElementById("ordersummaryform");
+
+checkoutBtn.addEventListener("click", (event) => {
+    event.preventDefault(); 
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, checkout it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title:'Checkout!',
+                text: 'Your order has been placed.',
+                icon: 'success'
+            }).then(() => {
+                ordersummary.submit();
+            });
+        } else {
+            Swal.fire({
+                title: 'Cancelled',
+                text: 'Your order is safe.',
+                icon: 'error',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+    });
+});

@@ -55,6 +55,12 @@
 
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
+                        <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
+                            <option value="company">All Company</option>
+                            @foreach ($companies as $companyName => $employees)
+                                <option value="{{ $companyName }}">{{ $companyName }}</option>
+                            @endforeach
+                        </select>
                         <button><i class="fa-solid fa-download"></i>Export</button>
                     </div>
                     {{-- Table Button --}}
