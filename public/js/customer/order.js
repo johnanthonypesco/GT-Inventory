@@ -39,7 +39,7 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
                         <p class="pname font-bold uppercase text-[#005382]">${orderData[1]}</p>
                     </div>
 
-                    <input name="quantity[]" type="number" disabled class="quantity w-[50px] px-2 border border-[#005382] rounded-xl" 
+                    <input name="quantity[]" type="number" class="quantity w-[50px] px-2 border border-[#005382] rounded-xl" 
                     value="${orderData[0]}" min="1">
                 </div>
                 <div class="flex gap-2 items-center">

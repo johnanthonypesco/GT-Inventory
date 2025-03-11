@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Admin;
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,12 @@ class StaffFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'admin_id' => Admin::pluck('id')->random(),
+            'location_id' => Location::pluck('id')->random(),
+            'staff_username' => fake()->userName(),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => fake()->password(8),
+            'is_staff' => true,
         ];
     }
 }
