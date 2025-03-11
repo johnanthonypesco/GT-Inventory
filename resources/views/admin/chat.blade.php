@@ -56,7 +56,7 @@
                             onclick="window.location.href='{{ route('admin.chat.show', [$admin->id, 'admin']) }}'">
                             <i class="fa-solid fa-user text-white text-xl bg-blue-500 p-5 rounded-full"></i>
                             <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->name ?? 'Admin' }}</p>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->username ?? 'Admin' }}</p>
                                 <p class="text-sm text-gray-500">Click to chat</p>
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                             onclick="window.location.href='{{ route('admin.chat.show', [$staffMember->id, 'staff']) }}'">
                             <i class="fa-solid fa-user text-white text-xl bg-green-500 p-5 rounded-full"></i>
                             <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->name ?? 'Staff' }}</p>
+                                <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->staff_username ?? 'Staff' }}</p>
                                 <p class="text-sm text-gray-500">Click to chat</p>
                             </div>
                         </div>

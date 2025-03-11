@@ -18,7 +18,7 @@ class ChatController extends Controller
      */
     public function showChat()
 {
-    $superAdmins = SuperAdmin::select('id', 's_admin_username as name')->get();
+    $superAdmins = SuperAdmin::select('id', 's_admin_username')->get();
     $admins = Admin::select('id', 'username')->get();
     $staff = Staff::select('id', 'staff_username')->get();
     $customers = User::select('id', 'name')->get(); // Include Customers
