@@ -73,7 +73,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
         Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
-        Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
+
+        Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
