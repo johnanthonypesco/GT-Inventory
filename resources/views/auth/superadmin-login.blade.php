@@ -55,7 +55,7 @@
             </div>
 
             {{-- ✅ Submit Button --}}
-            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 hover:bg-[#008CFF]">
+            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 hover:bg-[#008CFF] cursor-pointer">
                 Login
             </button>
 
