@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Zxing\QrReader;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Location;
 use App\Models\Inventory;
@@ -10,7 +12,6 @@ use App\Models\ScannedQrCode;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Zxing\QrReader;
 
 
 class InventoryController extends Controller
@@ -272,6 +273,11 @@ class InventoryController extends Controller
                 $inventory->update([
                     'quantity' => $inventory->quantity - $quantity
                 ], ['inventory_id' => $inventory->inventory_id]); // Fix: Use inventory_id instead of id
+
+                Order::where('id', $orderId)->update([
+    'status'     => 'delivered',
+    'updated_at' => now()
+]);
     
                 // Step 5: Record the scan
                 ScannedQrCode::create([
@@ -373,11 +379,22 @@ class InventoryController extends Controller
                 }
     
                 // Deduct the quantity
-                Inventory::where('inventory_id', $inventory->inventory_id)->update([
-                    'quantity'   => $inventory->quantity - $quantity,
+                // Inventory::where('inventory_id', $inventory->inventory_id)->update([
+                //     'quantity'   => $inventory->quantity - $quantity,
+                //     'updated_at' => now()
+                // ]);
+
+                 if ($inventory->quantity >= $quantity) {
+                $inventory->update([
+                    'quantity' => $inventory->quantity - $quantity
+                ], ['inventory_id' => $inventory->inventory_id]);
+                }
+    
+                Order::where('id', $orderId)->update([
+                    'status'     => 'delivered',
                     'updated_at' => now()
                 ]);
-    
+
                 // Record the scan
                 ScannedQrCode::create([
                     'order_id'      => $orderId,
