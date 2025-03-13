@@ -87,7 +87,12 @@
                     <!-- Account Type Selection -->
                     <select name="role" id="role" required onchange="toggleFields()" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="">-- Select Role --</option>
-                        <option value="admin">Admin</option>
+                    
+                        {{-- Only Super Admin can see and select "Admin" --}}
+                        @if(auth()->guard('superadmin')->check())
+                            <option value="admin">Admin</option>
+                        @endif
+                    
                         <option value="staff">Staff</option>
                         <option value="customer">Customer</option>
                     </select>
@@ -380,8 +385,8 @@ function togglePasswordVisibility(fieldId, iconId) {
         document.querySelector("input[name='username']").required = (role === "admin" || role === "staff");
 
         // Show "location" only for staff and customers
-        document.getElementById("locationField").style.display = (role === "staff") ? "block" : "none";
-        document.querySelector("select[name='location_id']").required = (role === "staff" || role === "customer");
+        document.getElementById("locationField").style.display = (role === "staff" ) ? "block" : "none";
+        document.querySelector("select[name='location_id']").required = (role === "staff" );
 
         // Show "job title" only for staff
         document.getElementById("jobTitleField").style.display = (role === "staff") ? "block" : "none";
