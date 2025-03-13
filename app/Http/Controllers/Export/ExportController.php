@@ -4,17 +4,28 @@ namespace App\Http\Controllers\Export;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
+use App\Models\Location;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Http\Request;
 
 class ExportController extends Controller
 {
-    public function export() {
+    public function export($exportType = 'all') {
         // Initializes the writer
         $writer = WriterEntityFactory::createXLSXWriter();
 
         // Readies up the writer to accept data and export
-        $writer->openToBrowser('export.xlsx');
+        switch (strtolower($exportType)) {
+            case 'all':
+                $writer->openToBrowser('all-stocks-[' . date('Y-m-d') . '].xlsx');                
+                break;
+            case 'tarlac':
+                $writer->openToBrowser('tarlac-stocks-[' . date('Y-m-d') . '].xlsx');                
+                break;
+            case 'nueva ecija':
+                $writer->openToBrowser('nueva-ecija-stocks-[' . date('Y-m-d') . '].xlsx');                
+                break;
+        }
 
         $headers = WriterEntityFactory::createRowFromArray([
             'Batch No.', 
@@ -28,7 +39,27 @@ class ExportController extends Controller
 
         $writer->addRow($headers);
 
-        $inventory = Inventory::with('product')->select()->get();
+        switch (strtolower($exportType)) {
+            case 'all':
+                $inventory = Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                break;
+            case 'tarlac':
+                $query = Location::where('province', 'Tarlac')->first()->id;
+                $tarlacID = $query ? $query : false;
+                
+                $inventory = Inventory::with('product')->where('location_id', $tarlacID)->get() 
+                ? Inventory::with('product')->where('location_id', $tarlacID)->orderBy('created_at', 'desc')->get()
+                : Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                break;
+            case 'nueva ecija':
+                $query = Location::where('province', 'Nueva Ecija')->first()->id;
+                $nuevaID = $query ? $query : false;
+                
+                $inventory = Inventory::with('product')->where('location_id', $nuevaID)->get() 
+                ? Inventory::with('product')->where('location_id', $nuevaID)->orderBy('created_at', 'desc')->get()
+                : Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                break;
+        }
 
         foreach ($inventory as $stock) {
             $row = WriterEntityFactory::createRowFromArray([

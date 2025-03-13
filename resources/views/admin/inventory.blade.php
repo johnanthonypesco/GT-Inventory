@@ -84,11 +84,15 @@
         {{-- Filters Location --}}
 
         @foreach ($inventories as $inventory)
+            @php
+                $provinceName = $inventory->first()->location->province;
+            @endphp
+
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $inventory->first()->location->province }}
+                Delivery Location: {{ $provinceName }}
             </h1>
-            {{-- since it already has a select location what if, remove the location --}}
+
             <div class="flex flex-wrap justify-between items-center">
                     
                     {{-- Search --}}
@@ -96,10 +100,11 @@
                     placeholder="Search Product by Name"
                     classname="fa fa-magnifying-glass" 
                     divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
-                    id="search-stock"
+                    id="search-stock-{{$provinceName}}"
                     searchType="stock"
                     :dataList="$products"
                     :autofill="true"
+                    :location_filter="$provinceName"
                     :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
                     
                     {{-- Search --}}
@@ -107,7 +112,7 @@
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                         <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
-                        <form action="{{ route('admin.inventory.export') }}" method="get">
+                        <form action="{{ route('admin.inventory.export', ['exportType' => $inventory->first()->location->province]) }}" method="get">
                             @csrf
                             
                             <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
@@ -117,7 +122,7 @@
 
                 {{-- Table for Inventory --}}
                 <div class="overflow-auto h-[250px] mt-5">
-                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$inventory" category="inventory"/>
+                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/>
                 </div>
                 {{-- Table for Inventory --}}
 
@@ -125,6 +130,10 @@
                 <x-pagination/>
                 {{-- Pagination --}}
             </div>
+
+            @if ($currentSearch['location'] !== 'All')
+                @break
+            @endif
         @endforeach
         </div>
     </main>

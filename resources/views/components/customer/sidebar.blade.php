@@ -4,7 +4,14 @@
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
         <a href="{{ route('customer.manageorder') }}" class="text-md"><i class="fa-solid fa-list-check"></i>Manage Order</a>
         <a href="{{ route('customer.history') }}" class="text-md"><i class="fa-regular fa-clock"></i>Order History</a>
-        <a href="{{ route('customer.chat.index') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a>
+        <a href="{{ route('customer.chat.index') }}" class="text-md relative">
+            <i class="fa-brands fa-rocketchat"></i>Chat
+            @if ($totalUnreadMessages > 0)
+                <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
+                    {{ $totalUnreadMessages }}
+                </span>
+            @endif
+        </a>
         <a href="{{ route('customer.manageaccount') }}" class="text-md"><i class="fa-solid fa-gear"></i>Account</a>
         {{-- <a href="{{ route('customer.chat') }}" class="text-md"><i class="fa-brands fa-rocketchat"></i>Chat</a> --}}
     <li>

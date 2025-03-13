@@ -48,13 +48,11 @@
                             divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
-
-
-                            <button onclick="uploadqr()">
-                                <i class="fa-solid fa-upload"></i> Upload QR Code
-                            </button>
-                        <button onclick="window.location.href='{{ route('orders.scan') }}'">
-                            <i class="fa-solid fa-qrcode"></i> Scan
+                        <button onclick="uploadqr()">
+                            <i class="fa-solid fa-upload"></i> Upload QR Code
+                        </button>
+                            <button onclick="window.location.href='{{ route('orders.scan') }}'">
+                        <i class="fa-solid fa-qrcode"></i> Scan
                         </button>
                         <button>
                             <i class="fa-solid fa-download"></i>

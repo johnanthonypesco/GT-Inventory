@@ -16,6 +16,9 @@
             {{-- inventory --}}
             @case($category === 'inventory')
                 @foreach ($variable as $inv)
+                    {{-- @php
+                        dd($variable->toArray());
+                    @endphp --}}
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
                         <td>{{ $inv->product->generic_name }}</td>

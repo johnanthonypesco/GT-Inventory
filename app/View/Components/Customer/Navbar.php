@@ -8,7 +8,7 @@ use Illuminate\View\Component;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
 
-class Sidebar extends Component
+class Navbar extends Component
 {
     public $totalUnreadMessages;
 
@@ -33,7 +33,7 @@ class Sidebar extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.customer.sidebar', [
+        return view('components.customer.navbar', [
             'totalUnreadMessages' => $this->totalUnreadMessages,
         ]);
     }

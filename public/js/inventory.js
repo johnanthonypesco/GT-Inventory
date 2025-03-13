@@ -139,6 +139,7 @@ function is_in_suggestion(id, list_id) {
     if (!in_suggestions) {
         search.classList.remove('border-[#005382]');
         search.classList.add('border-rose-500');
+        event.preventDefault();
         alert("Choose from Search Suggestions");
     } else {
         document.getElementById('search-form-' + id).submit();

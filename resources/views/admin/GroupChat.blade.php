@@ -20,7 +20,7 @@
             @foreach ($conversations as $chat)
             @php
             $isCurrentUser = auth()->user()->id === $chat->sender_id && get_class(auth()->user()) === $chat->sender_type;
-        
+
             // If the message is from the logged-in user, display "You"
             if ($isCurrentUser) {
                 $senderName = "You";
@@ -32,15 +32,15 @@
                     default => $chat->sender->name ?? 'Unknown',
                 };
             }
-        
+
             // Format the timestamp for both time and date
             $formattedTime = \Carbon\Carbon::parse($chat->created_at)->format('h:i A');
             $formattedDate = \Carbon\Carbon::parse($chat->created_at)->format('M d, Y');
             @endphp
-        
+
 
             <div class="flex {{ $isCurrentUser ? 'justify-end' : 'justify-start' }}">
-                <div class="max-w-xs p-3 rounded-lg shadow-md 
+                <div class="max-w-xs p-3 rounded-lg shadow-md
                     {{ $isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black' }}">
 
                     <strong class="block text-sm mb-1">{{ $senderName }}</strong>
@@ -50,8 +50,8 @@
                     @endif
 
                     @if ($chat->file_path)
-                        <img src="{{ asset('storage/' . $chat->file_path) }}" 
-                             alt="Uploaded Image" 
+                        <img src="{{ asset('storage/' . $chat->file_path) }}"
+                             alt="Uploaded Image"
                              class="mt-2 rounded-lg w-full max-h-40 object-cover cursor-pointer"
                              onclick="openImageModal('{{ asset('storage/' . $chat->file_path) }}')">
                     @endif
@@ -75,7 +75,7 @@
         </form>
     </div>
 
-    <a href="" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back (Pakiayos ito, inalis ko yung href dahil may error - sigrae)</a>
+    <a href="{{ route('admin.chat.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-5">Go Back</a>
 
     <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden">

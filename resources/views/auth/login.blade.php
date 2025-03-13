@@ -49,7 +49,7 @@
             </div>
 
             <!-- ✅ Login Button -->
-            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5">Login</button>
+            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer">Login</button>
         </form>
     </div>
 </body>

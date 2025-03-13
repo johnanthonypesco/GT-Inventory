@@ -19,23 +19,24 @@ class InventoryController extends Controller
 
     public function showInventory
     (
-        $searched_name = null, 
-        $form_data = null, 
-        $search_type = null,
-        $location_filter = 'All',
+        $searched_name = null, //product name
+        $form_data = null,  // results ng sinearch 
+        $search_type = null, // stock = yung una na table. product = yung nasa loob ng "view products" modal
+        $location_filter = 'All', // Ginagamit ng dropdown location select & search function
     )
     {
         $inventory = Inventory::with('product')->select()->get();
 
+        // This switch is for the dropdown select tag for the locations
         switch ($location_filter) {
             case 'Tarlac':
-                $inventory = Inventory::with('product')->where('location_id', 1)
+                $inventory = Inventory::with(['product', 'location'])->where('location_id', 1)
                 ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(fn ($stock) => $stock->location_id);
                 break;
  
             case 'Nueva Ecija':
-                $inventory = Inventory::with('product')->where('location_id', 2)
+                $inventory = Inventory::with(['product', 'location'])->where('location_id', 2)
                 ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(fn ($stock) => $stock->location_id);
                 break;
@@ -49,16 +50,27 @@ class InventoryController extends Controller
                 break;
         }
 
+        // SEARCH SUGGESTIONS FOR SPECIFC PROVINCES
+        $suggestionsForTarlac = Inventory::where('location_id', Location::where('province', 'Tarlac')->first()->id)->get();
+        $suggestionsForNueva = Inventory::where('location_id', Location::where('province', 'Nueva Ecija')->first()->id)->get();
+
         return view('admin.inventory', [
             'products' => Product::all(),
+
             'registeredProducts' => $search_type === 'product' ? $form_data : Product::all(),
             
+            // if the user searches something it will provide the data from the searched result instead
             'inventories' => $search_type === 'stock' ? $form_data : $inventory,
             'current_inventory' => $location_filter,
 
             'locations' => Location::all(),
 
-            'currentSearch' => ['query' => $searched_name, 'type' => $search_type],
+            // The current state of the page (Dito sinesetup lahat ng filters)
+            'currentSearch' => ['query' => $searched_name, 'type' => $search_type, 'location' => $location_filter],
+            
+            // SEARCH SUGGESTIONS FOR THE STOCK SEARCH BAR
+            'tarlacSuggestions' => $suggestionsForTarlac,
+            'nuevaSuggestions' => $suggestionsForNueva,
 
             // for the inventory stock notifications
             'stockMonitor' => Inventory::has('product') 
@@ -78,6 +90,7 @@ class InventoryController extends Controller
         ]);
     }
 
+    // the function handles the form inside the location dropdown
     public function showInventoryLocation(Request $request) {
         $validated = $request->validate([
             'location' => 'required|string',
@@ -99,30 +112,37 @@ class InventoryController extends Controller
     public function searchInventory(Request $request, $type) {
         $validated = $request->validate([
             'search' => 'string|min:5|required',
+            'location_filter' => 'string|required',
         ]);
 
         $validated = array_map('strip_tags',$validated);
 
         // splits up the string and returns an array
-        $validated = explode(' - ',$validated['search']);
+        $validatedSearch = explode(' - ',$validated['search']);
 
+        
         if($type === "stock") {
+            $location_id = Location::where('province', $validated['location_filter'])
+            ->select('id')->first()->id;
+
             // makes the where query on the Products table instead of the Inventory table
-            $result =  Inventory::with('product')
-            ->whereHas('product', function ($query) use ($validated) {
-                $query->where('generic_name', '=', $validated[0])
-                ->where('brand_name', '=', $validated[1]);
+            $result =  Inventory::with(['product', 'location'])
+            ->where('location_id', $location_id)
+            ->whereHas('product', function ($query) use ($validatedSearch) {
+                $query->where('generic_name', '=', $validatedSearch[0])
+                ->where('brand_name', '=', $validatedSearch[1]);
             })
             ->get();
     
-            return $this->showInventory($validated,$result, "stock");
+            // dd($validated['location_filter']);
+            return $this->showInventory($validatedSearch,$result, "stock", $validated['location_filter']);
         } 
         elseif ($type === "product") {
-            $result = Product::where('generic_name', '=', $validated[0])
-            ->where('brand_name', '=', $validated[1])
+            $result = Product::where('generic_name', '=', $validatedSearch[0])
+            ->where('brand_name', '=', $validatedSearch[1])
             ->get();
             
-            return $this->showInventory($validated, $result, 'product'); 
+            return $this->showInventory($validatedSearch, $result, 'product'); 
         }
     }
 

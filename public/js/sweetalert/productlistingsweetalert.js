@@ -11,6 +11,7 @@ const addproductlistingBtn = document.getElementById('addproductlistingBtn');
     editproductlistingBtn.addEventListener('click', () => {
         sweetalert(editproductlistingform);
     });
+    
 
     function sweetalert(form) {
         Swal.fire({

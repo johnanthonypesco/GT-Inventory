@@ -37,56 +37,84 @@
                 <!-- Dynamic User Lists -->
                 <div class="h-[50vh] overflow-auto">
                     <!-- SuperAdmins List -->
-                    <h3 class="text-lg font-semibold mt-2 text-red-600">Super Admins</h3>
-                    @foreach($superAdmins as $superAdmin)
-                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-                            onclick="window.location.href='{{ route('admin.chat.show', [$superAdmin->id, 'super_admin']) }}'">
-                            <i class="fa-solid fa-user text-white text-xl bg-red-500 p-5 rounded-full"></i>
-                            <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $superAdmin->s_admin_username ?? 'Super Admin' }}</p>
-                                <p class="text-sm text-gray-500">Click to chat</p>
+                    @php
+                        $filteredSuperAdmins = $superAdmins->filter(function ($superAdmin) {
+                            return $superAdmin->id !== auth()->id();
+                        });
+                    @endphp
+                    @unless($filteredSuperAdmins->isEmpty())
+                        <h3 class="text-lg font-semibold mt-2 text-red-600">Super Admins</h3>
+                        @foreach($filteredSuperAdmins as $superAdmin)
+                            <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                                onclick="window.location.href='{{ route('admin.chat.show', [$superAdmin->id, 'super_admin']) }}'">
+                                <i class="fa-solid fa-user text-white text-xl bg-red-500 p-5 rounded-full"></i>
+                                <div>
+                                    <p class="text-[12px] font-bold sm:text-2xl">{{ $superAdmin->s_admin_username ?? 'Super Admin' }}</p>
+                                    <p class="text-sm text-gray-500">Click to chat</p>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endunless
 
                     <!-- Admins List -->
-                    <h3 class="text-lg font-semibold mt-2 text-blue-600">Admins</h3>
-                    @foreach($admins as $admin)
-                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-                            onclick="window.location.href='{{ route('admin.chat.show', [$admin->id, 'admin']) }}'">
-                            <i class="fa-solid fa-user text-white text-xl bg-blue-500 p-5 rounded-full"></i>
-                            <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->username ?? 'Admin' }}</p>
-                                <p class="text-sm text-gray-500">Click to chat</p>
+                    @php
+                        $filteredAdmins = $admins->filter(function ($admin) {
+                            return $admin->id !== auth()->id();
+                        });
+                    @endphp
+                    @unless($filteredAdmins->isEmpty())
+                        <h3 class="text-lg font-semibold mt-2 text-blue-600">Admins</h3>
+                        @foreach($filteredAdmins as $admin)
+                            <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                                onclick="window.location.href='{{ route('admin.chat.show', [$admin->id, 'admin']) }}'">
+                                <i class="fa-solid fa-user text-white text-xl bg-blue-500 p-5 rounded-full"></i>
+                                <div>
+                                    <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->username ?? 'Admin' }}</p>
+                                    <p class="text-sm text-gray-500">Click to chat</p>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endunless
 
                     <!-- Staff List -->
-                    <h3 class="text-lg font-semibold mt-2 text-green-600">Staff</h3>
-                    @foreach($staff as $staffMember)
-                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-                            onclick="window.location.href='{{ route('admin.chat.show', [$staffMember->id, 'staff']) }}'">
-                            <i class="fa-solid fa-user text-white text-xl bg-green-500 p-5 rounded-full"></i>
-                            <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->staff_username ?? 'Staff' }}</p>
-                                <p class="text-sm text-gray-500">Click to chat</p>
+                    @php
+                        $filteredStaff = $staff->filter(function ($staffMember) {
+                            return $staffMember->id !== auth()->id();
+                        });
+                    @endphp
+                    @unless($filteredStaff->isEmpty())
+                        <h3 class="text-lg font-semibold mt-2 text-green-600">Staff</h3>
+                        @foreach($filteredStaff as $staffMember)
+                            <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                                onclick="window.location.href='{{ route('admin.chat.show', [$staffMember->id, 'staff']) }}'">
+                                <i class="fa-solid fa-user text-white text-xl bg-green-500 p-5 rounded-full"></i>
+                                <div>
+                                    <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->staff_username ?? 'Staff' }}</p>
+                                    <p class="text-sm text-gray-500">Click to chat</p>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endunless
 
                     <!-- Customers List -->
-                    <h3 class="text-lg font-semibold mt-2 text-yellow-600">Customers</h3>
-                    @foreach($customers as $customer)
-                        <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
-                            onclick="window.location.href='{{ route('admin.chat.show', [$customer->id, 'customer']) }}'">
-                            <i class="fa-solid fa-user text-white text-xl bg-yellow-500 p-5 rounded-full"></i>
-                            <div>
-                                <p class="text-[12px] font-bold sm:text-2xl">{{ $customer->name ?? 'Customer' }}</p>
-                                <p class="text-sm text-gray-500">Click to chat</p>
+                    @php
+                        $filteredCustomers = $customers->filter(function ($customer) {
+                            return $customer->id !== auth()->id();
+                        });
+                    @endphp
+                    @unless($filteredCustomers->isEmpty())
+                        <h3 class="text-lg font-semibold mt-2 text-yellow-600">Customers</h3>
+                        @foreach($filteredCustomers as $customer)
+                            <div class="customer-container flex items-center gap-2 p-3 rounded-lg cursor-pointer" 
+                                onclick="window.location.href='{{ route('admin.chat.show', [$customer->id, 'customer']) }}'">
+                                <i class="fa-solid fa-user text-white text-xl bg-yellow-500 p-5 rounded-full"></i>
+                                <div>
+                                    <p class="text-[12px] font-bold sm:text-2xl">{{ $customer->name ?? 'Customer' }}</p>
+                                    <p class="text-sm text-gray-500">Click to chat</p>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endunless
                 </div>
             </div>
         </div>
