@@ -76,17 +76,27 @@ class SuperAdminAccountController extends Controller
 
     ];
         $validated =$request->validate([
-            'role' => 'required|string|in:admin,staff,customer',
+           'role' => [
+        'required',
+        'string',
+        'in:admin,staff,customer',
+        function ($attribute, $value, $fail) {
+            // Prevent Admins and Staff from selecting "Admin"
+            if (!auth()->guard('superadmin')->check() && $value === 'admin') {
+                $fail("You are not allowed to create an admin account.");
+            }
+        },
+    ],
             'name' => 'nullable|string|max:255', // Only for customers
             'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
             'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
 'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
             'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
 'contact_number' => 'nullable|numeric|unique:users,contact_number',
-            'location_id' => 'nullable|exists:locations,id',
-            'job_title' => 'nullable|string|max:255',
-            'company_location_id' => 'nullable|string|numeric',
-            'company_id' => 'nullable|exists:companies,id', // Validate existing company
+'location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer
+'job_title' => 'nullable|string|max:255',
+'company_location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer and exists
+'company_id' => 'nullable|exists:companies,id', // Validate existing company
             'new_company' => 'nullable|string|max:255|unique:companies,name',
             'new_company_address' => 'nullable|string|max:255', // Address field for new company
 
@@ -98,16 +108,21 @@ class SuperAdminAccountController extends Controller
          // Handle Company Creation for Customers
          if ($validated['role'] === 'customer') {
             if (!empty($validated['new_company'])) {
+                // Ensure company_location_id exists before assigning
+                $locationId = isset($validated['company_location_id']) ? $validated['company_location_id'] : null;
+        
                 // ✅ Create new company with address
                 $company = Company::create([
                     'name' => $validated['new_company'],
-                    'location_id' => $validated['company_location_id'],
-                    'address' => $validated['new_company_address'], // ✅ Save address
+                    'location_id' => $locationId, // Ensure valid ID
+                    'address' => $validated['new_company_address'],
                     'status' => 'active'
                 ]);
-                $validated['company_id'] = $company->id; // ✅ Assign new company ID to user
+        
+                $validated['company_id'] = $company->id;
             }
         }
+        
 
         // dd($validated);
     match ($validated['role']) {
