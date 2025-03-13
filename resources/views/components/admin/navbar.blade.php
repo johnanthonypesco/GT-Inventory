@@ -4,7 +4,7 @@
         <hr class="mt-2">
     </div>
 
-    <li class="list-none flex flex-col p-2 gap-[20px] h-full">
+    <li class="list-none flex flex-col p-2 gap-[12px] h-full">
         <a href="{{ route ('admin.dashboard')}}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard</a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
