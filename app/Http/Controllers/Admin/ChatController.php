@@ -69,11 +69,6 @@ class ChatController extends Controller
                   ->where('receiver_type', $senderType);
         })->orderBy('created_at', 'asc')->get();
 
-        // Decrypt messages before displaying
-        foreach ($conversations as $conversation) {
-            $conversation->message = $conversation->message ? Crypt::decryptString($conversation->message) : '';
-        }
-
         return view('admin.chatting', compact('user', 'conversations'))
             ->with('receiverType', $type);
     }
@@ -121,7 +116,7 @@ class ChatController extends Controller
             'sender_type' => $senderType,
             'receiver_id' => $request->receiver_id,
             'receiver_type' => $request->receiver_type,
-            'message' => $request->message ? Crypt::encryptString($request->message) : '',
+            'message' => $request->message ?: '',
             'file_path' => $filePath,
         ]);
 

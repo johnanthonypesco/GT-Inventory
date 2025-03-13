@@ -8,17 +8,19 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
     <!-- Preloader -->
     <div id="preloader" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
     </div>
 
     <!-- Chat Container -->
-    <div class="w-full max-w-2xl bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="w-[60%] bg-white shadow-md rounded-lg overflow-hidden">
         <!-- Chat Header -->
-        <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-center items-center">
+        <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-between px-5 items-center">
             <span>Chat with {{ $user->email }}</span>
+             <!-- Go Back Button -->
+             <a href="{{ route('customer.chat.index') }}" class="text-sm bg-white text-blue-600 px-3 py-1 rounded-lg">Go Back</a>
         </div>
 
         <!-- Chat Box -->
@@ -62,8 +64,7 @@
         </form>
     </div>
 
-    <!-- Go Back Button -->
-    <a href="{{ route('customer.chat.index') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Go back</a>
+   
 
     <!-- Notification Sound -->
     <audio id="notificationSound" src="{{ asset('sounds/notification.mp3') }}"></audio>

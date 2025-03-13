@@ -40,9 +40,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen">
+<body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
 
-    <div class="flex-1 w-full bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
+    <div class="flex-1 w-[60%] bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
         <!-- Chat Header -->
         <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-between items-center">
             <span>Chat with {{ $user->name ?? 'User' }}</span>

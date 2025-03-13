@@ -15,68 +15,59 @@ use Illuminate\Support\Facades\Crypt;
 class ChatRepsController extends Controller
 {
     public function index()
-{
-    $authUserId = Auth::id();
-    $superAdmins = SuperAdmin::select('id', 's_admin_username')->get();
-    $admins = Admin::select('id', 'email')->get();
-    $staff = Staff::select('id', 'email')->get();
+    {
+        $authUserId = Auth::id();
+        $superAdmins = SuperAdmin::select('id', 's_admin_username')->get();
+        $admins = Admin::select('id', 'email')->get();
+        $staff = Staff::select('id', 'email')->get();
 
-    // Function to get the last message
-    $getLastMessage = function ($id, $type) use ($authUserId) {
-        $message = Conversation::where(function ($query) use ($id, $type, $authUserId) {
-            $query->where('sender_id', $authUserId)
-                  ->where('sender_type', 'customer')
-                  ->where('receiver_id', $id)
-                  ->where('receiver_type', $type);
-        })->orWhere(function ($query) use ($id, $type, $authUserId) {
-            $query->where('sender_id', $id)
-                  ->where('sender_type', $type)
-                  ->where('receiver_id', $authUserId)
-                  ->where('receiver_type', 'customer');
-        })->latest('created_at')->first();
+        // Function to get the last message
+        $getLastMessage = function ($id, $type) use ($authUserId) {
+            return Conversation::where(function ($query) use ($id, $type, $authUserId) {
+                $query->where('sender_id', $authUserId)
+                      ->where('sender_type', 'customer')
+                      ->where('receiver_id', $id)
+                      ->where('receiver_type', $type);
+            })->orWhere(function ($query) use ($id, $type, $authUserId) {
+                $query->where('sender_id', $id)
+                      ->where('sender_type', $type)
+                      ->where('receiver_id', $authUserId)
+                      ->where('receiver_type', 'customer');
+            })->latest('created_at')->first();
+        };
 
-        if ($message) {
-            $message->message = Crypt::decryptString($message->message);
+        // Function to count unread messages
+        $countUnreadMessages = function ($id, $type) use ($authUserId) {
+            return Conversation::where('sender_id', $id)
+                ->where('sender_type', $type)
+                ->where('receiver_id', $authUserId)
+                ->where('receiver_type', 'customer')
+                ->where('is_read', 0)
+                ->count();
+        };
+
+        foreach ($superAdmins as $superadmin) {
+            $superadmin->lastMessage = $getLastMessage($superadmin->id, 'super_admin');
+            $superadmin->unreadCount = $countUnreadMessages($superadmin->id, 'super_admin');
         }
-        return $message;
-    };
 
-    // Function to count unread messages
-    $countUnreadMessages = function ($id, $type) use ($authUserId) {
-        return Conversation::where('sender_id', $id)
-            ->where('sender_type', $type)
-            ->where('receiver_id', $authUserId)
+        foreach ($admins as $admin) {
+            $admin->lastMessage = $getLastMessage($admin->id, 'admin');
+            $admin->unreadCount = $countUnreadMessages($admin->id, 'admin');
+        }
+
+        foreach ($staff as $staffMember) {
+            $staffMember->lastMessage = $getLastMessage($staffMember->id, 'staff');
+            $staffMember->unreadCount = $countUnreadMessages($staffMember->id, 'staff');
+        }
+
+        $totalUnreadMessages = Conversation::where('receiver_id', $authUserId)
             ->where('receiver_type', 'customer')
             ->where('is_read', 0)
             ->count();
-    };
 
-    // Attach last message and unread count to SuperAdmins
-    foreach ($superAdmins as $superadmin) {
-        $superadmin->lastMessage = $getLastMessage($superadmin->id, 'super_admin');
-        $superadmin->unreadCount = $countUnreadMessages($superadmin->id, 'super_admin');
+        return view('customer.chat', compact('superAdmins', 'admins', 'staff', 'totalUnreadMessages'));
     }
-
-    // Attach last message and unread count to Admins
-    foreach ($admins as $admin) {
-        $admin->lastMessage = $getLastMessage($admin->id, 'admin');
-        $admin->unreadCount = $countUnreadMessages($admin->id, 'admin');
-    }
-
-    // Attach last message and unread count to Staff
-    foreach ($staff as $staffMember) {
-        $staffMember->lastMessage = $getLastMessage($staffMember->id, 'staff');
-        $staffMember->unreadCount = $countUnreadMessages($staffMember->id, 'staff');
-    }
-
-    // Calculate total unread messages for the navigation bar
-    $totalUnreadMessages = Conversation::where('receiver_id', $authUserId)
-        ->where('receiver_type', 'customer')
-        ->where('is_read', 0)
-        ->count();
-
-    return view('customer.chat', compact('superAdmins', 'admins', 'staff', 'totalUnreadMessages'));
-}
 
     public function show($id, $type)
     {
@@ -91,7 +82,6 @@ class ChatRepsController extends Controller
             default => abort(404),
         };
 
-        // Mark messages as read when the conversation is opened
         Conversation::markAsRead($id, $type, Auth::id(), 'customer');
 
         $conversations = Conversation::where(function ($query) use ($id, $type) {
@@ -136,8 +126,6 @@ class ChatRepsController extends Controller
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('chat_files', 'public');
         }
-
-        $encryptedMessage = $request->message ? Crypt::encryptString($request->message) : null;
 
         Conversation::create([
             'sender_id' => $user->id,
