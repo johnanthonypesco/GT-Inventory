@@ -4,7 +4,7 @@
         <hr class="mt-2">
     </div>
 
-    <li class="list-none flex flex-col p-2 gap-[20px] h-full">
+    <li class="list-none flex flex-col p-2 gap-[12px] h-full">
         <a href="{{ route ('admin.dashboard')}}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard</a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
@@ -20,6 +20,9 @@
             <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
 
             <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History</a>
+
+            <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>History Log</a>
+
         @endif
 
         @if (auth('staff')->check())

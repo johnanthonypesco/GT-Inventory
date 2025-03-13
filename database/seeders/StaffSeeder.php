@@ -26,6 +26,15 @@ class StaffSeeder extends Seeder
                 'job_title' => 'Janitor',
                 'is_staff' => true,
             ]);
+            Staff::create([
+                'admin_id' => Admin::pluck('id')->random(),
+                'location_id' => Location::pluck('id')->random(),
+                'staff_username' => 'SDEG78 (Staff)',
+                'email' => 'pescojohnanthony@gmail.com',
+                'password' => Hash::make('12345678'),
+                'job_title' => 'Employee',
+                'is_staff' => true,
+            ]);
         }
     }
 }
