@@ -20,6 +20,7 @@ if(auth('web')->check()) {
 </div>
 
 <div class="flex items-center gap-4">
+    {{-- <h1>unread messages: 3</h1> --}}
     {{-- Ensure user info container is visible in all breakpoints where needed --}}
     <div class="hidden md:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-lg">
         <i class="fa-solid fa-user text-2xl bg-[#005382] text-white p-2 rounded-full"></i>

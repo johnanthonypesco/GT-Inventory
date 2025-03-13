@@ -256,6 +256,7 @@ Route::prefix('customer/chat')->middleware('auth')->group(function () {
     Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('customer.chat.show'); // Open chat
     Route::post('/store', [ChatRepsController::class, 'store'])->name('customer.chat.store'); // Send message
     Route::get('/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.fetch'); // Fetch new messages dynamically
+    Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])->name('customer.chat.markAsRead');
 });
 
 // ========================= ADMIN, STAFF, SUPERADMIN CHAT ROUTES ========================= //
