@@ -22,7 +22,7 @@
             <div class="flex flex-col md:flex-row justify-between">
                 <x-input id="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search History Log by Event..." classname="fa fa-magnifying-glass"/>
                 <select class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
-                    <option value="All">--All Events--</option>
+                    <option value="All">--All Events from--</option>
                     <option value="">Inventory</option>
                     <option value="">Product Deals</option>
                     <option value="">Orders</option>
