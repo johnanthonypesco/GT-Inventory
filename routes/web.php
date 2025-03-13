@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\ChattingController;
+use App\Http\Controllers\Admin\HistorylogController;
 
 // Staff Controller
 use App\Http\Controllers\Admin\DashboardController;
@@ -133,6 +134,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
         Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
+
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
     });
 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
