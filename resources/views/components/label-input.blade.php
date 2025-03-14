@@ -5,7 +5,8 @@
     'divclass'=>'', 
     'labelclass'=>'',
     'errorChecker' => null,
-    'id'=> ''
+    'id'=> '',
+    'inputid' => ''
 ])
 
 <div class="{{$divclass}}" id="{{$id}}">
@@ -17,6 +18,6 @@
             </span>
         @endif
     </label>
-    <input required class="w-full p-2 rounded-lg border border-[#005382] {{$inputclass}}" {{$attributes}} style="{{ $errorChecker ? 'outline: 2px solid red; border:none;' : '' }}">
+    <input required id="{{$inputid}}" class="w-full p-2 rounded-lg border border-[#005382] {{$inputclass}}" {{$attributes}} style="{{ $errorChecker ? 'outline: 2px solid red; border:none;' : '' }}">
     {{$slot}}
 </div>

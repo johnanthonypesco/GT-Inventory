@@ -18,20 +18,30 @@ window.onclick = function(event) {
         editaccount.classList.add('hidden');
     }
 }
-function password(){
-    var password = document.getElementById('password');
+function showpassword(){
+    let password = document.getElementById('accountpassword');
+    let eye = document.getElementById('eye');
     if(password.type == 'password'){
         password.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
     }else{
         password.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
     }
 }
-function modalpassword(){
-    var modalpassword = document.getElementById('modalpassword');
-    if(modalpassword.type == 'password'){
-        modalpassword.type = 'text';
+function editshowpassword(){
+    let password = document.getElementById('editpassword');
+    let eye = document.getElementById('eye2');
+    if(password.type == 'password'){
+        password.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
     }else{
-        modalpassword.type = 'password';
+        password.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
     }
 }
 function modalreenterpassword(){

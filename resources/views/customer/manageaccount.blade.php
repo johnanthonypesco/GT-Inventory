@@ -30,7 +30,7 @@
     <main class="w-full md:ml-[17%]">
         <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
         
-        <div class="mt-5">
+        <div class="mt-5 h-[80vh] overflow-auto">
             <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
                 <div class="absolute top-0 left-0 h-[30%] bg-[#005382] w-full z-1" style="border-radius: 10px 10px 0 0;"></div>
                 <div class="relative w-fit">
@@ -64,17 +64,18 @@
                 <x-label-input label="Account Name" type="text" value="{{ Auth::user()->name }}" divclass="mt-3" disabled/>
                 <x-label-input label="Account Email" type="text" value="{{ Auth::user()->email }}" divclass="mt-3" disabled/>
                 <x-label-input label="Account Contact Number" type="text" value="{{ Auth::user()->contact_number }}" divclass="mt-3" disabled/>
-                <x-label-input label="Account Password" type="password" id="password" value="********" divclass="mt-3 relative" disabled>
-                    <x-view-password onclick="togglePassword('password')"/>
+                <x-label-input label="Account Password" type="password" inputid="accountpassword" value="{{ Auth::user()->password }}" divclass="mt-3 relative" readonly>
+                    <x-view-password onclick="showpassword()" id="eye"/>
                 </x-label-input>
+                    
             </div>
         </div>
 
         {{-- Edit Account Modal --}}
-        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 pt-20" id="editAccountModal">
-            <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto relative">
-                <span onclick="closeEditAccount()" class="cursor-pointer absolute -top-10 -right-3 text-red-600 font-bold text-[50px]">&times;</span>
-                <p class="text-xl font-semibold text-center text-[#005382]">Edit Account</p>
+        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5" id="editAccountModal">
+            <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto mt-5 relative">
+                <x-modalclose click="closeEditAccount"/>
+                <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>
 
                 <form id="editAccountForm" enctype="multipart/form-data">
                     @csrf
@@ -109,10 +110,11 @@
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
-                    <x-label-input label="Account Password" type="password" id="editPassword" name="password"
+                    <x-label-input label="Account Password" type="password" inputid="editpassword" name="password"
                         placeholder="Leave blank to keep current password" divclass="mt-5 relative">
-                        <x-view-password onclick="togglePassword('editPassword')"/>
+                        <x-view-password onclick="editshowpassword()" id="eye2"/>
                     </x-label-input>
+                    
                 
                     <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
@@ -146,15 +148,7 @@
             }
         }
 
-        // Toggle password visibility
-        function togglePassword(fieldId) {
-            let field = document.getElementById(fieldId);
-            if (field) {
-                field.type = field.type === "password" ? "text" : "password";
-            } else {
-                console.error("Error: Field with ID '" + fieldId + "' not found.");
-            }
-        }
+        
 
         // Handle form submission
         document.getElementById("submitButton").addEventListener("click", function (e) {

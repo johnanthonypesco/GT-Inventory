@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Customer Login</title>
 </head>
@@ -34,10 +35,12 @@
             @endif
 
             <!-- ✅ Username Input -->
-            <x-label-input label="Email" name="email" placeholder="Enter Your Username" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border-none" value="{{ old('username') }}"/>
+            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border-none" value="{{ old('username') }}"/>
 
             <!-- ✅ Password Input -->
-            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5" inputclass="outline-none bg-white p-3 border-none"/>
+            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border-none">
+                <x-view-password onclick="showpassword()" id="eye"/>
+            </x-label-input>
 
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-1">
@@ -53,4 +56,19 @@
         </form>
     </div>
 </body>
+
+<script>
+    function showpassword() {
+        var password = document.getElementById('password');
+        var eye = document.getElementById('eye');
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            password.type = 'password';
+            eye.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>
 </html>
