@@ -43,7 +43,7 @@
                     <tbody>
                         @forelse($historylogs as $log)
                             <tr>
-                                <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y h:i:s A') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
                                 <td class="flex justify-center">
                                     <p class="p-2 text-white rounded-md w-20 text-center text-sm uppercase
                                         {{ $log->event == 'Add' ? 'bg-blue-500' : ($log->event == 'Edit' ? 'bg-green-500' : 'bg-red-500') }}">
