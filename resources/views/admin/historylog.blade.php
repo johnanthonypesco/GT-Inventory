@@ -37,52 +37,27 @@
                             <th>Date</th>
                             <th>Event</th>
                             <th>Description</th>
-                            <th>Name of User</th>
+                            <th>Email</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Add new Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-red-500 p-2 text-white rounded-md w-20 text-center">Delete</p></td>
-                            <td>Delete Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-green-500 p-2 text-white rounded-md w-20 text-center">Edit</p></td>
-                            <td>Edit Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Stocks to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Add New Account</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-green-500 p-2 text-white rounded-md w-20 text-center">Edit</p></td>
-                            <td>Edit Account</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-red-500 p-2 text-white rounded-md w-20 text-center">Delete</p></td>
-                            <td>Delete Account</td>
-                            <td>John Anthony</td>
-                        </tr>
+                        @forelse($historylogs as $log)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y h:i:s A') }}</td>
+                                <td class="flex justify-center">
+                                    <p class="p-2 text-white rounded-md w-20 text-center 
+                                        {{ $log->event == 'Add' ? 'bg-slate-500' : ($log->event == 'Edit' ? 'bg-green-500' : 'bg-red-500') }}">
+                                        {{ $log->event }}
+                                    </p>
+                                </td>
+                                <td>{{ $log->description }}</td>
+                                <td>{{ $log->user_email ?? 'Unknown User' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center p-4">No history logs available.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

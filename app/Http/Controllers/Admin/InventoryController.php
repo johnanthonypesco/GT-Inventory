@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Zxing\QrReader;
+use App\Http\Controllers\Admin\HistorylogController;
 
 
 class InventoryController extends Controller
@@ -125,21 +126,25 @@ class InventoryController extends Controller
         }
     }
 
-    public function registerNewProduct(Request $request, Product $product){
+    public function registerNewProduct(Request $request, Product $product)
+    {
         $validated = $request->validate([
             'generic_name' => 'string|min:3|max:120|nullable',
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
             'img_file_path' => 'string|min:3|nullable',
-        ]); # defense against SQL injections
+        ]); 
 
-        $validated = array_map('strip_tags', $validated); # defense against XSS
+        $validated = array_map('strip_tags', $validated);
 
-        $product->create($validated);
+        $newProduct = $product->create($validated);
+
+        HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
         return to_route('admin.inventory');
     }
+
 
     public function addStock(Request $request, $addType = null)
     {
@@ -186,6 +191,8 @@ class InventoryController extends Controller
             $product->inventories()->create($datas);
         }
 
+        HistorylogController::addstocklog('Add','Stock has been added.');
+
 
         return to_route('admin.inventory');
     }
@@ -194,6 +201,7 @@ class InventoryController extends Controller
         $product->inventories()->delete(); //SHOULDNT REMOVE STOCK FROM INVENTORY. dont know a solution yet \ (.-.) /
         $product->delete();
 
+        HistorylogController::deleteproductlog('Delete', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been deleted.');
         return to_route("admin.inventory");
     }
 
