@@ -83,12 +83,13 @@
                         <!-- Profile Image -->
                         <label for="profile_image">
                             @if (Auth::user()->company && Auth::user()->company->profile_image)
-                                <img 
-                                    id="profilePreview"
-                                    src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
-                                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                    alt="Company Profile Picture"
-                                >
+                            <img 
+                            id="profilePreview"
+                            src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                            class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                            alt="Company Profile Picture"
+                        >
+                        
                             @else
                                 <i 
                                     class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
@@ -109,10 +110,11 @@
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
-                    <x-label-input label="Account Password" type="password" id="editPassword" name="password"
-                        placeholder="Leave blank to keep current password" divclass="mt-5 relative">
-                        <x-view-password onclick="togglePassword('editPassword')"/>
-                    </x-label-input>
+                        <div class="relative mt-5">
+                            <label>Account Password</label>
+                            <input type="password" id="editPassword" name="password" placeholder="Leave blank to keep current password" class="border rounded p-2 w-full">
+                            <i class="fa-solid fa-eye absolute right-3 top-10 cursor-pointer" onclick="togglePassword('editPassword')"></i>
+                        </div>
                 
                     <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
@@ -232,19 +234,23 @@
         });
 
         // Handle profile image preview
-    // Handle profile image preview
+  // Handle profile image preview
 document.getElementById("profile_image").addEventListener("change", function (e) {
     let file = e.target.files[0];
     if (file) {
         let reader = new FileReader();
         reader.onload = function (event) {
-            // Update the src attribute of the profilePreview image
-            document.getElementById("profilePreview").src = event.target.result;
+            let preview = document.getElementById("profilePreview");
+            if (preview) {
+                preview.src = event.target.result;
+            } else {
+                console.error("Error: Element with ID 'profilePreview' not found.");
+            }
         };
         reader.readAsDataURL(file);
     }
+});
 
-        });
     </script>
 </body>
 </html>

@@ -198,16 +198,10 @@ if ($deal && $deal->product) {
             $pngData = $result->getString();
 
             // 7) Decide on a file path
-            $directory = public_path('qrcodes');
-            $filePath = $directory . "/order_{$order->id}.png";
-            
-            // Ensure the directory exists
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
-            
-            // Save the QR code file
-            file_put_contents($filePath, $pngData);
+            $filePath = "qrcodes/order_{$order->id}.png"; // Correct path
+
+            // Save the QR code file in "storage/app/public/qrcodes/"
+            Storage::disk('public')->put($filePath, $pngData);
             
             // 9) Instead of $order->update(...), use updateOrCreate
             //    If an order with this ID doesn't exist, it creates one.
