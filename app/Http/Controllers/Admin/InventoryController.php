@@ -191,7 +191,7 @@ class InventoryController extends Controller
             $product->inventories()->create($datas);
         }
 
-        HistorylogController::addstocklog('Add','Stock has been added.');
+        HistorylogController::addstocklog('Add', ' ' . $count . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
 
 
         return to_route('admin.inventory');

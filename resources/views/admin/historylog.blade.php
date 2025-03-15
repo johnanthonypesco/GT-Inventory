@@ -37,7 +37,7 @@
                             <th>Date</th>
                             <th>Event</th>
                             <th>Description</th>
-                            <th>Email</th>
+                            <th>Action By</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,8 +45,8 @@
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y h:i:s A') }}</td>
                                 <td class="flex justify-center">
-                                    <p class="p-2 text-white rounded-md w-20 text-center 
-                                        {{ $log->event == 'Add' ? 'bg-slate-500' : ($log->event == 'Edit' ? 'bg-green-500' : 'bg-red-500') }}">
+                                    <p class="p-2 text-white rounded-md w-20 text-center text-sm uppercase
+                                        {{ $log->event == 'Add' ? 'bg-blue-500' : ($log->event == 'Edit' ? 'bg-green-500' : 'bg-red-500') }}">
                                         {{ $log->event }}
                                     </p>
                                 </td>
