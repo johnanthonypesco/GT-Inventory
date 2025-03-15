@@ -60,7 +60,12 @@
                     </tbody>
                 </table>
             </div>
-            <x-pagination/>
+            <x-pagination 
+                currentPage="{{ $currentPage }}" 
+                totalPage="{{ $totalPage }}" 
+                prev="{{ $prevPageUrl }}" 
+                next="{{ $nextPageUrl }}" 
+            />
         </div>
     </main>
     

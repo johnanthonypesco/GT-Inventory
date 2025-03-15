@@ -11,11 +11,18 @@ use App\Models\Product;
 
 class HistorylogController extends Controller
 {
-    public function showHistorylog(Request $request){
-
-        $historylogs = Historylogs::orderBy('created_at', 'desc')->get();
-        return view('admin.historylog', ['historylogs' => $historylogs]);
+    public function showHistorylog(Request $request) {
+        $historylogs = Historylogs::orderBy('created_at', 'desc')->paginate(10);
+    
+        return view('admin.historylog', [
+            'historylogs' => $historylogs,
+            'currentPage' => $historylogs->currentPage(),
+            'totalPage' => $historylogs->lastPage(),
+            'prevPageUrl' => $historylogs->previousPageUrl() ?? '#',
+            'nextPageUrl' => $historylogs->nextPageUrl() ?? '#',
+        ]);
     }
+    
 
     // add Product log  
     public static function addproductlog($event, $description){
