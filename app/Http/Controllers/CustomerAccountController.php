@@ -12,7 +12,14 @@ class CustomerAccountController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('customer.account', compact('user'));
+        
+        try {
+            $user->password = Hash::decrypt($user->password);
+        } catch (\Exception $e) {
+            $user->password = "Unable to decrypt";
+        }
+
+        return view('customer.account', ['user' => $user]);
     }
 
     public function update(Request $request)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use Zxing\QrReader;
 use App\Models\Order;
 use App\Models\Product;
@@ -16,7 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class InventoryController extends Controller
 {
-
     public function showInventory
     (
         $searched_name = null, //product name
@@ -54,6 +54,29 @@ class InventoryController extends Controller
         $suggestionsForTarlac = Inventory::where('location_id', Location::where('province', 'Tarlac')->first()->id)->get();
         $suggestionsForNueva = Inventory::where('location_id', Location::where('province', 'Nueva Ecija')->first()->id)->get();
 
+        // THE TOTAL INFORMATION FOR EXPIRY
+        $totalExpiredStock = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
+        ->orderBy('expiry_date', 'desc')->get();
+
+        $totalNearExpiry = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
+        ->orderBy('expiry_date', 'desc')->get();
+
+        // dd($totalExpiredStock->toArray());
+
+        // DISPLAYED EXPIRY DATA
+        $expiredStocks = $totalExpiredStock->groupBy(function ($stocks) {
+            return $stocks->location->province;
+        });
+
+        $nearExpiredStocks = $totalNearExpiry->groupBy(function ($stocks) {
+            return $stocks->location->province;
+        });
+
+        // dd($nearExpiredStocks->toArray());
+
+
         return view('admin.inventory', [
             'products' => Product::all(),
 
@@ -87,6 +110,17 @@ class InventoryController extends Controller
                     'inventories' => $group,
                 ];
             }),
+
+            // for the stock notifs as wells
+            'expiryTotalCounts' => [
+                'nearExpiry' => $totalNearExpiry->count(),
+                'expired' => $totalExpiredStock->count(),
+            ],
+
+            'expiredDatasets' => [
+                'nearExpiry' => $nearExpiredStocks,
+                'expired' => $expiredStocks,
+            ],
         ]);
     }
 

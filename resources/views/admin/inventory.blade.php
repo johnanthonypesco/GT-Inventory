@@ -54,6 +54,9 @@
             <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
             <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
             <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
+            
+            <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" />
+            <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" />
         </div>
         {{-- Total Container --}}
 
@@ -61,6 +64,9 @@
         <x-stock-overview-modal  modalType="in-stock" :variable="$inStockProducts" />
         <x-stock-overview-modal  modalType="low-stock" :variable="$lowStockProducts" />
         <x-stock-overview-modal  modalType="out-stock" :variable="$noStockProducts" /> 
+
+        <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
+        <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
         {{-- Shows An Overview Modal for Certain Product Categories --}}
 
         <div class="h-[66vh] overflow-auto mt-4">
