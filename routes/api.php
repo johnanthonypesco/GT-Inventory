@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // claer
 
+use App\Http\Controllers\Mobile\MobileChatController;
 use App\Http\Controllers\Mobile\MobileOrderController;
 use App\Http\Controllers\Auth\MobileAuthenticatedSessionController;
 
@@ -24,6 +25,10 @@ Route::prefix('mobile')->group(function () {
 
         Route::get('/exclusive-deals', [MobileOrderController::class, 'index']);
         Route::get('/user/orders', [MobileOrderController::class, 'getUserOrders']);
+        Route::get('/contacts', [MobileChatController::class, 'getConversations']);
+        Route::get('/messages/{id}/{type}', [MobileChatController::class, 'getMessages']);
+        Route::post('/send', [MobileChatController::class, 'sendMessage']);
+        Route::post('/mark-as-read', [MobileChatController::class, 'markAsRead']);
     });
   
 
