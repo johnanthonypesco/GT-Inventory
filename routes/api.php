@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Mobile\MobileChatController;
 use App\Http\Controllers\Mobile\MobileOrderController;
 use App\Http\Controllers\Mobile\MobileOrderHistoryController;
+use App\Http\Controllers\Mobile\MobileCustomerAccountController;
 use App\Http\Controllers\Auth\MobileAuthenticatedSessionController;
 
 Route::prefix('mobile')->group(function () {
@@ -32,8 +33,8 @@ Route::prefix('mobile')->group(function () {
         Route::post('/mark-as-read', [MobileChatController::class, 'markAsRead']);
         Route::get('/order-history', [MobileOrderHistoryController::class, 'getOrderHistory']);
         Route::get('/order-details/{orderId}', [MobileOrderHistoryController::class, 'getOrderDetails']); // ✅ Fetch order details
-        Route::get('/mobile/customer/account', [MobileCustomerAccountController::class, 'getAccount']);
-        Route::post('/mobile/customer/account/update', [MobileCustomerAccountController::class, 'updateAccount']);
+        Route::get('/customer/account', [MobileCustomerAccountController::class, 'getAccount']);
+        Route::post('/customer/account/update', [MobileCustomerAccountController::class, 'updateAccount']);
     });
   
 
