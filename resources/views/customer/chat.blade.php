@@ -68,7 +68,10 @@
                     <span class="text-[#005382] underline cursor-pointer ml-2" onclick="opentermsandconditions()">Terms and Conditions</span>
                 </div>
 
-                <button id="proceed" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit" disabled>Proceed</button>
+                <div class="flex items-center gap-3 mt-5">
+                    <button id="proceed" class="flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit" disabled>Proceed</button>
+                    <button id="decline" class="bg-red-500 text-white flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit">Decline</button>
+                </div>
             </div>
         </div>
 
@@ -138,6 +141,20 @@
         const termsAndConditions = document.getElementById("terms&conditionsletter");
         termsAndConditions.style.display = "none";
     }
+
+    const decline = document.getElementById("decline");
+    decline.addEventListener("click", function () {
+        Swal.fire({
+            icon: 'error',
+            title: 'Sorry',
+            text: 'You have declined the terms and conditions.',
+            confirmButtonColor: "#005382"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('customer.order') }}";
+            }
+        })
+    });
 </script>
 </html>
 
