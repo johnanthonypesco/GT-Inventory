@@ -80,7 +80,7 @@
                 <x-modalclose click="closeAddAccountModal"/>
 
                 <!-- Form -->
-                <form method="POST" action="{{ route('superadmin.account.store') }}">
+                <form method="POST" action="{{ route('superadmin.account.store') }}" id="addaccountform">
                     @csrf
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
 
@@ -220,7 +220,7 @@
                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
 
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
+                    <button id="addaccountbutton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}"> Submit
                     </button>
                 </form>         
@@ -232,7 +232,7 @@
         <div id="editAccountModal" class="w-full bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20 items-center justify-center overflow-auto {{ $errors->hasBag('editAccount') ? 'block' : 'hidden' }}">
             <div class="modal w-full md:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
-                <form method="POST" id="editAccountForm">
+                <form method="POST" id="editaccountform">
                     @csrf
                     @method('POST') 
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
@@ -327,7 +327,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
+                    <button id="editsubmitbutton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
                         <i class="fa-solid fa-save"></i> Save Changes
                     </button>
                 </form>
@@ -566,7 +566,7 @@ function toggleEditFields(role) {
 
 
 
-{{-- <script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script> --}}
+<script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
 {{-- <script src="{{asset ('js/manageaccount.js')}}"></script> --}}
 
 </html>
