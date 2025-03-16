@@ -84,12 +84,13 @@
                         <!-- Profile Image -->
                         <label for="profile_image">
                             @if (Auth::user()->company && Auth::user()->company->profile_image)
-                                <img
-                                    id="profilePreview"
-                                    src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
-                                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                    alt="Company Profile Picture"
-                                >
+                            <img 
+                            id="profilePreview"
+                            src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                            class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                            alt="Company Profile Picture"
+                        >
+                        
                             @else
                                 <i
                                     class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
@@ -235,19 +236,24 @@
         });
     });
 
-    // Handle profile image preview
-    // Handle profile image preview
-    document.getElementById("profile_image").addEventListener("change", function (e) {
-        let file = e.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function (event) {
-                // Update the src attribute of the profilePreview image
-                document.getElementById("profilePreview").src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-</script>
+        // Handle profile image preview
+  // Handle profile image preview
+document.getElementById("profile_image").addEventListener("change", function (e) {
+    let file = e.target.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function (event) {
+            let preview = document.getElementById("profilePreview");
+            if (preview) {
+                preview.src = event.target.result;
+            } else {
+                console.error("Error: Element with ID 'profilePreview' not found.");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+    </script>
 </body>
 </html>

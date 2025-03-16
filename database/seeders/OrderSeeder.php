@@ -21,7 +21,6 @@ class OrderSeeder extends Seeder
             'status' => fake()->randomElement([
                 'pending',
                 'completed',
-                'partial-delivery',
                 'cancelled',
                 'delivered',
             ]),
