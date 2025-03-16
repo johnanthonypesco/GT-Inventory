@@ -14,10 +14,9 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<<<<<<< HEAD
-=======
+
+
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
->>>>>>> ab06c4b78e98dbe2f44d45154823a3d79f5b8814
     <title>Inventory</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">

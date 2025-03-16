@@ -28,10 +28,13 @@ class SuperAdminAuthenticatedSessionController extends Controller
     
     public function store(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $sanitizedData = array_map('strip_tags', $request->only(['email', 'password']));
+
+        // ✅ Validate sanitized input
+        $credentials = validator($sanitizedData, [
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ]);
+        ])->validate();
     
         if (Auth::guard('superadmin')->attempt($credentials, $request->filled('remember'))) {
             $superAdmin = Auth::guard('superadmin')->user();
