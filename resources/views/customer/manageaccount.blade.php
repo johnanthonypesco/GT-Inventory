@@ -28,14 +28,14 @@
     <x-customer.navbar/>
 
     <main class="w-full md:ml-[17%]">
-        <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
+        <x-customer.header title="Manage Account" icon="fa-solid fa-bars-progress"/>
         
         <div class="mt-5 h-[80vh] overflow-auto">
             <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
                 <div class="absolute top-0 left-0 h-[30%] bg-[#005382] w-full z-1" style="border-radius: 10px 10px 0 0;"></div>
                 <div class="relative w-fit">
                     <!-- Profile Image -->
-                    <label for="profile_image">
+                    <label>
                         @if (Auth::user()->company && Auth::user()->company->profile_image)
                             <img
                                 id="profilePreviewone"

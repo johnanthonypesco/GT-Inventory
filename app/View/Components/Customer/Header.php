@@ -1,6 +1,8 @@
 <?php
 namespace App\View\Components\Customer;
 
+use Closure;
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;

@@ -62,29 +62,29 @@
             // dd($inStockProducts[0]);
         @endphp
 
-        {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
-            <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
-            <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
-            <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
-            
-            <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" />
-            <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" />
-        </div>
-        {{-- Total Container --}}
 
-        {{-- Shows An Overview Modal for Certain Product Categories --}}
-        <x-stock-overview-modal  modalType="in-stock" :variable="collect($inStockProducts)->groupBy('province')" />
-        <x-stock-overview-modal  modalType="low-stock" :variable="collect($lowStockProducts)->groupBy('province')" />
-        <x-stock-overview-modal  modalType="out-stock" :variable="collect($noStockProducts)->groupBy('province')" /> 
-
-        <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
-        <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
-        {{-- Shows An Overview Modal for Certain Product Categories --}}
-
-        <div class="h-[66vh] overflow-auto mt-4">
-            {{-- Filters Location --}}
-        <div class="flex justify-between flex-col lg:flex-row">
+        <div class="h-[82vh] overflow-x-auto mt-4 px-4">
+                {{-- Total Container --}}
+                <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
+                    <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
+                    <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
+                    <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
+                    
+                    <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" />
+                    <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" />
+                </div>
+                {{-- Total Container --}}
+                
+                {{-- Shows An Overview Modal for Certain Product Categories --}}
+                <x-stock-overview-modal  modalType="in-stock" :variable="collect($inStockProducts)->groupBy('province')" />
+                <x-stock-overview-modal  modalType="low-stock" :variable="collect($lowStockProducts)->groupBy('province')" />
+                <x-stock-overview-modal  modalType="out-stock" :variable="collect($noStockProducts)->groupBy('province')" /> 
+                
+                <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
+                <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
+                {{-- Shows An Overview Modal for Certain Product Categories --}}
+                {{-- Filters Location --}}
+        <div class="flex justify-between flex-col lg:flex-row mt-3">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
 
@@ -441,8 +441,8 @@
     </div>
 
    {{-- Transfer Inventory Modal --}}
-<div id="transferInventoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 ">
+    <div class="modal bg-white p-6 rounded-lg w-full max-w-md m-auto mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
         <form id="transferForm">

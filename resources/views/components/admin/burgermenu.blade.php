@@ -33,7 +33,7 @@
         <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
 
         <a href="{{ route('admin.chat.index') }}" id="headerCounter" class="text-md relative">
-            <i class="fa-brands fa-rocketchat"></i>Chat
+            <i class="fa-brands fa-rocketchat text-[#005382]"></i>Chat
             @if ($adminsidebar_counter > 0)
                 <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
                     {{ $adminsidebar_counter }}
