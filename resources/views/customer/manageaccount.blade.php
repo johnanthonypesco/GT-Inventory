@@ -121,6 +121,9 @@
                         placeholder="Re-enter your new password" divclass="mt-5 relative">
                         <x-view-password onclick="editshowconfirmpassword()" id="eye3"/>
                     </x-label-input>
+
+                    <!-- Password Mismatch Message -->
+                    <p id="passwordmismatch" class="text-sm mt-1 text-red-500 hidden"></p>
                 
                     <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
@@ -135,28 +138,6 @@
     <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
     <script>
-        // Open the edit account modal
-        function editAccount() {
-            let modal = document.getElementById("editAccountModal");
-            if (modal) {
-                modal.classList.remove("hidden");
-            } else {
-                console.error("Error: Modal with ID 'editAccountModal' not found.");
-            }
-        }
-
-        // Close the edit account modal
-        function closeEditAccount() {
-            let modal = document.getElementById("editAccountModal");
-            if (modal) {
-                modal.classList.add("hidden");
-            } else {
-                console.error("Error: Modal with ID 'editAccountModal' not found.");
-            }
-        }
-
-        
-
         // Handle form submission
         document.getElementById("submitButton").addEventListener("click", function (e) {
             e.preventDefault();
@@ -233,31 +214,18 @@
         });
 
         // Handle profile image preview
-    // Handle profile image preview
-document.getElementById("profile_image").addEventListener("change", function (e) {
-    let file = e.target.files[0];
-    if (file) {
-        let reader = new FileReader();
-        reader.onload = function (event) {
-            // Update the src attribute of the profilePreview image
-            document.getElementById("profilePreview").src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
+        // Handle profile image preview
+        document.getElementById("profile_image").addEventListener("change", function (e) {
+            let file = e.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    // Update the src attribute of the profilePreview image
+                    document.getElementById("profilePreview").src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         });
     </script>
-
-<script>
-    function editshowpassword() {
-        let passwordField = document.getElementById("editpassword");
-        passwordField.type = passwordField.type === "password" ? "text" : "password";
-    }
-
-    function editshowconfirmpassword() {
-        let confirmPasswordField = document.getElementById("editconfirmpassword");
-        confirmPasswordField.type = confirmPasswordField.type === "password" ? "text" : "password";
-    }
-</script>
 </body>
 </html>
