@@ -10,6 +10,7 @@ use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Admin\HistorylogController;
 
 class SuperAdminAccountController extends Controller
 {
@@ -60,23 +61,23 @@ class SuperAdminAccountController extends Controller
      * Store a newly created account dynamically.
      */
     public function store(Request $request)
-{
-    try {
-        session()->forget('errors.editAccount');
+    {
+        try {
+            session()->forget('errors.editAccount');
 
-        $messages = ['password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-        'email.unique' => 'The email address is already registered.',
-        'username.unique' => 'The username is already used.',
-        'staff_username.unique' => 'The username is already used.',
-        'username.unique' => 'The username is already used.',
-        'password.confirmed' => 'Password confirmation does not match.',
-'contact_number.regex' => 'The contact number must be in the format +639191234567 or 09191234567.',
-    'contact_number.unique' => 'This contact number is already in use.'
+            $messages = ['password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'email.unique' => 'The email address is already registered.',
+            'username.unique' => 'The username is already used.',
+            'staff_username.unique' => 'The username is already used.',
+            'username.unique' => 'The username is already used.',
+            'password.confirmed' => 'Password confirmation does not match.',
+    'contact_number.regex' => 'The contact number must be in the format +639191234567 or 09191234567.',
+        'contact_number.unique' => 'This contact number is already in use.'
 
 
-    ];
-        $validated =$request->validate([
-           'role' => [
+        ];
+            $validated =$request->validate([
+               'role' => [
         'required',
         'string',
         'in:admin,staff,customer',
@@ -87,22 +88,22 @@ class SuperAdminAccountController extends Controller
             }
         },
     ],
-            'name' => 'nullable|string|max:255', // Only for customers
-            'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
-            'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
-'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
-            'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
-'contact_number' => 'nullable|numeric|unique:users,contact_number',
-'location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer
-'job_title' => 'nullable|string|max:255',
-'company_location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer and exists
-'company_id' => 'nullable|exists:companies,id', // Validate existing company
-            'new_company' => 'nullable|string|max:255|unique:companies,name',
-            'new_company_address' => 'nullable|string|max:255', // Address field for new company
+                'name' => 'nullable|string|max:255', // Only for customers
+                'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
+                'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
+    'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
+                'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
+    'contact_number' => 'nullable|numeric|unique:users,contact_number',
+    'location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer
+    'job_title' => 'nullable|string|max:255',
+    'company_location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer and exists
+    'company_id' => 'nullable|exists:companies,id', // Validate existing company
+                'new_company' => 'nullable|string|max:255|unique:companies,name',
+                'new_company_address' => 'nullable|string|max:255', // Address field for new company
 
-        ], $messages);
+            ], $messages);
 
-        $validated = array_map("strip_tags", $validated);
+            $validated = array_map("strip_tags", $validated);
 
 
          // Handle Company Creation for Customers
@@ -124,51 +125,55 @@ class SuperAdminAccountController extends Controller
         }
         
 
+            // dd($validated);
+        match ($validated['role']) {
+            'admin' => Admin::create([
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'super_admin_id' => auth()->id(),
+                'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
+            ]),
+            'staff' => Staff::create([
+                'staff_username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
+                'location_id' => $validated['location_id'],
+                'job_title' => $validated['job_title'],
+                'is_staff' => 1,
+            ]),
+            'customer' => User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'contact_number' => $validated['contact_number'],
+                'company_id' => $validated['company_id'] ?? null, // Assign Company ID
+                'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
+                'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
+            ]),
+        };
+
+        HistorylogController::addaccountlog(
+            "Add",
+            ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
+        );
+        
+
         // dd($validated);
-    match ($validated['role']) {
-        'admin' => Admin::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'super_admin_id' => auth()->id(),
-            'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
-        ]),
-        'staff' => Staff::create([
-            'staff_username' => $validated['username'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
-            'location_id' => $validated['location_id'],
-            'job_title' => $validated['job_title'],
-            'is_staff' => 1,
+        return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Redirect back with validation errors
+        return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
+    }
+    catch (\Exception $e) {
+        // Log error message
 
-        ]),
-        'customer' => User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'contact_number' => $validated['contact_number'],
-            'company_id' => $validated['company_id'] ?? null, // Assign Company ID
-            'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
-            'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
-        ]),
-    };
-    
+    dd($e);
+        Log::error('Error creating account', ['message' => $e->getMessage()]);
 
-    // dd($validated);
-    return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
-} catch (\Illuminate\Validation\ValidationException $e) {
-    // Redirect back with validation errors
-    return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
-}
-catch (\Exception $e) {
-    // Log error message
-
-dd($e);
-    Log::error('Error creating account', ['message' => $e->getMessage()]);
-
-    return back()->with('error', 'Failed to create account. Please check logs.');
-}
+        return back()->with('error', 'Failed to create account. Please check logs.');
+    }
 }
 
     /**
@@ -262,6 +267,9 @@ dd($e);
             ]),
         };
 
+        HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->email . ') was updated');
+
+
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
     } 
     catch (\Illuminate\Validation\ValidationException $e) {
@@ -285,6 +293,8 @@ dd($e);
             'customer' => User::findOrFail($id),
             default => abort(404),
         };
+
+        HistorylogController::editaccountlog('Delete', ucfirst($role) . ' account (' . $model->email . ') was deleted');
 
         $model->delete();
 

@@ -21,13 +21,12 @@
         <div class="p-4 bg-white rounded-md mt-5">
             <div class="flex flex-col md:flex-row justify-between">
                 <x-input id="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search History Log by Event..." classname="fa fa-magnifying-glass"/>
-                <select class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
-                    <option value="All">--All Events from--</option>
-                    <option value="">Inventory</option>
-                    <option value="">Product Deals</option>
-                    <option value="">Orders</option>
-                    <option value="">Manage Account</option>
-                </select>  
+                <select id="eventFilter" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
+                    <option value="All">--All Events--</option>
+                    <option value="Add">Add</option>
+                    <option value="Edit">Edit</option>
+                    <option value="Delete">Delete</option>
+                </select>
             </div>
 
             <div class="overflow-x-auto mt-5 h-[60vh]">
@@ -37,58 +36,73 @@
                             <th>Date</th>
                             <th>Event</th>
                             <th>Description</th>
-                            <th>Name of User</th>
+                            <th>Action By</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Add new Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-red-500 p-2 text-white rounded-md w-20 text-center">Delete</p></td>
-                            <td>Delete Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-green-500 p-2 text-white rounded-md w-20 text-center">Edit</p></td>
-                            <td>Edit Product to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Stocks to Inventory</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-slate-500 p-2 text-white rounded-md w-20 text-center">Add</p></td>
-                            <td>Add New Account</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-green-500 p-2 text-white rounded-md w-20 text-center">Edit</p></td>
-                            <td>Edit Account</td>
-                            <td>John Anthony</td>
-                        </tr>
-                        <tr>
-                            <td>March 15, 2023 <span class="font-light">11:00:00 AM</span></td>
-                            <td class="flex justify-center"><p class="bg-red-500 p-2 text-white rounded-md w-20 text-center">Delete</p></td>
-                            <td>Delete Account</td>
-                            <td>John Anthony</td>
-                        </tr>
+                    <tbody id="logTableBody">
+                        @if($historylogs->isEmpty())
+                            <tr id="noDataRow">
+                                <td colspan="4" class="text-center p-4">No history logs available.</td>
+                            </tr>
+                        @else
+                            @foreach($historylogs as $log)
+                                <tr data-event="{{ $log->event }}">
+                                    <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
+                                    <td class="flex justify-center">
+                                        <p class="p-2 text-white rounded-md w-20 text-center text-sm uppercase
+                                            {{ $log->event == 'Add' ? 'bg-blue-500' : ($log->event == 'Edit' ? 'bg-green-500' : 'bg-red-500') }}">
+                                            {{ $log->event }}
+                                        </p>
+                                    </td>
+                                    <td>{{ $log->description }}</td>
+                                    <td>{{ $log->user_email ?? 'Unknown User' }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
-            <x-pagination/>
+            <x-pagination 
+                currentPage="{{ $currentPage }}" 
+                totalPage="{{ $totalPage }}" 
+                prev="{{ $prevPageUrl }}" 
+                next="{{ $nextPageUrl }}" 
+            />
         </div>
     </main>
     
 </body>
+<script>
+    document.getElementById('eventFilter').addEventListener('change', function () {
+        let selectedEvent = this.value;
+        let rows = document.querySelectorAll('#logTableBody tr');
+        let hasVisibleRow = false;
+
+        rows.forEach(row => {
+            let eventType = row.getAttribute('data-event');
+
+            if (selectedEvent === "All" || eventType === selectedEvent) {
+                row.style.display = "";
+                hasVisibleRow = true;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        let noDataRow = document.getElementById('noDataRow');
+        if (noDataRow) {
+            noDataRow.remove();
+        }
+
+        if (!hasVisibleRow) {
+            let tbody = document.getElementById('logTableBody');
+            let noDataMessage = document.createElement('tr');
+            noDataMessage.id = 'noDataRow';
+            noDataMessage.innerHTML = `
+                <td colspan="4" class="text-center p-4">No history logs available.</td>
+            `;
+            tbody.appendChild(noDataMessage);
+        }
+    });
+</script>
 </html>

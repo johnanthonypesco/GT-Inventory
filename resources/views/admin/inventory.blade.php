@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Inventory</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
@@ -25,7 +26,7 @@
 
         @php
             // these variables will be used for the totals in the notifs & stock overview summaries
-            $inStockProducts = []; 
+            $inStockProducts = [];
             $lowStockProducts = [];
             $noStockProducts = [];
             foreach ($stockMonitor as $provinceName => $groupedNames) {
@@ -86,7 +87,7 @@
                 @csrf @method("POST")
 
                 <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
-                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>  
+                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
                     <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
                     <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
                 </select>
@@ -110,11 +111,11 @@
             </h1>
 
             <div class="flex flex-wrap justify-between items-center">
-                    
+
                     {{-- Search --}}
-                    <x-input name="search" 
+                    <x-input name="search"
                     placeholder="Search Product by Name"
-                    classname="fa fa-magnifying-glass" 
+                    classname="fa fa-magnifying-glass"
                     divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
                     id="search-stock-{{$provinceName}}"
                     searchType="stock"
@@ -122,15 +123,15 @@
                     :autofill="true"
                     :location_filter="$provinceName"
                     :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
-                    
+
                     {{-- Search --}}
-                    
+
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                         <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
-                            
+
                             <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
                         </form>
                     </div>
@@ -162,15 +163,15 @@
 
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
-                <x-input name="search" 
-                placeholder="Search Product by Name" 
-                classname="fa fa-magnifying-glass" 
+                <x-input name="search"
+                placeholder="Search Product by Name"
+                classname="fa fa-magnifying-glass"
                 divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
                 id="search-product"
                 searchType="product"
                 :dataList="$products"
                 :autofill="true"
-                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>                 
+                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
             </div>
 
             {{-- Table for all products --}}
@@ -259,7 +260,7 @@
             </h1>
             <form action="{{ route('admin.inventory.store', ['addType' => 'single']) }}" method="POST" id="addspecificstock">
                 @csrf
-                
+
                 <input type="hidden" id="single_product_id" value="{{ $failedToAddStock ? old('product_id.0') : '' }}" name="product_id[]">
 
                 <div class="flex flex-col">
@@ -293,7 +294,7 @@
                     <input type="file" name="file" id="file" class="hidden">
                     <button onclick="window.location.href='{{ route('upload.receipt') }}'">
                         <i class="fa-solid fa-file-alt"></i> Upload Receipt
-                    </button>                
+                    </button>
                 </div>
             </div>
         </div>
@@ -316,21 +317,21 @@
                     @php
                         $hasBeenPrinted = [];
                     @endphp
-    
+
                     @foreach ($errors->all() as $error)
                         @php
                             // will create a string with no underscores or any indexes attached
                             $cleanedString = preg_replace(['/[_]/', '/\.\d+/'], ' ', $error);
                         @endphp
-    
+
                         @if (in_array($cleanedString, $hasBeenPrinted)) {{-- skips the printed errors --}}
                             @continue
                         @endif
-    
+
                         <p class="text-rose-600">
                             {{$cleanedString}}
-                        </p>               
-    
+                        </p>
+
                         @php // pushes the string in the array
                             $hasBeenPrinted[] = $cleanedString;
                         @endphp
@@ -341,7 +342,7 @@
 
 
             {{-- Form Multiple add stock--}}
-            <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  
+            <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">
                 @csrf
 
                 <div class="flex flex-col">
@@ -421,13 +422,13 @@
 
                 {{-- Button for Save and Add more --}}
                 <div class="flex absolute bottom-2 right-3 gap-4 mt-5 ">
-                    <button id="addmore" type="button" 
+                    <button id="addmore" type="button"
                         onclick="add_more_stocks_input(1)"
                         class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <i class="fa-solid fa-plus"></i> Add More
                     </button>
 
-                    <button id="addmultiplestockBtn" type="button" 
+                    <button id="addmultiplestockBtn" type="button"
                         class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none">
                         <img src="{{asset('image/image 51.png')}}" alt="Save" class="h-5"> Save
                     </button>
