@@ -63,7 +63,9 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
-
+Route::get('/', function () {
+    dd('RMPOIMS');
+});
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
