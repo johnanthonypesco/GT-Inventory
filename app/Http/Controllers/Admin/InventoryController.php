@@ -74,9 +74,6 @@ class InventoryController extends Controller
             return $stocks->location->province;
         });
 
-        // dd($nearExpiredStocks->toArray());
-
-
         return view('admin.inventory', [
             'products' => Product::all(),
 
@@ -96,20 +93,28 @@ class InventoryController extends Controller
             'nuevaSuggestions' => $suggestionsForNueva,
 
             // for the inventory stock notifications
-            'stockMonitor' => Inventory::has('product') 
-            ->with('product')->get() // gets the product data
-            ->groupBy(function ($inventory) { // groups data by generic name
-                return $inventory->product->generic_name . '|' . $inventory->product->brand_name; // this gives the name for the keys of each group
-            })->sortKeys()
-            ->map(function ($group) { // calculates the totals and what to categorize them as.
-                $total = $group->sum('quantity');
-                $status = $total > 0 && $total <= 50 ? 'low-stock' : ($total > 50 ? 'in-stock' : 'no-stock');
-                return [
-                    'total' => $total,
-                    'status' => $status,
-                    'inventories' => $group,
-                ];
+            'stockMonitor' => $inventory = Inventory::has('product') 
+            ->with('product', 'location') // Ensure 'location' is eager-loaded
+            ->get() // Get all inventory records
+            ->groupBy('location.province') // First, group by province
+            ->map(function ($provinceGroup) { // Map each province group
+                return $provinceGroup->groupBy(function ($stock) {
+                    return $stock->product->generic_name . '|' . $stock->product->brand_name;
+                })
+                ->map(function ($group) { // Calculate totals for each product grouping
+                    $total = $group->sum('quantity');
+                    $status = $total > 50 ? 'in-stock' : ($total > 0 ? 'low-stock' : 'no-stock');
+        
+                    return [
+                        'total' => $total,
+                        'status' => $status,
+                        'inventories' => $group,
+                    ];
+                })->sortKeys();
             }),
+        
+        // dd($inventory->toArray());
+        
 
             // for the stock notifs as wells
             'expiryTotalCounts' => [

@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call(LocationSeeder::class);
 
         //Mga factories ko. Malakas umusok mga ito >:)       
-        Product::factory()->count(5)->create();
+        Product::factory()->count(24)->create();
+        
         Inventory::factory()->count(20)->create();
         
         Company::factory()->count(4)->create();

@@ -141,6 +141,7 @@
                                                 <th>Form</th>
                                                 <th>Quantity</th>
                                                 <th>Price</th>
+                                                <th>Subtotal</th>
                                                 <th>QR Code</th>
                                             </tr>
                                         </thead>
@@ -156,6 +157,7 @@
                                                         <td>{{ $order->exclusive_deal->product->brand_name }}</td>
                                                         <td>{{ $order->exclusive_deal->product->form }}</td>
                                                         <td>{{ $order->quantity }}</td>
+                                                        <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
                                                         <td>₱ {{ number_format($order_calc) }}</td>
                                                         <td>
                                                             <!-- Link to generate the QR code for this single order -->

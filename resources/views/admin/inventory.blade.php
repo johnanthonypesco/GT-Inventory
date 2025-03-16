@@ -28,22 +28,32 @@
             $inStockProducts = []; 
             $lowStockProducts = [];
             $noStockProducts = [];
-            foreach ($stockMonitor as $stock) {
-                switch($stock['status']) {
-                    case ("in-stock" ):
-                        array_push($inStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
+            foreach ($stockMonitor as $provinceName => $groupedNames) {
+                foreach ($groupedNames as $generalInfo) {
+                    switch($generalInfo['status']) {
+                        case ("in-stock" ):
+                            array_push($inStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        case ("low-stock" ):
+                            array_push($lowStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        case ("no-stock" ):
+                            array_push($noStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        default:
+                            false;
                         break;
-                    case ("low-stock" ):
-                        array_push($lowStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
-                        break;
-                    case ("no-stock" ):
-                        array_push($noStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
-                        break;
-                    default:
-                        false;
-                    break;
+                    }
                 }
             }
+
+            
+            // $collect = collect($lowStockProducts)->groupBy(function ($pairs) {
+            //     return $pairs['inventory']->map(function ($stocks) {
+            //         return $stocks->location->province;
+            //     });
+            // });
+            // dd(collect($lowStockProducts)->groupBy('province')->toArray());
 
             // dd($inStockProducts[0]['inventory'][0]->product->generic_name);
             // dd($inStockProducts[0]);
@@ -61,9 +71,9 @@
         {{-- Total Container --}}
 
         {{-- Shows An Overview Modal for Certain Product Categories --}}
-        <x-stock-overview-modal  modalType="in-stock" :variable="$inStockProducts" />
-        <x-stock-overview-modal  modalType="low-stock" :variable="$lowStockProducts" />
-        <x-stock-overview-modal  modalType="out-stock" :variable="$noStockProducts" /> 
+        <x-stock-overview-modal  modalType="in-stock" :variable="collect($inStockProducts)->groupBy('province')" />
+        <x-stock-overview-modal  modalType="low-stock" :variable="collect($lowStockProducts)->groupBy('province')" />
+        <x-stock-overview-modal  modalType="out-stock" :variable="collect($noStockProducts)->groupBy('province')" /> 
 
         <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
         <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
@@ -118,7 +128,7 @@
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                         <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
-                        <form action="{{ route('admin.inventory.export', ['exportType' => $inventory->first()->location->province]) }}" method="get">
+                        <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
                             
                             <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
