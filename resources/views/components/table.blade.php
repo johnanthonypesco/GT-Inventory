@@ -29,7 +29,7 @@
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                         <td>
                           <button 
-    class="bg-blue-500 text-white px-4 py-2 rounded-md"
+    class="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
     onclick="openTransferModal(
         '{{ $inv->inventory_id }}', 
         '{{ $inv->batch_number }}', 

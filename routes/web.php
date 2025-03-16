@@ -260,6 +260,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
     //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
 
+    Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])
+    ->name('customer.chat.markAsRead');
+
 });
     // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
     // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins

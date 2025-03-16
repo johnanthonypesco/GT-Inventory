@@ -51,7 +51,7 @@
                 <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
                 {{-- Search --}}
                 <div class="w-full md:w-[35%] relative">
-                    <input type="search" placeholder="Search Account Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
+                    <input type="search" placeholder="Search Account Name" class="w-full p-2 rounded-lg border border-[#005382]">
                     <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>

@@ -48,7 +48,7 @@
         <input type="search" name="{{ $name }}" 
         placeholder="{{ $placeholder }}" 
         id="{{ $id }}" 
-        class="w-full p-2 border-1 border-[#005382] rounded-xl outline-none"
+        class="w-full p-2 border border-[#005382] rounded-lg outline-[#005382]"
         autocomplete="{{$autofill ? 'on' : 'off'}}"
         list="search-options-{{$id}}-{{$location_filter}}"
         value="{{ $currentSearch ? $currentSearch[0] . " - " . $currentSearch[1] : '' }}"
