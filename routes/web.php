@@ -72,6 +72,7 @@ Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])-
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
     ->name('orders.showQrCode');
+    Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
 
     Route::get('/scan-qr', function () {
         return view('orders.scan'); // Blade file for scanning QR codes
@@ -134,7 +135,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::post('/upload-qr-code', [InventoryController::class, 'uploadQrCode'])->name('upload.qr.code');
 
-        Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
