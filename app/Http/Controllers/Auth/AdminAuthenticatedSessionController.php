@@ -1,4 +1,4 @@
-    <?php
+<?php
 
     namespace App\Http\Controllers\Auth;
 
@@ -85,3 +85,8 @@
             return redirect()->route('admin.login'); // ✅ Redirects to Admin login
         }
     }
+
+
+
+
+

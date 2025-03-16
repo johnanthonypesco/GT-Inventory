@@ -48,6 +48,7 @@ class SuperAdmin extends Authenticatable
         'email',
         'password',
         'is_super_admin', // ✅ Boolean field from migration
+        'archived_at'
     ];
 
     /**
@@ -69,6 +70,7 @@ class SuperAdmin extends Authenticatable
         'password' => 'hashed', // ✅ Laravel automatically hashes passwords
         'is_super_admin' => 'boolean',
         'email_verified_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     /**
@@ -91,4 +93,27 @@ class SuperAdmin extends Authenticatable
         return $this->morphMany(GroupChat::class, 'sender');
     }
     
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    // ✅ Scope to filter archived users
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    // ✅ Archive the user
+    public function archive()
+    {
+        return $this->update(['archived_at' => Carbon::now()]);
+    }
+
+    // ✅ Restore the user
+    public function restore()
+    {
+        return $this->update(['archived_at' => null]);
+    }
+
 }

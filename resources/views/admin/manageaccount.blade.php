@@ -41,6 +41,10 @@
             <button onclick="openAddAccountModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
                 <i class="fa-solid fa-plus"></i> Add Account
             </button>
+
+            <button onclick="openArchivedModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
+                View Archived Accounts
+            </button>
         </div>
         {{-- End Filter & Add Account --}}
 
@@ -60,13 +64,122 @@
 
             <div class="table-container mt-5 overflow-auto md:h-[80%]">
                 <div class="h-[360px] overflow-auto">
-                    <x-table :variable="$accounts"
-                    :headings="['Account Id', 'Name/Username', 'Email Address', 'Role','Company', 'Action']"
-                    category="manageaccount"/>
+                    <table class="min-w-full bg-white border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b">Account Id</th>
+                                <th class="py-2 px-4 border-b">Name/Username</th>
+                                <th class="py-2 px-4 border-b">Email Address</th>
+                                <th class="py-2 px-4 border-b">Role</th>
+                                <th class="py-2 px-4 border-b">Company</th>
+                                <th class="py-2 px-4 border-b">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $isSuperAdmin = auth()->guard('superadmin')->check();
+                                $isAdmin = auth()->guard('admin')->check();
+                            @endphp
+            
+                            @foreach ($accounts as $account)
+                                @if($isSuperAdmin || ($isAdmin && in_array($account['role'], ['staff', 'customer'])))
+                                {{-- ✅ Super Admin sees everything; Admin sees only staff --}}
+                                <tr 
+                                    data-id="{{ $account['id'] }}" 
+                                    data-name="{{ $account['name'] }}" 
+                                    data-username="{{ $account['username'] ?? '' }}"
+                                    data-email="{{ $account['email'] }}"
+                                    data-role="{{ $account['role'] }}"
+                                    data-location="{{ $account['location_id'] ?? '' }}"
+                                    data-jobtitle="{{ $account['job_title'] ?? '' }}"
+                                    data-adminid="{{ $account['admin_id'] ?? '' }}"
+                                    data-contactnumber="{{ $account['contact_number'] ?? 'N/A' }}" >
+                                    
+                                    <td class="py-2 px-4 border-b">{{ $account['id'] }}</td>
+                                    <td class="py-2 px-4 border-b">{{ $account['name'] ?? $account['username'] ?? $account['staff_username'] ?? 'N/A' }}</td>
+                                    <td class="py-2 px-4 border-b">{{ $account['email'] }}</td>
+                                    <td class="py-2 px-4 border-b">{{ ucfirst($account['role']) }}</td>
+                                    <td class="py-2 px-4 border-b">
+                                        {{ $account['company'] ?? 'RCT Med Pharma' }}
+                                    </td>
+                                    <td class="py-2 px-4 border-b flex justify-center items-center gap-4">
+                                        <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
+                                            <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
+                                        </button>
+                                        
+                                        <form id="deleteaccountform-{{ $account['id'] }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer" 
+                                            data-account-id="{{ $account['id'] }}" 
+                                            onclick="confirmDelete(this)">
+                                        <i class="fa-solid fa-trash mr-2"></i> Delete
+                                    </button>
+                                    
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+            
         {{-- End Table for Account List --}}
+
+<!-- Archived Accounts Modal -->
+<div id="archivedModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="bg-white w-3/4 md:w-1/2 lg:w-1/3 p-6 rounded-lg shadow-lg relative">
+        <!-- Close Button -->
+        <button onclick="closeArchivedModal()" class="absolute top-2 right-2 text-gray-600 hover:text-red-500">
+            ✖
+        </button>
+
+        <h2 class="text-xl font-bold text-gray-800">Archived Accounts</h2>
+
+        <div class="overflow-x-auto mt-4">
+            <table class="min-w-full bg-white border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">Name</th>
+                        <th class="py-2 px-4 border-b">Email</th>
+                        <th class="py-2 px-4 border-b">Role</th>
+                        <th class="py-2 px-4 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                    $isSuperAdmin = auth()->guard('superadmin')->check();
+                    $isAdmin = auth()->guard('admin')->check();
+                @endphp
+                
+                @foreach ($archivedAccounts as $account)
+                    {{-- ✅ Super Admin sees everything, Admin sees only archived Staff --}}
+                    @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
+                    <tr>
+                        <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username }}</td>
+                        <td class="py-2 px-4 border-b">{{ $account->email }}</td>
+                        <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
+                        <td class="py-2 px-4 border-b">
+                            <form action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endif
+                @endforeach
+                
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
 
         <!-- Modal for Add Account -->
         <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'block' : 'hidden' }}">
@@ -569,6 +682,35 @@ function toggleEditFields(role) {
 
 </script>
 
+
+<script>
+    function openArchivedModal() {
+        document.getElementById('archivedModal').classList.remove('hidden');
+    }
+
+    function closeArchivedModal() {
+        document.getElementById('archivedModal').classList.add('hidden');
+    }
+</script>
+
+<script>
+    function confirmDelete(button) {
+        const accountId = button.getAttribute('data-account-id');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This account will be archived, not deleted permanently.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, archive it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`deleteaccountform-${accountId}`).submit();
+            }
+        });
+    }
+</script>
 
 
 

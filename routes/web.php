@@ -63,7 +63,12 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
+//////super admin archive route
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+Route::post('/superadmin/accounts/{role}/{id}/archive', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.archive');
+Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountController::class, 'restore'])->name('superadmin.account.restore');
 
+});
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');

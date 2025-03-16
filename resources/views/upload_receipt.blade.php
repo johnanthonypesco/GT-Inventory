@@ -11,7 +11,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen">
-
+ <!-- Back Button -->
+ 
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
         <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">Upload Receipt Image</h1>
 
@@ -23,17 +24,24 @@
             </label>
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md mt-4 w-full">Upload</button>
         </form>
-
+        
         <h2 class="text-lg font-semibold text-gray-700 mt-6">Extracted Data</h2>
 
         <!-- Review & Edit Form -->
         <form id="saveForm" class="mt-4 space-y-3">
             <div id="dynamicFormContainer" class="space-y-3"></div> <!-- 🛠 Dynamic product fields go here -->
             <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-md mt-4 w-full">Confirm & Save</button>
+            <button onclick="goBack()" class="bg-gray-500 text-white px-6 py-2 rounded-md mt-4 w-full">
+                ⬅ Back
+            </button>
         </form>
     </div>
 
     <script>
+
+         function goBack() {
+            window.history.back();
+        }
         let locations = []; // Will store available locations
 
         // Fetch locations from the backend
