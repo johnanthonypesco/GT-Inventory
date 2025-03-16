@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
     passwordField.addEventListener('input', checkPasswordMatch);
     confirmPasswordField.addEventListener('input', checkPasswordMatch);
 });
+
 // Open the edit account modal
 function editAccount() {
     let modal = document.getElementById("editAccountModal");

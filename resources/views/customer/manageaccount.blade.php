@@ -134,98 +134,98 @@
         </div>
     </main>
 
-    {{-- JavaScript --}}
-    <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
+{{-- JavaScript --}}
+<script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
-    <script>
-        // Handle form submission
-        document.getElementById("submitButton").addEventListener("click", function (e) {
-            e.preventDefault();
-            let form = document.getElementById("editAccountForm");
+<script>
+    // Handle form submission
+    document.getElementById("submitButton").addEventListener("click", function (e) {
+        e.preventDefault();
+        let form = document.getElementById("editAccountForm");
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to save this account?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, save it!',
-                cancelButtonText: 'No, cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let formData = new FormData(form);
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to save this account?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, save it!',
+            cancelButtonText: 'No, cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData(form);
 
-                    fetch("{{ route('customer.account.update') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                            "Accept": "application/json",
-                        },
-                        body: formData,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: 'Saved!',
-                                text: 'Your account has been successfully saved.',
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload();
+                fetch("{{ route('customer.account.update') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                        "Accept": "application/json",
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Saved!',
+                            text: 'Your account has been successfully saved.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        let errorMessages = "";
+                        if (data.errors) {
+                            Object.values(data.errors).forEach(err => {
+                                errorMessages += `• ${err}\n`;
                             });
                         } else {
-                            let errorMessages = "";
-                            if (data.errors) {
-                                Object.values(data.errors).forEach(err => {
-                                    errorMessages += `• ${err}\n`;
-                                });
-                            } else {
-                                errorMessages = data.message || "Something went wrong!";
-                            }
-
-                            Swal.fire({
-                                title: "Update Failed!",
-                                text: errorMessages,
-                                icon: "error",
-                                confirmButtonText: "OK"
-                            });
+                            errorMessages = data.message || "Something went wrong!";
                         }
-                    })
-                    .catch(error => {
-                        console.error("Fetch Error:", error);
+
                         Swal.fire({
-                            title: "Error!",
-                            text: "An unexpected error occurred. Please try again later.",
+                            title: "Update Failed!",
+                            text: errorMessages,
                             icon: "error",
                             confirmButtonText: "OK"
                         });
-                    });
-                } else {
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Error:", error);
                     Swal.fire({
-                        title: 'Cancelled',
-                        text: 'Your changes were not saved.',
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
+                        title: "Error!",
+                        text: "An unexpected error occurred. Please try again later.",
+                        icon: "error",
+                        confirmButtonText: "OK"
                     });
-                }
-            });
-        });
-
-        // Handle profile image preview
-        // Handle profile image preview
-        document.getElementById("profile_image").addEventListener("change", function (e) {
-            let file = e.target.files[0];
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = function (event) {
-                    // Update the src attribute of the profilePreview image
-                    document.getElementById("profilePreview").src = event.target.result;
-                };
-                reader.readAsDataURL(file);
+                });
+            } else {
+                Swal.fire({
+                    title: 'Cancelled',
+                    text: 'Your changes were not saved.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
             }
         });
-    </script>
+    });
+
+    // Handle profile image preview
+    // Handle profile image preview
+    document.getElementById("profile_image").addEventListener("change", function (e) {
+        let file = e.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function (event) {
+                // Update the src attribute of the profilePreview image
+                document.getElementById("profilePreview").src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 </body>
 </html>
