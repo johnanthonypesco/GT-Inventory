@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Email Verification</title>
 </head>
@@ -14,9 +15,9 @@
         <img src="{{ asset('image/Group 41.png') }}" class="w-[200px] mx-auto mb-5">
 
         <h1 class="text-2xl font-bold text-[#005382] mb-4">Verify Your Email</h1>
-        
+
         <p class="text-gray-600 text-sm">
-            Thanks for signing up! Before getting started, please verify your email by clicking the link we just sent you. 
+            Thanks for signing up! Before getting started, please verify your email by clicking the link we just sent you.
             If you didn't receive the email, you can request another one below.
         </p>
 

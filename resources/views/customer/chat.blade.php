@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">    
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Chat</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery for AJAX -->
 </head>
@@ -18,11 +19,11 @@
 
     <main class="md:w-full h-full md:ml-[18%] ml-0">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
-        
+
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
-        
-        <div class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col">
-            
+
+        <!-- Wrap the entire contacts list in a single container -->
+        <div id="contactsList" class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col">
             <!-- Super Admins -->
             @foreach ($superAdmins as $superAdmin)
                 <div onclick="markAsRead({{ $superAdmin->id }}, 'super_admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
@@ -54,13 +55,13 @@
                     @endif
                 </div>
             @endforeach
-        
+
             <!-- Admins -->
             @foreach ($admins as $admin)
                 <div onclick="markAsRead({{ $admin->id }}, 'admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-blue-500 p-5 rounded-full"></i>
                     <div class="relative flex-1">
-                        <p class="text-xl font-bold">{{ $admin->email }}</p>
+                        <p class="text-xl font-bold">{{ $admin->username}}</p>
                         @if ($admin->lastMessage)
                             @php
                                 $isSender = $admin->lastMessage->sender_id === Auth::id();
@@ -86,13 +87,13 @@
                     @endif
                 </div>
             @endforeach
-            
+
             <!-- Staff -->
             @foreach ($staff as $staffMember)
                 <div onclick="markAsRead({{ $staffMember->id }}, 'staff')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-green-500 p-5 rounded-full"></i>
                     <div class="relative flex-1">
-                        <p class="text-xl font-bold">{{ $staffMember->email }}</p>
+                        <p class="text-xl font-bold">{{ $staffMember->staff_username }}</p>
                         @if ($staffMember->lastMessage)
                             @php
                                 $isSender = $staffMember->lastMessage->sender_id === Auth::id();
@@ -118,7 +119,6 @@
                     @endif
                 </div>
             @endforeach
-
         </div>
 
         {{-- Terms and Conditions Agreement --}}
@@ -185,6 +185,39 @@
                 }
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let contactsRefreshInterval;
+
+            // Start contacts refresh interval
+            function startContactsRefresh() {
+                contactsRefreshInterval = setInterval(refreshContacts, 4000); // Refresh every 6 seconds
+            }
+
+            // Stop contacts refresh interval
+            function stopContactsRefresh() {
+                clearInterval(contactsRefreshInterval);
+            }
+
+            // Function to refresh contacts list
+            function refreshContacts() {
+                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContactsList = doc.getElementById('contactsList');
+                        if (newContactsList) {
+                            const currentContactsList = document.getElementById('contactsList');
+                            currentContactsList.innerHTML = newContactsList.innerHTML;
+                        }
+                    })
+                    .catch(error => console.error('Error refreshing contacts:', error));
+            }
+
+            // Start the refresh interval when the page loads
+            startContactsRefresh();
+        });
     </script>
 </body>
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -37,15 +37,15 @@
                     <!-- Profile Image -->
                     <label for="profile_image">
                         @if (Auth::user()->company && Auth::user()->company->profile_image)
-                            <img 
+                            <img
                                 id="profilePreviewone"
                                 src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
                                 class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 alt="Company Profile Picture"
                             >
                         @else
-                            <i 
-                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                            <i
+                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 style="font-size: 4rem;"
                             ></i>
                         @endif
@@ -56,7 +56,7 @@
                     <i class="fa-solid fa-pen"></i> Edit Profile
                 </button>
             </div>
-            
+
             {{-- Account Information Section --}}
             <div class="bg-white mt-5 p-5 rounded-xl">
                 <p class="text-xl font-semibold">Account Information</p>
@@ -79,20 +79,20 @@
 
                 <form id="editAccountForm" enctype="multipart/form-data">
                     @csrf
-                
+
                     <div class="relative w-fit">
                         <!-- Profile Image -->
                         <label for="profile_image">
                             @if (Auth::user()->company && Auth::user()->company->profile_image)
-                                <img 
+                                <img
                                     id="profilePreview"
                                     src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
                                     class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                     alt="Company Profile Picture"
                                 >
                             @else
-                                <i 
-                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                                <i
+                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                     style="font-size: 2rem;"
                                 ></i>
                             @endif
@@ -100,13 +100,13 @@
                         <!-- Hidden File Input -->
                         <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
                     </div>
-                
+
                     <x-label-input label="Account Name" type="text" id="editName" name="name"
                         value="{{ old('name', Auth::user()->name) }}" divclass="mt-5"/>
-                
+
                     <x-label-input label="Email" type="text" id="editEmail" name="email"
                         value="{{ Auth::user()->email }}" divclass="mt-5" readonly/>
-                
+
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 

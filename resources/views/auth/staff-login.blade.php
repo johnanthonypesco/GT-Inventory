@@ -48,11 +48,11 @@
             @enderror
             {{-- <div class="mt-5">
                 <label for="password" class="text-[20px] text-[#005382]/71">Password</label>
-                <input type="password" name="password" id="password" 
+                <input type="password" name="password" id="password"
                        placeholder="Enter Your Password"
                        class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('password') 
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div> --}}
 

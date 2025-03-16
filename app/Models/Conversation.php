@@ -66,4 +66,5 @@ class Conversation extends Model
             ->where('is_read', false)
             ->update(['is_read' => true]);
     }
+    protected $dates = ['created_at', 'updated_at'];
 }

@@ -47,7 +47,7 @@
                     <input type="checkbox" name="remember" id="remember" class="w-5">
                     <label for="remember" class="text-[18px] text-[#005382]/61">Remember Me</label>
                 </div>
-                
+
                 <a href="{{ route('users.password.request') }}" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a>
             </div>
 

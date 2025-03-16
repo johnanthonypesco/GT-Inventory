@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <title>Orders</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
@@ -69,7 +70,7 @@
                 </select>
 
                 @foreach ($companies as $companyName => $employees)
-                    
+
                     <h1 class="text-[20px] sm:text-[20px] font-regular mt-6 font-bold">
                         <span class="text-[#005382] text-[20px] font-bold mr-2">
                             Orders From:
@@ -79,8 +80,8 @@
 
                     <div class="overflow-auto max-h-[200px] h-fit mt-5">
                         {{-- Table --}}
-                        <x-table 
-                            :headings="['Employee Name', 'Date Ordered', 'Action']" 
+                        <x-table
+                            :headings="['Employee Name', 'Date Ordered', 'Action']"
                             :variable="$employees"
                             category="order"
                         />
@@ -100,25 +101,25 @@
                     @php
                         $total = 0;
                     @endphp
-                    <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full 
+                    <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
                                 items-center justify-center px-4"
                         id="order-modal-{{ $employeeNameAndDate }}">
-                        <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5 
+                        <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
                             {{-- Close button, etc. --}}
                             <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
 
                             <h1 class="text-xl font-bold uppercase mb-6">
-                                @php 
-                                    $separatedInModal = explode('|', $employeeNameAndDate);  
+                                @php
+                                    $separatedInModal = explode('|', $employeeNameAndDate);
                                 @endphp
-                                Orders By: 
-                                <span class="text-blue-800"> 
+                                Orders By:
+                                <span class="text-blue-800">
                                     {{ $separatedInModal[0] }} -
                                     [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
                                 </span>
                             </h1>
-                            
+
                             <div class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($groupedStatuses as $statusName => $orders)
                                     <h1 class="text-lg text-black font-bold uppercase mb-3
@@ -130,7 +131,7 @@
                                                 default => 'text-black'
                                             }
                                         }}
-                                    "> 
+                                    ">
                                         {{ $statusName }} Orders:
                                     </h1>
                                     <table class="w-full mb-5">
@@ -174,7 +175,7 @@
                                 @endforeach
                             </div>
 
-                            
+
                             {{-- Print Buttons etc. (optional) --}}
                             <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
                                 <p class="text-right text-[18px] sm:text-[20px] font-bold">
@@ -223,8 +224,8 @@
                 </form>
             </div>
         </div>
-        {{-- Add New Order Modal --}} 
-        
+        {{-- Add New Order Modal --}}
+
         {{-- Upload qr code modal --}}
         <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">

@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <title>Manage Accounts</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
@@ -34,7 +35,7 @@
                 <option value="all">All Accounts</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
-                <option value="customer">Customer</option>    
+                <option value="customer">Customer</option>
             </select>
 
             <button onclick="openAddAccountModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
@@ -59,8 +60,8 @@
 
             <div class="table-container mt-5 overflow-auto md:h-[80%]">
                 <div class="h-[360px] overflow-auto">
-                    <x-table :variable="$accounts" 
-                    :headings="['Account Id', 'Name/Username', 'Email Address', 'Role','Company', 'Action']" 
+                    <x-table :variable="$accounts"
+                    :headings="['Account Id', 'Name/Username', 'Email Address', 'Role','Company', 'Action']"
                     category="manageaccount"/>
                 </div>
             </div>
@@ -68,7 +69,7 @@
         {{-- End Table for Account List --}}
 
         <!-- Modal for Add Account -->
-        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'block' : 'hidden' }}">    
+        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'block' : 'hidden' }}">
             <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-10 rounded-lg shadow-xl relative">
                 {{-- @if ($errors->hasBag('addAccount'))
                     @foreach ($errors->getBag('addAccount')->all() as $error)
@@ -87,12 +88,12 @@
                     <!-- Account Type Selection -->
                     <select name="role" id="role" required onchange="toggleFields()" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="">-- Select Role --</option>
-                    
+
                         {{-- Only Super Admin can see and select "Admin" --}}
                         @if(auth()->guard('superadmin')->check())
                             <option value="admin">Admin</option>
                         @endif
-                    
+
                         <option value="staff">Staff</option>
                         <option value="customer">Customer</option>
                     </select>
@@ -228,7 +229,7 @@
                     <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}"> Submit
                     </button>
-                </form>         
+                </form>
             </div>
         </div>
         <!-- End Modal for Add Account -->
@@ -239,7 +240,7 @@
                 <x-modalclose click="closeEditAccountModal"/>
                 <form method="POST" id="editAccountForm">
                     @csrf
-                    @method('POST') 
+                    @method('POST')
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
 
                     <input type="hidden" name="id" id="editId" value="{{ old('id') }}">
@@ -527,7 +528,7 @@ function toggleEditFields(role) {
 
             if (roleCell) {
                 let role = roleCell.textContent.trim().toLowerCase(); // Extract text and convert to lowercase
-                
+
                 // Show all rows if "all" is selected, otherwise filter by role
                 row.style.display = (selectedRole === "all" || role === selectedRole) ? "table-row" : "none";
             }
@@ -537,7 +538,7 @@ function toggleEditFields(role) {
 
 
 <script>
- 
+
    document.addEventListener("DOMContentLoaded", function() {
     let addAccountModal = document.getElementById('addAccountModal');
     let editAccountModal = document.getElementById('editAccountModal');
@@ -555,9 +556,9 @@ function toggleEditFields(role) {
 
         // Get selected role from the hidden input field (role was stored here during form submission)
         let selectedRole = document.getElementById("editHiddenRole").value;
-        
+
         console.log("Restoring role:", selectedRole); // Debugging line
-        
+
         if (selectedRole) {
             toggleEditFields(selectedRole); // Ensure correct fields are shown based on role
         }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with {{ $user->name }}</title>
+    <title>Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -13,21 +13,44 @@
     <div id="preloader" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
     </div>
-
     <!-- Chat Container -->
-    <div class="w-[60%] bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="w-full md:w-[80%] lg:w-[60%] bg-white shadow-md rounded-lg overflow-hidden">
         <!-- Chat Header -->
-        <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-between px-5 items-center">
-            <span>Chat with {{ $user->email }}</span>
-             <!-- Go Back Button -->
-             <a href="{{ route('customer.chat.index') }}" class="text-sm bg-white text-blue-600 px-3 py-1 rounded-lg">Go Back</a>
+        <div class="text-white p-4 text-center text-lg font-bold flex justify-between px-5 items-center
+            @if($receiverType === 'super_admin') bg-red-600
+            @elseif($receiverType === 'admin') bg-blue-600
+            @elseif($receiverType === 'staff') bg-green-600
+            @endif">
+            <span class="text-sm md:text-base">
+                Chat with
+                @if($receiverType === 'super_admin')
+                    {{ $user->s_admin_username }}
+                @elseif($receiverType === 'admin')
+                    {{ $user->username }}
+                @elseif($receiverType === 'staff')
+                    {{ $user->staff_username }}
+                @endif
+            </span>
+            <!-- Go Back Button -->
+            <a href="{{ route('customer.chat.index') }}" class="text-sm bg-white text-gray-800 px-3 py-1 rounded-lg">Go Back</a>
         </div>
 
         <!-- Chat Box -->
-        <div id="chatBox" class="p-4 h-[70vh] overflow-y-auto">
+        <div id="chatBox" class="p-4 h-[50vh] md:h-[70vh] overflow-y-auto">
             @foreach ($conversations as $message)
+                @php
+                    $bgColor = 'bg-blue-300'; // Default color for unknown senders
+                    if ($message->sender_type === 'super_admin') {
+                        $bgColor = 'bg-red-500';
+                    } elseif ($message->sender_type === 'admin') {
+                        $bgColor = 'bg-blue-500';
+                    } elseif ($message->sender_type === 'staff') {
+                        $bgColor = 'bg-green-500';
+                    }
+                @endphp
+
                 <div class="mb-4 flex {{ $message->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}" data-message-id="{{ $message->id }}">
-                    <div class="max-w-xs p-2 rounded-lg shadow-md {{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black' }}">
+                    <div class="max-w-xs p-2 rounded-lg shadow-md text-black {{ $bgColor }}">
                         @if($message->message)
                             <p class="text-sm">{{ $message->message }}</p>
                         @endif
@@ -40,31 +63,29 @@
                                         <img src="{{ asset('storage/' . $message->file_path) }}" class="w-40 rounded-lg mt-1">
                                     </a>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-blue-600 underline block mt-1">📎 Download File</a>
+                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-white underline block mt-1">📎 Download File</a>
                                 @endif
                             </div>
                         @endif
 
-                        <p class="text-xs text-gray-200 mt-1 text-right">{{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}</p>
+                        <p class="text-xs text-black-200 mt-1 text-right">{{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}</p>
                     </div>
                 </div>
             @endforeach
         </div>
 
         <!-- Message Input -->
-        <form id="chatForm" action="{{ route('customer.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
+        <form id="chatForm" action="{{ route('customer.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center gap-2">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
             <input type="hidden" name="receiver_type" value="{{ $receiverType }}">
-            <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4" placeholder="Type a message...">
+            <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4 text-sm md:text-base" placeholder="Type a message...">
             <input type="file" id="fileInput" name="file" class="p-2 border hidden" onchange="checkFileSize(this)">
             <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
             <div id="fileSizeMessage" class="text-sm text-gray-600 mt-1"></div>
-            <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full ml-2 opacity-50 cursor-not-allowed">Send</button>
+            <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full opacity-50 cursor-not-allowed text-sm md:text-base">Send</button>
         </form>
     </div>
-
-   
 
     <!-- Notification Sound -->
     <audio id="notificationSound" src="{{ asset('sounds/notification.mp3') }}"></audio>
@@ -174,6 +195,7 @@
                     sendButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             }
+
             function checkFileSize(input) {
                 const maxFileSize = 30 * 1024 * 1024;
                 const fileSizeMessage = document.getElementById('fileSizeMessage');
@@ -243,6 +265,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
         /* Ensure messages do not overlap */
         #chatBox .flex {
             margin-bottom: 1rem; /* Add spacing between messages */

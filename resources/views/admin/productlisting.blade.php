@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,8 +34,8 @@
                 {{-- Table for customer List --}}
                 <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
                 <div class="table-container mb-8 overflow-auto h-fit h-max-[190px]">
-                    <x-table 
-                    :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB" 
+                    <x-table
+                    :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB"
                     category="productdeals"/>
                 </div>
                 {{-- Table for customer List --}}
@@ -49,7 +50,7 @@
         dd($dealsDB['yahoo baby!']->first()->company->name);
     @endphp --}}
 
-    
+
     {{-- View Product Listing --}}
     {{-- @if (session('edit-success'))
         @php
@@ -62,7 +63,7 @@
                 <script>
                     addEventListener("DOMContentLoaded", () => {
                         const modalLoaded = document.getElementById("view-listings-{{ session('reSummon') }}");
-                        
+
                         if(modalLoaded) {
                             modalLoaded.classList.replace('hidden', 'block');
                         }
@@ -82,10 +83,10 @@
                     <div class="w-full md:w-[35%] relative">
                         <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
                         <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div> 
-                    {{-- Button for Search --}}           
+                    </div>
+                    {{-- Button for Search --}}
                 </div>
-                
+
                 {{-- Table for all products --}}
                 <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
                     <table>
