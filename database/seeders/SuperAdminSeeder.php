@@ -33,7 +33,7 @@ class SuperAdminSeeder extends Seeder
                 'email' => 'sde.gabriel.77@gmail.com',
                 'password' => Hash::make('12345678'), // Securely hash password
             ]);
-             
+
             SuperAdmin::create([
                 's_admin_username' => 'anthony-super-admin',
                 'email' => 'pescojohnanthony@gmail.com',

@@ -16,6 +16,9 @@
             {{-- inventory --}}
             @case($category === 'inventory')
                 @foreach ($variable as $inv)
+                    {{-- @php
+                        dd($variable->toArray());
+                    @endphp --}}
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
                         <td>{{ $inv->product->generic_name }}</td>
@@ -24,6 +27,19 @@
                         <td>{{ $inv->product->strength }}</td>
                         <td>{{ $inv->quantity }}</td>
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
+                        <td>
+                          <button 
+    class="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
+    onclick="openTransferModal(
+        '{{ $inv->inventory_id }}', 
+        '{{ $inv->batch_number }}', 
+        '{{ $inv->product->name }}', 
+        '{{ $inv->location->province }}'
+    )"
+>
+    Transfer
+</button>
+                        </td>
                     </tr>
                 @endforeach
                 @break

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
@@ -23,14 +24,14 @@
                 <h1 class="font-semibold text-2xl">Available Products</h1>
                 <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>
 
-        
+
                 <div class="h-fit lg:h-[60vh] overflow-y-auto mt-5 px-5">
                     <!-- Product Form -->
                     @foreach ($listedDeals as $deal)
                         <div class="product-form shadow-sm shadow-[#005382]/50 flex flex-col lg:flex-row justify-between rounded-xl p-5 mt-2">
                             <div class="flex gap-2">
                                 <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
-                                
+
                                 <div class="flex flex-col gap-2 justify-center">
                                     <div class="flex gap-2">
                                         <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->product->form }}</p>
@@ -47,19 +48,19 @@
                             </div>
                             <div class="self-start mt-4 lg:mt-0 lg:self-end">
                                 <p class="font-semibold flex gap-5">
-                                    <span class="text-[#005382]">Price:</span> 
+                                    <span class="text-[#005382]">Price:</span>
                                     <span class="product-price">₱ {{ number_format($deal->price) }}</span>
                                 </p>
                                 <!-- Quantity Input -->
                                 <div class="flex gap-2 mt-2">
                                     <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1" id="quantity-{{$deal->id}}">
-                                    
+
                                     <button type="button" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl"
                                     onclick="
                                         //the deal ID
-                                        updatePurchaseOrder({{$deal->id}}, 
+                                        updatePurchaseOrder({{$deal->id}},
                                         //the order quantity
-                                        document.getElementById('quantity-{{$deal->id}}').value,  
+                                        document.getElementById('quantity-{{$deal->id}}').value,
                                         // the product name
                                         `{{$deal->product->generic_name ?? 'No Generic Name'}} -- {{$deal->product->brand_name ?? 'No Generic Name'}}`,
                                         // the deal price
@@ -74,7 +75,7 @@
                     <!-- End of Product Form -->
                 </div>
             </div>
-        
+
             <!-- Summary of Orders -->
             <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl">
                 @csrf
@@ -83,22 +84,22 @@
                     <h1 class="text-center font-semibold text-2xl">Summary of Orders</h1>
                     <span class="block lg:hidden"><i onclick="viewOrderSummary()" id="ordersummaryicon" class="fa-solid fa-angles-up border border-[#005382] p-3 rounded-full text-center hover:bg-[#005382] hover:text-white transition-all duration-500"></i></span>
                 </div>
-                
+
                 {{-- This div is where all the magic happens ;) --}}
                 <div id="order-summary-content" class="flex flex-col px-3 lg:block lg:pt-2 sm:pt-10 none h-[0] max-h-[20vh] lg:max-h-none lg:h-[45vh] overflow-auto trasnition-all duration-500">
                     {{-- This is where the order summary will be displayed --}}
                 </div>
-        
+
                 <hr class="hidden lg:block my-5">
-        
+
                 <div class="flex justify-between gap-20 lg:gap-0 lg:flex-col items-center lg:items-start">
                     <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">₱0</span></h1>
-                    
+
                     {{-- will only submit if the form has contents in it --}}
                     <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
                 </div>
             </form>
-        </div>      
+        </div>
     </main>
 
 
@@ -112,7 +113,7 @@
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
                     const popup = document.getElementById('yahoo');
-                    
+
                     // moves the popup up after 5s
                     setTimeout(() => {
                         popup.style.marginTop = '-1000px'

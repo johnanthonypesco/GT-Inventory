@@ -48,11 +48,11 @@
             @enderror
             {{-- <div class="mt-5">
                 <label for="password" class="text-[20px] text-[#005382]/71">Password</label>
-                <input type="password" name="password" id="password" 
+                <input type="password" name="password" id="password"
                        placeholder="Enter Your Password"
                        class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('password') 
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div> --}}
 
@@ -62,7 +62,7 @@
                     <input type="checkbox" name="remember" id="remember" class="w-5">
                     <label for="remember" class="text-[18px] text-[#005382]/61">Remember Me</label>
                 </div>
-                <a href="{{ route('password.request') }}" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a>
+                <a href="{{ route('staff.password.request') }}" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a>
             </div>
 
             {{-- ✅ Submit Button --}}

@@ -1,70 +1,84 @@
 <?php
 
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QRCodeController;
 
 
 // Admin Controller
+use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Export\ExportController;
-use App\Http\Controllers\Admin\ChattingController;
-use App\Http\Controllers\Admin\HistorylogController;
 
 // Staff Controller
+use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\Admin\ChattingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\Customer\ChatRepsController;
-use App\Http\Controllers\SuperAdminAccountController;
 
 // Customer Controller
-use App\Http\Controllers\Auth\TwoFactorAuthController;
+use App\Http\Controllers\Admin\HistorylogController;
 
 //Super Admin Login
+use App\Http\Controllers\Customer\ChatRepsController;
+use App\Http\Controllers\SuperAdminAccountController;
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
+
+
+
+
 use App\Http\Controllers\Customer\ManageorderController;
-use App\Http\Controllers\Customer\CustomerloginController;
-use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
-
-
-
-
-use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 
 // chat
-use App\Http\Controllers\Staff\ChatController as StaffChatController;
-use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
-use App\Http\Controllers\Staff\LoginController as StaffLoginController;
+use App\Http\Controllers\Customer\CustomerloginController;
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 
 // GroupChat
+use App\Http\Controllers\Staff\ChatController as StaffChatController;
+
+
+
+
+use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
+use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-
-
-
-
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
-use App\Http\Controllers\OcrInventoryController;
 
 
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+});
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+    Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
+    ->name('orders.showQrCode');
+
+    Route::get('/scan-qr', function () {
+        return view('orders.scan'); // Blade file for scanning QR codes
+    })->name('orders.scan');
+
+    Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+
     // ONLY FOR THE ADMINS
     Route::middleware(['auth:superadmin,admin'])->group(function () {
         //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
@@ -78,7 +92,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
         Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
-        Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
+
+        Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
@@ -90,6 +106,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
         Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
         Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
+        Route::put('admin/productlisting/{aidee}', [ProductlistingController::class, 'updateExclusiveDeal'])->name('admin.productlisting.update');
         Route::delete('admin/productlisting/{deal_id}/{company}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
         //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
 
@@ -110,20 +127,18 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
         //     ->name('orders.generateQrCode');
 
-        Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
-            ->name('orders.showQrCode');
+        // Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
+        //     ->name('orders.showQrCode');
 
-        Route::get('/scan-qr', function () {
-            return view('orders.scan'); // Blade file for scanning QR codes
-        })->name('orders.scan');
+        // Route::get('/scan-qr', function () {
+        //     return view('orders.scan'); // Blade file for scanning QR codes
+        // })->name('orders.scan');
 
         Route::get('/upload-qr', function () {
             return view('orders.upload_qr'); // Blade file for uploading QR codes
         })->name('upload.qr');
 
         Route::post('/upload-qr-code', [InventoryController::class, 'uploadQrCode'])->name('upload.qr.code');
-
-        Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
@@ -133,6 +148,13 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         
         Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
         Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
+        Route::get('/get-locations', function () {
+            $locations = Location::pluck('province')->toArray();
+            return response()->json(['locations' => $locations]);
+        })->name('get.locations');
+
+        Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
+
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
 
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
@@ -156,13 +178,13 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::post('user/logout', function (Request $request) {
         if (Auth::guard('superadmin')->check()) {
             Auth::guard('superadmin')->logout();
-            return redirect()->route('superadmin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('superadmins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
-            return redirect()->route('admin.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('admins.login')->with('status', 'Logged out successfully.');
         } elseif (Auth::guard('staff')->check()) {
             Auth::guard('staff')->logout();
-            return redirect()->route('staff.login')->with('status', 'Logged out successfully.');
+            return redirect()->route('staffs.login')->with('status', 'Logged out successfully.');
         }
 
         return redirect('/login');
@@ -236,23 +258,45 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
     //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
 
+    Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])
+    ->name('customer.chat.markAsRead');
 
+});
+    // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+    // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
+    // Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
+    // Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
+
+    // Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
+    // Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
+    // Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+
+    // Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
+    // Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
+    // ->name('customer.chat.fetch');
+
+    // Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
-    Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
-    Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
-    Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
-    Route::get('fetch-new-messages/{last_id?}', [ChatRepsController::class, 'fetchNewMessages'])->name('fetch.new.messages');
 
-    Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
-    Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
-    Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
+// ========================= CUSTOMER CHAT ROUTES ========================= //
+Route::prefix('customer/chat')->middleware('auth')->group(function () {
+    Route::get('/', [ChatRepsController::class, 'index'])->name('customer.chat.index'); // List SuperAdmins, Admins, and Staff to chat with
+    Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('customer.chat.show'); // Open chat
+    Route::post('/store', [ChatRepsController::class, 'store'])->name('customer.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
-    Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
-    ->name('customer.chat.fetch');
+// ========================= ADMIN, STAFF, SUPERADMIN CHAT ROUTES ========================= //
+Route::prefix('admin/chat')->middleware('auth:admin,superadmin,staff')->group(function () {
+    Route::get('/', [ChatController::class, 'showChat'])->name('admin.chat.index'); // List available chats for Admins, Staff, and SuperAdmins
+    Route::get('/{id}/{type}', [ChatController::class, 'chatWithUser'])->name('admin.chat.show'); // Open chat
+    Route::post('/send', [ChatController::class, 'store'])->name('admin.chat.store'); // Send message
+    Route::get('/fetch-messages', [ChatController::class, 'fetchNewMessages'])->name('admin.chat.fetch'); // Fetch new messages dynamically
+});
 
-    Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
-    //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
+// ========================= COMMON CHAT ROUTES ========================= //
+Route::prefix('chat')->middleware('auth')->group(function () {
+    Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('chat.newMessages'); // Fetch new messages for all chat types
 });
 
 //##~~~~~~~~~~~~~~~~~~~~~~~~~ << AUTHENTICATED USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~##//
@@ -263,7 +307,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //16////////////////////// << SUPERADMIN LOGIN ROUTES >> ///////////////////////////16//
 Route::middleware('guest:superadmin')->group(function () {
     Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
-        ->name('superadmin.login');
+        ->name('superadmins.login');
     
     Route::post('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'store'])
         ->name('superadmin.login.store');
@@ -274,7 +318,7 @@ Route::middleware('guest:superadmin')->group(function () {
 //17////////////////////// << ADMIN LOGIN ROUTES >> ///////////////////////////17//
 Route::middleware('guest:admin')->group(function () {
     Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])
-        ->name('admin.login');
+        ->name('admins.login');
     
     Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'])
         ->name('admin.login.store');
@@ -284,7 +328,7 @@ Route::middleware('guest:admin')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 Route::middleware('guest:staff')->group(function () {
     Route::get('/staff/login', [StaffAuthenticatedSessionController::class, 'create'])
-        ->name('staff.login');
+        ->name('staffs.login');
     
     Route::post('/staff/login', [StaffAuthenticatedSessionController::class, 'store'])
         ->name('staff.login.store');
@@ -295,3 +339,5 @@ Route::middleware('guest:staff')->group(function () {
 
 // To Keep Laravel Auth Routes
 require __DIR__.'/auth.php';
+require __DIR__.'/api.php';
+

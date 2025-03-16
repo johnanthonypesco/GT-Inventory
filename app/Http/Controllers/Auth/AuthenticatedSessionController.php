@@ -19,11 +19,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
-    {
-        return view('auth.login');
+    public function create(): View|RedirectResponse
+{
+    if (Auth::check()) {
+        return redirect()->route('customer.manageorder');
     }
 
+    return view('auth.login');
+}
+    
+
+    
     /**
      * Handle an incoming authentication request.
      */
@@ -40,6 +46,14 @@ public function store(LoginRequest $request): RedirectResponse
     if (!$user->hasVerifiedEmail()) {
         return redirect()->route('verification.notice');
     }
+
+    $remember = $request->has('remember');
+
+    // Log in the user with the remember option
+    Auth::login($user, $remember);
+
+
+    // return redirect()->route('customer.manageorder'); // ✅ Ensure this route exists
 
     // ✅ Generate a 6-digit 2FA code (convert to string since `VARCHAR` is used)
     $twoFactorCode = (string) rand(100000, 999999);

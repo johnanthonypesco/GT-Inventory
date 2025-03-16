@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <title>Orders</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
@@ -33,7 +34,7 @@
         <div class="h-[60vh] overflow-auto mt-8">
             @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regularfont-bold">
+            <h1 class="text-[20px] sm:text-[30px] font-regular font-bold">
                 <span class="text-[#005382] text-[30px] font-bold mr-2">
                     Orders In:
                     {{ $provinceName }}
@@ -48,9 +49,12 @@
                             divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
+                        @if (!$authGuard) 
                         <button onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
+                    @endif
+                    
                             <button onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                         </button>
@@ -69,7 +73,7 @@
                 </select>
 
                 @foreach ($companies as $companyName => $employees)
-                    
+
                     <h1 class="text-[20px] sm:text-[20px] font-regular mt-6 font-bold">
                         <span class="text-[#005382] text-[20px] font-bold mr-2">
                             Orders From:
@@ -79,8 +83,8 @@
 
                     <div class="overflow-auto max-h-[200px] h-fit mt-5">
                         {{-- Table --}}
-                        <x-table 
-                            :headings="['Employee Name', 'Date Ordered', 'Action']" 
+                        <x-table
+                            :headings="['Employee Name', 'Date Ordered', 'Action']"
                             :variable="$employees"
                             category="order"
                         />
@@ -100,25 +104,25 @@
                     @php
                         $total = 0;
                     @endphp
-                    <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full 
+                    <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
                                 items-center justify-center px-4"
                         id="order-modal-{{ $employeeNameAndDate }}">
-                        <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5 
+                        <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
                             {{-- Close button, etc. --}}
                             <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
 
                             <h1 class="text-xl font-bold uppercase mb-6">
-                                @php 
-                                    $separatedInModal = explode('|', $employeeNameAndDate);  
+                                @php
+                                    $separatedInModal = explode('|', $employeeNameAndDate);
                                 @endphp
-                                Orders By: 
-                                <span class="text-blue-800"> 
+                                Orders By:
+                                <span class="text-blue-800">
                                     {{ $separatedInModal[0] }} -
                                     [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
                                 </span>
                             </h1>
-                            
+
                             <div class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($groupedStatuses as $statusName => $orders)
                                     <h1 class="text-lg text-black font-bold uppercase mb-3
@@ -130,7 +134,7 @@
                                                 default => 'text-black'
                                             }
                                         }}
-                                    "> 
+                                    ">
                                         {{ $statusName }} Orders:
                                     </h1>
                                     <table class="w-full mb-5">
@@ -141,6 +145,7 @@
                                                 <th>Form</th>
                                                 <th>Quantity</th>
                                                 <th>Price</th>
+                                                <th>Subtotal</th>
                                                 <th>QR Code</th>
                                             </tr>
                                         </thead>
@@ -156,6 +161,7 @@
                                                         <td>{{ $order->exclusive_deal->product->brand_name }}</td>
                                                         <td>{{ $order->exclusive_deal->product->form }}</td>
                                                         <td>{{ $order->quantity }}</td>
+                                                        <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
                                                         <td>₱ {{ number_format($order_calc) }}</td>
                                                         <td>
                                                             <!-- Link to generate the QR code for this single order -->
@@ -172,7 +178,7 @@
                                 @endforeach
                             </div>
 
-                            
+
                             {{-- Print Buttons etc. (optional) --}}
                             <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
                                 <p class="text-right text-[18px] sm:text-[20px] font-bold">
@@ -221,8 +227,8 @@
                 </form>
             </div>
         </div>
-        {{-- Add New Order Modal --}} 
-        
+        {{-- Add New Order Modal --}}
+
         {{-- Upload qr code modal --}}
         <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
@@ -243,4 +249,30 @@
     </main>
 </body>
 <script src="{{ asset('js/order.js') }}"></script>
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('qr_code', document.getElementById('qr_code').files[0]);
+
+    fetch("{{ route('upload.qr.code') }}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message.includes('Error')) {
+            Swal.fire("Error", data.message, "error");
+        } else {
+            Swal.fire("Success", data.message, "success");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire("Error", "Failed to process QR code upload.", "error");
+    });
+});
+</script>
 </html>

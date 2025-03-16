@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Product Listing</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
@@ -22,7 +25,7 @@
             {{-- Customer List Search Function --}}
             <div class="flex flex-col md:flex-row justify-between items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
-                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
+                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>        
             </div>
             {{-- Customer List Search Function --}}
 
@@ -31,8 +34,8 @@
                 {{-- Table for customer List --}}
                 <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
                 <div class="table-container mb-8 overflow-auto h-fit h-max-[190px]">
-                    <x-table 
-                    :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB" 
+                    <x-table
+                    :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB"
                     category="productdeals"/>
                 </div>
                 {{-- Table for customer List --}}
@@ -47,16 +50,20 @@
         dd($dealsDB['yahoo baby!']->first()->company->name);
     @endphp --}}
 
-    
-    {{-- View Product Listing --}}
 
-    @foreach ($dealsDB as $deals)
-        <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $deals->first()->company->name }}">
+    {{-- View Product Listing --}}
+    {{-- @if (session('edit-success'))
+        @php
+            dd('with works');
+        @endphp
+    @endif --}}
+    @foreach ($dealsDB as $companyName => $deals)
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
             @if (session("reSummon"))
                 <script>
                     addEventListener("DOMContentLoaded", () => {
                         const modalLoaded = document.getElementById("view-listings-{{ session('reSummon') }}");
-                        
+
                         if(modalLoaded) {
                             modalLoaded.classList.replace('hidden', 'block');
                         }
@@ -65,21 +72,21 @@
             @endif
 
             <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$deals->first()->company->name"/>
+                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
                 <div class="flex flex-col md:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
-                            $deals->first()->company->name
+                            $companyName
                         }}
                     </h1>
                     {{-- Button for Search --}}
                     <div class="w-full md:w-[35%] relative">
                         <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
                         <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div> 
-                    {{-- Button for Search --}}           
+                    </div>
+                    {{-- Button for Search --}}
                 </div>
-                
+
                 {{-- Table for all products --}}
                 <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
                     <table>
@@ -103,7 +110,7 @@
                                 <td>₱ {{ number_format($deal->price) }}</td>
                                 <td>
                                     <div class="flex gap-3 items-center justify-center text-xl">
-                                        <x-editbutton onclick="editproductlisting({{ $deal->id }})"/>
+                                        <x-editbutton onclick="editProductListing(`{{ $deal->id }}`)"/>
                                         <x-deletebutton :routeid="$deal->id" 
                                             route="admin.productlisting.destroy" 
                                             deleteType="deleteDeal"
@@ -167,21 +174,40 @@
     </div>
     {{-- Modal for Add Product Listing --}}
 
+    
     {{-- Edit Product Listing --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="editproductlisting">
-        <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
-            <x-modalclose click="closeeditproductlisting"/>
-            {{-- Form --}}
-            <form action="" id="editproductlistingform">
-                <h1 class="text-center font-bold text-3xl text-[#005382]">Edit Product</h1>
+    @foreach ($dealsDB as $companyName => $deals)
+        @foreach ($deals as $deal)
+            @php
+                $generic = $deal->product->generic_name ?? 'No Generic Name';
+                $brand = $deal->product->brand_name ?? 'No Brand Name';
+            @endphp
 
-                <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/>
-                <x-label-input label="Product Price" name="price" type="text" for="genericname" divclass="mt-5" placeholder="Enter Username"/>
-                <x-submit-button id="editproductlistingBtn"/>
-            </form> 
-            {{-- Form --}}
-        </div>
-    </div>
+            <div class="w-full -mt-[1000px] transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
+                <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+                    <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
+                    {{-- Form --}}
+                    <form method="post" action="{{ route('admin.productlisting.update', ['aidee' => $deal->id]) }}" id="editproductlistingform">
+                        @csrf
+                        @method("PUT")
+
+                        <h1 class="text-center font-bold text-3xl text-[#005382]">
+                            Edit Product's Price: {{ $generic }} - {{ $brand }}
+                        </h1>
+
+                        <input type="hidden" value="{{ $deal->company->name }}" name="company">
+
+                        <x-label-input label="Current Price:" value="{{ $deal->price }}" disabled name="current-price" type="number" for="current-price" divclass="mt-5" placeholder="Current Price"/>
+                        <x-label-input label="New Price:" name="price" type="number" for="price" divclass="mt-5" placeholder="1500"/>
+
+                        {{-- <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/> --}}
+                        <x-submit-button btnType="submit" id="editproductlistingBtn"/>
+                    </form> 
+                    {{-- Form --}}
+                </div>
+            </div>
+        @endforeach
+    @endforeach
 </body>
 
 <script src="{{asset('js/productlisting.js')}}"></script>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +19,12 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('auth.reset-password', ['request' => $request]);
+        // Detect user type based on the URL (e.g. /admin/reset-password/{token})
+        $userType = $this->detectUserType($request);
+        return view('auth.reset-password', [
+            'request' => $request,
+            'userType' => $userType,
+        ]);
     }
 
     /**
@@ -30,18 +34,20 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Detect user type from URL
+        $userType = $this->detectUserType($request);
+
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
+        // Use the appropriate password broker based on user type
+        $status = Password::broker($userType)->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
+            // Remove type-hint for $user so it can be an instance of Admin, Staff, SuperAdmin, or User
+            function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
@@ -51,12 +57,28 @@ class NewPasswordController extends Controller
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
+        // Redirect to the appropriate login page based on user type.
+        $loginRoute = ($userType === 'users') ? 'login' : $userType . '.login';
+
         return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+            ? redirect()->route($loginRoute)->with('status', __($status))
+            : back()->withInput($request->only('email'))
+                    ->withErrors(['email' => __($status)]);
+    }
+
+    /**
+     * Detect the user type based on the request URL.
+     */
+    private function detectUserType(Request $request)
+    {
+        if ($request->is('superadmin/*')) {
+            return 'superadmins';
+        } elseif ($request->is('admin/*')) {
+            return 'admins';
+        } elseif ($request->is('staff/*')) {
+            return 'staffs';
+        } else {
+            return 'users';
+        }
     }
 }

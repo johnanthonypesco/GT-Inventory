@@ -13,7 +13,9 @@
         "khanamiryan/qrcode-detector-decoder": "^2.0",
         "laravel/framework": "11.44",
         "laravel/reverb": "^1.4",
-        "laravel/tinker": "^2.9"
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -21,7 +23,8 @@
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
-        "mockery/mockery": "^1.6"
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^3.7"
     },
     "autoload": {
         "psr-4": {

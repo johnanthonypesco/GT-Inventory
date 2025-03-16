@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -28,24 +28,24 @@
     <x-customer.navbar/>
 
     <main class="w-full md:ml-[17%]">
-        <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
+        <x-customer.header title="Manage Account" icon="fa-solid fa-bars-progress"/>
         
         <div class="mt-5 h-[80vh] overflow-auto">
             <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
                 <div class="absolute top-0 left-0 h-[30%] bg-[#005382] w-full z-1" style="border-radius: 10px 10px 0 0;"></div>
                 <div class="relative w-fit">
                     <!-- Profile Image -->
-                    <label for="profile_image">
+                    <label>
                         @if (Auth::user()->company && Auth::user()->company->profile_image)
-                            <img 
+                            <img
                                 id="profilePreviewone"
                                 src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
                                 class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 alt="Company Profile Picture"
                             >
                         @else
-                            <i 
-                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                            <i
+                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 style="font-size: 4rem;"
                             ></i>
                         @endif
@@ -56,7 +56,7 @@
                     <i class="fa-solid fa-pen"></i> Edit Profile
                 </button>
             </div>
-            
+
             {{-- Account Information Section --}}
             <div class="bg-white mt-5 p-5 rounded-xl">
                 <p class="text-xl font-semibold">Account Information</p>
@@ -79,20 +79,21 @@
 
                 <form id="editAccountForm" enctype="multipart/form-data">
                     @csrf
-                
+
                     <div class="relative w-fit">
                         <!-- Profile Image -->
                         <label for="profile_image">
                             @if (Auth::user()->company && Auth::user()->company->profile_image)
-                                <img 
-                                    id="profilePreview"
-                                    src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
-                                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                    alt="Company Profile Picture"
-                                >
+                            <img 
+                            id="profilePreview"
+                            src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                            class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                            alt="Company Profile Picture"
+                        >
+                        
                             @else
-                                <i 
-                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                                <i
+                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                     style="font-size: 2rem;"
                                 ></i>
                             @endif
@@ -100,13 +101,13 @@
                         <!-- Hidden File Input -->
                         <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
                     </div>
-                
+
                     <x-label-input label="Account Name" type="text" id="editName" name="name"
                         value="{{ old('name', Auth::user()->name) }}" divclass="mt-5"/>
-                
+
                     <x-label-input label="Email" type="text" id="editEmail" name="email"
                         value="{{ Auth::user()->email }}" divclass="mt-5" readonly/>
-                
+
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
@@ -137,11 +138,33 @@
 {{-- JavaScript --}}
 <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
-<script>
-    // Handle form submission
-    document.getElementById("submitButton").addEventListener("click", function (e) {
-        e.preventDefault();
-        let form = document.getElementById("editAccountForm");
+    <script>
+        // Open the edit account modal
+        function editAccount() {
+            let modal = document.getElementById("editAccountModal");
+            if (modal) {
+                modal.classList.remove("hidden");
+            } else {
+                console.error("Error: Modal with ID 'editAccountModal' not found.");
+            }
+        }
+
+        // Close the edit account modal
+        function closeEditAccount() {
+            let modal = document.getElementById("editAccountModal");
+            if (modal) {
+                modal.classList.add("hidden");
+            } else {
+                console.error("Error: Modal with ID 'editAccountModal' not found.");
+            }
+        }
+
+        
+
+        // Handle form submission
+        document.getElementById("submitButton").addEventListener("click", function (e) {
+            e.preventDefault();
+            let form = document.getElementById("editAccountForm");
 
         Swal.fire({
             title: 'Are you sure?',
@@ -213,19 +236,24 @@
         });
     });
 
-    // Handle profile image preview
-    // Handle profile image preview
-    document.getElementById("profile_image").addEventListener("change", function (e) {
-        let file = e.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function (event) {
-                // Update the src attribute of the profilePreview image
-                document.getElementById("profilePreview").src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-</script>
+        // Handle profile image preview
+  // Handle profile image preview
+document.getElementById("profile_image").addEventListener("change", function (e) {
+    let file = e.target.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function (event) {
+            let preview = document.getElementById("profilePreview");
+            if (preview) {
+                preview.src = event.target.result;
+            } else {
+                console.error("Error: Element with ID 'profilePreview' not found.");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+    </script>
 </body>
 </html>

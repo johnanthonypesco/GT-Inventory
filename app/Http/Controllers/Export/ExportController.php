@@ -4,47 +4,99 @@ namespace App\Http\Controllers\Export;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use App\Models\Location;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Exports\InventoryExport;
+use Str;
 
 class ExportController extends Controller
 {
-    public function export() {
-        // Initializes the writer
-        $writer = WriterEntityFactory::createXLSXWriter();
-
-        // Readies up the writer to accept data and export
-        $writer->openToBrowser('export.xlsx');
-
-        $headers = WriterEntityFactory::createRowFromArray([
-            'Batch No.', 
-            'Generic Name', 
-            'Brand Name', 
-            'Form', 
-            'Stregth', 
-            'Quantity', 
-            'Expiry Date'
+    public function export(Request $request, $exportType = 'all')
+    {
+        $validated = $request->validate([
+            'array' => 'nullable'
         ]);
 
-        $writer->addRow($headers);
+        $validated = array_map('strip_tags', $validated);
 
-        $inventory = Inventory::with('product')->select()->get();
+        $fileName = '';
+        $export = null;
 
-        foreach ($inventory as $stock) {
-            $row = WriterEntityFactory::createRowFromArray([
-                $stock->batch_number,
-                $stock->product->generic_name,
-                $stock->product->brand_name,
-                $stock->product->form,
-                $stock->product->strength,
-                $stock->quantity,
-                $stock->expiry_date,
-            ]);
+        switch (strtolower($exportType)) {
+            case 'all':
+                $fileName = 'all-stocks-[' . date('Y-m-d') . '].xlsx';
+                $inventory = Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                break;
+            case 'tarlac':
+                $tarlacID = Location::where('province', 'Tarlac')->value('id');
+                $inventory = Inventory::with('product')->where('location_id', $tarlacID)
+                ->orderByDesc('created_at')->get();
+                $fileName = 'tarlac-stocks-[' . date('Y-m-d') . '].xlsx';
+                break;
+            case 'nueva ecija':
+                $nuevaID = Location::where('province', 'Nueva Ecija')->value('id');
+                $inventory = Inventory::with('product')->where('location_id', $nuevaID)
+                ->orderByDesc('created_at')->get();
+                $fileName = 'nueva-ecija-stocks-[' . date('Y-m-d') . '].xlsx';
+                break;
 
-            $writer->addRow($row);
+            case 'in-summary':
+                $inventory = collect(json_decode($validated['array'], true));
+
+                $fileName = 'in-stock-[' . date('Y-m-d') . '].xlsx';
+                break;
+
+            case 'low-summary':
+                $inventory = collect(json_decode($validated['array'], true));
+
+                $fileName = 'low-stocks-[' . date('Y-m-d') . '].xlsx';
+                break;
+
+            case 'out-summary':
+                $inventory = collect(json_decode($validated['array'], true));
+
+                $fileName = 'out-of-stocks-[' . date('Y-m-d') . '].xlsx';
+                break;
+
+            case 'near-expiry-summary':
+                $inventory = Inventory::with('product')
+                    ->where('quantity', '>', 0)
+                    ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
+                    ->orderByDesc('expiry_date')->get()
+                    ->groupBy(function ($stocks) {
+                        return $stocks->location->province;
+                    });
+                $fileName = 'near-expiry-stocks-[' . date('Y-m-d') . '].xlsx';
+                break;
+
+            case 'expired-summary':
+                $inventory = Inventory::with('product')
+                    ->where('quantity', '>', 0)
+                    ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
+                    ->orderByDesc('expiry_date')->get()
+                    ->groupBy(function ($stocks) {
+                        return $stocks->location->province;
+                    });
+                $fileName = 'expired-stocks-[' . date('Y-m-d') . '].xlsx';                
+                break;
+
+            default:
+                return response()->json(['error' => 'Invalid export type'], 400);
+        }
+        // dd($inventory->toArray());
+
+        if(in_array( Str::lower($exportType), ['all', 'tarlac', 'nueva ecija', 'near-expiry-summary', 'expired-summary'])) {
+            $export = new InventoryExport($inventory, "individual", $exportType);
+        } 
+        
+        else if(in_array(Str::lower($exportType), ['in-summary', 'low-summary', 'out-summary'])) {
+            $export = new InventoryExport($inventory, "grouped", $exportType);
         }
 
-        // Closes the writer and finally exports the stuff :)
-        $writer->close();
+        // dd($exportType);
+
+        return Excel::download($export, $fileName);
     }
 }

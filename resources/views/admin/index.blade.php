@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/index.css')}}">
     <title>Admin Login</title>
 </head>
@@ -16,7 +17,7 @@
 
         <form action="" class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white ">
             <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">“Manage Your Medication Effortlessly <span class="font-light">Anytime, Anywhere</span>”</h1>
-            
+
             <div class="mt-5">
                 <label for="username" class="text-[20px] text-[#005382]/71">Username</label>
                 <input type="text" name="username" id="username" placeholder="Enter Your Username" class="border border-1-[#005382] lg:border-none bg-white w-full p-3 rounded-lg outline-none mt-2">
@@ -31,7 +32,7 @@
                     <input type="checkbox" name="remember" id="remember" class="w-5">
                     <label for="remember" class="text-[18px] text-[#005382]/61">Remember Me</label>
                 </div>
-                
+
                 <a href="" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a>
             </div>
 

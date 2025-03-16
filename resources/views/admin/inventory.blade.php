@@ -12,6 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     <title>Inventory</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
@@ -25,52 +28,68 @@
 
         @php
             // these variables will be used for the totals in the notifs & stock overview summaries
-            $inStockProducts = []; 
+            $inStockProducts = [];
             $lowStockProducts = [];
             $noStockProducts = [];
-            foreach ($stockMonitor as $stock) {
-                switch($stock['status']) {
-                    case ("in-stock" ):
-                        array_push($inStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
+            foreach ($stockMonitor as $provinceName => $groupedNames) {
+                foreach ($groupedNames as $generalInfo) {
+                    switch($generalInfo['status']) {
+                        case ("in-stock" ):
+                            array_push($inStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        case ("low-stock" ):
+                            array_push($lowStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        case ("no-stock" ):
+                            array_push($noStockProducts, ['total' => $generalInfo['total'] , 'inventory' => $generalInfo['inventories'], 'province' => $provinceName]);
+                            break;
+                        default:
+                            false;
                         break;
-                    case ("low-stock" ):
-                        array_push($lowStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
-                        break;
-                    case ("no-stock" ):
-                        array_push($noStockProducts, ['total' => $stock['total'] , 'inventory' => $stock['inventories']]);
-                        break;
-                    default:
-                        false;
-                    break;
+                    }
                 }
             }
+
+            
+            // $collect = collect($lowStockProducts)->groupBy(function ($pairs) {
+            //     return $pairs['inventory']->map(function ($stocks) {
+            //         return $stocks->location->province;
+            //     });
+            // });
+            // dd(collect($lowStockProducts)->groupBy('province')->toArray());
 
             // dd($inStockProducts[0]['inventory'][0]->product->generic_name);
             // dd($inStockProducts[0]);
         @endphp
 
-        {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
-            <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
-            <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
-            <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
-        </div>
-        {{-- Total Container --}}
 
-        {{-- Shows An Overview Modal for Certain Product Categories --}}
-        <x-stock-overview-modal  modalType="in-stock" :variable="$inStockProducts" />
-        <x-stock-overview-modal  modalType="low-stock" :variable="$lowStockProducts" />
-        <x-stock-overview-modal  modalType="out-stock" :variable="$noStockProducts" /> 
-        {{-- Shows An Overview Modal for Certain Product Categories --}}
-
-        <div class="h-[66vh] overflow-auto mt-4">
-            {{-- Filters Location --}}
-        <div class="flex justify-between flex-col lg:flex-row">
+        <div class="h-[82vh] overflow-x-auto mt-4 px-4">
+                {{-- Total Container --}}
+                <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
+                    <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
+                    <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
+                    <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
+                    
+                    <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" />
+                    <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" />
+                </div>
+                {{-- Total Container --}}
+                
+                {{-- Shows An Overview Modal for Certain Product Categories --}}
+                <x-stock-overview-modal  modalType="in-stock" :variable="collect($inStockProducts)->groupBy('province')" />
+                <x-stock-overview-modal  modalType="low-stock" :variable="collect($lowStockProducts)->groupBy('province')" />
+                <x-stock-overview-modal  modalType="out-stock" :variable="collect($noStockProducts)->groupBy('province')" /> 
+                
+                <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
+                <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
+                {{-- Shows An Overview Modal for Certain Product Categories --}}
+                {{-- Filters Location --}}
+        <div class="flex justify-between flex-col lg:flex-row mt-3">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
 
                 <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
-                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>  
+                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
                     <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
                     <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
                 </select>
@@ -84,32 +103,37 @@
         {{-- Filters Location --}}
 
         @foreach ($inventories as $inventory)
+            @php
+                $provinceName = $inventory->first()->location->province;
+            @endphp
+
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $inventory->first()->location->province }}
+                Delivery Location: {{ $provinceName }}
             </h1>
-            {{-- since it already has a select location what if, remove the location --}}
+
             <div class="flex flex-wrap justify-between items-center">
-                    
+
                     {{-- Search --}}
-                    <x-input name="search" 
+                    <x-input name="search"
                     placeholder="Search Product by Name"
-                    classname="fa fa-magnifying-glass" 
+                    classname="fa fa-magnifying-glass"
                     divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
-                    id="search-stock"
+                    id="search-stock-{{$provinceName}}"
                     searchType="stock"
                     :dataList="$products"
                     :autofill="true"
+                    :location_filter="$provinceName"
                     :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
-                    
+
                     {{-- Search --}}
-                    
+
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                         <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
-                        <form action="{{ route('admin.inventory.export') }}" method="get">
+                        <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
-                            
+
                             <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
                         </form>
                     </div>
@@ -117,7 +141,7 @@
 
                 {{-- Table for Inventory --}}
                 <div class="overflow-auto h-[250px] mt-5">
-                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$inventory" category="inventory"/>
+                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/>
                 </div>
                 {{-- Table for Inventory --}}
 
@@ -125,6 +149,10 @@
                 <x-pagination/>
                 {{-- Pagination --}}
             </div>
+
+            @if ($currentSearch['location'] !== 'All')
+                @break
+            @endif
         @endforeach
         </div>
     </main>
@@ -137,15 +165,15 @@
 
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
-                <x-input name="search" 
-                placeholder="Search Product by Name" 
-                classname="fa fa-magnifying-glass" 
+                <x-input name="search"
+                placeholder="Search Product by Name"
+                classname="fa fa-magnifying-glass"
                 divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
                 id="search-product"
                 searchType="product"
                 :dataList="$products"
                 :autofill="true"
-                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>                 
+                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
             </div>
 
             {{-- Table for all products --}}
@@ -234,7 +262,7 @@
             </h1>
             <form action="{{ route('admin.inventory.store', ['addType' => 'single']) }}" method="POST" id="addspecificstock">
                 @csrf
-                
+
                 <input type="hidden" id="single_product_id" value="{{ $failedToAddStock ? old('product_id.0') : '' }}" name="product_id[]">
 
                 <div class="flex flex-col">
@@ -268,7 +296,7 @@
                     <input type="file" name="file" id="file" class="hidden">
                     <button onclick="window.location.href='{{ route('upload.receipt') }}'">
                         <i class="fa-solid fa-file-alt"></i> Upload Receipt
-                    </button>                
+                    </button>
                 </div>
             </div>
         </div>
@@ -291,21 +319,21 @@
                     @php
                         $hasBeenPrinted = [];
                     @endphp
-    
+
                     @foreach ($errors->all() as $error)
                         @php
                             // will create a string with no underscores or any indexes attached
                             $cleanedString = preg_replace(['/[_]/', '/\.\d+/'], ' ', $error);
                         @endphp
-    
+
                         @if (in_array($cleanedString, $hasBeenPrinted)) {{-- skips the printed errors --}}
                             @continue
                         @endif
-    
+
                         <p class="text-rose-600">
                             {{$cleanedString}}
-                        </p>               
-    
+                        </p>
+
                         @php // pushes the string in the array
                             $hasBeenPrinted[] = $cleanedString;
                         @endphp
@@ -316,7 +344,7 @@
 
 
             {{-- Form Multiple add stock--}}
-            <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">  
+            <form id="addmultiplestockform" action="{{ route('admin.inventory.store', ['addType' => 'multiple']) }}" method="POST" class="w-full h-[50vh] p-2 overflow-y-auto z-1">
                 @csrf
 
                 <div class="flex flex-col">
@@ -396,13 +424,13 @@
 
                 {{-- Button for Save and Add more --}}
                 <div class="flex absolute bottom-2 right-3 gap-4 mt-5 ">
-                    <button id="addmore" type="button" 
+                    <button id="addmore" type="button"
                         onclick="add_more_stocks_input(1)"
                         class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <i class="fa-solid fa-plus"></i> Add More
                     </button>
 
-                    <button id="addmultiplestockBtn" type="button" 
+                    <button id="addmultiplestockBtn" type="button"
                         class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none">
                         <img src="{{asset('image/image 51.png')}}" alt="Save" class="h-5"> Save
                     </button>
@@ -411,8 +439,78 @@
             </form>
         </div>
     </div>
-</body>
 
-<script src="{{asset('js/inventory.js')}}"></script>
-<script src="{{asset ('js/sweetalert/inventorysweetalert.js')}}"></script>
+   {{-- Transfer Inventory Modal --}}
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 ">
+    <div class="modal bg-white p-6 rounded-lg w-full max-w-md m-auto mt-10">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
+        
+        <form id="transferForm">
+            <input type="hidden" name="inventory_id" id="transfer_inventory_id">
+            
+            <p class="text-gray-600 mb-2">Batch Number: <span id="transfer_batch_number"></span></p>
+            <p class="text-gray-600 mb-2">Product: <span id="transfer_product_name"></span></p>
+            <p class="text-gray-600 mb-2">Current Location: <span id="transfer_current_location"></span></p>
+
+            <label for="new_location" class="text-gray-600">New Location</label>
+            <select id="new_location" name="new_location" class="w-full border rounded-md px-3 py-2 mt-2">
+                @foreach ($locations as $location)
+                    <option value="{{ $location->id }}">{{ $location->province }}</option>
+                @endforeach
+            </select>
+
+            <div class="flex justify-between mt-4">
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeTransferModal()">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Confirm Transfer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ asset('js/inventory.js') }}"></script>
+<script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+
+<script>
+function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {
+    document.getElementById('transfer_inventory_id').value = inventoryId;
+    document.getElementById('transfer_batch_number').textContent = batchNumber;
+    document.getElementById('transfer_product_name').textContent = productName;
+    document.getElementById('transfer_current_location').textContent = currentLocation;
+
+    document.getElementById('transferInventoryModal').classList.remove('hidden'); // Show modal
+}
+
+function closeTransferModal() {
+    document.getElementById('transferInventoryModal').classList.add('hidden'); // Hide modal
+}
+document.getElementById('transferForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = {
+        inventory_id: document.getElementById('transfer_inventory_id').value,
+        new_location: document.getElementById('new_location').value, // Ensure this is an `id` from `locations`
+    };
+
+    fetch("{{ route('admin.inventory.transfer') }}", {
+        method: "PUT",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire("Success", data.message, "success")
+                .then(() => window.location.reload()); // Reload to reflect changes
+        } else {
+            Swal.fire("Error", data.message || "Transfer failed.", "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+
+</script>
+</body>
 </html>

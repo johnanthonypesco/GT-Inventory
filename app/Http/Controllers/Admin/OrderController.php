@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Order;
 use Carbon\Carbon;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -60,6 +61,7 @@ class OrderController extends Controller
             'ordersThisWeek' => $ordersThisWeek,
             'currentPendings' => $currentPendings,
             'currentPartials' => $currentPartials,
+            'authGuard'        => Auth::guard('staff')->check(),
         ]);
     }
 

@@ -1,4 +1,9 @@
-@props(['count' => 0, 'title'=> 'Total Stocks', 'image' => 'image.png', 'buttontype '=> 'in-stock', 'buttonType' => 'in-stock'])
+@props([
+    'count' => 0, 
+    'title'=> 'Total Stocks', 
+    'image' => 'image.png', 
+    'buttonType' => 'in-stock',
+])
 
 <div onclick="showStockModals('{{$buttonType}}')" id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
     <div class="flex items-center justify-between">

@@ -46,26 +46,69 @@ function showStockModals(type) {
     const modalInStock = document.getElementById("in-stock-modal");
     const modalLowStock = document.getElementById("low-stock-modal");
     const modalOutStock = document.getElementById("out-stock-modal");
+    const modalNearExpiredStock = document.getElementById("near-expiry-stock-modal");
+    const modalExpiredStock = document.getElementById("expired-stock-modal");
 
-    if (type === "in-stock") {
-        if(modalInStock.classList.contains("hidden")){
-            modalInStock.classList.replace("hidden","block");
-        } else {
-            modalInStock.classList.replace("block", "hidden");
-        }
-    } else if (type === "low-stock") {
-        if(modalLowStock.classList.contains("hidden")) {
-            modalLowStock.classList.replace("hidden","block");
-        } else {
-            modalLowStock.classList.replace("block", "hidden");      
-        }
-    } else if (type === "out-stock") {
-        if(modalOutStock.classList.contains("hidden")) {
-            modalOutStock.classList.replace("hidden","block");
-        } else {
-            modalOutStock.classList.replace("block", "hidden");      
-        }
+    switch (type) {
+        case "in-stock":
+            if(modalInStock.classList.contains("hidden")){
+                modalInStock.classList.replace("hidden","block");
+            } else {
+                modalInStock.classList.replace("block", "hidden");
+            }
+            break;
+        case "low-stock":
+            if(modalLowStock.classList.contains("hidden")) {
+                modalLowStock.classList.replace("hidden","block");
+            } else {
+                modalLowStock.classList.replace("block", "hidden");      
+            }
+            break;
+        case "out-stock": 
+            if(modalOutStock.classList.contains("hidden")) {
+                modalOutStock.classList.replace("hidden","block");
+            } else {
+                modalOutStock.classList.replace("block", "hidden");      
+            }
+            break;
+        case "near-expiry-stock":
+            if(modalNearExpiredStock.classList.contains("hidden")){
+                modalNearExpiredStock.classList.replace("hidden","block");
+            } else {
+                modalNearExpiredStock.classList.replace("block", "hidden");
+            }
+            break;
+        case "expired-stock":
+            if(modalExpiredStock.classList.contains("hidden")){
+                modalExpiredStock.classList.replace("hidden","block");
+            } else {
+                modalExpiredStock.classList.replace("block", "hidden");
+            }
+            break;
+        default:
+            console.error("No IDS found for that stock modal")
+            break;
     }
+
+    // if (type === "in-stock") {
+    //     if(modalInStock.classList.contains("hidden")){
+    //         modalInStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalInStock.classList.replace("block", "hidden");
+    //     }
+    // } else if (type === "low-stock") {
+    //     if(modalLowStock.classList.contains("hidden")) {
+    //         modalLowStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalLowStock.classList.replace("block", "hidden");      
+    //     }
+    // } else if (type === "out-stock") {
+    //     if(modalOutStock.classList.contains("hidden")) {
+    //         modalOutStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalOutStock.classList.replace("block", "hidden");      
+    //     }
+    // }
 }
 
 function addstock(product_id, product_name) {
@@ -139,9 +182,54 @@ function is_in_suggestion(id, list_id) {
     if (!in_suggestions) {
         search.classList.remove('border-[#005382]');
         search.classList.add('border-rose-500');
+        event.preventDefault();
         alert("Choose from Search Suggestions");
     } else {
         document.getElementById('search-form-' + id).submit();
     }
 }
+
+function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {
+    document.getElementById('transfer_inventory_id').value = inventoryId;
+    document.getElementById('transfer_batch_number').textContent = batchNumber;
+    document.getElementById('transfer_product_name').textContent = productName;
+    document.getElementById('transfer_current_location').textContent = currentLocation;
+    
+    document.getElementById('transferInventoryModal').classList.remove('hidden');
+}
+
+function closeTransferModal() {
+    document.getElementById('transferInventoryModal').classList.add('hidden');
+}
+
+// Handle Transfer Form Submission
+document.getElementById('transferForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = {
+        inventory_id: document.getElementById('transfer_inventory_id').value,
+        new_location: document.getElementById('new_location').value
+    };
+
+    fetch("{{ route('admin.inventory.transfer') }}", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire("Success", data.message, "success").then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire("Error", data.message, "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+
 // SEARCH FUNCTION SECTION

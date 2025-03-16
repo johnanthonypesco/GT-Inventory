@@ -54,7 +54,23 @@ class ProductlistingController extends Controller
     
         return to_route('admin.productlisting');
     }
-    
+
+    public function updateExclusiveDeal(Request $request, $aidee = 0) {
+        $validated = $request->validate([
+            "company" => 'string|required|min:1',
+            "price" => 'numeric|required|min:1',
+        ]);
+
+        $validated = array_map("strip_tags", $validated);
+
+        ExclusiveDeal::findOrFail($aidee)->update($validated);
+
+        return to_route('admin.productlisting')->with([
+            'edit-success' => true,
+            'company-success' => $validated['company'],
+        ]);
+    }
+
     public function destroyExclusiveDeal($deal_id = null, $company = null) {
         $exclusiveDeal = ExclusiveDeal::findOrFail($deal_id);
         

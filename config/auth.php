@@ -108,6 +108,20 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'admins' => [ // ✅ Added Password Reset for Super Admins
+            'provider' => 'admins',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'staffs' => [ // ✅ Added Password Reset for Super Admins
+            'provider' => 'staffs',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*

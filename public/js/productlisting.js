@@ -30,11 +30,12 @@ function closeaddproductlisting() {
 // Modal for Add Product Listing
 
 // Modal for Edit Product Listing
-function editproductlisting() {
-    var editproductlisting = document.getElementById("editproductlisting");
-    editproductlisting.style.display = "block";
+function editProductListing(id) {
+    const editproductlisting = document.getElementById("edit-listing-" + id);
+    
+    editproductlisting.classList.replace("-mt-[1000px]", "block");
 }
-function closeeditproductlisting() {
-    var editproductlisting = document.getElementById("editproductlisting");
-    editproductlisting.style.display = "none";
+function closeEditProductListing(id) {
+    const editproductlisting = document.getElementById("edit-listing-" + id);
+    editproductlisting.classList.replace("block", "-mt-[1000px]");
 }
