@@ -88,7 +88,7 @@
                 @endforeach
             @break
 
-            {{-- manageaccount --}}
+            {{-- manageaccount
             @case($category === 'manageaccount')
             @foreach($variable as $account)
             <tr 
@@ -124,7 +124,7 @@
         
                         </td>
                     </tr>
-                @endforeach
+                @endforeach --}}
             @break
 
             {{-- history --}}
