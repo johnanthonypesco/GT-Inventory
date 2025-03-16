@@ -12,62 +12,78 @@ class CustomerAccountController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('customer.account', compact('user'));
+        
+        try {
+            $user->password = Hash::decrypt($user->password);
+        } catch (\Exception $e) {
+            $user->password = "Unable to decrypt";
+        }
+
+        return view('customer.account', ['user' => $user]);
     }
 
     public function update(Request $request)
     {
         try {
-            $user = Auth::user();
-    
+            $user = auth()->user();
+            
             // Validate input
-          $validated =  $request->validate([
-                'name' => 'required|string|max:255|unique:users,name,' . $user->id,
-                'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-                'contact_number' => 'required|string|unique:users,contact_number,' . $user->id,
-                'password' => 'nullable|min:8',
-                'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // ✅ New rule for profile image
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'contact_number' => 'nullable|string|max:20',
+                'password' => 'nullable|min:8|confirmed',
+                'password_confirmation' => 'nullable|same:password',
+                'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            $validated = array_map("strip_tags", $validated);
-
-            // Assign values
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->contact_number = $request->contact_number;
-    
-            // Handle profile image upload
-            if ($request->hasFile('profile_image')) {
-                // Delete old image if exists
-                if ($user->profile_image) {
-                    Storage::delete('public/' . $user->profile_image);
-                }
-    
-// Store new image
-$imagePath = $request->file('profile_image')->store('profile_images', 'public');
-
-// Ensure the user has a company before updating
-if ($user->company) {
-    $company = $user->company; // Fetch the company model
-    $company->profile_image = $imagePath; // Update profile image
-    $company->save(); // ✅ Save the company with the new profile image
-}
+            
+            // Update user fields
+            $user->name = $validatedData['name'];
+            $user->email = $validatedData['email'];
+            $user->contact_number = $validatedData['contact_number'] ?? $user->contact_number;
+            
+            // Update password only if provided
+            if (!empty($validatedData['password'])) {
+                $user->password = Hash::make($validatedData['password']);
             }
-    
-            // Update password if provided
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-            }
-    
+            
             $user->save();
-    
-            return response()->json(['success' => true, 'message' => 'Account updated successfully', 'image' => asset('storage/' . $user->profile_image)]);
+            
+            // Handle profile image update
+            if ($request->hasFile('profile_image')) {
+                if ($user->company) {
+                    // Delete old profile image if exists
+                    if (!empty($user->company->profile_image) && Storage::exists('public/' . $user->company->profile_image)) {
+                        Storage::delete('public/' . $user->company->profile_image);
+                    }
+                    
+                    // Store new image
+                    $imagePath = $request->file('profile_image')->store('profile_images', 'public');
+                    $user->company->profile_image = $imagePath;
+                    $user->company->save();
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No associated company profile found!',
+                    ], 400);
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Account updated successfully!'
+            ], 200);
+            
         } catch (\Exception $e) {
             \Log::error('Update Account Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Update failed!',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ], 500);
         }
     }
+    
 }    

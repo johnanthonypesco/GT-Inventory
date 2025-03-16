@@ -72,11 +72,13 @@ Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])-
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
     ->name('orders.showQrCode');
-    Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
 
     Route::get('/scan-qr', function () {
         return view('orders.scan'); // Blade file for scanning QR codes
     })->name('orders.scan');
+
+    Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+
     // ONLY FOR THE ADMINS
     Route::middleware(['auth:superadmin,admin'])->group(function () {
         //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
@@ -90,7 +92,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
         Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
-        Route::get('admin/inventory/export', [ExportController::class, 'export'])->name('admin.inventory.export');
+
+        Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
@@ -102,6 +106,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
         Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
         Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
+        Route::put('admin/productlisting/{aidee}', [ProductlistingController::class, 'updateExclusiveDeal'])->name('admin.productlisting.update');
         Route::delete('admin/productlisting/{deal_id}/{company}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
         //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
 
@@ -134,7 +139,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         })->name('upload.qr');
 
         Route::post('/upload-qr-code', [InventoryController::class, 'uploadQrCode'])->name('upload.qr.code');
-
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//

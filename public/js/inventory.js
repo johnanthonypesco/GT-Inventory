@@ -46,26 +46,69 @@ function showStockModals(type) {
     const modalInStock = document.getElementById("in-stock-modal");
     const modalLowStock = document.getElementById("low-stock-modal");
     const modalOutStock = document.getElementById("out-stock-modal");
+    const modalNearExpiredStock = document.getElementById("near-expiry-stock-modal");
+    const modalExpiredStock = document.getElementById("expired-stock-modal");
 
-    if (type === "in-stock") {
-        if(modalInStock.classList.contains("hidden")){
-            modalInStock.classList.replace("hidden","block");
-        } else {
-            modalInStock.classList.replace("block", "hidden");
-        }
-    } else if (type === "low-stock") {
-        if(modalLowStock.classList.contains("hidden")) {
-            modalLowStock.classList.replace("hidden","block");
-        } else {
-            modalLowStock.classList.replace("block", "hidden");      
-        }
-    } else if (type === "out-stock") {
-        if(modalOutStock.classList.contains("hidden")) {
-            modalOutStock.classList.replace("hidden","block");
-        } else {
-            modalOutStock.classList.replace("block", "hidden");      
-        }
+    switch (type) {
+        case "in-stock":
+            if(modalInStock.classList.contains("hidden")){
+                modalInStock.classList.replace("hidden","block");
+            } else {
+                modalInStock.classList.replace("block", "hidden");
+            }
+            break;
+        case "low-stock":
+            if(modalLowStock.classList.contains("hidden")) {
+                modalLowStock.classList.replace("hidden","block");
+            } else {
+                modalLowStock.classList.replace("block", "hidden");      
+            }
+            break;
+        case "out-stock": 
+            if(modalOutStock.classList.contains("hidden")) {
+                modalOutStock.classList.replace("hidden","block");
+            } else {
+                modalOutStock.classList.replace("block", "hidden");      
+            }
+            break;
+        case "near-expiry-stock":
+            if(modalNearExpiredStock.classList.contains("hidden")){
+                modalNearExpiredStock.classList.replace("hidden","block");
+            } else {
+                modalNearExpiredStock.classList.replace("block", "hidden");
+            }
+            break;
+        case "expired-stock":
+            if(modalExpiredStock.classList.contains("hidden")){
+                modalExpiredStock.classList.replace("hidden","block");
+            } else {
+                modalExpiredStock.classList.replace("block", "hidden");
+            }
+            break;
+        default:
+            console.error("No IDS found for that stock modal")
+            break;
     }
+
+    // if (type === "in-stock") {
+    //     if(modalInStock.classList.contains("hidden")){
+    //         modalInStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalInStock.classList.replace("block", "hidden");
+    //     }
+    // } else if (type === "low-stock") {
+    //     if(modalLowStock.classList.contains("hidden")) {
+    //         modalLowStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalLowStock.classList.replace("block", "hidden");      
+    //     }
+    // } else if (type === "out-stock") {
+    //     if(modalOutStock.classList.contains("hidden")) {
+    //         modalOutStock.classList.replace("hidden","block");
+    //     } else {
+    //         modalOutStock.classList.replace("block", "hidden");      
+    //     }
+    // }
 }
 
 function addstock(product_id, product_name) {

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with {{ $user->name ?? 'User' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         html, body {
             height: 100%;
@@ -20,10 +20,10 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        #chatBox .flex {
+        #chatBox .message {
             margin-bottom: 1rem;
         }
-        #chatBox .max-w-xs {
+        #chatBox .message-content {
             max-width: 80%;
             word-wrap: break-word;
         }
@@ -40,23 +40,23 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
+<body class="bg-light d-flex flex-column min-vh-100 justify-content-center align-items-center p-3">
 
-    <div class="flex-1 w-[60%] bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
+    <div class="flex-grow-1 w-75 bg-white shadow rounded overflow-hidden d-flex flex-column">
         <!-- Chat Header -->
-        <div class="bg-blue-600 text-white p-4 text-center text-lg font-bold flex justify-between items-center">
+        <div class="bg-primary text-white p-3 text-center fs-5 fw-bold d-flex justify-content-between align-items-center">
             <span>Chat with {{ $user->name ?? 'User' }}</span>
-            <a href="{{ route('admin.chat.index') }}" class="text-sm bg-white text-blue-600 px-3 py-1 rounded-lg">Go Back</a>
+            <a href="{{ route('admin.chat.index') }}" class="btn btn-light btn-sm text-primary">Go Back</a>
         </div>
 
         <!-- Chat Messages -->
-        <div id="chatBox" class="flex-1 p-4 overflow-y-auto">
+        <div id="chatBox" class="flex-grow-1 p-3 overflow-auto">
             @foreach ($conversations as $message)
-                <div class="mb-4 flex {{ $message->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}" data-message-id="{{ $message->id }}">
-                    <div class="max-w-xs p-2 rounded-lg shadow-md
-                        {{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black' }}">
-                        <p class="text-sm">{{ $message->message }}</p>
-                        <p class="text-xs text-white-200 mt-1 text-right">
+                <div class="mb-3 d-flex {{ $message->sender_id == auth()->id() ? 'justify-content-end' : 'justify-content-start' }}" data-message-id="{{ $message->id }}">
+                    <div class="message-content p-2 rounded shadow-sm
+                        {{ $message->sender_id == auth()->id() ? 'bg-primary text-white' : 'bg-light text-dark' }}">
+                        <p class="mb-1">{{ $message->message }}</p>
+                        <p class="text-muted small text-end">
                             {{ \Carbon\Carbon::parse($message->created_at)->setTimezone('Asia/Manila')->format('h:i A') }}
                         </p>
                         <!-- Display Media Files -->
@@ -65,10 +65,10 @@
                                 @php $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); @endphp
                                 @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
                                     <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="w-40 rounded-lg mt-1">
+                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="img-fluid rounded mt-1" style="max-width: 160px;">
                                     </a>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-blue-600 underline block mt-1">📎 Download File</a>
+                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-decoration-none text-primary d-block mt-1">📎 Download File</a>
                                 @endif
                             </div>
                         @endif
@@ -78,21 +78,21 @@
         </div>
 
         <!-- Chat Form -->
-        <form id="chatForm" action="{{ route('admin.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-4 border-t bg-white flex items-center">
+        <form id="chatForm" action="{{ route('admin.chat.store') }}" method="POST" enctype="multipart/form-data" class="p-3 border-top bg-white d-flex align-items-center">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
             <input type="hidden" name="receiver_type" value="{{ $receiverType }}">
-            <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4" placeholder="Type a message...">
-            <input type="file" id="fileInput" name="file" class="p-2 border hidden" accept=".jpg,.jpeg,.png,.gif,.docx,.mp4,.mov,.avi">
-            <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
-            <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full ml-2 opacity-50 cursor-not-allowed" disabled>Send</button>
+            <input type="text" name="message" id="messageInput" class="form-control flex-grow-1 me-2 rounded-pill" placeholder="Type a message...">
+            <input type="file" id="fileInput" name="file" class="form-control d-none" accept=".jpg,.jpeg,.png,.gif,.docx,.mp4,.mov,.avi">
+            <label for="fileInput" class="btn btn-light btn-sm me-2"><i class="fas fa-paperclip"></i></label>
+            <button type="submit" id="sendButton" class="btn btn-primary btn-sm rounded-pill" disabled>Send</button>
         </form>
-        <p id="fileError" class="text-red-500 text-sm mt-2 hidden text-center">⚠ File size must not exceed 30MB.</p>
+        <p id="fileError" class="text-danger small mt-2 text-center d-none">⚠ File size must not exceed 30MB.</p>
         <!-- Preloader -->
-        <div id="preloader" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-lg shadow-lg flex items-center">
-                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                <span class="ml-3">Uploading...</span>
+        <div id="preloader" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center">
+            <div class="bg-white p-4 rounded shadow-sm d-flex align-items-center">
+                <div class="loader spinner-border text-primary me-3"></div>
+                <span>Uploading...</span>
             </div>
         </div>
     </div>
@@ -142,7 +142,7 @@
                 if (lastMessage) {
                     let messageId = lastMessage.getAttribute('data-message-id');
                     if (messageId && messageId !== lastNotifiedMessageId) {
-                        if (!lastMessage.classList.contains('justify-end')) {
+                        if (!lastMessage.classList.contains('justify-content-end')) {
                             playNotificationSound();
                             showDesktopNotification(lastMessage.querySelector('p').textContent);
                             lastNotifiedMessageId = messageId;
@@ -186,16 +186,13 @@
                 let file = fileInput.files[0];
                 if (file && file.size > 300 * 1024 * 1024) {
                     sendButton.disabled = true;
-                    sendButton.classList.add('opacity-50', 'cursor-not-allowed');
-                    fileError.classList.remove('hidden');
+                    fileError.classList.remove('d-none');
                 } else {
-                    fileError.classList.add('hidden');
+                    fileError.classList.add('d-none');
                     if (messageInput.value.trim() || fileInput.files.length > 0) {
                         sendButton.disabled = false;
-                        sendButton.classList.remove('opacity-50', 'cursor-not-allowed');
                     } else {
                         sendButton.disabled = true;
-                        sendButton.classList.add('opacity-50', 'cursor-not-allowed');
                     }
                 }
             }
@@ -214,7 +211,7 @@
 
             document.getElementById('chatForm').addEventListener('submit', function (e) {
                 if (fileInput.files.length > 0) {
-                    preloader.classList.remove('hidden');
+                    preloader.classList.remove('d-none');
                 }
             });
 

@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/history.css')}}">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Orders</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
@@ -50,7 +51,7 @@
             <div class="table-container mt-2 bg-white p-5 rounded-lg">
                 <div class="flex flex-wrap justify-between items-center">
                     {{-- Search --}}
-                    <x-input name="search" placeholder="Search Employee by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>        
+                    <x-input name="search" placeholder="Search Employee by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Search --}}
 
                     {{-- Table Button --}}
@@ -76,8 +77,8 @@
 
                     <div class="overflow-auto max-h-[200px] h-fit mt-5">
                         {{-- Table --}}
-                        <x-table 
-                        :headings="['Employee Name', 'Date', 'Total Amount', 'Action']" 
+                        <x-table
+                        :headings="['Employee Name', 'Date', 'Total Amount', 'Action']"
                         :variable="$employees"
                         category="history"
                         />
@@ -104,18 +105,18 @@
                             <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
                             {{-- Name of Selected Customer --}}
                             <h1 class="text-xl font-bold uppercase mb-6">
-                                @php 
-                                    $separatedInModal = explode('|', $employeeNameAndDate);  
+                                @php
+                                    $separatedInModal = explode('|', $employeeNameAndDate);
                                 @endphp
-                                Orders By: 
-                                <span class="text-blue-800"> 
+                                Orders By:
+                                <span class="text-blue-800">
                                     {{ $separatedInModal[0] }} -
                                     [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
                                 </span>
-                            </h1> 
+                            </h1>
                             {{-- Name of Selected Customer --}}
-            
-            
+
+
                             {{-- Order Details --}}
                             <div class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($statuses as $statusName => $orders)
@@ -127,7 +128,7 @@
                                                 default => 'text-black'
                                             }
                                         }}
-                                    "> 
+                                    ">
                                         {{ $statusName }} Orders:
                                     </h1>
                                     <table class="w-full mb-5">
@@ -163,13 +164,13 @@
                             <p class="text-right text-[18px] sm:text-[20px] font-bold mt-3">Grand Total: ₱ {{ number_format($totalPrice) }}</p>
                             {{-- Order Details --}}
                         </div>
-                    </div>        
+                    </div>
                 @endforeach
             @endforeach
         @endforeach
         {{-- View Order Modal --}}
     </main>
-    
+
 </body>
 </html>
 <script src="{{asset('js/history.js')}}"></script>

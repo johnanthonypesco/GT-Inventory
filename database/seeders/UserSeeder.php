@@ -25,40 +25,42 @@ class UserSeeder extends Seeder
         ]);
         User::create([
             'id' => 2000,
-            'company_id' => 1,
+            'company_id' => 2,
             'name' => 'John Pesgo',
             'email' => 'pescojohnanthony@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
             'contact_number' => '09287337991',
         ]);
-        User::create([
-            'id' => 70,
-            'company_id' => 1,
-            'name' => 'Test Name 1',
-            'email' => 'test@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'contact_number' => '09287337991',
-        ]);
-        User::create([
-            'id' => 71,
-            'company_id' => 1,
-            'name' => 'Test Name 2',
-            'email' => 'test1@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'contact_number' => '09287337991',
-        ]);
-        User::create([
-            'id' => 72,
-            'company_id' => 1,
-            'name' => 'Test Name 3',
-            'email' => 'test2@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'contact_number' => '09287337991',
-        ]);
+        // bawasan customer user for testing :)
+
+        // User::create([
+        //     'id' => 70,
+        //     'company_id' => 1,
+        //     'name' => 'Test Name 1',
+        //     'email' => 'test@gmail.com',
+        //     'email_verified_at' => now(),
+        //     'password' => Hash::make('12345678'),
+        //     'contact_number' => '09287337991',
+        // ]);
+        // User::create([
+        //     'id' => 71,
+        //     'company_id' => 1,
+        //     'name' => 'Test Name 2',
+        //     'email' => 'test1@gmail.com',
+        //     'email_verified_at' => now(),
+        //     'password' => Hash::make('12345678'),
+        //     'contact_number' => '09287337991',
+        // ]);
+        // User::create([
+        //     'id' => 72,
+        //     'company_id' => 1,
+        //     'name' => 'Test Name 3',
+        //     'email' => 'test2@gmail.com',
+        //     'email_verified_at' => now(),
+        //     'password' => Hash::make('12345678'),
+        //     'contact_number' => '09287337991',
+        // ]);
     }
-    
+
 }

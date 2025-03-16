@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
  */
 class ProductFactory extends Factory
 {
-    
     /**
      * Define the model's default state.
      *
@@ -17,20 +17,24 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $medicines = require database_path('factories\sample_datas\product_samples.php');
-        
         return [
-            'generic_name' => fake()->unique()->randomElement($medicines['generic_names']),
-            'brand_name' => fake()->unique()->randomElement($medicines['brand_names']),
-
-            'form' => fake()->randomElement([
-                'Oral',
-                'Injectables'
-            ]),
-
-            'strength' => fake()->randomElement([
-                'Weak', 'Strong'
-            ]),
+            'form' => fake()->randomElement(['Oral', 'Injectables']),
+            'strength' => fake()->randomElement(['Weak', 'Strong']),
         ];
+    }
+
+    /**
+     * Configure the factory sequence.
+     */
+    public function configure(): static
+    {
+        $medicines = require database_path('factories/sample_datas/product_samples.php');
+
+        return $this->sequence(
+            ...array_map(fn($generic, $brand) => [
+                'generic_name' => $generic,
+                'brand_name' => $brand,
+            ], $medicines['generic_names'], $medicines['brand_names'])
+        );
     }
 }

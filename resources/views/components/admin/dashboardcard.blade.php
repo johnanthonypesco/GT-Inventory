@@ -1,15 +1,15 @@
-@props(['image' => 'image.png', 'title' => 'Total Orders', 'count' => 00])
+@props(['image' => 'image.png', 'title' => 'Total Orders', 'count' => 0])
 
 <div id="card" class="cursor-pointer shadow-lg bg-white w-full p-10 rounded-xl">
     <div class="flex items-center justify-between">
-        <p class="text-3xl">0{{$count}}</p>
-        <img src="{{asset ('image/'. $image)}}" class="w-10">
+        <p class="text-3xl">{{ $count }}</p>
+        <img src="{{ asset('image/' . $image) }}" class="w-10">
     </div>
-    <p class="text-xl font-semibold mt-2">{{$title}}</p>
+    <p class="text-xl font-semibold mt-2">{{ $title }}</p>
 </div>
 
 <style>
-    #card:hover{
+    #card:hover {
         background: #000046;  /* fallback for old browsers */
         background: -webkit-linear-gradient(to right, #1CB5E0, #000046);  /* Chrome 10-25, Safari 5.1-6 */
         background: linear-gradient(to right, #1CB5E0, #000046); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */

@@ -4,7 +4,7 @@
         <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
         <a href="{{ route('customer.manageorder') }}" class="text-md"><i class="fa-solid fa-list-check"></i>Manage Order</a>
         <a href="{{ route('customer.history') }}" class="text-md"><i class="fa-regular fa-clock"></i>Order History</a>
-        <a href="{{ route('customer.chat.index') }}" class="text-md relative">
+        <a href="{{ route('customer.chat.index') }}" id="chatSidebar" class="text-md relative">
             <i class="fa-brands fa-rocketchat"></i>Chat
             @if ($totalUnreadMessages > 0)
                 <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
@@ -39,4 +39,38 @@
         sidebar.classList.remove('left-0')
         sidebar.classList.remove('w-[300px]')
     });
+
+    // add auto reload for realtime
+document.addEventListener('DOMContentLoaded', function() {
+    let contactsRefreshInterval;
+
+    // Start contacts refresh interval
+    function startContactsRefresh() {
+        contactsRefreshInterval = setInterval(refreshContacts, 4000); // Refresh every 6 seconds
+    }
+
+    // Stop contacts refresh interval
+    function stopContactsRefresh() {
+        clearInterval(contactsRefreshInterval);
+    }
+
+    // Function to refresh contacts list
+    function refreshContacts() {
+        fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContactsList = doc.getElementById('chatSidebar');
+                if (newContactsList) {
+                    const currentContactsList = document.getElementById('chatSidebar');
+                    currentContactsList.innerHTML = newContactsList.innerHTML;
+                }
+            })
+            .catch(error => console.error('Error refreshing contacts:', error));
+    }
+
+    // Start the refresh interval when the page loads
+    startContactsRefresh();
+});
 </script>

@@ -8,7 +8,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/manageorder.css') }}">
@@ -19,7 +21,7 @@
 
     <main class="w-full md:ml-[17%]">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
-        
+
         <div class="bg-white mt-5 p-5 rounded-lg ">
             <x-input name="search" placeholder="Search Order by Order ID" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
             <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[52vh]">
@@ -59,9 +61,9 @@
             <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
                 <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                 <h1 class="text-xl font-semibold text-[#005382]">
-                    Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}} 
+                    Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}}
                 </h1>
-                
+
                 <div class="table-container mt-5 h-[300px] overflow-auto">
                     @php
                         $totes = 0;

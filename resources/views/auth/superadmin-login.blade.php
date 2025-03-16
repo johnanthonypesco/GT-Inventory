@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Super Admin Login</title>
 </head>
@@ -15,7 +16,7 @@
         </div>
 
         {{-- ✅ Super Admin Login Form --}}
-        <form method="POST" action="{{ route('superadmin.login.store') }}" 
+        <form method="POST" action="{{ route('superadmin.login.store') }}"
               class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white rounded-lg">
             @csrf {{-- ✅ Security Token --}}
 
@@ -24,26 +25,36 @@
             </h1>
 
             {{-- ✅ Email Field --}}
-            <div class="mt-5">
+            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border-none" value="{{ old('username') }}"/>
+            @error('email') 
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>  
+            @enderror
+            {{-- <div class="mt-5">
                 <label for="s_admin_email" class="text-[20px] text-[#005382]/71">Email</label>
-                <input type="email" name="email" id="email" 
+                <input type="email" name="email" id="email"
                        placeholder="Enter Your Email"
                        class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('s_admin_email') 
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                @error('s_admin_email')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
-            </div>
+            </div> --}}
 
             {{-- ✅ Password Field (Fix: Changed name to "password") --}}
-            <div class="mt-5">
+            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border-none">
+                <x-view-password onclick="showpassword()" id="eye"/>
+            </x-label-input>
+            @error('password') 
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+            {{-- <div class="mt-5">
                 <label for="password" class="text-[20px] text-[#005382]/71">Password</label>
-                <input type="password" name="password" id="password" 
+                <input type="password" name="password" id="password"
                        placeholder="Enter Your Password"
                        class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('password') 
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
-            </div>
+            </div> --}}
 
             {{-- ✅ Remember Me & Forgot Password --}}
             <div class="flex justify-between items-center mt-4">
@@ -66,4 +77,17 @@
         </form>
     </div>
 </body>
+<script>
+    function showpassword() {
+        var password = document.getElementById('password');
+        var eye = document.getElementById('eye');
+        
+        if (password.type === 'password') {
+            password.type = 'text';
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            password.type = 'password';
+            eye.classList.replace('fa-eye-slash', 'fa-eye');}
+    }
+</script>
 </html>

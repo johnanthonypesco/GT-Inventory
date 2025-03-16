@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -30,22 +30,22 @@
     <main class="w-full md:ml-[17%]">
         <x-customer.header title="Manage Account" icon="fa-solid fa-gear"/>
         
-        <div class="mt-5">
+        <div class="mt-5 h-[80vh] overflow-auto">
             <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
                 <div class="absolute top-0 left-0 h-[30%] bg-[#005382] w-full z-1" style="border-radius: 10px 10px 0 0;"></div>
                 <div class="relative w-fit">
                     <!-- Profile Image -->
                     <label for="profile_image">
                         @if (Auth::user()->company && Auth::user()->company->profile_image)
-                            <img 
+                            <img
                                 id="profilePreviewone"
                                 src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
                                 class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 alt="Company Profile Picture"
                             >
                         @else
-                            <i 
-                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                            <i
+                                class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                 style="font-size: 4rem;"
                             ></i>
                         @endif
@@ -56,7 +56,7 @@
                     <i class="fa-solid fa-pen"></i> Edit Profile
                 </button>
             </div>
-            
+
             {{-- Account Information Section --}}
             <div class="bg-white mt-5 p-5 rounded-xl">
                 <p class="text-xl font-semibold">Account Information</p>
@@ -64,21 +64,22 @@
                 <x-label-input label="Account Name" type="text" value="{{ Auth::user()->name }}" divclass="mt-3" disabled/>
                 <x-label-input label="Account Email" type="text" value="{{ Auth::user()->email }}" divclass="mt-3" disabled/>
                 <x-label-input label="Account Contact Number" type="text" value="{{ Auth::user()->contact_number }}" divclass="mt-3" disabled/>
-                <x-label-input label="Account Password" type="password" id="password" value="********" divclass="mt-3 relative" disabled>
-                    <x-view-password onclick="togglePassword('password')"/>
+                <x-label-input label="Account Password" type="password" inputid="accountpassword" value="{{ Auth::user()->password }}" divclass="mt-3 relative" readonly>
+                    <x-view-password onclick="showpassword()" id="eye"/>
                 </x-label-input>
+                    
             </div>
         </div>
 
         {{-- Edit Account Modal --}}
-        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 pt-20" id="editAccountModal">
-            <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto relative">
-                <span onclick="closeEditAccount()" class="cursor-pointer absolute -top-10 -right-3 text-red-600 font-bold text-[50px]">&times;</span>
-                <p class="text-xl font-semibold text-center text-[#005382]">Edit Account</p>
+        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 overflow-auto" id="editAccountModal">
+            <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto mt-5 relative">
+                <x-modalclose click="closeEditAccount"/>
+                <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>
 
                 <form id="editAccountForm" enctype="multipart/form-data">
                     @csrf
-                
+
                     <div class="relative w-fit">
                         <!-- Profile Image -->
                         <label for="profile_image">
@@ -91,8 +92,8 @@
                         >
                         
                             @else
-                                <i 
-                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                                <i
+                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                                     style="font-size: 2rem;"
                                 ></i>
                             @endif
@@ -100,32 +101,50 @@
                         <!-- Hidden File Input -->
                         <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
                     </div>
-                
+
                     <x-label-input label="Account Name" type="text" id="editName" name="name"
                         value="{{ old('name', Auth::user()->name) }}" divclass="mt-5"/>
-                
+
                     <x-label-input label="Email" type="text" id="editEmail" name="email"
                         value="{{ Auth::user()->email }}" divclass="mt-5" readonly/>
-                
+
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
+<<<<<<< HEAD
                         <div class="relative mt-5">
                             <label>Account Password</label>
                             <input type="password" id="editPassword" name="password" placeholder="Leave blank to keep current password" class="border rounded p-2 w-full">
                             <i class="fa-solid fa-eye absolute right-3 top-10 cursor-pointer" onclick="togglePassword('editPassword')"></i>
                         </div>
+=======
+                    <!-- Password -->
+                    <x-label-input label="Account Password" type="password" inputid="editpassword" name="password"
+                        placeholder="Leave blank to keep current password" divclass="mt-5 relative">
+                        <x-view-password onclick="editshowpassword()" id="eye2"/>
+                    </x-label-input>
+>>>>>>> ab06c4b78e98dbe2f44d45154823a3d79f5b8814
+                
+                    <!-- Confirm Password -->
+                    <x-label-input label="Confirm Password" type="password" inputid="editconfirmpassword" name="password_confirmation"
+                        placeholder="Re-enter your new password" divclass="mt-5 relative">
+                        <x-view-password onclick="editshowconfirmpassword()" id="eye3"/>
+                    </x-label-input>
+
+                    <!-- Password Mismatch Message -->
+                    <p id="passwordmismatch" class="text-sm mt-1 text-red-500 hidden"></p>
                 
                     <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
                     </x-submitbutton>
                 </form>
+                
             </div>
         </div>
     </main>
 
-    {{-- JavaScript --}}
-    <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
+{{-- JavaScript --}}
+<script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
     <script>
         // Open the edit account modal
@@ -148,90 +167,82 @@
             }
         }
 
-        // Toggle password visibility
-        function togglePassword(fieldId) {
-            let field = document.getElementById(fieldId);
-            if (field) {
-                field.type = field.type === "password" ? "text" : "password";
-            } else {
-                console.error("Error: Field with ID '" + fieldId + "' not found.");
-            }
-        }
+        
 
         // Handle form submission
         document.getElementById("submitButton").addEventListener("click", function (e) {
             e.preventDefault();
             let form = document.getElementById("editAccountForm");
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to save this account?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, save it!',
-                cancelButtonText: 'No, cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let formData = new FormData(form);
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to save this account?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, save it!',
+            cancelButtonText: 'No, cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData(form);
 
-                    fetch("{{ route('customer.account.update') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                            "Accept": "application/json",
-                        },
-                        body: formData,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: 'Saved!',
-                                text: 'Your account has been successfully saved.',
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload();
+                fetch("{{ route('customer.account.update') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                        "Accept": "application/json",
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Saved!',
+                            text: 'Your account has been successfully saved.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        let errorMessages = "";
+                        if (data.errors) {
+                            Object.values(data.errors).forEach(err => {
+                                errorMessages += `• ${err}\n`;
                             });
                         } else {
-                            let errorMessages = "";
-                            if (data.errors) {
-                                Object.values(data.errors).forEach(err => {
-                                    errorMessages += `• ${err}\n`;
-                                });
-                            } else {
-                                errorMessages = data.message || "Something went wrong!";
-                            }
-
-                            Swal.fire({
-                                title: "Update Failed!",
-                                text: errorMessages,
-                                icon: "error",
-                                confirmButtonText: "OK"
-                            });
+                            errorMessages = data.message || "Something went wrong!";
                         }
-                    })
-                    .catch(error => {
-                        console.error("Fetch Error:", error);
+
                         Swal.fire({
-                            title: "Error!",
-                            text: "An unexpected error occurred. Please try again later.",
+                            title: "Update Failed!",
+                            text: errorMessages,
                             icon: "error",
                             confirmButtonText: "OK"
                         });
-                    });
-                } else {
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Error:", error);
                     Swal.fire({
-                        title: 'Cancelled',
-                        text: 'Your changes were not saved.',
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
+                        title: "Error!",
+                        text: "An unexpected error occurred. Please try again later.",
+                        icon: "error",
+                        confirmButtonText: "OK"
                     });
-                }
-            });
+                });
+            } else {
+                Swal.fire({
+                    title: 'Cancelled',
+                    text: 'Your changes were not saved.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            }
         });
+    });
 
         // Handle profile image preview
   // Handle profile image preview

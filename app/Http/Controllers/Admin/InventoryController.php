@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use Zxing\QrReader;
 use App\Models\Order;
 use App\Models\Product;
@@ -14,13 +15,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
+use App\Http\Controllers\Admin\HistorylogController;
 
 
 class InventoryController extends Controller
 {
-
-    public function showInventory 
+    public function showInventory
     (
         $searched_name = null, //product name
         $form_data = null,  // results ng sinearch 
@@ -57,6 +57,26 @@ class InventoryController extends Controller
         $suggestionsForTarlac = Inventory::where('location_id', Location::where('province', 'Tarlac')->first()->id)->get();
         $suggestionsForNueva = Inventory::where('location_id', Location::where('province', 'Nueva Ecija')->first()->id)->get();
 
+        // THE TOTAL INFORMATION FOR EXPIRY
+        $totalExpiredStock = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
+        ->orderBy('expiry_date', 'desc')->get();
+
+        $totalNearExpiry = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
+        ->orderBy('expiry_date', 'desc')->get();
+
+        // dd($totalExpiredStock->toArray());
+
+        // DISPLAYED EXPIRY DATA
+        $expiredStocks = $totalExpiredStock->groupBy(function ($stocks) {
+            return $stocks->location->province;
+        });
+
+        $nearExpiredStocks = $totalNearExpiry->groupBy(function ($stocks) {
+            return $stocks->location->province;
+        });
+
         return view('admin.inventory', [
             'products' => Product::all(),
 
@@ -76,20 +96,39 @@ class InventoryController extends Controller
             'nuevaSuggestions' => $suggestionsForNueva,
 
             // for the inventory stock notifications
-            'stockMonitor' => Inventory::has('product') 
-            ->with('product')->get() // gets the product data
-            ->groupBy(function ($inventory) { // groups data by generic name
-                return $inventory->product->generic_name . '|' . $inventory->product->brand_name; // this gives the name for the keys of each group
-            })->sortKeys()
-            ->map(function ($group) { // calculates the totals and what to categorize them as.
-                $total = $group->sum('quantity');
-                $status = $total > 0 && $total <= 50 ? 'low-stock' : ($total > 50 ? 'in-stock' : 'no-stock');
-                return [
-                    'total' => $total,
-                    'status' => $status,
-                    'inventories' => $group,
-                ];
+            'stockMonitor' => $inventory = Inventory::has('product') 
+            ->with('product', 'location') // Ensure 'location' is eager-loaded
+            ->get() // Get all inventory records
+            ->groupBy('location.province') // First, group by province
+            ->map(function ($provinceGroup) { // Map each province group
+                return $provinceGroup->groupBy(function ($stock) {
+                    return $stock->product->generic_name . '|' . $stock->product->brand_name;
+                })
+                ->map(function ($group) { // Calculate totals for each product grouping
+                    $total = $group->sum('quantity');
+                    $status = $total > 50 ? 'in-stock' : ($total > 0 ? 'low-stock' : 'no-stock');
+        
+                    return [
+                        'total' => $total,
+                        'status' => $status,
+                        'inventories' => $group,
+                    ];
+                })->sortKeys();
             }),
+        
+        // dd($inventory->toArray());
+        
+
+            // for the stock notifs as wells
+            'expiryTotalCounts' => [
+                'nearExpiry' => $totalNearExpiry->count(),
+                'expired' => $totalExpiredStock->count(),
+            ],
+
+            'expiredDatasets' => [
+                'nearExpiry' => $nearExpiredStocks,
+                'expired' => $expiredStocks,
+            ],
         ]);
     }
 
@@ -149,21 +188,25 @@ class InventoryController extends Controller
         }
     }
 
-    public function registerNewProduct(Request $request, Product $product){
+    public function registerNewProduct(Request $request, Product $product)
+    {
         $validated = $request->validate([
             'generic_name' => 'string|min:3|max:120|nullable',
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
             'img_file_path' => 'string|min:3|nullable',
-        ]); # defense against SQL injections
+        ]); 
 
-        $validated = array_map('strip_tags', $validated); # defense against XSS
+        $validated = array_map('strip_tags', $validated);
 
-        $product->create($validated);
+        $newProduct = $product->create($validated);
+
+        HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
         return to_route('admin.inventory');
     }
+
 
     public function addStock(Request $request, $addType = null)
     {
@@ -210,6 +253,8 @@ class InventoryController extends Controller
             $product->inventories()->create($datas);
         }
 
+        HistorylogController::addstocklog('Add', ' ' . $count . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
+
 
         return to_route('admin.inventory');
     }
@@ -218,6 +263,7 @@ class InventoryController extends Controller
         $product->inventories()->delete(); //SHOULDNT REMOVE STOCK FROM INVENTORY. dont know a solution yet \ (.-.) /
         $product->delete();
 
+        HistorylogController::deleteproductlog('Delete', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been deleted.');
         return to_route("admin.inventory");
     }
 
