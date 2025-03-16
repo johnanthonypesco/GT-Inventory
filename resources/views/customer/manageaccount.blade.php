@@ -72,7 +72,7 @@
         </div>
 
         {{-- Edit Account Modal --}}
-        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5" id="editAccountModal">
+        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 overflow-auto" id="editAccountModal">
             <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto mt-5 relative">
                 <x-modalclose click="closeEditAccount"/>
                 <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>
@@ -110,16 +110,23 @@
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
+                    <!-- Password -->
                     <x-label-input label="Account Password" type="password" inputid="editpassword" name="password"
                         placeholder="Leave blank to keep current password" divclass="mt-5 relative">
                         <x-view-password onclick="editshowpassword()" id="eye2"/>
                     </x-label-input>
-                    
+                
+                    <!-- Confirm Password -->
+                    <x-label-input label="Confirm Password" type="password" inputid="editconfirmpassword" name="password_confirmation"
+                        placeholder="Re-enter your new password" divclass="mt-5 relative">
+                        <x-view-password onclick="editshowconfirmpassword()" id="eye3"/>
+                    </x-label-input>
                 
                     <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
                     </x-submitbutton>
                 </form>
+                
             </div>
         </div>
     </main>
@@ -240,5 +247,17 @@ document.getElementById("profile_image").addEventListener("change", function (e)
 
         });
     </script>
+
+<script>
+    function editshowpassword() {
+        let passwordField = document.getElementById("editpassword");
+        passwordField.type = passwordField.type === "password" ? "text" : "password";
+    }
+
+    function editshowconfirmpassword() {
+        let confirmPasswordField = document.getElementById("editconfirmpassword");
+        confirmPasswordField.type = confirmPasswordField.type === "password" ? "text" : "password";
+    }
+</script>
 </body>
 </html>
