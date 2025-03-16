@@ -48,9 +48,12 @@
                             divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
                     {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
+                        @if (!$authGuard) 
                         <button onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
+                    @endif
+                    
                             <button onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                         </button>

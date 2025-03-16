@@ -17,6 +17,8 @@ class ScannedQrCode extends Model
         'location',
         'quantity',
         'scanned_at',
+        'signature',
+
     ];
 
     public $timestamps = false;

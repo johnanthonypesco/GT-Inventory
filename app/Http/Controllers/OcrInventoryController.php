@@ -364,64 +364,64 @@ class OcrInventoryController extends Controller
     }
     
 
-    public function saveInventory(Request $request)
-    {
-        try {
-            $request->validate([
-                'products' => 'required|array',
-                'products.*.product_name' => 'required|string',
-                'products.*.batch_number' => 'required|string',
-                'products.*.expiry_date'  => 'required|date',
-                'products.*.quantity'     => 'required|integer|min:1',
-                'products.*.location'     => 'nullable|string',
+   public function saveInventory(Request $request)
+{
+    try {
+        $request->validate([
+            'products' => 'required|array',
+            'products.*.product_name' => 'required|string',
+            'products.*.batch_number' => 'required|string',
+            'products.*.expiry_date'  => 'required|date',
+            'products.*.quantity'     => 'required|integer|min:1',
+            'products.*.location'     => 'nullable|string',
+        ]);
+
+        // $failedBatches = []; // Store failed batch numbers
+
+        foreach ($request->products as $data) {
+            // ✅ Check if batch number already exists in inventory
+            $existingInventory = Inventory::where('batch_number', $data['batch_number'])->first();
+
+            // if ($existingInventory) {
+            //     // ❌ If batch already exists, do not insert
+            //     $failedBatches[] = $data['batch_number'];
+            //     continue;
+            // }
+
+            // ✅ Find or create product
+            $product = Product::firstOrCreate(['generic_name' => $data['product_name']]);
+
+            // ✅ Find or create location
+            $location = $data['location'] ? Location::firstOrCreate(['province' => $data['location']]) : null;
+
+            // ✅ Add inventory to the database
+            Inventory::create([
+                'location_id'  => $location ? $location->id : null, // Store NULL if no location
+                'product_id'   => $product->id,
+                'batch_number' => $data['batch_number'],
+                'expiry_date'  => $data['expiry_date'],
+                'quantity'     => $data['quantity'],
             ]);
-    
-            $failedBatches = []; // Store failed batch numbers
-    
-            foreach ($request->products as $data) {
-                // ✅ Check if batch number already exists in inventory
-                $existingInventory = Inventory::where('batch_number', $data['batch_number'])->first();
-    
-                if ($existingInventory) {
-                    // ❌ If batch already exists, do not insert
-                    $failedBatches[] = $data['batch_number'];
-                    continue;
-                }
-    
-                // ✅ Find or create product
-                $product = Product::firstOrCreate(['generic_name' => $data['product_name']]);
-    
-                // ✅ Find or create location
-                $location = $data['location'] ? Location::firstOrCreate(['province' => $data['location']]) : null;
-    
-                // ✅ Add inventory to the database
-                Inventory::create([
-                    'location_id'  => $location ? $location->id : null, // Store NULL if no location
-                    'product_id'   => $product->id,
-                    'batch_number' => $data['batch_number'],
-                    'expiry_date'  => $data['expiry_date'],
-                    'quantity'     => $data['quantity'],
-                ]);
-            }
-    
-            // ✅ Return response
-            if (!empty($failedBatches)) {
-                return response()->json([
-                    'message' => '⚠ Some items were not saved because they already exist in inventory.',
-                    'failed_batches' => $failedBatches
-                ], 409); // 409 Conflict (indicates a duplicate issue)
-            }
-    
-            return response()->json(['message' => '✅ Inventory successfully added!'], 200);
-    
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => '❌ Server error: ' . $e->getMessage(),
-                'line'    => $e->getLine(),
-                'file'    => $e->getFile()
-            ], 500);
         }
+
+        // ✅ Return response
+        if (!empty($failedBatches)) {
+            return response()->json([
+                'message' => '⚠ Some items were not saved because they already exist in inventory.',
+                'failed_batches' => $failedBatches
+            ], 409); // 409 Conflict (indicates a duplicate issue)
+        }
+
+        return response()->json(['message' => '✅ Inventory successfully added!'], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => '❌ Server error: ' . $e->getMessage(),
+            'line'    => $e->getLine(),
+            'file'    => $e->getFile()
+        ], 500);
     }
-    
+}
+
 }    
 
