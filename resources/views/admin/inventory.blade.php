@@ -15,6 +15,8 @@
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+
+
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     <title>Inventory</title>
 </head>

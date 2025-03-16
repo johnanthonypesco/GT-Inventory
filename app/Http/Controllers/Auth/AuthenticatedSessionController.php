@@ -39,9 +39,12 @@ public function store(LoginRequest $request): RedirectResponse
 {
 
    
-    $request->authenticate();
-    $user = Auth::user();
+    $sanitizedData = array_map('strip_tags', $request->only(['email', 'password']));
 
+        // ✅ Validate sanitized input
+        $request->merge($sanitizedData);
+        $request->authenticate();
+        $user = Auth::user();
     // ✅ Ensure the user's email is verified
     if (!$user->hasVerifiedEmail()) {
         return redirect()->route('verification.notice');

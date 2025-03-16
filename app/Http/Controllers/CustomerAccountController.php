@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerAccountController extends Controller
 {
@@ -32,7 +33,7 @@ class CustomerAccountController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'contact_number' => 'nullable|string|max:20',
-                'password' => 'nullable|min:8|confirmed',
+                'password' => 'nullable|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
                 'password_confirmation' => 'nullable|same:password',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
