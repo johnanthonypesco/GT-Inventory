@@ -1,12 +1,13 @@
 <?php
 
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QRCodeController;
 
 
 // Admin Controller
+use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
@@ -14,51 +15,51 @@ use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Export\ExportController;
 
 // Staff Controller
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\ChattingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\Admin\HistorylogController;
 
 // Customer Controller
-use App\Http\Controllers\Customer\ChatRepsController;
+use App\Http\Controllers\Admin\HistorylogController;
 
 //Super Admin Login
+use App\Http\Controllers\Customer\ChatRepsController;
 use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
+
+
+
+
 use App\Http\Controllers\Customer\ManageorderController;
 
-
-
-
-use App\Http\Controllers\Customer\CustomerloginController;
-
 // chat
+use App\Http\Controllers\Customer\CustomerloginController;
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
-use App\Http\Controllers\Staff\ChatController as StaffChatController;
 
 // GroupChat
+use App\Http\Controllers\Staff\ChatController as StaffChatController;
+
+
+
+
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
-
-
-
-
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
-use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 
+use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
@@ -143,6 +144,10 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         
         Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
         Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
+        Route::get('/get-locations', function () {
+            $locations = Location::pluck('province')->toArray();
+            return response()->json(['locations' => $locations]);
+        })->name('get.locations');
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
     });
 
