@@ -145,4 +145,48 @@ function is_in_suggestion(id, list_id) {
         document.getElementById('search-form-' + id).submit();
     }
 }
+
+function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {
+    document.getElementById('transfer_inventory_id').value = inventoryId;
+    document.getElementById('transfer_batch_number').textContent = batchNumber;
+    document.getElementById('transfer_product_name').textContent = productName;
+    document.getElementById('transfer_current_location').textContent = currentLocation;
+    
+    document.getElementById('transferInventoryModal').classList.remove('hidden');
+}
+
+function closeTransferModal() {
+    document.getElementById('transferInventoryModal').classList.add('hidden');
+}
+
+// Handle Transfer Form Submission
+document.getElementById('transferForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = {
+        inventory_id: document.getElementById('transfer_inventory_id').value,
+        new_location: document.getElementById('new_location').value
+    };
+
+    fetch("{{ route('admin.inventory.transfer') }}", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire("Success", data.message, "success").then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire("Error", data.message, "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+
 // SEARCH FUNCTION SECTION

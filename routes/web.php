@@ -148,6 +148,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
             $locations = Location::pluck('province')->toArray();
             return response()->json(['locations' => $locations]);
         })->name('get.locations');
+
+        Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
+
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
     });
 

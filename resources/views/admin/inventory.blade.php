@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>Inventory</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
@@ -122,7 +124,7 @@
 
                 {{-- Table for Inventory --}}
                 <div class="overflow-auto h-[250px] mt-5">
-                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/>
+                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/>
                 </div>
                 {{-- Table for Inventory --}}
 
@@ -420,8 +422,78 @@
             </form>
         </div>
     </div>
-</body>
 
-<script src="{{asset('js/inventory.js')}}"></script>
-<script src="{{asset ('js/sweetalert/inventorysweetalert.js')}}"></script>
+   {{-- Transfer Inventory Modal --}}
+<div id="transferInventoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
+        
+        <form id="transferForm">
+            <input type="hidden" name="inventory_id" id="transfer_inventory_id">
+            
+            <p class="text-gray-600 mb-2">Batch Number: <span id="transfer_batch_number"></span></p>
+            <p class="text-gray-600 mb-2">Product: <span id="transfer_product_name"></span></p>
+            <p class="text-gray-600 mb-2">Current Location: <span id="transfer_current_location"></span></p>
+
+            <label for="new_location" class="text-gray-600">New Location</label>
+            <select id="new_location" name="new_location" class="w-full border rounded-md px-3 py-2 mt-2">
+                @foreach ($locations as $location)
+                    <option value="{{ $location->id }}">{{ $location->province }}</option>
+                @endforeach
+            </select>
+
+            <div class="flex justify-between mt-4">
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeTransferModal()">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Confirm Transfer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ asset('js/inventory.js') }}"></script>
+<script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+
+<script>
+function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {
+    document.getElementById('transfer_inventory_id').value = inventoryId;
+    document.getElementById('transfer_batch_number').textContent = batchNumber;
+    document.getElementById('transfer_product_name').textContent = productName;
+    document.getElementById('transfer_current_location').textContent = currentLocation;
+
+    document.getElementById('transferInventoryModal').classList.remove('hidden'); // Show modal
+}
+
+function closeTransferModal() {
+    document.getElementById('transferInventoryModal').classList.add('hidden'); // Hide modal
+}
+document.getElementById('transferForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = {
+        inventory_id: document.getElementById('transfer_inventory_id').value,
+        new_location: document.getElementById('new_location').value, // Ensure this is an `id` from `locations`
+    };
+
+    fetch("{{ route('admin.inventory.transfer') }}", {
+        method: "PUT",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire("Success", data.message, "success")
+                .then(() => window.location.reload()); // Reload to reflect changes
+        } else {
+            Swal.fire("Error", data.message || "Transfer failed.", "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+
+</script>
+</body>
 </html>

@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 class InventoryController extends Controller
 {
 
-    public function showInventory
+    public function showInventory 
     (
         $searched_name = null, //product name
         $form_data = null,  // results ng sinearch 
@@ -439,5 +439,49 @@ class InventoryController extends Controller
                 ], 500);
             }
         }
-    }
-    
+
+        public function transferInventory(Request $request)
+        {
+            try {
+                // Log the received request data
+                \Log::info("Received Transfer Request:", $request->all());
+        
+                // Validate the request
+                $validated = $request->validate([
+                    'inventory_id' => 'required|exists:inventories,inventory_id',
+                    'new_location' => 'required' // We will check if it's an ID or a name
+                ]);
+        
+                // Check if new_location is an ID or a province name
+                if (!is_numeric($validated['new_location'])) {
+                    // If it's a province name, fetch the corresponding ID
+                    $location = Location::where('province', $validated['new_location'])->first();
+                    if (!$location) {
+                        return response()->json(['success' => false, 'message' => 'Location not found.'], 400);
+                    }
+                    $validated['new_location'] = $location->id; // Replace name with ID
+                }
+        
+                // Find the inventory record
+                $inventory = Inventory::where('inventory_id', $validated['inventory_id'])->first();
+                if (!$inventory) {
+                    return response()->json(['success' => false, 'message' => 'Inventory not found.'], 404);
+                }
+        
+                // Update the inventory's location_id
+                $inventory->update(['location_id' => $validated['new_location']]);
+        
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Inventory successfully transferred!'
+                ], 200);
+        
+            } catch (\Exception $e) {
+                \Log::error("Error transferring inventory", ['error' => $e->getMessage()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+    }        
