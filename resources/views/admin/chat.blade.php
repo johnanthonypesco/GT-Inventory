@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Chat</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
@@ -176,7 +177,7 @@
 
             // Start contacts refresh interval
             function startContactsRefresh() {
-                contactsRefreshInterval = setInterval(refreshContacts, 4000); // Refresh every 4 seconds
+                contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 4 seconds
             }
 
             // Stop contacts refresh interval

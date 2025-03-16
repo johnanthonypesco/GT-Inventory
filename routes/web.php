@@ -80,6 +80,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     })->name('orders.scan');
 
     Route::post('/deduct-inventory', [InventoryController::class, 'deductInventory']);
+    Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
 
     // ONLY FOR THE ADMINS
     Route::middleware(['auth:superadmin,admin'])->group(function () {
@@ -97,6 +98,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+
+        Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
@@ -280,6 +283,8 @@ Route::prefix('customer/chat')->middleware('auth')->group(function () {
     Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('customer.chat.show'); // Open chat
     Route::post('/store', [ChatRepsController::class, 'store'])->name('customer.chat.store'); // Send message
     Route::get('/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.fetch'); // Fetch new messages dynamically
+    Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])
+    ->name('customer.chat.markAsRead');
 });
 
 // ========================= ADMIN, STAFF, SUPERADMIN CHAT ROUTES ========================= //

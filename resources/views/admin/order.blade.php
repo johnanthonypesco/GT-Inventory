@@ -10,6 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
@@ -27,7 +28,7 @@
         <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
-            <x-countcard title='Partially Delivered Orders' image="complete.png" :count="$currentPartials"/>
+            {{-- <x-countcard title='Partially Delivered Orders' image="complete.png" :count="$currentPartials"/> --}}
         </div>
         {{-- Total Container --}}
 

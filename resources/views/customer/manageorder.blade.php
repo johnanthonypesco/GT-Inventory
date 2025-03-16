@@ -14,6 +14,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/manageorder.css') }}">
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Manage Order</title>
 </head>
 <body class="bg-[#BBBCBE] flex p-5 gap-5">

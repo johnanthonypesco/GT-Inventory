@@ -11,6 +11,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/history.css')}}">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
