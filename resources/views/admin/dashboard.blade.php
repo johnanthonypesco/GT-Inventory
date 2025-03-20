@@ -139,3 +139,33 @@
     //     }
     // });
 </script>
+
+@if(auth()->guard('staff')->check())
+<script>
+    if (navigator.geolocation) {
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    fetch("{{ route('api.update-location') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        }),
+                    });
+                },
+                function (error) {
+                    console.error("Error getting location: ", error);
+                }
+            );
+        }, 10000); // Send location every 10 seconds
+    } else {
+        console.error("Geolocation is not supported.");
+    }
+</script>
+@endif
+

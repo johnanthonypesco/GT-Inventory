@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\StaffLocationController;
 
 // Customer Controller
 use App\Http\Controllers\Admin\HistorylogController;
@@ -335,6 +336,23 @@ Route::middleware('guest:staff')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 
 //++~~~~~~~~~~~~~~~~~~~~~~~~~ << GUEST USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~++//
+
+
+
+
+Route::middleware('auth:staff')->group(function () {
+    Route::post('/update-location', [StaffLocationController::class, 'updateLocation'])->name('api.update-location');
+    Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+
+
+});
+
+Route::middleware('auth:admin,superadmin')->group(function () {
+    Route::get('/stafflocation', [StaffLocationController::class, 'index'])->name('admin.stafflocation');
+    Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+
+});
+
 
 // To Keep Laravel Auth Routes
 require __DIR__.'/auth.php';

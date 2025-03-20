@@ -85,4 +85,8 @@ class Staff extends Authenticatable
         return $this->update(['archived_at' => null]);
     }
 
+       public function stafflocation()
+    {
+        return $this->hasOne(StaffLocation::class, 'staff_id');
+    }
 }

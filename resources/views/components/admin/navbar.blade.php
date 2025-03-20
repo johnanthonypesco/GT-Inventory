@@ -39,6 +39,8 @@
             </a>
 
             <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-md"></i>History Log</a>
+
+            <a href="{{ route ('admin.stafflocation')}}" class="text-md"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-md"></i>Staff Location</a>
         @endif
 
         @if (auth('staff')->check())

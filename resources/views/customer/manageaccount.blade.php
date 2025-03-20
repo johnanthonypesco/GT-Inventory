@@ -123,7 +123,6 @@
                         placeholder="Leave blank to keep current password" divclass="mt-5 relative">
                         <x-view-password onclick="editshowpassword()" id="eye2"/>
                     </x-label-input>
->>>>>>> ab06c4b78e98dbe2f44d45154823a3d79f5b8814
                 
                     <!-- Confirm Password -->
                     <x-label-input label="Confirm Password" type="password" inputid="editconfirmpassword" name="password_confirmation"
