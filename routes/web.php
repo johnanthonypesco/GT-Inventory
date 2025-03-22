@@ -98,6 +98,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        // Route::get('/inventory-by-month/{month}', [InventoryController::class, 'getInventoryByMonth']);
+        Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
 
         Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
