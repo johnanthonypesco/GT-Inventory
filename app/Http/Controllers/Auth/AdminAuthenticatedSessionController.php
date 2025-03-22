@@ -1,5 +1,4 @@
-    <?php
-
+<?php
     namespace App\Http\Controllers\Auth;
 
     use Illuminate\View\View;

@@ -63,13 +63,19 @@
                         <!-- Display Media Files -->
                         @if ($message->file_path)
                             <div class="mt-2">
-                                @php $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); @endphp
+                                @php 
+                                    $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); 
+                                    $fileUrl = asset('uploads/chat_files/' . basename($message->file_path)); // ✅ Adjusted path
+                                @endphp
+                        
                                 @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="img-fluid rounded mt-1" style="max-width: 160px;">
+                                    <a href="{{ $fileUrl }}" target="_blank">
+                                        <img src="{{ $fileUrl }}" class="img-fluid rounded mt-1" style="max-width: 160px;">
                                     </a>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-decoration-none text-primary d-block mt-1">📎 Download File</a>
+                                    <a href="{{ $fileUrl }}" download class="text-decoration-none text-primary d-block mt-1">
+                                        📎 Download File
+                                    </a>
                                 @endif
                             </div>
                         @endif

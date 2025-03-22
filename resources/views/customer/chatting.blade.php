@@ -58,18 +58,24 @@
 
                         @if ($message->file_path)
                             <div class="mt-2">
-                                @php $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); @endphp
+                                @php 
+                                    $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); 
+                                    $fileUrl = asset('uploads/chat_files/' . basename($message->file_path)); // ✅ Adjusted path
+                                @endphp
+                        
                                 @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="w-40 rounded-lg mt-1">
+                                    <a href="{{ $fileUrl }}" target="_blank">
+                                        <img src="{{ $fileUrl }}" class="w-40 rounded-lg mt-1">
                                     </a>
                                 @elseif (in_array($fileExt, ['mp4', 'mov', 'avi']))
                                     <video controls class="w-40 rounded-lg mt-1">
-                                        <source src="{{ asset('storage/' . $message->file_path) }}" type="video/{{ $fileExt }}">
+                                        <source src="{{ $fileUrl }}" type="video/{{ $fileExt }}">
                                         Your browser does not support the video tag.
                                     </video>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-white underline block mt-1">📎 Download File</a>
+                                    <a href="{{ $fileUrl }}" download class="text-white underline block mt-1">
+                                        📎 Download File
+                                    </a>
                                 @endif
                             </div>
                         @endif

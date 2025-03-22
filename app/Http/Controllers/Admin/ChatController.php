@@ -237,8 +237,16 @@ class ChatController extends Controller
         }
 
         $filePath = null;
+
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('chat_files', 'public');
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->getClientOriginalName(); // Ensure unique filename
+            
+            // ✅ Move file to the public/uploads directory
+            $file->move(public_path('uploads/chat_files'), $fileName);
+            
+            // ✅ Get the public URL of the file
+            $filePath = asset("uploads/chat_files/{$fileName}");
         }
 
         if (!$request->message && !$filePath) {

@@ -78,15 +78,30 @@ class QrCodeController extends Controller
         $result = $writer->write($qrCode);
         $pngData = $result->getString();
 
-        // ✅ Save QR Code
-        $filePath = "qrcodes/order_{$order->id}.png";
-        Storage::disk('public')->put($filePath, $pngData);
-        Order::updateOrCreate(['id' => $order->id], ['qr_code' => $filePath]);
+         $directory = public_path('qrcodes');
+            $filePath = $directory . "/order_{$order->id}.png";
+            
+            // Ensure the directory exists
+            if (!file_exists($directory)) {
+                mkdir($directory, 0777, true);
+            }
+            
+            // Save the QR code file
+            file_put_contents($filePath, $pngData);
+            
+            
+            Order::updateOrCreate(
+                ['id' => $order->id],
+                ['qr_code' => $filePath]
+            );
 
-        // ✅ Return Blade View
-        return view('orders.show_qrcode', [
-            'order'     => $order,
-            'qrCodeUrl' => asset("storage/{$filePath}")
-        ]);
+            // 10) Build a public URL for display
+            $qrCodeUrl = asset("qrcodes/order_{$order->id}.png");
+
+            // 11) Return a Blade view that shows the QR code
+            return view('orders.show_qrcode', [
+                'order'     => $order,
+                'qrCodeUrl' => $qrCodeUrl
+            ]);
     }
 }
