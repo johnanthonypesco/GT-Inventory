@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+
+use Illuminate\Support\Carbon;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
@@ -21,6 +23,7 @@ class Admin extends Authenticatable
         'password',
         'super_admin_id',
         'is_admin', // ✅ Ensure this is included
+        'archived_at'
     ];
     
 
@@ -40,7 +43,8 @@ class Admin extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'password' => 'hashed', // ✅ Laravel automatically handles hashing
+        'password' => 'hashed',
+        'archived_at' => 'datetime', // ✅ Laravel automatically handles hashing
     ];
 
     /**
@@ -58,4 +62,27 @@ class Admin extends Authenticatable
     {
         return $this->hasMany(Staff::class, 'admin_id'); // ✅ No change needed
     }
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    // ✅ Scope to filter archived users
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    // ✅ Archive the user
+    public function archive()
+    {
+        return $this->update(['archived_at' => Carbon::now()]);
+    }
+
+    // ✅ Restore the user
+    public function restore()
+    {
+        return $this->update(['archived_at' => null]);
+    }
+
 }

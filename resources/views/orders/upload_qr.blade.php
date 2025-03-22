@@ -2,104 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload & Review OCR Data</title>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Upload QR Code</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+<body>
+    <h1>Upload QR Code</h1>
 
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">Upload Receipt Image</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="qr_code" id="qr_code" accept="image/*" required>
+        <button type="submit"><i class="fa-solid fa-upload"></i> Upload</button>
+    </form>
 
-        <!-- Upload Form -->
-        <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col items-center">
-            <input type="file" name="receipt_image" id="receipt_image" accept="image/*" required class="hidden">
-            <label for="receipt_image" class="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md shadow-md">
-                Choose File
-            </label>
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md mt-4 w-full">Upload</button>
-        </form>
-
-        <h2 class="text-lg font-semibold text-gray-700 mt-6">Extracted Data</h2>
-
-        <!-- Review & Edit Form -->
-        <form id="saveForm" class="mt-4 space-y-3">
-            <div id="dynamicFormContainer" class="space-y-3"></div>
-            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-md mt-4 w-full">Confirm & Save</button>
-        </form>
-    </div>
-
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-        
-            let formData = new FormData();
-            formData.append('receipt_image', document.getElementById('receipt_image').files[0]);
-
-            fetch("{{ route('process.receipt') }}", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content") 
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let formContainer = document.getElementById('dynamicFormContainer');
-                formContainer.innerHTML = ""; // Clear previous entries
-
-                if (data.data && data.data.length > 0) {
-                    data.data.forEach((entry, index) => {
-                        let entryHtml = `
-                            <div class="entry-container border p-3 rounded-md bg-gray-50">
-                                <label class="text-gray-600 text-sm">Product Name</label>
-                                <input type="text" name="products[${index}][product_name]" value="${entry.product_name}" class="w-full border rounded-md px-3 py-2">
-                                
-                                <label class="text-gray-600 text-sm">Batch Number</label>
-                                <input type="text" name="products[${index}][batch_number]" value="${entry.batch_number}" class="w-full border rounded-md px-3 py-2">
-                                
-                                <label class="text-gray-600 text-sm">Expiry Date</label>
-                                <input type="date" name="products[${index}][expiry_date]" value="${entry.expiry_date}" class="w-full border rounded-md px-3 py-2">
-                                
-                                <label class="text-gray-600 text-sm">Quantity</label>
-                                <input type="number" name="products[${index}][quantity]" value="${entry.quantity}" class="w-full border rounded-md px-3 py-2">
-                                
-                                <label class="text-gray-600 text-sm">Location</label>
-                                <input type="text" name="products[${index}][location]" value="${entry.location}" class="w-full border rounded-md px-3 py-2">
-                            </div>
-                        `;
-                        formContainer.innerHTML += entryHtml;
-                    });
-                } else {
-                    Swal.fire("Error", data.message, "error");
-                }
-            })
-            .catch(error => Swal.fire("Error", "Failed to process receipt. " + error.message, "error"));
-        });
-
-        document.getElementById('saveForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            let formData = new FormData(this);
-
-            fetch("{{ route('save.receipt') }}", { 
-                method: "POST",
-                body: formData,
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    Swal.fire("Success", data.message, "success");
-                } else {
-                    Swal.fire("Error", "Failed to save data.", "error");
-                }
-            })
-            .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
-        });
-    </script>
 </body>
+{{-- <script> document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('qr_code', document.getElementById('qr_code').files[0]);
+
+    fetch("{{ route('upload.qr.code') }}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message.includes('Error')) {
+            Swal.fire("Error", data.message, "error");
+        } else {
+            Swal.fire("Success", data.message, "success");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire("Error", "Failed to process QR code upload.", "error");
+    });
+});</script> --}}
 </html>
+<script>
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    formData.append('receipt_image', document.getElementById('receipt_image').files[0]);
+
+    fetch("{{ route('process.receipt') }}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content") 
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.data && data.data.length > 0) {
+            let formContainer = document.getElementById('dynamicFormContainer');
+            formContainer.innerHTML = ""; // Clear previous entries
+
+            data.data.forEach((entry, index) => {
+                let entryHtml = `
+                    <div class="entry-container border p-3 rounded-md bg-gray-50 mt-3">
+                        <label class="text-gray-600 text-sm">Product Name</label>
+                        <input type="text" name="products[${index}][product_name]" value="${entry.product_name}" class="w-full border rounded-md px-3 py-2 focus:outline-blue-400">
+                        
+                        <label class="text-gray-600 text-sm">Batch Number</label>
+                        <input type="text" name="products[${index}][batch_number]" value="${entry.batch_number}" class="w-full border rounded-md px-3 py-2 focus:outline-blue-400">
+                        
+                        <label class="text-gray-600 text-sm">Expiry Date</label>
+                        <input type="date" name="products[${index}][expiry_date]" value="${entry.expiry_date}" class="w-full border rounded-md px-3 py-2 focus:outline-blue-400">
+                        
+                        <label class="text-gray-600 text-sm">Quantity</label>
+                        <input type="number" name="products[${index}][quantity]" value="${entry.quantity}" class="w-full border rounded-md px-3 py-2 focus:outline-blue-400">
+                        
+                        <label class="text-gray-600 text-sm">Location</label>
+                        <input type="text" name="products[${index}][location]" value="${entry.location}" class="w-full border rounded-md px-3 py-2 focus:outline-blue-400">
+                    </div>
+                `;
+                formContainer.innerHTML += entryHtml;
+            });
+        } else {
+            Swal.fire("Error", data.message, "error");
+        }
+    })
+    .catch(error => Swal.fire("Error", "Failed to process receipt. " + error.message, "error"));
+});
+
+document.getElementById('saveForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let formData = new FormData(this);
+    
+    fetch("{{ route('save.receipt') }}", { 
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            Swal.fire("Success", data.message, "success");
+        } else {
+            Swal.fire("Error", "Failed to save data.", "error");
+        }
+    })
+    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+});
+</script>
+

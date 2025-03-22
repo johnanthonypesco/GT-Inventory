@@ -100,190 +100,223 @@
         @endif
     </main>
 
-    <script>
-
-        
-        // Revenue Chart Data
-        const revenueData = {
-            labels: @json($revenueLabels),
-            datasets: [{
-                label: 'Revenue (Completed Orders)',
-                data: @json($revenueValues),
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 1,
-                fill: true
-            }]
-        };
-
-        // Initialize the Revenue Chart
-        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctxRevenue, {
-            type: 'line',
-            data: revenueData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue (₱)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Revenue: ₱' + context.raw.toFixed(2);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Data for Most Sold, Low Sold, and Moderate Sold
-        const mostSoldData = {
-            labels: @json($labels),
-            datasets: [{
-                label: 'Most Sold Products',
-                data: @json($data),
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const lowSoldData = {
-            labels: @json($lowSoldLabels),
-            datasets: [{
-                label: 'Low Sold Products',
-                data: @json($lowSoldData),
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const moderateSoldData = {
-            labels: @json($moderateSoldLabels),
-            datasets: [{
-                label: 'Moderate Sold Products',
-                data: @json($moderateSoldData),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        // Initialize the chart with Most Sold data
-        const ctx1 = document.getElementById('chart1');
-        const chart1 = new Chart(ctx1, {
-            type: 'bar',
-            data: mostSoldData,
-            options: {
-                plugins: {
-                    '3d': {
-                        enabled: true, // Enable 3D effects
-                        depth: 20, // Depth of the bars
-                        alpha: 25, // Rotate around the x-axis (front view)
-                        beta: 25, // Rotate around the y-axis (side view)
-                        viewDistance: 25 // Distance from which the chart is viewed
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Inventory Levels Chart
-        const ctx2 = document.getElementById('chart2');
-        const chart2 = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: @json($inventoryLabels),
-                datasets: [
-                    {
-                        label: 'Inventory Levels',
-                        data: @json($inventoryData),
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Deducted Quantities (Delivered Orders)',
-                        data: @json($deductedQuantities->pluck('total_deducted')),
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                plugins: {
-                    '3d': {
-                        enabled: true, // Enable 3D effects
-                        depth: 20, // Depth of the bars
-                        alpha: 25, // Rotate around the x-axis (front view)
-                        beta: 25, // Rotate around the y-axis (side view)
-                        viewDistance: 25 // Distance from which the chart is viewed
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Add event listeners to toggle between Most Sold, Low Sold, and Moderate Sold
-        document.getElementById('mostSoldBtn').addEventListener('click', () => {
-            chart1.data = mostSoldData;
-            chart1.update();
-        });
-
-        document.getElementById('lowSoldBtn').addEventListener('click', () => {
-            chart1.data = lowSoldData;
-            chart1.update();
-        });
-
-        document.getElementById('moderateSoldBtn').addEventListener('click', () => {
-            chart1.data = moderateSoldData;
-            chart1.update();
-        });
-
-        // Add event listeners to filter inventory levels by year and month
-        document.getElementById('yearFilter').addEventListener('change', updateChart);
-        document.getElementById('monthFilter').addEventListener('change', updateChart);
-
-        function updateChart() {
-            const selectedYear = document.getElementById('yearFilter').value;
-            const selectedMonth = document.getElementById('monthFilter').value;
-
-            fetch(`/inventory-by-month/${selectedYear}/${selectedMonth}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Update chart data
-                    chart2.data.labels = data.labels;
-                    chart2.data.datasets[0].data = data.inventoryData;
-                    chart2.data.datasets[1].data = data.deductedData;
-                    chart2.update(); // Update the chart
-                })
-                .catch(error => {
-                    console.error('Error fetching filtered data:', error);
-                });
-        }
-    </script>
 </body>
 </html>
+
+{{-- SCRIPTS NI JM FOR CHARTS --}}
+<script>
+    // Revenue Chart Data
+    const revenueData = {
+        labels: @json($revenueLabels),
+        datasets: [{
+            label: 'Revenue (Completed Orders)',
+            data: @json($revenueValues),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderWidth: 1,
+            fill: true
+        }]
+    };
+
+    // Initialize the Revenue Chart
+    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(ctxRevenue, {
+        type: 'line',
+        data: revenueData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Revenue (₱)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Revenue: ₱' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Data for Most Sold, Low Sold, and Moderate Sold
+    const mostSoldData = {
+        labels: @json($labels),
+        datasets: [{
+            label: 'Most Sold Products',
+            data: @json($data),
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const lowSoldData = {
+        labels: @json($lowSoldLabels),
+        datasets: [{
+            label: 'Low Sold Products',
+            data: @json($lowSoldData),
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const moderateSoldData = {
+        labels: @json($moderateSoldLabels),
+        datasets: [{
+            label: 'Moderate Sold Products',
+            data: @json($moderateSoldData),
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    // Initialize the chart with Most Sold data
+    const ctx1 = document.getElementById('chart1');
+    const chart1 = new Chart(ctx1, {
+        type: 'bar',
+        data: mostSoldData,
+        options: {
+            plugins: {
+                '3d': {
+                    enabled: true, // Enable 3D effects
+                    depth: 20, // Depth of the bars
+                    alpha: 25, // Rotate around the x-axis (front view)
+                    beta: 25, // Rotate around the y-axis (side view)
+                    viewDistance: 25 // Distance from which the chart is viewed
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Inventory Levels Chart
+    const ctx2 = document.getElementById('chart2');
+    const chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: @json($inventoryLabels),
+            datasets: [
+                {
+                    label: 'Inventory Levels',
+                    data: @json($inventoryData),
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Deducted Quantities (Delivered Orders)',
+                    data: @json($deductedQuantities->pluck('total_deducted')),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                '3d': {
+                    enabled: true, // Enable 3D effects
+                    depth: 20, // Depth of the bars
+                    alpha: 25, // Rotate around the x-axis (front view)
+                    beta: 25, // Rotate around the y-axis (side view)
+                    viewDistance: 25 // Distance from which the chart is viewed
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Add event listeners to toggle between Most Sold, Low Sold, and Moderate Sold
+    document.getElementById('mostSoldBtn').addEventListener('click', () => {
+        chart1.data = mostSoldData;
+        chart1.update();
+    });
+
+    document.getElementById('lowSoldBtn').addEventListener('click', () => {
+        chart1.data = lowSoldData;
+        chart1.update();
+    });
+
+    document.getElementById('moderateSoldBtn').addEventListener('click', () => {
+        chart1.data = moderateSoldData;
+        chart1.update();
+    });
+
+    // Add event listeners to filter inventory levels by year and month
+    document.getElementById('yearFilter').addEventListener('change', updateChart);
+    document.getElementById('monthFilter').addEventListener('change', updateChart);
+
+    function updateChart() {
+        const selectedYear = document.getElementById('yearFilter').value;
+        const selectedMonth = document.getElementById('monthFilter').value;
+
+        fetch(`/inventory-by-month/${selectedYear}/${selectedMonth}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update chart data
+                chart2.data.labels = data.labels;
+                chart2.data.datasets[0].data = data.inventoryData;
+                chart2.data.datasets[1].data = data.deductedData;
+                chart2.update(); // Update the chart
+            })
+            .catch(error => {
+                console.error('Error fetching filtered data:', error);
+            });
+    }
+</script>
+{{-- SCRIPTS NI JM FOR CHARTS --}}
+
+
+{{-- SCRIPTS NI KUYA FOR LOCATION TRACKING --}}
+@if(auth()->guard('staff')->check())
+<script>
+    if (navigator.geolocation) {
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    fetch("{{ route('api.update-location') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        }),
+                    });
+                },
+                function (error) {
+                    console.error("Error getting location: ", error);
+                }
+            );
+        }, 10000); // Send location every 10 seconds
+    } else {
+        console.error("Geolocation is not supported.");
+    }
+</script>
+@endif
+{{-- SCRIPTS NI KUYA FOR LOCATION TRACKING --}}

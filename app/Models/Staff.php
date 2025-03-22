@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class Staff extends Authenticatable
 {
@@ -23,6 +24,7 @@ class Staff extends Authenticatable
         'location_id',
         'job_title',
         'is_staff',
+        'archived_at'
     ];
 
     /**
@@ -41,7 +43,8 @@ class Staff extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'password' => 'hashed', // Laravel auto-hashes passwords
+        'password' => 'hashed',
+        'archived_at' => 'datetime', // Laravel auto-hashes passwords
     ];
 
     /**
@@ -58,5 +61,32 @@ class Staff extends Authenticatable
     public function location()
     {
         return $this->belongsTo(Location::class, 'location_id');
+    }
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    // ✅ Scope to filter archived users
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    // ✅ Archive the user
+    public function archive()
+    {
+        return $this->update(['archived_at' => Carbon::now()]);
+    }
+
+    // ✅ Restore the user
+    public function restore()
+    {
+        return $this->update(['archived_at' => null]);
+    }
+
+       public function stafflocation()
+    {
+        return $this->hasOne(StaffLocation::class, 'staff_id');
     }
 }
