@@ -24,7 +24,6 @@ use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\StaffLocationController;
-use App\Http\Controllers\StaffLocationController;
 
 // Customer Controller
 use App\Http\Controllers\Admin\HistorylogController;
