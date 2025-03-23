@@ -180,6 +180,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     //69///////////////////////// << ACCOUNT ARHIVAL ROUTES >> //////////////////////////////69//
     Route::post('/superadmin/accounts/{role}/{id}/archive', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.archive');
     Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountController::class, 'restore'])->name('superadmin.account.restore');
+
     //69///////////////////////// << ACCOUNT ARHIVAL ROUTES >> //////////////////////////////69//
 
 
@@ -353,8 +354,6 @@ Route::middleware('guest:staff')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 
 //++~~~~~~~~~~~~~~~~~~~~~~~~~ << GUEST USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~++//
-
-
 
 
 Route::middleware('auth:staff')->group(function () {

@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\Customer;
 
-use App\Http\Controllers\Controller;
-use App\Models\ExclusiveDeal;
-use App\Models\Order;
 use App\Models\User;
+use App\Models\Admin;
+use App\Models\Order;
+use App\Models\Inventory;
+use App\Models\SuperAdmin;
+use App\Mail\OrderNotificationMail;
 use Illuminate\Http\Request;
+use App\Models\ExclusiveDeal;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -52,8 +57,30 @@ class OrderController extends Controller
         
         if (!$isOrderInvalid) {
             $orders = [];
-
+            $orderDetails = [];
+    
             foreach ($validated['user_id'] as $index => $user_id) {
+                $user = User::findOrFail($user_id);
+                $deal = ExclusiveDeal::with('product')->findOrFail($validated['exclusive_deal_id'][$index]);
+                $locationId = $user->company->location_id;
+    
+                $availableQty = Inventory::where('location_id', $locationId)
+                    ->where('product_id', $deal->product_id)
+                    ->sum('quantity');
+    
+                // $availableQty = $inventory ? $inventory->quantity : 0;
+                $isAvailable = $availableQty >= $validated['quantity'][$index];
+    
+                // Save for email
+                $orderDetails[] = [
+                    'user' => $user->name,
+                    'product' => $deal->product->generic_name,
+                    'quantity_requested' => $validated['quantity'][$index],
+                    'available' => $isAvailable,
+                    'available_quantity' => $availableQty,
+                    'location' => $user->company->location->province . ', ' . $user->company->location->city,
+                ];
+    
                 $orders[] = [
                     'user_id' => $user_id,
                     'exclusive_deal_id' => $validated['exclusive_deal_id'][$index],
@@ -61,18 +88,31 @@ class OrderController extends Controller
                     'date_ordered' => date('Y-m-d'),
                     'created_at' => now(),
                     'updated_at' => now(),
-                ];    
-            };
-
+                ];
+            }
+    
             Order::insert($orders);
+    
+            // Notify admins
 
+
+                $admins = Admin::all();
+                $superadmins = SuperAdmin::all();
+
+                foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
+                }
+
+                foreach ($superadmins as $superadmin) {
+                Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
+                }
+                
+
+            
+    
             return to_route('customer.order')->with('success', true);
         } else {
             abort(403, 'DO NOT MODIFY THE ORDER DATA REQUEST. YOU HAVE BEEN WARNED HACKER >:(');
-
-            // return back()->withErrors([
-            //     'warning' => 'DO NOT MODIFY THE ORDER DATA REQUEST. YOU HAVE BEEN WARNED HACKER >:(',
-            // ]);
         }
     }
 }
