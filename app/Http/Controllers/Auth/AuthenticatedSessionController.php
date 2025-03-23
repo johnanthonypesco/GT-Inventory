@@ -23,7 +23,7 @@ class AuthenticatedSessionController extends Controller
     public function create(): View|RedirectResponse
 {
     if (Auth::check()) {
-        return redirect()->route('customer.manageorder');
+        return redirect()->route('customer.dashboard');
     }
 
     return view('auth.login');
