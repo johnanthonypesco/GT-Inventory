@@ -76,6 +76,17 @@
                     <i class="fa-solid fa-times text-red-500 text-4xl"></i>
                 </div>
             </div>
+
+            {{-- Completed for Delivery --}}
+            <div class="bg-white p-8 rounded-lg w-full shadow-md">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-lg">Completed Orders</p>
+                        <p class="text-2xl">{{ $completedorder }}</p>
+                    </div>
+                    <i class="fa-solid fa-check text-blue-500 text-4xl"></i>
+                </div>
+            </div>
         </div>
     </main>
 </body>

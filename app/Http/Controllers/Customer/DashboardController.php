@@ -20,6 +20,7 @@ class DashboardController extends Controller
             ->count();
         $cancelledorder = Order::where('user_id', $userId)->where('status', 'cancelled')->count();
         $outfordelivery = Order::where('user_id', $userId)->where('status', 'delivered')->count();
+        $completedorder = Order::where('user_id', $userId)->where('status', 'completed')->count();
 
         return view('customer.dashboard', [
             'totalorder' => $totalorder,
@@ -27,6 +28,7 @@ class DashboardController extends Controller
             'confirmedorder' => $confirmedorder,
             'cancelledorder' => $cancelledorder,
             'outfordelivery' => $outfordelivery,
+            'completedorder' => $completedorder,
         ]);
     }
 }
