@@ -63,6 +63,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
@@ -252,6 +253,7 @@ Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa
 
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
