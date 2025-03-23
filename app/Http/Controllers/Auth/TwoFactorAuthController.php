@@ -196,10 +196,17 @@ class TwoFactorAuthController extends Controller
      */
     public function resend()
     {
-        foreach (['user', 'admin', 'superadmin', 'staff'] as $role) {
-            $sessionKey = "two_factor_{$role}_id";
-            $model = "App\\Models\\" . ucfirst($role);
-            $roleId = session($sessionKey);
+
+          $models = [
+            'user' => \App\Models\User::class,
+            'admin' => \App\Models\Admin::class,
+            'superadmin' => \App\Models\SuperAdmin::class,
+            'staff' => \App\Models\Staff::class,
+        ];
+
+        foreach ($models as $role => $model) {
+         $sessionKey = "two_factor_{$role}_id";
+         $roleId = session($sessionKey);
 
             if ($roleId) {
                 $user = $model::find($roleId);
