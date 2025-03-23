@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
@@ -25,7 +26,7 @@
             {{-- Customer List Search Function --}}
             <div class="flex flex-col md:flex-row justify-between items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
-                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg outline-1 outline-[#005382]"/>        
+                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>        
             </div>
             {{-- Customer List Search Function --}}
 

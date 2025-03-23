@@ -53,14 +53,26 @@ class CustomerAccountController extends Controller
             // Handle profile image update
             if ($request->hasFile('profile_image')) {
                 if ($user->company) {
-                    // Delete old profile image if exists
-                    if (!empty($user->company->profile_image) && Storage::exists('public/' . $user->company->profile_image)) {
-                        Storage::delete('public/' . $user->company->profile_image);
+                    // ✅ Define upload directory (inside 'public/uploads/')
+                    $uploadPath = 'uploads/profile_images/';
+            
+                    // ✅ Ensure the directory exists
+                    if (!file_exists(public_path($uploadPath))) {
+                        mkdir(public_path($uploadPath), 0775, true);
                     }
-                    
-                    // Store new image
-                    $imagePath = $request->file('profile_image')->store('profile_images', 'public');
-                    $user->company->profile_image = $imagePath;
+            
+                    // ✅ Delete old profile image if exists
+                    if (!empty($user->company->profile_image) && file_exists(public_path($uploadPath . basename($user->company->profile_image)))) {
+                        unlink(public_path($uploadPath . basename($user->company->profile_image)));
+                    }
+            
+                    // ✅ Store new image
+                    $file = $request->file('profile_image');
+                    $fileName = time() . '_' . $file->getClientOriginalName(); // Unique file name
+                    $file->move(public_path($uploadPath), $fileName);
+            
+                    // ✅ Save path relative to 'uploads/' folder
+                    $user->company->profile_image = $uploadPath . $fileName;
                     $user->company->save();
                 } else {
                     return response()->json([

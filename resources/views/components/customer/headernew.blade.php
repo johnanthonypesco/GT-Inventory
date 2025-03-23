@@ -37,7 +37,7 @@ if(auth('web')->check()) {
             @if (Auth::user()->company && Auth::user()->company->profile_image)
                 <img 
                     id="profilePreviewone"
-                    src="{{ asset(Auth::user()->company->profile_image) }}"  
+                    src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
                     class="w-12 h-12 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                     alt="Company Profile Picture"
                 >
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start contacts refresh interval
     function startContactsRefresh() {
-        contactsRefreshInterval = setInterval(refreshContacts, 5000); // Refresh every 6 seconds
+        contactsRefreshInterval = setInterval(refreshContacts, 4000); // Refresh every 6 seconds
     }
 
     // Stop contacts refresh interval
