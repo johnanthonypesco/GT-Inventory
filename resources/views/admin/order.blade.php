@@ -28,7 +28,8 @@
         <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
-            {{-- <x-countcard title='Partially Delivered Orders' image="complete.png" :count="$currentPartials"/> --}}
+            <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientTotal > 0 ? 'animate-pulse border-4 border-red-500' : '' }}" 
+            title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientTotal"/>            
         </div>
         {{-- Total Container --}}
 
@@ -144,35 +145,64 @@
                                                 <th>Generic Name</th>
                                                 <th>Brand Name</th>
                                                 <th>Form</th>
+                                                <th>Available</th>
                                                 <th>Quantity</th>
                                                 <th>Price</th>
                                                 <th>Subtotal</th>
-                                                <th>QR Code</th>
+                                                <th colspan="2">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($orders as $order)
-                                                {{-- @foreach ($orders as $order) --}}
-                                                    @php
-                                                        $order_calc = $order->exclusive_deal->price * $order->quantity;
-                                                        $total += $order_calc;
-                                                    @endphp
-                                                    <tr class="text-center">
-                                                        <td>{{ $order->exclusive_deal->product->generic_name }}</td>
-                                                        <td>{{ $order->exclusive_deal->product->brand_name }}</td>
-                                                        <td>{{ $order->exclusive_deal->product->form }}</td>
-                                                        <td>{{ $order->quantity }}</td>
-                                                        <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
-                                                        <td>₱ {{ number_format($order_calc) }}</td>
-                                                        <td>
-                                                            <!-- Link to generate the QR code for this single order -->
-                                                            <a href="{{ route('orders.showQrCode', $order->id) }}"
-                                                            class="btn btn-primary">
-                                                                Generate QR Code
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                {{-- @endforeach --}}
+                                                @php
+                                                    $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                                    $total += $order_calc;
+                                                    
+                                                    $productInfo = $order->exclusive_deal->product;
+
+                                                    $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name;
+
+                                                    $currentStock = $stocksAvailable[$keyWord];
+                                                    $isNotEnough = $currentStock < $order->quantity;
+                                                @endphp
+                                                
+                                                <tr style="{{ $isNotEnough ? 'pointer-events: none;' : '' }}" class="text-center
+                                                {{ $isNotEnough ? "bg-red-500 animate-pulse text-white" : '' }}
+                                                ">
+                                                    <td>{{ $productInfo->generic_name }}</td>
+                                                    <td>{{ $productInfo->brand_name }}</td>
+                                                    <td>{{ $productInfo->form }}</td>
+                                                    <td>{{ $currentStock }}</td>
+                                                    <td>{{ $order->quantity }}</td>
+                                                    <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
+                                                    <td>₱ {{ number_format($order_calc) }}</td>
+                                                    <td colspan="2">
+                                                        @if ($isNotEnough)
+                                                            <p> Insufficient Stock </p>
+                                                        
+                                                        @else
+                                                            <div class="flex gap-1 items-center justify-center">
+                                                                <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
+                                                                'order-modal-{{ $employeeNameAndDate }}')">
+                                                                    Change Status
+                                                                </button>
+
+                                                                <!-- Link to generate the QR code for this single order -->
+                                                                <a href="{{ route('orders.showQrCode', $order->id) }}"
+                                                                class="group relative btn btn-primary px-2 py-1 bg-green-600 rounded-md text-white">
+                                                                    <i class="fa-solid fa-qrcode"></i>
+
+                                                                    <!-- Tooltip -->
+                                                                    <span class="absolute hidden -left-[85px] -top-[55px] animate-bounce
+                                                                    bg-gray-800 text-white text-xs rounded-md 
+                                                                    w-fit px-2 py-1 group-hover:block">
+                                                                        Generate the QR Code for this Order
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -229,6 +259,38 @@
             </div>
         </div>
         {{-- Add New Order Modal --}}
+        
+        {{-- Update Order Status Modal --}}
+        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+            <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
+                <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
+                <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Product's Status:</h1>
+                
+                <form action="{{ route("admin.order.update", 0) }}" method="POST" class="overflow-y-auto h-fit max-h-[400px] flex flex-col gap-4 mt-5">
+                    @csrf
+                    @method("PUT")
+                    
+                    <div class="hidden" id="id-container"></div>
+
+                    <input type="hidden" id="status-id" name="status">
+                    <input type="hidden" id="mother-id" name="mother_div">
+                    
+                    <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
+                        PENDING
+                    </button>
+                    <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'completed')" type="button">
+                        COMPLETED
+                    </button>
+                    <button class="bg-blue-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'delivered')" type="button">
+                        DELIVERED
+                    </button>
+                    <button class="bg-red-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'cancelled')" type="button">
+                        CANCELLED
+                    </button>
+                </form>
+            </div>
+        </div>
+        {{-- Update Order Status Modal --}}
 
         {{-- Upload qr code modal --}}
         <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
@@ -248,8 +310,57 @@
             </div>
         </div>
     </main>
+
+    {{-- FOR ACTION MAPS --}}
+    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+        <div class="modal bg-white w-full md:w-[60%] mx-auto p-5 rounded-lg relative shadow-lg">
+            <x-modalclose click="showInsufficients"/>
+
+            <h1 class="text-xl font-semibold text-gray-800 mb-4">
+                Orders That Cannot Be Fulfilled:
+            </h1>
+
+            @foreach ($insufficients as $orderName => $orders)
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date Ordered</th>
+                            <th>Company</th>
+                            <th>Employee</th>
+                            <th>Generic Name</th>
+                            <th>Brand Name</th>
+                            <th>Current Supply</th>
+                            <th>Demanded Quantity</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach ($orders as $order)
+                            @php
+                                $explodedName = explode("|", $order["currentInfo"]["name"]);
+                            @endphp
+
+                            <tr>
+                                <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
+                                <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
+                                <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
+                                <td> {{ $explodedName[0] }} </td>
+                                <td> {{ $explodedName[1] }} </td>
+                                <td> {{ number_format($order["currentInfo"]["total"]) }} </td>
+                                <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
+                            </tr>
+                        @endforeach                        
+                    </tbody>
+                </table>
+            @endforeach
+        </div>
+    </div>
+    {{-- FOR ACTION MAPS --}}
 </body>
+</html>
+
 <script src="{{ asset('js/order.js') }}"></script>
+
 <script>
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -276,4 +387,3 @@
     });
 });
 </script>
-</html>

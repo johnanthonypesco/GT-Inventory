@@ -20,10 +20,14 @@ class CompanyFactory extends Factory
         return [
             'location_id' => Location::pluck('id')->random(),
             'name' => fake()->unique()->randomElement([
-                'Accenture Co.',
-                'Fake Jeep Inc.',
-                'Grassers Co.',
-                'CornHud Inc.',
+                'MediCare Hospital',
+                'Wellness General Hospital',
+                'LifeSpring Medical Center',
+                'NovaCare Health System',
+                'Guardian Pharmacy',
+                'PharmaPlus Inc.',
+                'MediTrust Pharmaceuticals',
+                'VitalCare Pharmacy',
             ]),
 
             'address' => fake()->address(),
