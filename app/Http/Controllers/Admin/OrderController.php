@@ -47,17 +47,31 @@ class OrderController extends Controller
         });
 
         // To get the current summary of total stocks ng bawat product na hindi pa expired
-        $currentStocks = Inventory::with("product")
-        ->where('quantity', '>', 0)
-        ->whereDate('expiry_date', '>=', Carbon::today())->get()
-        ->groupBy(function ($stocks) {
-            return $stocks->product->generic_name . "|" . $stocks->product->brand_name;
-        })
-        ->map(function ($products) {
-            $total = $products->sum("quantity");
-            return $total;
-        });
+        // $currentStocks = Inventory::with("product")
+        // // ->where('quantity', '>', 0) nicomment ko para masama ung stock na zero ung quantity..
+        // ->whereDate('expiry_date', '>=', Carbon::today())->get()
+        // ->groupBy(function ($stocks) {
+        //     return $stocks->product->generic_name . "|" . $stocks->product->brand_name;
+        // })
+        // ->map(function ($products) {
+        //     $total = $products->sum("quantity");
+        //     return $total;
+        // });
 
+    $currentStocks = Inventory::with("product")
+    ->get()
+    ->groupBy(function ($stock) {
+        return $stock->product->generic_name . "|" . $stock->product->brand_name;
+    })
+    ->map(function ($productStocks) {
+        $nonExpired = $productStocks->where('expiry_date', '>=', now());
+
+        if ($nonExpired->isEmpty()) {
+            return 'expired';
+        }
+
+        return $nonExpired->sum('quantity');
+    });
         // dd($currentStocks->toArray());
         
         // To get only the orders grouped by name
@@ -69,7 +83,7 @@ class OrderController extends Controller
             if (!$order->exclusive_deal || !$order->exclusive_deal->product) {
                 return 'Unknown Product';
             }
-            return $order->exclusive_deal->product->generic_name . "|" . $order->exclusive_deal->product->brand_name;
+            return $order->exclusive_deal->product->generic_name. "|" . $order->exclusive_deal->product->brand_name;
         })->toArray();
 
 
@@ -91,15 +105,26 @@ class OrderController extends Controller
         }
 
         // // Groups the non-suppliable by product-name
-        $insufficients = collect($insufficients)->groupBy(function ($pair) {
-            if ($pair["currentInfo"]["total"] < $pair["currentOrder"]["quantity"]) {
-                return $pair["currentInfo"]["name"];
-            } else {
-                return "rejecteds";
-            }
-        })->forget('rejecteds'); // removes the rejected group from the collection
+        // $insufficients = collect($insufficients)->groupBy(function ($pair) {
+        //     if ($pair["currentInfo"]["total"] < $pair["currentOrder"]["quantity"]) {
+        //         return $pair["currentInfo"]["name"];
+        //     } else {
+        //         return "rejecteds";
+        //     }
+        // })->forget('rejecteds'); // removes the rejected group from the collection
 
         // dd($insufficients);
+
+        $insufficients = collect($insufficients)->groupBy(function ($pair) {
+            $total = $pair["currentInfo"]["total"];
+            $quantity = $pair["currentOrder"]["quantity"];
+        
+            if ($total === 'expired' || $total < $quantity) {
+                return $pair["currentInfo"]["name"];
+            }
+        
+            return "rejecteds";
+        })->forget('rejecteds');
 
         // For the Count Card Components
         $ordersThisWeek = Order::whereBetween('date_ordered', [
@@ -107,7 +132,22 @@ class OrderController extends Controller
             Carbon::now()->endOfWeek(),
         ])->count();
         $currentPendings = Order::where('status', 'pending')->get()->count();
-        $currentInsufficients = count($insufficients);
+        $currentInsufficientsproducts = $insufficients->count(); 
+        $currentInsufficientsorders = $insufficients->flatten(1)->count();
+
+        $currentInsufficientSummary = $insufficients->map(function ($orders, $productName) {
+            $totalOrdered = collect($orders)->sum(function ($order) {
+                return $order['currentOrder']['quantity'];
+            });
+        
+            $available = $orders[0]['currentInfo']['total'] ?? 0;
+        
+            return [
+                'product' => $productName,
+                'available' => $available,
+                'ordered' => $totalOrdered,
+            ];
+        });
 
         return view('admin.order', [
             'provinces' => $orders,
@@ -116,7 +156,9 @@ class OrderController extends Controller
 
             'ordersThisWeek' => $ordersThisWeek,
             'currentPendings' => $currentPendings,
-            'insufficientTotal' => $currentInsufficients,
+            'insufficientproducts' => $currentInsufficientsproducts,
+            'insufficientOrders' => $currentInsufficientsorders,
+            'insufficientSummary' => $currentInsufficientSummary,
 
             'authGuard' => Auth::guard('staff')->check(),
         ]);
