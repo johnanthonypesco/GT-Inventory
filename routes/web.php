@@ -64,6 +64,8 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\PromotionalPageController;
+
 
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
@@ -245,6 +247,10 @@ Route::post('/2fa', [TwoFactorAuthController::class, 'verify'])->name('2fa.check
 Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
 //10///////////////////////// << 2FA ROUTES >> //////////////////////////////10//
 
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -370,6 +376,8 @@ Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
 
 });
+
+
 
 
 // To Keep Laravel Auth Routes
