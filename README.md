@@ -55,4 +55,3 @@
     ```bash 
     php artisan test 
     ```
-9. Ayaw marecord ng commit contribution
