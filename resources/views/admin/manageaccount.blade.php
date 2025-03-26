@@ -129,7 +129,7 @@
             
         {{-- End Table for Account List --}}
 
-        <!-- Archived Accounts Modal -->
+        {{-- <!-- Archived Accounts Modal --> --}}
         <div id="archivedModal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 p-5 flex justify-center">
             <div class="modal absolute mt-10 bg-white w-[80%] rounded-lg p-5 shadow-lg">
                 <!-- Close Button -->
