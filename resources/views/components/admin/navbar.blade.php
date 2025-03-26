@@ -4,7 +4,7 @@
         <hr class="mt-2">
     </div>
 
-    <li class="list-none flex flex-col p-2 gap-[12px] h-full">
+    <li class="list-none flex flex-col p-2 gap-[8px] h-full">
         <a href="{{ route('admin.dashboard') }}" class="text-md">
             <i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard
         </a>
@@ -39,6 +39,8 @@
             </a>
 
             <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-md"></i>History Log</a>
+
+            <a href="{{ route ('admin.stafflocation')}}" class="text-md"><i class="fa-solid fa-map-location-dot text-[#005382] text-md"></i>Staff Location</a>
         @endif
 
         @if (auth('staff')->check())

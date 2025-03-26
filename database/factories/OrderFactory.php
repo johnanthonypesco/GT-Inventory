@@ -27,7 +27,7 @@ class OrderFactory extends Factory
             'date_ordered' => fake()->dateTimeBetween('-1 Year', 'now'),
             'status' => fake()->randomElement([
                 'pending',
-                'completed',
+                // 'completed',
                 'cancelled',
                 'delivered'
             ]),

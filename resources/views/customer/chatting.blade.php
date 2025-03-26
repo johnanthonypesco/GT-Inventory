@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
     <!-- Preloader -->
@@ -57,13 +58,24 @@
 
                         @if ($message->file_path)
                             <div class="mt-2">
-                                @php $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); @endphp
+                                @php 
+                                    $fileExt = pathinfo($message->file_path, PATHINFO_EXTENSION); 
+                                    $fileUrl = asset('uploads/chat_files/' . basename($message->file_path)); // ✅ Adjusted path
+                                @endphp
+                        
                                 @if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $message->file_path) }}" class="w-40 rounded-lg mt-1">
+                                    <a href="{{ $fileUrl }}" target="_blank">
+                                        <img src="{{ $fileUrl }}" class="w-40 rounded-lg mt-1">
                                     </a>
+                                @elseif (in_array($fileExt, ['mp4', 'mov', 'avi']))
+                                    <video controls class="w-40 rounded-lg mt-1">
+                                        <source src="{{ $fileUrl }}" type="video/{{ $fileExt }}">
+                                        Your browser does not support the video tag.
+                                    </video>
                                 @else
-                                    <a href="{{ asset('storage/' . $message->file_path) }}" download class="text-white underline block mt-1">📎 Download File</a>
+                                    <a href="{{ $fileUrl }}" download class="text-white underline block mt-1">
+                                        📎 Download File
+                                    </a>
                                 @endif
                             </div>
                         @endif
@@ -80,7 +92,7 @@
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
             <input type="hidden" name="receiver_type" value="{{ $receiverType }}">
             <input type="text" name="message" id="messageInput" class="flex-1 p-2 border rounded-full px-4 text-sm md:text-base" placeholder="Type a message...">
-            <input type="file" id="fileInput" name="file" class="p-2 border hidden" onchange="checkFileSize(this)">
+            <input type="file" id="fileInput" name="file" class="p-2 border hidden" onchange="checkFileSize(this)" accept="image/*, video/*, .pdf, .doc, .docx">
             <label for="fileInput" class="text-2xl cursor-pointer"><i class="fa-solid fa-paperclip"></i></label>
             <div id="fileSizeMessage" class="text-sm text-gray-600 mt-1"></div>
             <button type="submit" id="sendButton" class="bg-blue-600 text-white px-4 py-2 rounded-full opacity-50 cursor-not-allowed text-sm md:text-base">Send</button>
@@ -98,6 +110,7 @@
             const fileInput = document.getElementById('fileInput');
             const sendButton = document.getElementById('sendButton');
             const chatBox = document.getElementById('chatBox');
+            const fileSizeMessage = document.getElementById('fileSizeMessage');
             let audioAllowed = false;
             let lastNotifiedMessageId = {{ $conversations->last() ? $conversations->last()->id : 0 }};
 
@@ -196,20 +209,25 @@
                 }
             }
 
+            // Function to check file size
             function checkFileSize(input) {
-                const maxFileSize = 30 * 1024 * 1024;
+                const maxFileSize = 30 * 1024 * 1024; // 30MB
                 const fileSizeMessage = document.getElementById('fileSizeMessage');
 
                 if (input.files.length > 0) {
                     const fileSize = input.files[0].size;
 
                     if (fileSize > maxFileSize) {
-                        fileSizeMessage.textContent = 'File size exceeds the limit of 30 MB. Please choose a smaller file.';
+                        fileSizeMessage.textContent = 'File size exceeds the limit of 30MB. Please choose a smaller file.';
                         fileSizeMessage.classList.add('text-red-600');
                         input.value = ''; // Clear the file input
+                        sendButton.disabled = true;
+                        sendButton.classList.add('opacity-50', 'cursor-not-allowed');
                     } else {
                         fileSizeMessage.textContent = `File size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`;
                         fileSizeMessage.classList.remove('text-red-600');
+                        sendButton.disabled = false;
+                        sendButton.classList.remove('opacity-50', 'cursor-not-allowed');
                     }
                 } else {
                     fileSizeMessage.textContent = '';
@@ -218,7 +236,7 @@
 
             // Start chat refresh interval
             function startChatRefresh() {
-                chatRefreshInterval = setInterval(refreshChat, 6000);
+                chatRefreshInterval = setInterval(refreshChat, 7000);
             }
 
             // Stop chat refresh interval

@@ -21,6 +21,7 @@
 
     {{-- CSRF Token --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
 
     <title>Manage Account</title>
 </head>
@@ -37,12 +38,11 @@
                     <!-- Profile Image -->
                     <label>
                         @if (Auth::user()->company && Auth::user()->company->profile_image)
-                            <img
+                            <img 
                                 id="profilePreviewone"
-                                src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
+                                src="{{ asset(Auth::user()->company->profile_image) }}" 
                                 class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                alt="Company Profile Picture"
-                            >
+                                alt="Company Profile Picture" />
                         @else
                             <i
                                 class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
@@ -85,11 +85,11 @@
                         <label for="profile_image">
                             @if (Auth::user()->company && Auth::user()->company->profile_image)
                             <img 
-                            id="profilePreview"
-                            src="{{ asset('storage/' . Auth::user()->company->profile_image) }}"
-                            class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                            alt="Company Profile Picture"
-                        >
+                                id="profilePreview"
+                                src="{{ asset(Auth::user()->company->profile_image) }}"
+                                class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                                alt="Company Profile Picture"
+                            >
                         
                             @else
                                 <i
@@ -111,11 +111,15 @@
                     <x-label-input label="Contact Number" type="text" id="editContactNumber" name="contact_number"
                         value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-5"/>
                 
+
+                        
+
                     <!-- Password -->
                     <x-label-input label="Account Password" type="password" inputid="editpassword" name="password"
                         placeholder="Leave blank to keep current password" divclass="mt-5 relative">
                         <x-view-password onclick="editshowpassword()" id="eye2"/>
                     </x-label-input>
+
                 
                     <!-- Confirm Password -->
                     <x-label-input label="Confirm Password" type="password" inputid="editconfirmpassword" name="password_confirmation"
@@ -257,3 +261,4 @@ document.getElementById("profile_image").addEventListener("change", function (e)
     </script>
 </body>
 </html>
+

@@ -19,11 +19,16 @@ class SuperAdminAccountController extends Controller
      */
     public function index()
     { 
-        $admins = Admin::all(); // ✅ Fetch all admins
-        $locations = Location::all(); // ✅ Fetch locations
+        $isSuperAdmin = auth()->guard('superadmin')->check();
+    $isAdmin = auth()->guard('admin')->check();
+
+        $admins = Admin::whereNull('archived_at')->get();
+        $staff = Staff::whereNull('archived_at')->get();
+        $users = User::whereNull('archived_at')->get();
+                $locations = Location::all(); // ✅ Fetch locations
         $companies = Company::all();
         $accounts = collect()
-        ->merge(Admin::all()->map(fn($a) => [
+        ->merge($admins->map(fn($a) => [
             'id' => $a->id,
             'name' => null, // Admins do not use `name`
             'username' => $a->username, // ✅ Store in `username`
@@ -32,7 +37,7 @@ class SuperAdminAccountController extends Controller
             'role' => 'admin',
             'company' => optional($a->company)->name ?? 'RCT Med Pharma',
         ]))
-        ->merge(Staff::all()->map(fn($s) => [
+        ->merge($staff->map(fn($s) => [
             'id' => $s->id,
             'name' => null, // Staff do not use `name`
             'username' => null, // Staff do not use `username`
@@ -40,8 +45,9 @@ class SuperAdminAccountController extends Controller
             'email' => $s->email,
             'role' => 'staff',
             'company' => optional($s->company)->name ?? 'RCT Med Pharma',
+
         ]))
-        ->merge(User::all()->map(fn($u) => [
+        ->merge($users->map(fn($u) => [
             'id' => $u->id,
             'name' => $u->name, // ✅ Customers use `name`
             'username' => null, // Customers do not use `username`
@@ -49,12 +55,46 @@ class SuperAdminAccountController extends Controller
             'email' => $u->email,
             'role' => 'customer',
             'company' => optional($u->company)->name ?? 'RCT Med Pharma',
-            'contact_number' => $u->contact_number ?? ''
+            'contact_number' => $u->contact_number ?? '',
+
         ]));
+
+        $archivedAdmins = Admin::whereNotNull('archived_at')->get();
+        $archivedStaff = Staff::whereNotNull('archived_at')->get();
+        $archivedUsers = User::whereNotNull('archived_at')->get();
+
+        $archivedAccounts = collect()
+        ->merge($archivedAdmins->map(fn($a) => (object) [
+            'id' => $a->id,
+            'name' => null, 
+            'username' => $a->username, 
+            'email' => $a->email,
+            'role' => 'admin',
+        ]))
+        ->merge($archivedStaff->map(fn($s) => (object) [
+            'id' => $s->id,
+            'name' => null, 
+            'username' => $s->staff_username, 
+            'email' => $s->email,
+            'role' => 'staff',
+        ]))
+        ->merge($archivedUsers->map(fn($u) => (object) [
+            'id' => $u->id,
+            'name' => $u->name, 
+            'username' => null, 
+            'email' => $u->email,
+            'role' => 'customer',
+        ]));
+
+    // ✅ Return view with archived accounts
+    // return view('admin.manageaccount', [
+    //     'archivedAccounts' => $archivedAccounts,
+    // ]);
 
         $locations = Location::all();
         // return view('admin.manageaccount', compact('accounts', 'locations', 'admins', 'companies'));
-        return view('admin.manageaccount', ['accounts' => $accounts, 'locations' => $locations, 'admins' => $admins, 'companies' => $companies]);
+        return view('admin.manageaccount', ['accounts' => $accounts, 'locations' => $locations, 'admins' => $admins, 'companies' => $companies,  'archivedAccounts' => $archivedAccounts, 'isSuperAdmin' => $isSuperAdmin,
+        'isAdmin' => $isAdmin,]);
     }
 
     /**
@@ -291,13 +331,39 @@ class SuperAdminAccountController extends Controller
             'admin' => Admin::findOrFail($id),
             'staff' => Staff::findOrFail($id),
             'customer' => User::findOrFail($id),
+            // 'superadmin' => SuperAdmin::findOrFail($id),
             default => abort(404),
         };
-
-        HistorylogController::editaccountlog('Delete', ucfirst($role) . ' account (' . $model->email . ') was deleted');
-
-        $model->delete();
-
-        return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account deleted successfully.');
+    
+        // Archive instead of delete
+        $model->archive();
+    
+        // Log the action
+        HistorylogController::editaccountlog('Archive', ucfirst($role) . ' account (' . $model->email . ') was archived');
+    
+        return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account archived successfully.');
     }
+
+
+    public function restore($role, $id)
+{
+    $model = match ($role) {
+        'admin' => Admin::findOrFail($id),
+        'staff' => Staff::findOrFail($id),
+        'customer' => User::findOrFail($id),
+        default => abort(404),
+    };
+
+    $model->update(['archived_at' => null]);
+
+   
+
+  
+
+    HistorylogController::editaccountlog('Restore', ucfirst($role) . ' account (' . $model->email . ') was restored');
+
+    return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
+}
+
+    
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Messenger</title>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">

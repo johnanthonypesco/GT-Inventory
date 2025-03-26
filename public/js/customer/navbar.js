@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start contacts refresh interval
     function startContactsRefresh() {
-        contactsRefreshInterval = setInterval(refreshContacts, 4000); // Refresh every 6 seconds
+        contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 6 seconds
     }
 
     // Stop contacts refresh interval

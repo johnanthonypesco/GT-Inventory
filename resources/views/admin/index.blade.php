@@ -7,6 +7,7 @@
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/index.css')}}">
+    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Admin Login</title>
 </head>
 <body>

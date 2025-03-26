@@ -7,13 +7,6 @@ function closeOrderModal(id) {
     viewOrderModal.classList.replace("flex", "hidden");
 }
 
-// window.addEventListener("click", function (e) {
-//     var viewOrderModal = document.querySelector(".order-modal");
-//     if (e.target == viewOrderModal) {
-//         viewOrderModal.style.display = "none";
-//     }
-// });
-
 function addneworder() {
     var addOrderModal = document.querySelector(".add-new-order-modal");
     addOrderModal.style.display = "block";
@@ -33,4 +26,44 @@ function closeuploadqrmodal() {
     uploadQrModal.style.display = "none";
 }
 
+function showInsufficients() {
+    const summaryDiv = document.getElementById("insufficientsModal");
 
+    if(summaryDiv.classList.contains("hidden")) {
+        summaryDiv.classList.replace("hidden", "flex");
+    } else {
+        summaryDiv.classList.replace("flex", "hidden");
+    }
+}
+
+function showChangeStatusModal(id, motherDiv) {
+    const summaryDiv = document.getElementById("change-status-modal");
+    const statusInputId = document.getElementById("id-container");
+    const motherInput = document.getElementById("mother-id");
+
+    if(summaryDiv.classList.contains("hidden")) {
+        summaryDiv.classList.replace("hidden", "flex");
+
+        statusInputId.dataset.id = id;
+        motherInput.value = motherDiv;
+    } else {
+        summaryDiv.classList.replace("flex", "hidden");
+        statusInputId.dataset.id = 0;
+        motherInput.value = 0;    
+    }
+}
+
+function changeStatus(form, statusType) {
+    const idContainer = document.getElementById("id-container");
+    const statusID = document.getElementById("status-id");
+
+    statusID.value = statusType.toLowerCase();
+
+    // ayoko gumamit ng pattern finder algoritmn so i-deconstruct ko nalang string :)
+    const separated = form.action.split("admin/orders")
+    
+    // yung separed[0] is yung http://127.0.0.1:8000/
+    form.action = separated[0] + "admin/orders/" +  idContainer.dataset.id;
+
+    confirm("Change Status???") ? form.submit() : null
+}

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerAccountController extends Controller
 {
@@ -32,7 +33,7 @@ class CustomerAccountController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'contact_number' => 'nullable|string|max:20',
-                'password' => 'nullable|min:8|confirmed',
+                'password' => 'nullable|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
                 'password_confirmation' => 'nullable|same:password',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -52,14 +53,26 @@ class CustomerAccountController extends Controller
             // Handle profile image update
             if ($request->hasFile('profile_image')) {
                 if ($user->company) {
-                    // Delete old profile image if exists
-                    if (!empty($user->company->profile_image) && Storage::exists('public/' . $user->company->profile_image)) {
-                        Storage::delete('public/' . $user->company->profile_image);
+                    // ✅ Define upload directory (inside 'public/uploads/')
+                    $uploadPath = 'uploads/profile_images/';
+            
+                    // ✅ Ensure the directory exists
+                    if (!file_exists(public_path($uploadPath))) {
+                        mkdir(public_path($uploadPath), 0775, true);
                     }
-                    
-                    // Store new image
-                    $imagePath = $request->file('profile_image')->store('profile_images', 'public');
-                    $user->company->profile_image = $imagePath;
+            
+                    // ✅ Delete old profile image if exists
+                    if (!empty($user->company->profile_image) && file_exists(public_path($uploadPath . basename($user->company->profile_image)))) {
+                        unlink(public_path($uploadPath . basename($user->company->profile_image)));
+                    }
+            
+                    // ✅ Store new image
+                    $file = $request->file('profile_image');
+                    $fileName = time() . '_' . $file->getClientOriginalName(); // Unique file name
+                    $file->move(public_path($uploadPath), $fileName);
+            
+                    // ✅ Save path relative to 'uploads/' folder
+                    $user->company->profile_image = $uploadPath . $fileName;
                     $user->company->save();
                 } else {
                     return response()->json([

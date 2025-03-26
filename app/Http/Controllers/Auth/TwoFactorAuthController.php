@@ -107,7 +107,12 @@ class TwoFactorAuthController extends Controller
      */
     public function verify(Request $request)
     {
+        $sanitizedCode = strip_tags($request->input('two_factor_code'));
+
+        // ✅ Validate sanitized input
+        $request->merge(['two_factor_code' => $sanitizedCode]); // Overwrite request with sanitized data
         $request->validate(['two_factor_code' => 'required|numeric']);
+
 
         // ✅ Check session for user type
         $userId = session('two_factor_user_id');
@@ -121,7 +126,7 @@ class TwoFactorAuthController extends Controller
                 ->where('two_factor_expires_at', '>', now())
                 ->first();
 
-            if (!$user || $user->two_factor_code !== $request->two_factor_code) {
+            if (!$user || $user->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
 
@@ -138,7 +143,7 @@ class TwoFactorAuthController extends Controller
                 ->where('two_factor_expires_at', '>', now())
                 ->first();
 
-            if (!$admin || $admin->two_factor_code !== $request->two_factor_code) {
+            if (!$admin || $admin->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
 
@@ -155,7 +160,7 @@ class TwoFactorAuthController extends Controller
                 ->where('two_factor_expires_at', '>', now())
                 ->first();
 
-            if (!$superAdmin || $superAdmin->two_factor_code !== $request->two_factor_code) {
+            if (!$superAdmin || $superAdmin->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
 
@@ -172,7 +177,7 @@ class TwoFactorAuthController extends Controller
                 ->where('two_factor_expires_at', '>', now())
                 ->first();
 
-            if (!$staff || $staff->two_factor_code !== $request->two_factor_code) {
+            if (!$staff || $staff->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
 
@@ -191,10 +196,17 @@ class TwoFactorAuthController extends Controller
      */
     public function resend()
     {
-        foreach (['user', 'admin', 'superadmin', 'staff'] as $role) {
-            $sessionKey = "two_factor_{$role}_id";
-            $model = "App\\Models\\" . ucfirst($role);
-            $roleId = session($sessionKey);
+
+          $models = [
+            'user' => \App\Models\User::class,
+            'admin' => \App\Models\Admin::class,
+            'superadmin' => \App\Models\SuperAdmin::class,
+            'staff' => \App\Models\Staff::class,
+        ];
+
+        foreach ($models as $role => $model) {
+         $sessionKey = "two_factor_{$role}_id";
+         $roleId = session($sessionKey);
 
             if ($roleId) {
                 $user = $model::find($roleId);

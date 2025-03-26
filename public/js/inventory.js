@@ -51,25 +51,25 @@ function showStockModals(type) {
 
     switch (type) {
         case "in-stock":
-            if(modalInStock.classList.contains("hidden")){
-                modalInStock.classList.replace("hidden","block");
-            } else {
-                modalInStock.classList.replace("block", "hidden");
-            }
+        if(modalInStock.classList.contains("hidden")){
+            modalInStock.classList.replace("hidden","block");
+        } else {
+            modalInStock.classList.replace("block", "hidden");
+        }
             break;
         case "low-stock":
-            if(modalLowStock.classList.contains("hidden")) {
-                modalLowStock.classList.replace("hidden","block");
-            } else {
-                modalLowStock.classList.replace("block", "hidden");      
-            }
+        if(modalLowStock.classList.contains("hidden")) {
+            modalLowStock.classList.replace("hidden","block");
+        } else {
+            modalLowStock.classList.replace("block", "hidden");      
+        }
             break;
         case "out-stock": 
-            if(modalOutStock.classList.contains("hidden")) {
-                modalOutStock.classList.replace("hidden","block");
-            } else {
-                modalOutStock.classList.replace("block", "hidden");      
-            }
+        if(modalOutStock.classList.contains("hidden")) {
+            modalOutStock.classList.replace("hidden","block");
+        } else {
+            modalOutStock.classList.replace("block", "hidden");      
+        }
             break;
         case "near-expiry-stock":
             if(modalNearExpiredStock.classList.contains("hidden")){

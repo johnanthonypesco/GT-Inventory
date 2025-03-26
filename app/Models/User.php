@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
+use Laravel\Sanctum\HasApiTokens;
+use GPBMetadata\Google\Type\Datetime;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -55,8 +57,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'contact_number',  // ✅ Standardized field name (was `customer_cnum`)
         'email_verified_at',
         'company_id',
-    ];
-
+        'archived_at',];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -73,7 +74,8 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     protected $casts = [
-        'password' => 'hashed', // ✅ Automatically hash passwords
+        'password' => 'hashed',
+        'archived_at' => 'datetime', // ✅ Automatically hash passwords
     ];
 
     /**
@@ -88,4 +90,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders():HasMany {
         return $this->hasMany(Order::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    // ✅ Scope to filter archived users
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    // ✅ Archive the user
+    public function archive()
+    {
+        return $this->update(['archived_at' => Carbon::now()]);
+    }
+
+    // ✅ Restore the user
+    public function restore()
+    {
+        return $this->update(['archived_at' => null]);
+    }
 }
+

@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Auth\Events\Registered;
-use App\Mail\TwoFactorCodeMail;
-use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use Illuminate\View\View;
+use App\Services\SmsService;
+use Illuminate\Http\Request;
+use App\Mail\TwoFactorCodeMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Auth\Events\Registered;
+use App\Http\Requests\Auth\LoginRequest;
 
 
 class AuthenticatedSessionController extends Controller
@@ -22,7 +23,7 @@ class AuthenticatedSessionController extends Controller
     public function create(): View|RedirectResponse
 {
     if (Auth::check()) {
-        return redirect()->route('customer.manageorder');
+        return redirect()->route('customer.dashboard');
     }
 
     return view('auth.login');
@@ -39,9 +40,12 @@ public function store(LoginRequest $request): RedirectResponse
 {
 
    
-    $request->authenticate();
-    $user = Auth::user();
+    $sanitizedData = array_map('strip_tags', $request->only(['email', 'password']));
 
+        // ✅ Validate sanitized input
+        $request->merge($sanitizedData);
+        $request->authenticate();
+        $user = Auth::user();
     // ✅ Ensure the user's email is verified
     if (!$user->hasVerifiedEmail()) {
         return redirect()->route('verification.notice');
@@ -72,6 +76,15 @@ public function store(LoginRequest $request): RedirectResponse
         Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
     } catch (\Exception $e) {
         return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
+    }
+
+    if (!empty($user->contact_number)) {
+        $smsService = new SmsService();
+        $smsSent = $smsService->send($user->contact_number, "Your OTP code is: $twoFactorCode");
+    
+        if (!$smsSent) {
+            return back()->withErrors(['sms' => 'Failed to send OTP via SMS.']);
+        }
     }
 
     // ✅ Log out the user after generating the code

@@ -34,9 +34,16 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // ✅ Sanitize input before validation
+        $sanitizedData = array_map('strip_tags', $request->only(['token', 'email', 'password', 'password_confirmation']));
+
+        // ✅ Merge sanitized data back into request
+        $request->merge($sanitizedData);
+
         // Detect user type from URL
         $userType = $this->detectUserType($request);
 
+        // ✅ Validate sanitized input
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
