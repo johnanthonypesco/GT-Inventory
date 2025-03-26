@@ -251,7 +251,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('/2fa', [TwoFactorAuthController::class, 'index'])->name('2fa.verify');
 Route::post('/2fa', [TwoFactorAuthController::class, 'verify'])->name('2fa.check');
 
-Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
+Route::post('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
+Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms'])->name('two-factor.sms');
+
 //10///////////////////////// << 2FA ROUTES >> //////////////////////////////10//
 
 

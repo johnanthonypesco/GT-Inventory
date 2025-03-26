@@ -328,7 +328,8 @@
                 Orders That Cannot Be Fulfilled:
             </h1>
 
-            @foreach ($insufficients as $orderName => $orders)
+           <div class="h-[76vh] overflow-auto">
+                @foreach ($insufficients as $orderName => $orders)
                 <table>
                     <thead>
                         <tr>
@@ -366,6 +367,8 @@
                     
                 </table>
             @endforeach
+           </div>
+           <x-pagination/>
         </div>
     </div>
 
