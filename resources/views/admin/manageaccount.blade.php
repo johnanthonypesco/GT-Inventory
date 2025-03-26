@@ -31,7 +31,7 @@
         @endif --}}
 
         {{-- Filter & Add Account --}}
-        <div class="flex items-center md:flex-row justify-end gap-2 mt-5">
+        <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
             <select id="accountFilter" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none">
                 <option value="all">All Accounts</option>
                 <option value="admin">Admin</option>
@@ -129,55 +129,54 @@
             
         {{-- End Table for Account List --}}
 
-<!-- Archived Accounts Modal -->
-<div id="archivedModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex justify-center items-center">
-    <div class="bg-white w-3/4 md:w-1/2 lg:w-1/3 p-6 rounded-lg shadow-lg relative">
-        <!-- Close Button -->
-        <button onclick="closeArchivedModal()" class="absolute top-2 right-2 text-gray-600 hover:text-red-500">
-            ✖
-        </button>
-
-        <h2 class="text-xl font-bold text-gray-800">Archived Accounts</h2>
-
-        <div class="overflow-x-auto mt-4">
-            <table class="min-w-full bg-white border border-gray-300">
-                <thead>
-                    <tr>
-                        <th class="py-2 px-4 border-b">Name</th>
-                        <th class="py-2 px-4 border-b">Email</th>
-                        <th class="py-2 px-4 border-b">Role</th>
-                        <th class="py-2 px-4 border-b">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                    $isSuperAdmin = auth()->guard('superadmin')->check();
-                    $isAdmin = auth()->guard('admin')->check();
-                @endphp
+        {{-- <!-- Archived Accounts Modal --> --}}
+        <div id="archivedModal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 p-5 flex justify-center">
+            <div class="modal absolute mt-10 bg-white w-[80%] rounded-lg p-5 shadow-lg">
+                <!-- Close Button -->
                 
-                @foreach ($archivedAccounts as $account)
-                    {{-- ✅ Super Admin sees everything, Admin sees only archived Staff --}}
-                    @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
-                    <tr>
-                        <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username }}</td>
-                        <td class="py-2 px-4 border-b">{{ $account->email }}</td>
-                        <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
-                        <td class="py-2 px-4 border-b">
-                            <form action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endif
-                @endforeach
-                
-                    
-                </tbody>
-            </table>
+                <x-modalclose click="closeArchivedModal"/>
+
+                <h2 class="text-xl font-bold text-gray-800">Archived Accounts</h2>
+
+                <div class="overflow-x-auto mt-4">
+                    <table class="min-w-full bg-white border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b">Name</th>
+                                <th class="py-2 px-4 border-b">Email</th>
+                                <th class="py-2 px-4 border-b">Role</th>
+                                <th class="py-2 px-4 border-b">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                            $isSuperAdmin = auth()->guard('superadmin')->check();
+                            $isAdmin = auth()->guard('admin')->check();
+                        @endphp
+                        
+                        @foreach ($archivedAccounts as $account)
+                            {{-- ✅ Super Admin sees everything, Admin sees only archived Staff --}}
+                            @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
+                            <tr>
+                                <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username }}</td>
+                                <td class="py-2 px-4 border-b">{{ $account->email }}</td>
+                                <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
+                                <td class="py-2 px-4 border-b">
+                                    <form action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                        
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
 
 
@@ -195,7 +194,7 @@
                 <x-modalclose click="closeAddAccountModal"/>
 
                 <!-- Form -->
-                <form method="POST" action="{{ route('superadmin.account.store') }}">
+                <form method="POST" action="{{ route('superadmin.account.store') }}" id="addaccountform">
                     @csrf
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Add New Account</h1>
 
@@ -340,7 +339,7 @@
                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
 
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
+                    <button id="addaccountbutton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
                         <img src="{{ asset('image/image 51.png') }}"> Submit
                     </button>
                 </form>
@@ -352,7 +351,7 @@
         <div id="editAccountModal" class="w-full bg-black/60 h-full fixed top-0 left-0 p-10 md:p-20 items-center justify-center overflow-auto {{ $errors->hasBag('editAccount') ? 'block' : 'hidden' }}">
             <div class="modal w-full md:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
-                <form method="POST" id="editAccountForm">
+                <form method="POST" id="editaccountform">
                     @csrf
                     @method('POST')
                     <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
@@ -447,7 +446,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
+                    <button id="editsubmitbutton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer bg-blue-500 text-white">
                         <i class="fa-solid fa-save"></i> Save Changes
                     </button>
                 </form>
@@ -715,7 +714,7 @@ function toggleEditFields(role) {
 
 
 
-{{-- <script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script> --}}
+<script src="{{asset ('js/sweetalert/manageaccountsweetalert.js')}}"></script>
 {{-- <script src="{{asset ('js/manageaccount.js')}}"></script> --}}
 
 </html>
