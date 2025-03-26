@@ -136,7 +136,7 @@ class TwoFactorAuthController extends Controller
             Auth::login($user);
             session()->forget('two_factor_user_id');
 
-            return redirect()->route('customer.manageorder')->with('success', 'Two-factor authentication successful.');
+            return redirect()->route('customer.dashboard')->with('success', 'Two-factor authentication successful.');
         }
 
         // ✅ Handle Admin Verification
