@@ -78,14 +78,14 @@ public function store(LoginRequest $request): RedirectResponse
         return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
     }
 
-    if (!empty($user->contact_number)) {
-        $smsService = new SmsService();
-        $smsSent = $smsService->send($user->contact_number, "Your OTP code is: $twoFactorCode");
+    // if (!empty($user->contact_number)) {
+    //     $smsService = new SmsService();
+    //     $smsSent = $smsService->send($user->contact_number, "Your OTP code is: $twoFactorCode");
     
-        if (!$smsSent) {
-            return back()->withErrors(['sms' => 'Failed to send OTP via SMS.']);
-        }
-    }
+    //     if (!$smsSent) {
+    //         return back()->withErrors(['sms' => 'Failed to send OTP via SMS.']);
+    //     }
+    // }
 
     // ✅ Log out the user after generating the code
     Auth::logout();

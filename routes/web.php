@@ -64,6 +64,16 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
+//////super admin archive route
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+Route::post('/superadmin/accounts/{role}/{id}/archive', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.archive');
+Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountController::class, 'restore'])->name('superadmin.account.restore');
+
+});
+
+Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
+Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+});
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
@@ -241,7 +251,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('/2fa', [TwoFactorAuthController::class, 'index'])->name('2fa.verify');
 Route::post('/2fa', [TwoFactorAuthController::class, 'verify'])->name('2fa.check');
 
-Route::get('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
+Route::post('/2fa/resend', [TwoFactorAuthController::class, 'resend'])->name('2fa.resend');
+Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms'])->name('two-factor.sms');
+
 //10///////////////////////// << 2FA ROUTES >> //////////////////////////////10//
 
 
@@ -354,6 +366,23 @@ Route::middleware('guest:staff')->group(function () {
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
 
 //++~~~~~~~~~~~~~~~~~~~~~~~~~ << GUEST USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~++//
+
+
+Route::middleware('auth:staff')->group(function () {
+    Route::post('/update-location', [StaffLocationController::class, 'updateLocation'])->name('api.update-location');
+    Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+
+
+});
+
+Route::middleware('auth:admin,superadmin')->group(function () {
+    Route::get('/stafflocation', [StaffLocationController::class, 'index'])->name('admin.stafflocation');
+    Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+
+});
+
+
+
 
 
 Route::middleware('auth:staff')->group(function () {

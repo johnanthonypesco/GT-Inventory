@@ -83,6 +83,8 @@
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
+use App\Services\SmsService;
+
 use App\Mail\TwoFactorCodeMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -196,43 +198,130 @@ class TwoFactorAuthController extends Controller
      */
     public function resend()
     {
-
-          $models = [
-            'user' => \App\Models\User::class,
-            'admin' => \App\Models\Admin::class,
-            'superadmin' => \App\Models\SuperAdmin::class,
-            'staff' => \App\Models\Staff::class,
-        ];
-
-        foreach ($models as $role => $model) {
-         $sessionKey = "two_factor_{$role}_id";
-         $roleId = session($sessionKey);
-
-            if ($roleId) {
-                $user = $model::find($roleId);
-                if (!$user) {
-                    return redirect()->route('login')->withErrors(['email' => ucfirst($role) . ' not found.']);
-                }
-
-                $this->sendNew2FACode($user);
-                return back()->with('message', "A new 2FA code has been sent to your email.");
+        // Match verify() session logic
+        $userId = session('two_factor_user_id');
+        $adminId = session('two_factor_admin_id');
+        $superAdminId = session('two_factor_superadmin_id');
+        $staffId = session('two_factor_staff_id');
+    
+        if ($userId) {
+            $user = User::find($userId);
+            if (!$user) {
+                return redirect()->route('login')->withErrors(['email' => 'User not found.']);
             }
+    
+            $this->sendNew2FACode($user);
+            return back()->with('message', 'A new 2FA code has been sent to your email.');
         }
-
+    
+        if ($adminId) {
+            $admin = Admin::find($adminId);
+            if (!$admin) {
+                return redirect()->route('login')->withErrors(['email' => 'Admin not found.']);
+            }
+    
+            $this->sendNew2FACode($admin);
+            return back()->with('message', 'A new 2FA code has been sent to your email.');
+        }
+    
+        if ($superAdminId) {
+            $superAdmin = SuperAdmin::find($superAdminId);
+            if (!$superAdmin) {
+                return redirect()->route('login')->withErrors(['email' => 'SuperAdmin not found.']);
+            }
+    
+            $this->sendNew2FACode($superAdmin);
+            return back()->with('message', 'A new 2FA code has been sent to your email.');
+        }
+    
+        if ($staffId) {
+            $staff = Staff::find($staffId);
+            if (!$staff) {
+                return redirect()->route('login')->withErrors(['email' => 'Staff not found.']);
+            }
+    
+            $this->sendNew2FACode($staff);
+            return back()->with('message', 'A new 2FA code has been sent to your email.');
+        }
+    
         return redirect()->route('login')->withErrors(['email' => 'Session expired. Please log in again.']);
     }
 
-    /**
-     * Generate and send a new 2FA code.
-     */
-    private function sendNew2FACode($userOrAdmin)
-    {
-        $newCode = (string) rand(100000, 999999);
-        $userOrAdmin->update([
-            'two_factor_code' => $newCode,
-            'two_factor_expires_at' => now()->addMinutes(10),
-        ]);
 
-        Mail::to($userOrAdmin->email)->send(new TwoFactorCodeMail($newCode));
+    public function sendViaSms()
+{
+    $userId = session('two_factor_user_id');
+    $adminId = session('two_factor_admin_id');
+    $superAdminId = session('two_factor_superadmin_id');
+    $staffId = session('two_factor_staff_id');
+
+    if ($userId) {
+        $user = User::find($userId);
+        if (!$user || empty($user->contact_number)) {
+            return back()->withErrors(['sms' => 'User contact number not available.']);
+        }
+
+        return $this->sendSmsToUser($user);
     }
+
+    if ($adminId) {
+        $admin = Admin::find($adminId);
+        if (!$admin || empty($admin->contact_number)) {
+            return back()->withErrors(['sms' => 'Admin contact number not available.']);
+        }
+
+        return $this->sendSmsToUser($admin);
+    }
+
+    if ($superAdminId) {
+        $superAdmin = SuperAdmin::find($superAdminId);
+        if (!$superAdmin || empty($superAdmin->contact_number)) {
+            return back()->withErrors(['sms' => 'SuperAdmin contact number not available.']);
+        }
+
+        return $this->sendSmsToUser($superAdmin);
+    }
+
+    if ($staffId) {
+        $staff = Staff::find($staffId);
+        if (!$staff || empty($staff->contact_number)) {
+            return back()->withErrors(['sms' => 'Staff contact number not available.']);
+        }
+
+        return $this->sendSmsToUser($staff);
+    }
+
+    return redirect()->route('login')->withErrors(['sms' => 'Session expired. Please log in again.']);
+}
+
+private function sendSmsToUser($userOrAdmin)
+{
+    $newCode = (string) rand(100000, 999999);
+    $userOrAdmin->two_factor_code = $newCode;
+    $userOrAdmin->two_factor_expires_at = now()->addMinutes(10);
+    $userOrAdmin->save();
+
+    $smsService = new SmsService();
+    $smsSent = $smsService->send($userOrAdmin->contact_number, "Your OTP code is: $newCode");
+
+    if (!$smsSent) {
+        return back()->withErrors(['sms' => 'Failed to send OTP via SMS.']);
+    }
+
+    return back()->with('message', 'A new 2FA code has been sent via SMS.');
+}
+
+private function sendNew2FACode($userOrAdmin)
+{
+    $newCode = (string) rand(100000, 999999);
+    $userOrAdmin->two_factor_code = $newCode;
+    $userOrAdmin->two_factor_expires_at = now()->addMinutes(10);
+    
+    if (!$userOrAdmin->save()) {
+        return back()->withErrors(['error' => 'Failed to save new 2FA code.']);
+    }
+
+    Mail::to($userOrAdmin->email)->send(new TwoFactorCodeMail($newCode));
+}
+
 }

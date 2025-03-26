@@ -25,13 +25,17 @@
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
-            <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientTotal > 0 ? 'animate-pulse border-4 border-red-500' : '' }}" 
-            title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientTotal"/>            
+            <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-4 border-red-500' : '' }}" 
+            title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientOrders"/>  
+            <x-countcard onclick="showInsufficientProducts()"   class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientproducts > 0 ? 'animate-pulse border-4 border-red-500' : '' }}" 
+                title='Insufficient Products' image="warning.png" :count="$insufficientproducts"/>          
         </div>
         {{-- Total Container --}}
+
+
 
         <div class="h-[60vh] overflow-auto mt-8">
             @foreach ($provinces as $provinceName => $companies)
@@ -162,12 +166,16 @@
 
                                                     $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name;
 
-                                                    $currentStock = $stocksAvailable[$keyWord];
+                                                    $currentStock = $stocksAvailable[$keyWord] ?? 0;
+                                                    $isExpired = $currentStock === 'expired';                                                  
+
                                                     $isNotEnough = $currentStock < $order->quantity;
+
+                                                    $isInsufficient = $isNotEnough || $isExpired;
                                                 @endphp
                                                 
-                                                <tr style="{{ $isNotEnough ? 'pointer-events: none;' : '' }}" class="text-center
-                                                {{ $isNotEnough ? "bg-red-500 animate-pulse text-white" : '' }}
+                                                <tr style="{{ $isInsufficient ? 'pointer-events: none;' : '' }}" class="text-center
+                                                {{ $isInsufficient ? "bg-red-500 animate-pulse text-white" : '' }}
                                                 ">
                                                     <td>{{ $productInfo->generic_name }}</td>
                                                     <td>{{ $productInfo->brand_name }}</td>
@@ -177,7 +185,7 @@
                                                     <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
                                                     <td>₱ {{ number_format($order_calc) }}</td>
                                                     <td colspan="2">
-                                                        @if ($isNotEnough)
+                                                        @if ($isInsufficient)
                                                             <p> Insufficient Stock </p>
                                                         
                                                         @else
@@ -320,7 +328,8 @@
                 Orders That Cannot Be Fulfilled:
             </h1>
 
-            @foreach ($insufficients as $orderName => $orders)
+           <div class="h-[76vh] overflow-auto">
+                @foreach ($insufficients as $orderName => $orders)
                 <table>
                     <thead>
                         <tr>
@@ -338,23 +347,60 @@
                         @foreach ($orders as $order)
                             @php
                                 $explodedName = explode("|", $order["currentInfo"]["name"]);
+                                $available = $order["currentInfo"]["total"];
+                                $isExpired = $available === 'expired';
                             @endphp
-
+                    
                             <tr>
                                 <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
                                 <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
                                 <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
                                 <td> {{ $explodedName[0] }} </td>
                                 <td> {{ $explodedName[1] }} </td>
-                                <td> {{ number_format($order["currentInfo"]["total"]) }} </td>
+                                <td>
+                                    {{ $isExpired ? 'Expired' : number_format($available) }}
+                                </td>
                                 <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
                             </tr>
-                        @endforeach                        
+                        @endforeach
                     </tbody>
+                    
                 </table>
             @endforeach
+           </div>
+           <x-pagination/>
         </div>
     </div>
+
+    <div id="insufficientProductsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+        <div class="modal bg-white w-full md:w-[60%] mx-auto p-5 rounded-lg relative shadow-lg">
+            <x-modalclose click="showInsufficientProducts"/>
+    
+            <h1 class="text-xl font-semibold text-gray-800 mb-4">
+                Summary of Products That Cannot Fulfill Orders:
+            </h1>
+    
+            <table class="w-full text-left border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-700">
+                        <th class="py-2 px-4">Product Name</th>
+                        <th class="py-2 px-4">Available Stock</th>
+                        <th class="py-2 px-4">Total Ordered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($insufficientSummary as $item)
+                        <tr class="border-t border-gray-300">
+                            <td class="py-2 px-4">{{ $item['product'] }}</td>
+                            <td class="py-2 px-4">{{ $item['available'] }}</td>
+                            <td class="py-2 px-4">{{ $item['ordered'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
     {{-- FOR ACTION MAPS --}}
 </body>
 </html>
@@ -386,4 +432,10 @@
         Swal.fire("Error", "Failed to process QR code upload.", "error");
     });
 });
+</script>
+<script>
+function showInsufficientProducts() {
+    const modal = document.getElementById('insufficientProductsModal');
+    modal.classList.toggle('hidden');
+}
 </script>
