@@ -49,7 +49,8 @@ class SuperAdmin extends Authenticatable
         'email',
         'password',
         'is_super_admin', // ✅ Boolean field from migration
-        'archived_at'
+        'archived_at',
+        'contact_number'
     ];
 
     /**

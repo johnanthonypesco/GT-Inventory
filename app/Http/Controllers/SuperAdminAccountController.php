@@ -36,6 +36,7 @@ class SuperAdminAccountController extends Controller
             'email' => $a->email,
             'role' => 'admin',
             'company' => optional($a->company)->name ?? 'RCT Med Pharma',
+            'contact_number' => $a->contact_number ?? '',
         ]))
         ->merge($staff->map(fn($s) => [
             'id' => $s->id,
@@ -45,6 +46,7 @@ class SuperAdminAccountController extends Controller
             'email' => $s->email,
             'role' => 'staff',
             'company' => optional($s->company)->name ?? 'RCT Med Pharma',
+            'contact_number' => $s->contact_number ?? '',
 
         ]))
         ->merge($users->map(fn($u) => [
@@ -94,7 +96,7 @@ class SuperAdminAccountController extends Controller
         $locations = Location::all();
         // return view('admin.manageaccount', compact('accounts', 'locations', 'admins', 'companies'));
         return view('admin.manageaccount', ['accounts' => $accounts, 'locations' => $locations, 'admins' => $admins, 'companies' => $companies,  'archivedAccounts' => $archivedAccounts, 'isSuperAdmin' => $isSuperAdmin,
-        'isAdmin' => $isAdmin,]);
+        'isAdmin' => $isAdmin, 'staffs' => $staff,]);
     }
 
     /**
@@ -133,7 +135,7 @@ class SuperAdminAccountController extends Controller
                 'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
     'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
                 'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
-    'contact_number' => 'nullable|numeric|unique:users,contact_number',
+    'contact_number' => 'nullable|numeric|unique:users,contact_number|unique:admins,contact_number|unique:staff,contact_number',
     'location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer
     'job_title' => 'nullable|string|max:255',
     'company_location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer and exists
@@ -172,6 +174,7 @@ class SuperAdminAccountController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'super_admin_id' => auth()->id(),
+                'contact_number' => $validated['contact_number'] ?? null,
                 'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
             ]),
             'staff' => Staff::create([
@@ -180,6 +183,7 @@ class SuperAdminAccountController extends Controller
                 'password' => Hash::make($validated['password']),
                 'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
                 'location_id' => $validated['location_id'],
+                'contact_number' => $validated['contact_number'] ?? null,
                 'job_title' => $validated['job_title'],
                 'is_staff' => 1,
             ]),
@@ -273,6 +277,8 @@ class SuperAdminAccountController extends Controller
             'admin_id' => $role === 'staff' ? 'required|integer|exists:admins,id' : 'nullable',
             'location_id' => 'nullable|exists:locations,id',
             'job_title' => $role === 'staff' ? 'nullable|string|max:255' : 'nullable',
+            'contact_number' => 'nullable|numeric|unique:admins,contact_number,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,contact_number,' . ($role == 'staff' ? $id : 'null') . '|unique:users,contact_number,' . ($role == 'customer' ? $id : 'null'),
+
         ], $editMessages);
 
         // Sanitize input
@@ -291,6 +297,8 @@ class SuperAdminAccountController extends Controller
                 'username' => $validatedData['username'] ?? $model->username,
                 'email' => $validatedData['email'] ?? $model->email,
                 'password' => $validatedData['password'] ?? $model->password,
+                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+
             ]),
             'staff' => $model->update([
                 'staff_username' => $validatedData['username'] ?? $model->staff_username,
@@ -299,11 +307,15 @@ class SuperAdminAccountController extends Controller
                 'admin_id' => $validatedData['admin_id'] ?? $model->admin_id,
                 'location_id' => $validatedData['location_id'] ?? $model->location_id,
                 'job_title' => $validatedData['job_title'] ?? $model->job_title,
+                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+
             ]),
             'customer' => $model->update([
                 'name' => $validatedData['name'] ?? $model->name,
                 'email' => $validatedData['email'] ?? $model->email,
                 'password' => $validatedData['password'] ?? $model->password,
+                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+
             ]),
         };
 
