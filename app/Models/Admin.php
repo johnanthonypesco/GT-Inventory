@@ -23,7 +23,8 @@ class Admin extends Authenticatable
         'password',
         'super_admin_id',
         'is_admin', // ✅ Ensure this is included
-        'archived_at'
+        'archived_at',
+        'contact_number',
     ];
     
 

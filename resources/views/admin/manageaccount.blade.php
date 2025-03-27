@@ -88,7 +88,7 @@
                                 <tr 
                                     data-id="{{ $account['id'] }}" 
                                     data-name="{{ $account['name'] }}" 
-                                    data-username="{{ $account['username'] ?? '' }}"
+                                    data-username="{{ $account['username'] ?? $account['staff_username'] ?? '' }}"
                                     data-email="{{ $account['email'] }}"
                                     data-role="{{ $account['role'] }}"
                                     data-location="{{ $account['location_id'] ?? '' }}"
@@ -383,12 +383,22 @@
                     </div>
 
                     <!-- Username Field (Only for Admins and Staff) -->
-                    <div id="editUsernameField" class="hidden">
-                        <input type="text" name="username" id="editUsername" placeholder="Username" value="{{ old('username') }}" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        @error('username', 'editAccount')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                        @enderror
-                    </div>
+                
+                <!-- Username Field (Only for Admins and Staff) -->
+                <div id="editUsernameField" class="hidden">
+                    <input 
+                        type="text" 
+                        name="username" 
+                        id="editUsername" 
+                        placeholder="Username" 
+                        value="{{ old('username') }}"
+                        class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                    @error('username', 'editAccount')
+                        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+                
 
                     <!-- Email Field -->
                     <input type="email" name="email" id="editEmail" placeholder="Email" required value="{{ old('email') }}" class="w-full p-3 mt-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -490,7 +500,7 @@ function togglePasswordVisibility(fieldId, iconId) {
 
         // Show "name" only for customers
         document.getElementById("nameField").style.display = (role === "customer") ? "block" : "none";
-        document.getElementById("contactField").style.display = (role === "customer") ? "block" : "none";
+        document.getElementById("contactField").style.display = (role === "customer"|| role === "staff"||   role === "admin") ? "block" : "none";
 
         document.querySelector("input[name='name']").required = (role === "customer");
 
@@ -622,9 +632,11 @@ function toggleEditFields(role) {
         usernameField.classList.remove("hidden"); // Show Username for staff
         locationField.classList.remove("hidden"); // Show Location for staff
         jobTitleField.classList.remove("hidden"); // Show Job Title for staff
-        adminField.classList.remove("hidden"); // Show Admin selection for staff
+        adminField.classList.remove("hidden");
+        contactField.classList.remove("hidden"); // Show Admin selection for staff
     } else if (role === "admin") {
-        usernameField.classList.remove("hidden"); // Show Username for admin
+        usernameField.classList.remove("hidden");
+        contactField.classList.remove("hidden"); // Show Username for admin
     }
 }
 
