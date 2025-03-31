@@ -6,37 +6,174 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Promotional Page of RCT Med Pharma</title>
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
+    <title>RCT Med Pharma</title>
 </head>
 <body>
-    <header class="flex justify-between items-center px-10 lg:px-20 h-24">
-        <img src="{{ asset('image/Logowname.png') }}" alt="rctmedpharma" class="hidden lg:block w-[120px]">
-        
-        <nav class="bg-gray-200 flex items-center gap-10 px-5 py-3 rounded-full font-semibold text-gray-700"> 
-            <a href="#home">Home</a>
-            <a href="#">Products</a>
-            <a href="#">About</a>
-            <a href="#">Contact Us</a>
+    <header class="flex justify-between items-center bg-white h-14 px-5 shadow-md lg:h-16 lg:px-24 fixed w-full top-0 z-10">
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('image/Logolandingpage.png') }}" alt="Logo" class="w-12 h-12">
+            <h1 class="font-semibold text-lg uppercase">RCT Med Pharma</h1>
+        </div>
+
+        <nav class="absolute flex flex-col gap-5 top-14 left-0 w-full h-fit px-5 py-5 bg-white shadow-md hidden lg:block lg:static lg:shadow-none lg:py-0 lg:w-fit" id="nav">
+            <a href="#home" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Home</a>
+            <a href="#about" class="lg:mr-12 font-semibold hover:text-[#0097D3]">About Us</a>
+            <a href="#products" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Products</a>
+            <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Inquire Now</a>
         </nav>
 
-        <div class="hidden lg:flex gap-4 items-center text-xl justify-center">
-            <i class="fa-solid fa-search p-2 bg-green-500/20 rounded-full text-gray-700"></i>
-            <a href="{{ route('login') }}" class="bg-[#005382] py-1 px-4 rounded-full text-white">Login</a>
-        </div>
+        <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>
     </header>
 
-    <main class="px-10 lg:px-24">
-        <section id="home" class="relative">
-            <div class="flex justify-center items-center flex-col gap-3 z-10 relative lg:mt-24">
-                <h1 class="text-6xl font-bold lg:w-[80%] text-center">Order Your Medication Effortlessly Anytime & Anywhere</h1>
-                <p class="text-2xl text-gray-700">Get your medication delivered to your doorstep with ease and convenience</p>
-    
-                <a href="" class="bg-[#005382] py-2 px-4 rounded-full text-white w-fit flex items-center gap-2 mt-5"><i class="fa-solid fa-cart-shopping"></i>Order Now</a>
+    <main class="mt-20 mb-20">
+        <section id="home" class="flex flex-col-reverse px-5 lg:flex-row justify-center lg:px-24">
+            <div class="flex flex-col gap-5 lg:w-1/2 lg:gap-10 lg:mt-20" id="content-left">
+                <h1 class="text-5xl font-bold">Connect with <span class="text-[#0097D3]">RCT Med Pharma</span> Anytime, Anywhere!</h1>
+                <p class="text-lg">Our secure and efficient system allows you to place orders, track inventory, 
+                    and manage transactions with ease. Experience seamless healthcare solutions 
+                    at your fingertips, no matter where you are.
+                </p>
+                <div class="flex gap-5">
+                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Inquire Now</a>
+                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold">About Us</a>
+                </div>
             </div>
-
-            <div class="bg-gray-200 w-[700px] h-[700px] absolute top-10 right-0 left-0 mx-auto rounded-[100%] z-1"></div>
+            <div id="content-right" class="flex justify-center items-center lg:w-1/2">
+                <img src="{{ asset('image/Medecine Bg.png') }}" alt="Landing Page" class="w-[450px] h-[450px] lg:w-[600px] lg:h-[600px]">
+            </div>
         </section>
-        
+    
+        <div class="flex mt-20 lg:mt-10 justify-center gap-2">
+            <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
+            <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
+        </div>
+    
+        <section id="about" class="scroll-mt-20 lg:scroll-mt-15">
+            <h1 class="text-xl text-[#084876] text-center font-bold mt-10">About Us</h1>
+
+            <div class="flex flex-col justify-center items-center mt-10 px-5 gap-5 lg:flex-row lg:px-24 lg:gap-10">
+                <div id="content-left">
+                    <img src="{{ asset('image/About Us.png') }}" alt="About Us" class="w-[500px] h-[450px] ">
+                </div>
+
+                <div class="flex flex-col gap-5 lg:w-1/2" id="content-right">
+                    <p class="text-lg">At <span class="text-[#084876] font-semibold">RCT Med Pharma</span>, we are dedicated to delivering precision, reliability, and excellence in pharmaceutical distribution, treating every client partnership with the utmost care and responsibility.</p>
+                    <x-promotionalpage.aboutuscontent title="Reliable Supply Chain" description="We ensure a consistent and timely delivery of high-quality pharmaceutical products, helping healthcare providers meet their patients' needs without disruption." />
+                    <x-promotionalpage.aboutuscontent title="Access to Industry Experts" description="Our team includes licensed pharmacists, logistics specialists, and compliance officers, ensuring adherence to industry regulations and best practices." />
+                    <x-promotionalpage.aboutuscontent title="Continuous Innovation" description="We embrace cutting-edge technology and automation in our inventory and ordering system (RMPOIMS) to enhance efficiency, accuracy, and customer satisfaction." />
+                </div>
+            </div>
+        </section>
+
+        <div class="flex mt-20 lg:mt-15 justify-center gap-2">
+            <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
+            <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
+        </div>
+
+        <section class="mt-10 relative flex flex-col items-center scroll-mt-24" id="products">
+            <div class="bg-[#084876]/20 rounded-full w-[70%] h-[100%] blur-3xl absolute z-0"></div>
+            <h1 class="text-xl text-[#084876] text-center font-bold">Our Products</h1>
+            
+            <div class="flex gap-5 mt-10 z-1 relative">
+                <button class="text-[#084876] font-bold border-b border-[#084876]">All Products</button>
+                <button class="text-gray-600 font-bold">Injectables</button>
+                <button class="text-gray-600 font-bold">Oral</button>
+            </div>
+            <div class="flex w-[90%] z-1 relative gap-5 overflow-x-auto p-5">
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftriaxone" brandname="Ceftriaxone" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Cefazoline" brandname="Cefazovit" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftazidime" brandname="Ceftazivit" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftrialisis" brandname="NA" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Dexamethasone" brandname="Dexavit" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Furosemide" brandname="Furotalis" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ketoprofen" brandname="Ketonix" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Losartan" brandname="Losil" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Neotalis" brandname="NA" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ranitidine" brandname="Ranicid`" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Pantoprazole" brandname="Pantrex" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Sodium Bicarbonate" brandname="Sodicarb" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin A" brandname="Vitaroxima" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Betamethasone" brandname="Vitasone" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Metronidazole" brandname="Vitazol" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Multivitamins" brandname="Vitral" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin K" brandname="Ambivit K" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ampicillin" brandname="Amiphil" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Diphenhydramine" brandname="Diphenpors" form="Oral" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Gentamicin" brandname="Gentacare" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin B Complex" brandname="Neurobe" form="Injectables" />
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Omeprazole" brandname="Oprex" form="Oral" /> 
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Cephalexin" brandname="Sapharin" form="Oral" />   
+                <x-promotionalpage.product image="ceftriaxone.png" genericname="Clindamycin" brandname="Tidact" form="Oral" />   
+  
+            </div>
+            <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative">View All Products</button>
+        </section>
+
+        <div class="flex mt-24 justify-center gap-2">
+            <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
+            <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
+        </div>
+
+        <section id="inquire" class="mt-10 flex flex-col items-center px-5 scroll-mt-12">
+            <h1 class="text-xl text-[#084876] text-center font-bold mt-5">Get in Touch</h1>
+            <h1 class="text-4xl text-[#084876] text-center font-bold mt-5">Inquire Now</h1>
+
+            <form action="" class="border border-[#084876] p-5 rounded-lg mt-5">
+                <div class="lg:flex gap-2">
+                    <div class="lg:w-1/2">
+                        <label for="fname" class="text-[#084876] font-semibold">First Name:</label>
+                        <input type="text" name="fname" id="fname" placeholder="Enter Your First Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                    <div class="lg:w-1/2">
+                        <label for="lname" class="text-[#084876] font-semibold">Last Name:</label>
+                        <input type="text" name="lname" id="lname" placeholder="Enter Your Last Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                </div>
+                <div class="lg:flex gap-2 mt-2">
+                    <div class="lg:w-1/2">
+                        <label for="email" class="text-[#084876] font-semibold">Email:</label>
+                        <input type="email" name="email" id="email" placeholder="Enter Your Email" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                    <div class="lg:w-1/2">
+                        <label for="contact" class="text-[#084876] font-semibold">Contact Number:</label>
+                        <input type="number" name="contact" id="contact" min="0" max="11" placeholder="Enter Your Contact Number" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                </div>
+                <div class="lg:flex gap-2 mt-2">
+                    <div class="lg:w-1/2">
+                        <label for="location" class="text-[#084876] font-semibold">Location:</label>
+                        <input type="text" name="location" id="location" placeholder="Enter Your Location" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                    <div class="lg:w-1/2">
+                        <label for="company" class="text-[#084876] font-semibold">Company Name:</label>
+                        <input type="text" name="company" id="company" placeholder="Enter Your Company Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
+                    </div>
+                </div>
+                <div>
+                    <label for="message" class="text-[#084876] font-semibold">Message:</label>
+                    <textarea name="message" id="message" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2 h-36"></textarea>
+                </div>
+                <button type="submit" class="bg-[#0097D3] py-2 px-4 rounded-lg text-white mt-3">Send</button>
+            </form>
+        </section>
     </main>
+
+    <footer class="bg-[#084876] text-white p-5 w-full">
+        <div class="flex gap-1 items-center justify-center">
+            <img src="{{ asset('image/Logolandingpage.png') }}" alt="Logo" class="w-12 h-12">
+            <h1 class="font-semibold text-md uppercase">RCT Med Pharma</h1>
+        </div>
+
+        <nav class="flex items-center justify-center gap-10 mt-5">
+            <a href="#home" class="text-md font-regular hover:text-[#0097D3]">Home</a>
+            <a href="#about" class="text-md font-regular hover:text-[#0097D3]">About</a>
+            <a href="#products" class="text-md font-regular hover:text-[#0097D3]">Products</a>
+        </nav>
+
+        <p class="text-md text-center mt-5">Copyright © RCT MED PHARMA. All Rights Reserve</p>
+    </footer>
 </body>
+<script src="{{ asset('js/landingpage/index.js') }}"></script>
 </html>

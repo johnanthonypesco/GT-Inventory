@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Leckerli+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+* {
+    font-family: 'Poppins';
+    scroll-behavior: smooth;
+}
+nav {
+    animation: slidedown 0.3s ease-in-out;
+}
+@keyframes slidedown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+#content-left {
+    animation: fromleft 0.5s ease-in-out;
+}
+@keyframes fromleft {
+    from {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+#content-right {
+    animation: fromright 0.5s ease-in-out;
+}
+@keyframes fromright {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#home{
+    scroll-margin-top: 100px;
+}
+
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: #084876;
+    border-radius: 10px;
+}
