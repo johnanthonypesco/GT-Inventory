@@ -81,6 +81,35 @@
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Product Deductions</h3>
                         <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
                     </div>
+                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                            <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @for($i = 1; $i <= 12; $i++)
+                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Locations</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <div class="h-60 xs:h-64 sm:h-72 md:h-80">
                         <canvas id="deductedQuantitiesChart"></canvas>
                     </div>
@@ -97,22 +126,6 @@
                             bg-blue-100 text-blue-700 hover:bg-blue-200 active:bg-blue-300">
                             Most Ordered
                         </button>
-                        {{-- SELECT 
-                            p.generic_name, 
-                            SUM(o.quantity) AS total_quantity
-                        FROM 
-                            orders o
-                        JOIN 
-                            exclusive_deals ed ON o.exclusive_deal_id = ed.id
-                        JOIN 
-                            products p ON ed.product_id = p.id
-                        WHERE 
-                            o.status IN ('pending', 'completed', 'delivered')
-                        GROUP BY 
-                            p.generic_name
-                        ORDER BY 
-                            total_quantity DESC
-                        LIMIT 6; --}}
                         <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
                             bg-emerald-100 text-emerald-700 hover:bg-emerald-200 active:bg-emerald-300">
                             Moderate Ordered
@@ -121,7 +134,6 @@
                             bg-amber-100 text-amber-700 hover:bg-amber-200 active:bg-amber-300">
                             Low Ordered
                         </button>
-                        
                     </div>
                     <div class="h-72 sm:h-80 md:h-96">
                         <canvas id="chart1"></canvas>
@@ -131,22 +143,31 @@
                 <!-- Inventory Levels Chart -->
                 <div class="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100">
                     <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels</h3>
-                    <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
+                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
                             <select id="yearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @foreach($availableYears as $year)
-                                    <option value="{{ $year }}">{{ $year }}</option>
+                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
                             <select id="monthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach($inventoryByMonth as $inventory)
-                                    <option value="{{ $inventory->month }}">
-                                        {{ date('F', mktime(0, 0, 0, $inventory->month, 10)) }}
+                                @for($i = 1; $i <= 12; $i++)
+                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
                                     </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <select id="locationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Locations</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -160,8 +181,7 @@
         @endif
     </main>
 
-    <!-- Your existing scripts (unchanged) -->
-    {{-- SCRIPTS NI JM FOR CHARTS --}}
+    <!-- Chart Scripts -->
     <script>
         // Revenue Chart Data
         const revenueData = {
@@ -270,7 +290,7 @@
             }
         });
 
-        // Deducted Quantities by Generic Name Chart
+        // Initialize the Deducted Quantities Chart
         const ctxDeducted = document.getElementById('deductedQuantitiesChart').getContext('2d');
         const deductedQuantitiesChart = new Chart(ctxDeducted, {
             type: 'bar',
@@ -314,15 +334,15 @@
             }
         });
 
-        // Inventory Levels Chart
+        // Initialize the Inventory Levels Chart with empty data
         const ctxInventory = document.getElementById('inventoryLevelsChart').getContext('2d');
         const inventoryLevelsChart = new Chart(ctxInventory, {
             type: 'bar',
             data: {
-                labels: @json($inventoryLabels),
+                labels: [],
                 datasets: [{
                     label: 'Inventory Levels',
-                    data: @json($inventoryData),
+                    data: [],
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
@@ -364,15 +384,43 @@
             chart1.update();
         });
 
-        // Add event listeners to filter inventory levels by year and month
+        // Add event listeners to filter deducted quantities
+        document.getElementById('deductedYearFilter').addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedMonthFilter').addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedLocationFilter').addEventListener('change', updateDeductedChart);
+
+        // Add event listeners to filter inventory levels
         document.getElementById('yearFilter').addEventListener('change', updateInventoryChart);
         document.getElementById('monthFilter').addEventListener('change', updateInventoryChart);
+        document.getElementById('locationFilter').addEventListener('change', updateInventoryChart);
+
+        // Initial load of charts
+        updateDeductedChart();
+        updateInventoryChart();
+
+        function updateDeductedChart() {
+            const selectedYear = document.getElementById('deductedYearFilter').value;
+            const selectedMonth = document.getElementById('deductedMonthFilter').value;
+            const selectedLocation = document.getElementById('deductedLocationFilter').value || '';
+
+            fetch(`/deducted-quantities/${selectedYear}/${selectedMonth}/${selectedLocation}`)
+                .then(response => response.json())
+                .then(data => {
+                    deductedQuantitiesChart.data.labels = data.labels;
+                    deductedQuantitiesChart.data.datasets[0].data = data.deductedData;
+                    deductedQuantitiesChart.update();
+                })
+                .catch(error => {
+                    console.error('Error fetching deducted quantities:', error);
+                });
+        }
 
         function updateInventoryChart() {
             const selectedYear = document.getElementById('yearFilter').value;
             const selectedMonth = document.getElementById('monthFilter').value;
+            const selectedLocation = document.getElementById('locationFilter').value || '';
 
-            fetch(`/inventory-by-month/${selectedYear}/${selectedMonth}`)
+            fetch(`/inventory-by-month/${selectedYear}/${selectedMonth}/${selectedLocation}`)
                 .then(response => response.json())
                 .then(data => {
                     inventoryLevelsChart.data.labels = data.labels;
@@ -380,13 +428,12 @@
                     inventoryLevelsChart.update();
                 })
                 .catch(error => {
-                    console.error('Error fetching filtered data:', error);
+                    console.error('Error fetching inventory data:', error);
                 });
         }
     </script>
-    {{-- SCRIPTS NI JM FOR CHARTS --}}
 
-    {{-- SCRIPTS NI KUYA FOR LOCATION TRACKING --}}
+    <!-- Location Tracking Script -->
     @if(auth()->guard('staff')->check())
     <script>
         if (navigator.geolocation) {
@@ -415,6 +462,5 @@
         }
     </script>
     @endif
-    {{-- SCRIPTS NI KUYA FOR LOCATION TRACKING --}}
 </body>
 </html>

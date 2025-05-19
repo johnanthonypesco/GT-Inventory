@@ -530,35 +530,5 @@ class InventoryController extends Controller
                 ], 500);
             }   
         }
-        public function getInventoryByMonth($year, $month)
-{
-    // Get inventory data for the selected year and month
-    $inventoryData = Inventory::whereYear('inventories.created_at', $year)
-        ->whereMonth('inventories.created_at', $month)
-        ->join('products', 'inventories.product_id', '=', 'products.id')
-        ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
-        ->groupBy('products.generic_name')
-        ->get();
 
-    // Get deducted quantities for the selected year and month from delivered orders
-    $deductedData = Order::whereYear('orders.created_at', $year)
-        ->whereMonth('orders.created_at', $month)
-        ->where('orders.status', 'delivered') // Only delivered orders
-        ->join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-        ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-        ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_deducted'))
-        ->groupBy('products.generic_name')
-        ->get();
-
-    // Prepare labels and data
-    $labels = $inventoryData->pluck('generic_name');
-    $inventoryData = $inventoryData->pluck('total_quantity');
-    $deductedData = $deductedData->pluck('total_deducted');
-
-    return response()->json([
-        'labels' => $labels,
-        'inventoryData' => $inventoryData,
-        'deductedData' => $deductedData,
-    ]);
-}
-    }        
+    }
