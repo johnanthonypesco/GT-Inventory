@@ -77,9 +77,9 @@
             <h1 class="text-xl text-[#084876] text-center font-bold">Our Products</h1>
             
             <div class="flex gap-5 mt-10 z-1 relative">
-                <button class="text-[#084876] font-bold border-b border-[#084876]">All Products</button>
-                <button class="text-gray-600 font-bold">Injectables</button>
-                <button class="text-gray-600 font-bold">Oral</button>
+                <button class="text-[#084876] font-bold border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
+                <button class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
+                <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
             </div>
             <div class="flex w-[90%] z-1 relative gap-5 overflow-x-auto p-5">
                 <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftriaxone" brandname="Ceftriaxone" form="Injectables" />
@@ -106,10 +106,47 @@
                 <x-promotionalpage.product image="ceftriaxone.png" genericname="Omeprazole" brandname="Oprex" form="Oral" /> 
                 <x-promotionalpage.product image="ceftriaxone.png" genericname="Cephalexin" brandname="Sapharin" form="Oral" />   
                 <x-promotionalpage.product image="ceftriaxone.png" genericname="Clindamycin" brandname="Tidact" form="Oral" />   
-  
             </div>
-            <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative">View All Products</button>
+            <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
         </section>
+
+        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-20 p-8 z-10" id="productsmodal">
+            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5">
+                <x-modalclose id="closeproductsmodal"/>
+                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
+                <div class="mt-5 flex gap-2 justify-center lg:justify-start">
+                    <button class="text-[#084876] font-md border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
+                    <button class="text-gray-600 font-md filter-btn" data-filter="injectables">Injectables</button>
+                    <button class="text-gray-600 font-md filter-btn" data-filter="oral">Oral</button>
+                </div>
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[370px] justify-center">
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftriaxone" brandname="Ceftriaxone" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Cefazoline" brandname="Cefazovit" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftazidime" brandname="Ceftazivit" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftrialisis" brandname="NA" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Dexamethasone" brandname="Dexavit" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Furosemide" brandname="Furotalis" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ketoprofen" brandname="Ketonix" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Losartan" brandname="Losil" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Neotalis" brandname="NA" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ranitidine" brandname="Ranicid`" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Pantoprazole" brandname="Pantrex" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Sodium Bicarbonate" brandname="Sodicarb" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin A" brandname="Vitaroxima" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Betamethasone" brandname="Vitasone" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Metronidazole" brandname="Vitazol" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Multivitamins" brandname="Vitral" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin K" brandname="Ambivit K" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ampicillin" brandname="Amiphil" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Diphenhydramine" brandname="Diphenpors" form="Oral" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Gentamicin" brandname="Gentacare" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin B Complex" brandname="Neurobe" form="Injectables" />
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Omeprazole" brandname="Oprex" form="Oral" /> 
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Cephalexin" brandname="Sapharin" form="Oral" />   
+                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Clindamycin" brandname="Tidact" form="Oral" /> 
+                </div>
+            </div>
+        </div>
 
         <div class="flex mt-24 justify-center gap-2">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">

@@ -16,16 +16,18 @@ class DashboardController extends Controller
         $totalorder = Order::where('user_id', $userId)->count();
         $pendingorder = Order::where('user_id', $userId)->where('status', 'pending')->count();
         $confirmedorder = Order::where('user_id', $userId)
-            ->whereIn('status', ['completed'])
+            ->whereIn('status', ['completed', 'delivered'])
             ->count();
         $cancelledorder = Order::where('user_id', $userId)->where('status', 'cancelled')->count();
-        $completedorder = Order::where('user_id', $userId)->where('status', 'delivered')->count();
+        $outfordelivery = Order::where('user_id', $userId)->where('status', 'delivered')->count();
+        $completedorder = Order::where('user_id', $userId)->where('status', 'completed')->count();
 
         return view('customer.dashboard', [
             'totalorder' => $totalorder,
             'pendingorder' => $pendingorder,
             'confirmedorder' => $confirmedorder,
             'cancelledorder' => $cancelledorder,
+            'outfordelivery' => $outfordelivery,
             'completedorder' => $completedorder,
         ]);
     }
