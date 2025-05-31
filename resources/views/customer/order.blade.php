@@ -54,7 +54,7 @@
                                 </p>
                                 <!-- Quantity Input -->
                                 <div class="flex gap-2 mt-2">
-                                    <input type="number" class="quantity w-[50px] p-2 border border-[#005382] rounded-xl" value="1" min="1" id="quantity-{{$deal->id}}">
+                                    <input type="number" class="quantity w-[100px] p-2 border border-[#005382] rounded-xl" value="1" min="1" id="quantity-{{$deal->id}}">
 
                                     <button type="button" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl"
                                     onclick="

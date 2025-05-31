@@ -63,6 +63,9 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\PromotionalPageController;
+
 
 //////super admin archive route
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
@@ -91,8 +94,11 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
-        // Route::get('/inventory-by-month/{month}', [InventoryController::class, 'getInventoryByMonth']);
-        Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
+
+        // Route::get('/deducted-quantities/{year}/{month}', [InventoryController::class, 'getFilteredDeductedQuantities']);
+        // Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
+        Route::get('/inventory-by-month/{year}/{month}/{location?}', [DashboardController::class, 'getInventoryByMonth']);
+Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
 
         Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
@@ -157,6 +163,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
+
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
     });
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
 
@@ -256,6 +265,10 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 
 //10///////////////////////// << 2FA ROUTES >> //////////////////////////////10//
 
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -264,6 +277,7 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
