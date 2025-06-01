@@ -55,6 +55,17 @@
                 </div>
             </div>
 
+            {{-- Out for Delivery --}}
+            <div class="bg-white p-8 rounded-lg w-full shadow-md">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-lg">Out for Delivery</p>
+                        <p class="text-2xl">{{ $outfordelivery }}</p>
+                    </div>
+                    <i class="fa-solid fa-truck text-blue-500 text-4xl"></i>
+                </div>
+            </div>
+
             {{-- Cancelled Orders --}}
             <div class="bg-white p-8 rounded-lg w-full shadow-md">
                 <div class="flex justify-between items-center">

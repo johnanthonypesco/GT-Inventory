@@ -7,7 +7,7 @@
 
     @if (auth('superadmin')->check())
         <a href="{{ route ('admin.inventory')}}" class="text-md"><i class="fa-solid fa-boxes-stacked text-[#005382] text-md"></i>Inventory</a>
-
+        <a href="{{ route ('admin.sales')}}" class="text-md"><i class="fa-solid fa-print text-[#005382] text-md"></i>Sales Reports</a>
         <a href="{{ route ('admin.order')}}" class="text-md"><i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders</a>
 
         <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-md relative">
