@@ -56,3 +56,18 @@ nav {
     background: #084876;
     border-radius: 10px;
 }
+
+/* animate when modal open */
+.modal {
+    animation: modalopen 0.3s ease-in-out;
+}
+@keyframes modalopen {
+    from {
+        top: -100px;
+        opacity: 0;
+    }
+    to {
+        top: 0;
+        opacity: 1;
+    }
+}
