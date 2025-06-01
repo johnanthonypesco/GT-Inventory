@@ -13,6 +13,9 @@
             <a href="{{ route('admin.inventory') }}" class="text-md">
                 <i class="fa-solid fa-boxes-stacked text-[#005382] text-md"></i>Inventory
             </a>
+            <a href="{{ route('admin.sales') }}" class="text-md">
+                <i class="fa-solid fa-print text-[#005382] text-md"></i>Sales Reports
+            </a>
             
             <a href="{{ route('admin.productlisting') }}" class="text-md">
                 <i class="fa-solid fa-list-check text-[#005382] text-md"></i>Product Deals
@@ -37,6 +40,7 @@
             <a href="{{ route('admin.history') }}" class="text-md">
                 <i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History
             </a>
+            
 
             <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-md"></i>History Log</a>
 

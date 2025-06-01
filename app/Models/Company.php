@@ -33,6 +33,10 @@ class Company extends Model
     {
         return $this->hasMany(ExclusiveDeal::class);
     }
+    public function exclusiveDeals()
+    {
+        return $this->hasMany(ExclusiveDeal::class);
+    }
 
 
 

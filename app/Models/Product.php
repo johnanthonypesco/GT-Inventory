@@ -23,4 +23,8 @@ class Product extends Model
     public function exclusive_deals() {
         return $this->hasMany(ExclusiveDeal::class);
     }
+        public function exclusiveDeals()
+    {
+        return $this->hasMany(ExclusiveDeal::class);
+    }
 }

@@ -27,4 +27,20 @@ class Order extends Model
     public function exclusive_deal():BelongsTo {
         return $this->belongsTo(ExclusiveDeal::class, 'exclusive_deal_id', 'id');
     }
+    public function exclusiveDeal()
+{
+    return $this->belongsTo(ExclusiveDeal::class);
+}
+
+
+// app/Models/Company.php
+public function exclusiveDeals()
+{
+    return $this->hasMany(ExclusiveDeal::class);
+}
+
+protected $casts = [
+    'date_ordered' => 'datetime',
+];
+
 }
