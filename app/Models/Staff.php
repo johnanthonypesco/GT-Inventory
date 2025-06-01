@@ -6,10 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Staff extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +27,8 @@ class Staff extends Authenticatable
         'is_staff',
         'archived_at',
         'contact_number',
+        'two_factor_code',
+    'two_factor_expires_at',
     ];
 
     /**
