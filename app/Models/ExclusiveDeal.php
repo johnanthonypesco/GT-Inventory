@@ -35,4 +35,8 @@ class ExclusiveDeal extends Model
 {
     return $this->belongsTo(Product::class);
 }
+public function inventories()
+{
+    return $this->hasMany(Inventory::class, 'product_id', 'product_id');
+}
 }

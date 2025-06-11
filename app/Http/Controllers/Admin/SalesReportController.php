@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Company;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use PDF;
 
 class SalesReportController extends Controller
@@ -47,23 +48,27 @@ class SalesReportController extends Controller
     }
 
     public function generateReport(Request $request)
-    {
-        $validated = $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'company_id' => 'nullable|exists:companies,id'
-        ]);
+{
+    $validated = $request->validate([
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'company_id' => 'nullable|exists:companies,id'
+    ]);
 
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $companyId = $request->input('company_id');
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+    $companyId = $request->input('company_id');
 
+    // Unique cache key based on filters
+    $cacheKey = 'sales_report_' . md5($startDate . '_' . $endDate . '_' . ($companyId ?? 'all'));
+
+    // Cache for 10 minutes (adjust as needed)
+    $data = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($startDate, $endDate, $companyId) {
         // Base query for orders
         $ordersQuery = Order::with(['exclusiveDeal.product', 'exclusiveDeal.company', 'user'])
             ->where('status', 'delivered')
             ->whereBetween('date_ordered', [$startDate, $endDate]);
 
-        // Filter by company if selected
         if ($companyId) {
             $ordersQuery->whereHas('exclusiveDeal', function($query) use ($companyId) {
                 $query->where('company_id', $companyId);
@@ -72,9 +77,9 @@ class SalesReportController extends Controller
 
         $orders = $ordersQuery->orderBy('date_ordered', 'asc')->get();
 
-        // Get companies for summary (either all or just the selected one)
+        // Get companies for summary
         $companiesQuery = Company::query();
-        
+
         if ($companyId) {
             $companiesQuery->where('id', $companyId);
         }
@@ -82,10 +87,9 @@ class SalesReportController extends Controller
         $companies = $companiesQuery->with(['exclusiveDeals.orders' => function($query) use ($startDate, $endDate) {
                 $query->where('status', 'delivered')
                       ->whereBetween('date_ordered', [$startDate, $endDate]);
-            }])
-            ->get();
+            }])->get();
 
-        $data = [
+        return [
             'start_date' => $startDate,
             'end_date' => $endDate,
             'company_id' => $companyId,
@@ -96,15 +100,17 @@ class SalesReportController extends Controller
                 return $order->quantity * $order->exclusiveDeal->price;
             })
         ];
+    });
 
-        if ($request->has('download')) {
-            $pdf = PDF::loadView('admin.reports.sales_pdf', $data);
-            $filename = $companyId 
-                ? 'sales_report_'.$companies->first()->name.'_'.$startDate.'_to_'.$endDate.'.pdf'
-                : 'sales_report_'.$startDate.'_to_'.$endDate.'.pdf';
-            return $pdf->download($filename);
-        }
-
-        return view('admin.sales', $data);
+    // PDF download
+    if ($request->has('download')) {
+        $pdf = PDF::loadView('admin.reports.sales_pdf', $data);
+        $filename = $companyId 
+            ? 'sales_report_'.$data['companies']->first()->name.'_'.$startDate.'_to_'.$endDate.'.pdf'
+            : 'sales_report_'.$startDate.'_to_'.$endDate.'.pdf';
+        return $pdf->download($filename);
     }
+
+    return view('admin.sales', $data);
+}
 }

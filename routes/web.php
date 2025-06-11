@@ -102,8 +102,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // Route::get('/deducted-quantities/{year}/{month}', [InventoryController::class, 'getFilteredDeductedQuantities']);
         // Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
         Route::get('/inventory-by-month/{year}/{month}/{location?}', [DashboardController::class, 'getInventoryByMonth']);
-Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
-
+        Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
+        Route::get('/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
+        Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
         Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 

@@ -11,7 +11,98 @@
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Sales Report</title>
 </head>
+ <style>
+        /* Preloader Styles */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .spinner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .spinner-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: #3B82F6; /* blue-500 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .spinner-circle:nth-child(2) {
+            border: 4px solid transparent;
+            border-bottom-color: #3B82F6; /* blue-500 */
+            animation: spin-reverse 1s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spin-reverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        
+        .preloader-text {
+            font-size: 1.125rem; /* text-lg */
+            color: #1E40AF; /* blue-800 */
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        
+        /* For smaller devices */
+        @media (max-width: 640px) {
+            .spinner {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .preloader-text {
+                font-size: 1rem; /* text-base */
+            }
+        }
+    </style>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+    <!-- Enhanced Preloader -->
+    <div class="preloader">
+        <div class="spinner-container">
+            <div class="spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle"></div>
+            </div>
+            <div class="preloader-text">Loading Please Wait...</div>
+        </div>
+    </div>
     <x-admin.navbar />
 
     <main class="md:w-full h-full md:ml-[16%] ml-0">
@@ -169,5 +260,32 @@
             @endisset
         </div>
     </main>
+     <script>
+        $(document).ready(function() {
+            // Show preloader when any form button is clicked
+            $('form').on('submit', function() {
+                $('.preloader').css('display', 'flex').hide().fadeIn();
+            });
+            
+            // Show preloader when clear filters link is clicked
+            $('a[href="{{ route('admin.sales') }}"]').on('click', function(e) {
+                e.preventDefault();
+                $('.preloader').css('display', 'flex').hide().fadeIn();
+                setTimeout(() => {
+                    window.location.href = $(this).attr('href');
+                }, 100);
+            });
+            
+            // Hide preloader when page is fully loaded
+            $(window).on('load', function() {
+                $('.preloader').fadeOut();
+            });
+            
+            // Fallback in case load event doesn't fire
+            setTimeout(function() {
+                $('.preloader').fadeOut();
+            }, 5000);
+        });
+    </script>
 </body>
 </html>
