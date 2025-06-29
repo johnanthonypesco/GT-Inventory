@@ -1,20 +1,17 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Http\Request;
+
 use App\Models\Conversation;
 use App\Models\SuperAdmin;
 use App\Models\Admin;
 use App\Models\Staff;
-use App\Models\Order;
-use App\Models\Inventory;
-use App\Models\ScannedQrCode;
-use App\Models\ExclusiveDeal;
-use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,17 +28,31 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // COMMENT THIS IF YOU NOT USING CLOUD FLARE TUNNEL
+        // This is to force HTTPS when using Cloudflare Tunnel
+        // It checks the X-Forwarded-Proto header to determine if the request is secure
+        // and sets the URL scheme accordingly.
+        // If you are not using Cloudflare Tunnel, you can comment this section out.
+        // 👇 Detect if forwarded protocol is HTTPS (from Cloudflare Tunnel)
+        $hosting = env('APP_HOSTING');
+
+        if ($hosting === 'cloudflare' && request()->header('X-Forwarded-Proto') === 'https') {
+            URL::forceScheme('https');
+        } elseif ($hosting === 'hostinger') {
+            // Optional: Force HTTPS directly if you want
+            if (request()->secure()) {
+                URL::forceScheme('https');
+            }
+        }
         View::composer('*', function ($view) {
-            // Get the current user
             $currentUser = Auth::user();
 
-            // Initialize variables
             $unreadMessagesAdmin = 0;
             $unreadMessagesSuperAdmin = 0;
             $unreadMessagesStaff = 0;
             $adminsidebar_counter = 0;
 
-            // Check who is logged in
             if ($currentUser instanceof SuperAdmin) {
                 $unreadMessagesSuperAdmin = Cache::remember('unread_messages_superadmin', 10, function () use ($currentUser) {
                     return Conversation::where('is_read', false)
@@ -68,15 +79,12 @@ class AppServiceProvider extends ServiceProvider
                 $adminsidebar_counter = $unreadMessagesStaff;
             }
 
-            
-            // Share the data with the view
             $view->with([
                 'unreadMessagesAdmin' => $unreadMessagesAdmin,
                 'unreadMessagesSuperAdmin' => $unreadMessagesSuperAdmin,
                 'unreadMessagesStaff' => $unreadMessagesStaff,
                 'adminsidebar_counter' => $adminsidebar_counter,
                 'currentUser' => $currentUser,
-                
             ]);
         });
     }

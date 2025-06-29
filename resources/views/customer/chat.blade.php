@@ -11,8 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Chat</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery for AJAX -->
-</head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> </head>
 
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
@@ -22,9 +21,7 @@
 
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
 
-        <!-- Wrap the entire contacts list in a single container -->
         <div id="contactsList" class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col">
-            <!-- Super Admins -->
             @foreach ($superAdmins as $superAdmin)
                 <div onclick="markAsRead({{ $superAdmin->id }}, 'super_admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-red-500 p-5 rounded-full"></i>
@@ -56,7 +53,6 @@
                 </div>
             @endforeach
 
-            <!-- Admins -->
             @foreach ($admins as $admin)
                 <div onclick="markAsRead({{ $admin->id }}, 'admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-blue-500 p-5 rounded-full"></i>
@@ -88,7 +84,6 @@
                 </div>
             @endforeach
 
-            <!-- Staff -->
             @foreach ($staff as $staffMember)
                 <div onclick="markAsRead({{ $staffMember->id }}, 'staff')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
                     <i class="fa-solid fa-user text-white text-2xl bg-green-500 p-5 rounded-full"></i>
@@ -191,7 +186,7 @@
 
             // Start contacts refresh interval
             function startContactsRefresh() {
-                contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 6 seconds
+                contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 7 seconds
             }
 
             // Stop contacts refresh interval
@@ -227,32 +222,34 @@
         const proceedButton = document.getElementById("proceed");
         const termsAndConditions = document.getElementById("terms&conditions");
 
-        proceedButton.disabled = false;
+        // --- BAGONG CODE: Suriin kung tinanggap na ang terms ---
+        if (localStorage.getItem('termsAccepted') === 'true') {
+            termsAndConditions.style.display = "none";
+        }
+        // --- KATAPUSAN NG BAGONG CODE ---
 
+        // Inalis ang `proceedButton.disabled = false;` para manatiling disabled ito sa simula
+        
         checkbox.addEventListener("change", function () {
-            if (checkbox.checked) {
-                proceedButton.disabled = false;
-            }
-            else {
-                proceedButton.disabled = true;
-            }
-                     
+            // Gagawing enabled/disabled ang button base sa state ng checkbox
+            proceedButton.disabled = !checkbox.checked;
         });
 
         proceedButton.addEventListener("click", function () {
-            if (!checkbox.checked) {
+            if (checkbox.checked) {
+                // --- BAGONG CODE: I-save sa localStorage na tinanggap na ang terms ---
+                localStorage.setItem('termsAccepted', 'true');
+                // --- KATAPUSAN NG BAGONG CODE ---
+
+                termsAndConditions.style.display = "none";
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Sorry',
                     text: 'Please agree to the terms and conditions to proceed!',
                     confirmButtonColor: "#005382"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('customer.order') }}";
-                    }
                 });
-            } else {
-                termsAndConditions.style.display = "none";
+                // Hindi na kailangan i-redirect dito
             }
         });
     });

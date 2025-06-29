@@ -78,14 +78,15 @@ Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountContro
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+
 });
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
     Route::middleware(['auth:superadmin,admin'])->group(function () {
-        Route::get('admin/sales', [\App\Http\Controllers\Admin\SalesReportController::class, 'index'])->name('admin.sales');
-    Route::post('admin/sales/generate', [\App\Http\Controllers\Admin\SalesReportController::class, 'generateReport'])->name('admin.sales.generate');
+        Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+        
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
         Route::get('admin/inventory/{location_filter?}', [InventoryController::class, 'showInventory'])->name('admin.inventory');
         Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
@@ -99,13 +100,26 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
 
-        // Route::get('/deducted-quantities/{year}/{month}', [InventoryController::class, 'getFilteredDeductedQuantities']);
-        // Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
-        Route::get('/inventory-by-month/{year}/{month}/{location?}', [DashboardController::class, 'getInventoryByMonth']);
-        Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
-        Route::get('/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
+         // API routes for dashboard charts
+        Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
+        Route::get('admin/filtered-deducted-quantities/{year}/{month}/{locationId?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
+        Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
+        Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);
+
+        // New API routes for added dashboard charts
+        Route::get('admin/order-status-counts', [DashboardController::class, 'getOrderStatusCounts']);
+        Route::get('admin/average-order-value/{year}/{month?}', [DashboardController::class, 'getAverageOrderValue']);
+        Route::get('admin/fulfillment-time/{period}/{year}/{month?}', [DashboardController::class, 'getOrderFulfillmentTime']);
+        Route::get('admin/orders-by-location/{year}/{month?}', [DashboardController::class, 'getOrdersByLocation']);
+
+        // NEW: AI Chart Analysis Route
+        Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI']);
         Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
-        Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+
+        // sales reports
+        Route::get('admin/sales', [SalesReportController::class, 'index'])->name('admin.sales');
+        Route::post('admin/sales/generate', [SalesReportController::class, 'generateReport'])->name('admin.sales.generate');
+        
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
@@ -168,9 +182,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
-
-        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
-        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
 
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
@@ -277,10 +288,6 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
 /////////////////////////// << Promotional Page >> ////////////////////////////////
 
-/////////////////////////// << Promotional Page >> ////////////////////////////////
-Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
-/////////////////////////// << Promotional Page >> ////////////////////////////////
-
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -289,7 +296,6 @@ Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotion
 
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
-    Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
@@ -407,8 +413,6 @@ Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
 
 });
-
-
 
 
 // To Keep Laravel Auth Routes
