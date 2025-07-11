@@ -132,7 +132,7 @@
                     {{-- Search --}}
 
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                        <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
+                       <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf

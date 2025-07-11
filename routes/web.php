@@ -99,11 +99,12 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
-
+        // dashboard routes
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
         Route::get('admin/filtered-deducted-quantities/{year}/{month}/{locationId?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
-        Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
+        // Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
+        Route::get('admin/inventory-levels/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);
 
         // New API routes for added dashboard charts
@@ -113,9 +114,12 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::get('admin/orders-by-location/{year}/{month?}', [DashboardController::class, 'getOrdersByLocation']);
 
         // NEW: AI Chart Analysis Route
-        Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI']);
+        // Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI'])->name('admin.analyze.charts');
+        // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
+        Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
         Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
-
+        
+        Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
         // sales reports
         Route::get('admin/sales', [SalesReportController::class, 'index'])->name('admin.sales');
         Route::post('admin/sales/generate', [SalesReportController::class, 'generateReport'])->name('admin.sales.generate');

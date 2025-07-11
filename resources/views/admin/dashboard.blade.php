@@ -4,125 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <title>Dashboard</title>
     <style>
-        /* General Chart Container Transitions */
-        .chart-container {
-            transition: all 0.3s ease;
-            display: none; /* Hide all by default, show based on selection */
-        }
-        /* Full width and height for single chart view */
-        .chart-full {
-            width: 100% !important;
-            height: 600px !important;
-        }
-        /* Half width and height for multiple chart view */
-        .chart-half {
-            width: 100% !important; /* On larger screens, this will be within a grid column */
-            height: 400px !important;
-        }
-
-        /* Custom Select Styles */
-        .custom-select {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .select-header {
-            padding: 12px 16px;
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-        .select-header:hover {
-            border-color: #a0aec0;
-        }
-        .select-header:active, .select-header.open {
-            border-color: #4a5568;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-        }
-        .select-options {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            margin-top: 4px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            z-index: 10;
-        }
-        .select-options.open {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .option-item {
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .option-item:hover {
-            background-color: #f7fafc;
-        }
-        .option-item input {
-            margin-right: 12px;
-            width: 18px;
-            height: 18px;
-            accent-color: #4299e1;
-            cursor: pointer;
-        }
-        .option-item label {
-            cursor: pointer;
-            flex-grow: 1;
-            color: #2d3748;
-        }
-        .select-header:focus {
-            outline: none;
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-        }
-        .option-item:focus-within {
-            background-color: #ebf8ff;
-        }
-        
-        /* Styles for the new Executive Summary */
-        .kpi-card {
-            background-color: #f8fafc;
-            border-left: 4px solid #3b82f6;
-            transition: all 0.3s ease;
-        }
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        }
+        /* Styles for the Executive Summary */
+        .kpi-card { background-color: #f8fafc; border-left: 4px solid #3b82f6; transition: all 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
         .anomaly-item.positive { border-left-color: #16a34a; }
         .anomaly-item.negative { border-left-color: #dc2626; }
         .anomaly-item.warning { border-left-color: #f59e0b; }
-        
-        .recommendation-card {
-            background: linear-gradient(135deg, #6d28d9, #4f46e5);
-        }
+        .recommendation-card { background: linear-gradient(135deg, #6d28d9, #4f46e5); }
+        .loader { display: flex; align-items: center; justify-content: center; padding: 2rem; color: #6b21a8; }
+        .loader svg { color: #6b21a8; }
+
+        /* Chart-related styles */
+        .chart-container { transition: all 0.3s ease; min-height: 300px; cursor: grab; }
+        .chart-container:active { cursor: grabbing; }
     </style>
 </head>
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
@@ -141,78 +47,65 @@
             @if($currentUser instanceof \App\Models\SuperAdmin)
                 <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesSuperAdmin ?? 0 }}"/>
             @elseif($currentUser instanceof \App\Models\Admin)
-                <x-admin.dashboardcard title="Unread Messages (Admin)" image="messages.png" count="{{ $unreadMessagesAdmin ?? 0 }}"/>
+                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesAdmin ?? 0 }}"/>
             @elseif($currentUser instanceof \App\Models\Staff)
-                <x-admin.dashboardcard title="Unread Messages (Staff)" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
+                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
             @endif
         </div>
 
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-brain mr-3 text-purple-600"></i>
-                AI Executive Summary
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                @forelse($executiveSummary['kpis'] as $kpi)
-                    <div class="kpi-card p-4 rounded-lg shadow">
-                        <h4 class="text-sm font-medium text-gray-500 flex justify-between items-center">
-                            {{ $kpi['label'] }}
-                            @if(isset($kpi['trend']))
-                                @if($kpi['trend'] == 'up')
-                                    <span class="text-green-500"><i class="fas fa-arrow-up"></i></span>
-                                @elseif($kpi['trend'] == 'down')
-                                    <span class="text-red-500"><i class="fas fa-arrow-down"></i></span>
-                                @endif
-                            @endif
-                        </h4>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $kpi['value'] }}</p>
+        {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
+        @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
+        <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
+            {{-- Unified Controls --}}
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-brain mr-3 text-purple-600"></i>
+                    AI-Powered Analysis
+                </h2>
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                        <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
+                        <option value="mistral-small-latest">Mistral AI (Small)</option>
+                    </select>
+                    <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                        <i class="fas fa-redo-alt"></i> Refresh Analysis
+                    </button>
+                    <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                        <i class="far fa-clock mr-1"></i>
+                        <span id="ai-timer"></span>
                     </div>
-                @empty
-                     <div class="kpi-card p-4 rounded-lg shadow col-span-3">
-                        <h4 class="text-sm font-medium text-gray-500">Key Performance Indicators</h4>
-                        <p class="text-lg font-semibold text-gray-700">AI is analyzing data...</p>
-                    </div>
-                @endforelse
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>AI Anomaly Detection</h3>
-                    <div class="space-y-3">
-                        @forelse($executiveSummary['anomalies'] as $anomaly)
-                            <div class="anomaly-item {{ $anomaly['type'] }} bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3">
-                                <i class="fas {{ $anomaly['type'] == 'positive' ? 'fa-arrow-up text-green-500' : ($anomaly['type'] == 'negative' ? 'fa-arrow-down text-red-500' : 'fa-exclamation-circle text-yellow-500') }} mt-1"></i>
-                                <p class="text-sm text-gray-700">{{ $anomaly['message'] }}</p>
-                            </div>
-                        @empty
-                            <div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3">
-                                 <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                                <p class="text-sm text-green-700">No critical anomalies detected by the AI. Business operations appear stable.</p>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
+            <hr class="my-4 border-gray-200">
 
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-lightbulb mr-2 text-blue-500"></i>AI Recommendations</h3>
-                    <div class="space-y-3">
-                        @forelse($executiveSummary['recommendations'] as $recommendation)
-                            <div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3">
-                               <i class="fas fa-lightbulb mt-1"></i>
-                               <p class="font-medium flex-1">{{ $recommendation['message'] }}</p>
-                            </div>
-                        @empty
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                 <p class="text-sm text-gray-600">No specific recommendations from the AI at this time.</p>
-                            </div>
-                        @endforelse
-                    </div>
+            {{-- Part 1: Executive Summary --}}
+            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+            <div id="ai-summary-content">
+                <div class="loader">
+                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-lg font-semibold">Loading AI summary...</span>
                 </div>
+            </div>
+            
+            <hr class="my-6 border-gray-200">
+
+            {{-- Part 2: Chart Analysis --}}
+            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
+            <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
+                <small id="aiModelName" class="text-gray-400 mt-2"></small>
+            </div>
+            <div class="flex justify-end mt-3">
+                 <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
+                    <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
+                </button>
             </div>
         </div>
         @endif
+        {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
+
+
         @if(!$currentUser instanceof \App\Models\Staff)
             <div class="mt-5 bg-white p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
@@ -225,7 +118,7 @@
                 </ul>
             </div>
         @endif
-
+        
         @if(!$currentUser instanceof \App\Models\Staff)
         <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
             <div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -280,30 +173,10 @@
             </div>
         </div>
         @endif
-
-        {{-- AI Analysis Section --}}
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">AI Chart Analysis</h3>
-            <div class="flex items-center gap-3">
-                <button id="analyzeChartsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                    <i class="fas fa-robot mr-2"></i> Get AI Analysis
-                </button>
-                <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
-                    <i class="fas fa-volume-up mr-2"></i> Speak Analysis
-                </button>
-            </div>
-            <div id="aiAnalysisResult" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500">Click "Get AI Analysis" to see a chart summary.</p>
-                <small id="aiModelName" class="text-gray-400 mt-2"></small>
-            </div>
-        </div>
-        @endif
-
         @if(!$currentUser instanceof \App\Models\Staff)
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
             <div class="space-y-4 md:space-y-6" id="leftCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
                         <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
@@ -315,7 +188,7 @@
                             <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="day">Daily</option>
                                 <option value="week">Weekly</option>
-                                <option value="month">Monthly</option>
+                                <option value="month" selected>Monthly</option>
                                 <option value="year">Yearly</option>
                             </select>
                         </div>
@@ -339,9 +212,7 @@
                         </div>
                         <div id="revenueWeekContainer" class="hidden">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
-                            <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                {{-- Options will be dynamically loaded --}}
-                            </select>
+                            <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
                         </div>
                         <div class="flex items-end">
                             <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
@@ -349,31 +220,10 @@
                             </button>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
-                            <p id="totalRevenue" class="text-2xl font-semibold text-gray-900">₱0.00</p>
-                            <p class="text-xs text-gray-500">Selected period</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-sm font-medium text-gray-500">Average Revenue</h3>
-                            <p id="avgRevenue" class="text-2xl font-semibold text-gray-900">₱0.00</p>
-                            <p class="text-xs text-gray-500">Per time unit</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-sm font-medium text-gray-500">Time Period</h3>
-                            <p id="currentPeriod" class="text-2xl font-semibold text-gray-900">-</p>
-                            <p class="text-xs text-gray-500">Currently viewing</p>
-                        </div>
-                    </div>
-
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white p-4 rounded-lg shadow chart-canvas">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
+                     <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
                 </div>
 
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
                         <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
@@ -391,9 +241,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
                             <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
-                                    </option>
+                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
                                 @endfor
                             </select>
                         </div>
@@ -407,34 +255,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas">
-                        <canvas id="deductedQuantitiesChart"></canvas>
-                    </div>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
                 </div>
 
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
                     <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
-                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                    <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
                         <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="inventoryYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="inventoryMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
                             <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">All Locations</option>
                                 @foreach($locations as $location)
@@ -443,17 +271,13 @@
                             </select>
                         </div>
                     </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas">
-                        <canvas id="inventoryLevelsChart"></canvas>
-                    </div>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
                 </div>
             </div>
 
             <div class="space-y-4 md:space-y-6" id="rightCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
                     <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
-                    <p class="text-xs sm:text-sm text-gray-500 mb-3">Analysis of product sales performance and next month's predicted trends.</p>
-
                     <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
@@ -474,43 +298,27 @@
                         </div>
                     </div>
 
-                    <div class="h-64 chart-canvas">
-                        <canvas id="seasonalTrendsChart"></canvas>
-                    </div>
+                    <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
 
                     <div class="mt-6">
                         <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer">
-                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
                     </div>
                 </div>
 
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
                     <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
                     <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
-                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                                bg-blue-100 text-blue-700 hover:bg-blue-200 active:bg-blue-300">
-                            Most Ordered
-                        </button>
-                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                                bg-emerald-100 text-emerald-700 hover:bg-emerald-200 active:bg-emerald-300">
-                            Moderate Ordered
-                        </button>
-                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                                bg-amber-100 text-amber-700 hover:bg-amber-200 active:bg-amber-300">
-                            Low Ordered
-                        </button>
+                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
+                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
+                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
                     </div>
-                    <div class="h-72 sm:h-80 md:h-96 chart-canvas">
-                        <canvas id="productPerformanceChart"></canvas>
-                    </div>
+                    <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
                 </div>
 
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
                     <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center">
-                        <canvas id="orderStatusChart"></canvas>
-                    </div>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
                 </div>
             </div>
         </div>
@@ -519,204 +327,218 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Global Chart Instances
-        let revenueChart, productPerformanceChart, deductedQuantitiesChart, inventoryLevelsChart,
-            seasonalTrendsChart, orderStatusChart;
+        // Global variables
+        const chartInstances = {};
+        
+        // --- UNIFIED AI ANALYSIS SCRIPT ---
+        if (document.getElementById('ai-analysis-section')) {
+            let executiveSummaryData = @json($executiveSummaryData);
+            let countdownInterval;
 
+            const summaryContentEl = document.getElementById('ai-summary-content');
+            const chartAnalysisContentEl = document.getElementById('ai-chart-analysis-content');
+            const timerEl = document.getElementById('ai-timer');
+            const timerContainerEl = document.getElementById('ai-timer-container');
+            const aiModelSelect = document.getElementById('aiModelSelect');
+            const refreshAiBtn = document.getElementById('refreshAiBtn');
+            const speakAnalysisBtn = document.getElementById('speakAnalysisBtn');
+            const aiModelNameSpan = document.getElementById('aiModelName');
+
+            function renderSummary(summary) {
+                if (!summary || !summary.kpis) {
+                    summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI summary...</span></div>`;
+                    return;
+                }
+                let kpisHtml = summary.kpis.map(kpi => {
+                    let trendIcon = '';
+
+                    console.log(kpi.trend);
+
+                    if (kpi.trend === 'up') trendIcon = `<span class="text-green-500"><i class="fas fa-arrow-up"></i></span>`;
+                    else if (kpi.trend === 'down') trendIcon = `<span class="text-red-500"><i class="fas fa-arrow-down"></i></span>`;
+                    else trendIcon = `<span class="text-gray-500"><i class="fas fa-minus"></i></span>`;
+                    return `<div class="kpi-card p-4 rounded-lg shadow"><h4 class="text-sm font-medium text-gray-500 flex justify-between items-center">${kpi.label || 'N/A'} ${trendIcon}</h4><p class="text-2xl font-semibold text-gray-900">${kpi.value || 'N/A'}</p></div>`;
+                }).join('');
+                let anomaliesHtml = summary.anomalies.map(anomaly => {
+                    let iconClass, iconColor;
+                    if (anomaly.type === 'positive') { iconClass = 'fa-check-circle'; iconColor = 'text-green-500'; }
+                    else if (anomaly.type === 'negative') { iconClass = 'fa-exclamation-triangle'; iconColor = 'text-red-500'; }
+                    else { iconClass = 'fa-exclamation-circle'; iconColor = 'text-yellow-500'; }
+                    return `<div class="anomaly-item ${anomaly.type} bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas ${iconClass} ${iconColor} mt-1"></i><p class="text-sm text-gray-700">${anomaly.message || 'No message.'}</p></div>`;
+                }).join('');
+                let recommendationsHtml = summary.recommendations.map(rec => `<div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3"><i class="fas fa-lightbulb mt-1"></i><p class="font-medium flex-1">${rec.message || 'No message.'}</p></div>`).join('');
+                
+                if (summary.kpis.length === 0) kpisHtml = `<p class="text-gray-700 col-span-1 md:col-span-3">No KPIs available.</p>`;
+                if (summary.anomalies.length === 0) anomaliesHtml = `<div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i><p class="text-sm text-green-700">No critical anomalies detected.</p></div>`;
+                if (summary.recommendations.length === 0) recommendationsHtml = `<div class="bg-gray-50 p-4 rounded-lg"><p class="text-sm text-gray-600">No specific recommendations.</p></div>`;
+
+                summaryContentEl.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">${kpisHtml}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>AI Anomaly Detection</h3><div class="space-y-3">${anomaliesHtml}</div></div><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-lightbulb mr-2 text-blue-500"></i>AI Recommendations</h3><div class="space-y-3">${recommendationsHtml}</div></div></div>`;
+            }
+
+            function renderChartAnalysis(analysisData) {
+                if (!analysisData || !analysisData.analysis) {
+                    chartAnalysisContentEl.innerHTML = `<p class="text-gray-500">Could not generate chart analysis.</p>`;
+                    speakAnalysisBtn.classList.add('hidden');
+                    return;
+                }
+                chartAnalysisContentEl.innerHTML = `<p>${analysisData.analysis}</p>`;
+                aiModelNameSpan.textContent = `Analysis by: ${analysisData.model}`;
+                speakAnalysisBtn.classList.remove('hidden');
+            }
+
+            function startCountdown(expiryDateString) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                if (!expiryDateString) { timerContainerEl.style.display = 'none'; return; }
+                timerContainerEl.style.display = 'block';
+                const expiryDate = new Date(expiryDateString);
+                countdownInterval = setInterval(() => {
+                    const diff = expiryDate - new Date();
+                    if (diff <= 0) {
+                        clearInterval(countdownInterval);
+                        timerEl.textContent = 'Expired. Refreshing...';
+                        getInitialSummary();
+                        return;
+                    }
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    timerEl.textContent = `Request resets in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            function showLoadingState() {
+                summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI Summary...</span></div>`;
+                chartAnalysisContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-md font-semibold ml-2">Analyzing Chart Data...</span></div>`;
+                aiModelNameSpan.textContent = '';
+                speakAnalysisBtn.classList.add('hidden');
+                startCountdown(null);
+            }
+
+            function handleError(error) {
+                console.error("Error fetching AI analysis:", error);
+                const errorMessage = error.message || 'Could not fetch analysis.';
+                renderSummary({ kpis: [], anomalies: [{type: 'negative', message: `Summary failed: ${errorMessage}`}], recommendations: [] });
+                chartAnalysisContentEl.innerHTML = `<p class="text-red-600">Chart analysis failed: ${errorMessage}</p>`;
+                timerEl.textContent = 'Error fetching data.';
+            }
+
+            async function getCombinedAnalysis() {
+                if (window.isFetchingAi) return;
+                window.isFetchingAi = true;
+                
+                showLoadingState();
+                const selectedAiModel = aiModelSelect.value;
+                const chartsToAnalyze = {};
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    if (container.style.display !== 'none') {
+                        const chartId = container.dataset.chartId;
+                        const chartInstance = chartInstances[`${chartId}Chart`];
+                        if (chartInstance) {
+                            chartsToAnalyze[chartId] = {
+                                name: container.querySelector('h3')?.textContent || 'Unknown Chart',
+                                labels: chartInstance.data.labels,
+                                values: chartInstance.data.datasets.map(d => d.data),
+                                datasetLabels: chartInstance.data.datasets.map(d => d.label)
+                            };
+                        }
+                    }
+                });
+
+                try {
+                    const response = await fetch("{{ route('admin.ai.handler') }}", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: JSON.stringify({
+                            request_type: 'combined_analysis',
+                            ai_model: selectedAiModel,
+                            chart_data: chartsToAnalyze
+                        })
+                    });
+                    if (!response.ok) { throw new Error( (await response.json()).error || 'Failed to fetch from server.'); }
+                    
+                    const result = await response.json();
+                    renderSummary(result.summary_data.summary);
+                    startCountdown(result.summary_data.expires_at);
+                    renderChartAnalysis(result.chart_analysis_data);
+
+                } catch (error) {
+                    handleError(error);
+                } finally {
+                    window.isFetchingAi = false;
+                }
+            }
+            
+            async function getInitialSummary() {
+                 try {
+                     const response = await fetch("{{ route('admin.ai.handler') }}", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                         body: JSON.stringify({ request_type: 'executive_summary_only', ai_model: aiModelSelect.value })
+                     });
+                     if (!response.ok) { throw new Error((await response.json()).error || 'Failed to fetch initial summary.'); }
+                     
+                     const result = await response.json();
+                     executiveSummaryData = result.summary_data;
+                     renderSummary(executiveSummaryData.summary);
+                     startCountdown(executiveSummaryData.expires_at);
+                 } catch (error) {
+                     handleError(error);
+                 }
+            }
+
+            refreshAiBtn.addEventListener('click', getCombinedAnalysis);
+            speakAnalysisBtn.addEventListener('click', () => {
+                const analysisText = chartAnalysisContentEl.querySelector('p')?.textContent;
+                if (analysisText) {
+                    const utterance = new SpeechSynthesisUtterance(analysisText);
+                    utterance.lang = 'en-US';
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+
+            if (executiveSummaryData && new Date(executiveSummaryData.expires_at) > new Date()) {
+                renderSummary(executiveSummaryData.summary);
+                startCountdown(executiveSummaryData.expires_at);
+                if (executiveSummaryData.summary._model_used) {
+                    aiModelSelect.value = executiveSummaryData.summary._model_used;
+                }
+            } else {
+                getInitialSummary();
+            }
+        }
+
+        // --- CHARTING LOGIC ---
         const chartsContainer = document.getElementById('chartsContainer');
         const leftCharts = document.getElementById('leftCharts');
         const rightCharts = document.getElementById('rightCharts');
 
-        function updateChartDisplay(option) {
-            document.querySelectorAll('.chart-container').forEach(chart => {
-                chart.style.display = 'none';
-                chart.classList.remove('col-span-2');
-                const canvasContainer = chart.querySelector('.chart-canvas');
-                if(canvasContainer) {
-                    canvasContainer.classList.remove('chart-full', 'chart-half');
-                }
-            });
-
-            leftCharts.style.display = 'block';
-            rightCharts.style.display = 'block';
-            if (chartsContainer) {
-                chartsContainer.style.display = 'grid';
-            }
-
-            const chartSelectors = {
-                revenue: '.revenue-chart',
-                deductions: '.deductions-chart',
-                performance: '.performance-chart',
-                inventory: '.inventory-chart',
-                trends: '.trends-chart',
-                orderStatus: '.orderStatus-chart',
-            };
-
-            if (option === 'all') {
-                document.querySelectorAll('.chart-container').forEach(chart => {
-                    chart.style.display = 'block';
-                    const canvasContainer = chart.querySelector('.chart-canvas');
-                    if(canvasContainer) canvasContainer.classList.add('chart-half');
-                });
-            } else if (chartSelectors[option]) {
-                const chartElement = document.querySelector(chartSelectors[option]);
-                if (chartElement) {
-                    chartElement.style.display = 'block';
-                    chartElement.classList.add('col-span-2');
-                    const canvasContainer = chartElement.querySelector('.chart-canvas');
-                    if(canvasContainer) canvasContainer.classList.add('chart-full');
-
-                    if (['revenue', 'deductions', 'inventory', 'orderStatus'].includes(option)) {
-                        rightCharts.style.display = 'none';
-                    } else {
-                        leftCharts.style.display = 'none';
-                    }
-                }
+        function destroyChart(canvasId) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+                delete chartInstances[canvasId];
             }
         }
 
-        function updateCustomChartDisplay(selectedCharts) {
-            document.querySelectorAll('.chart-container').forEach(chart => {
-                chart.style.display = 'none';
-                chart.classList.remove('col-span-2');
-                const canvasContainer = chart.querySelector('.chart-canvas');
-                if(canvasContainer) canvasContainer.classList.remove('chart-full', 'chart-half');
-            });
-
-            let leftVisible = false;
-            let rightVisible = false;
-
-            selectedCharts.forEach(chartType => {
-                const chart = document.querySelector(`.${chartType}-chart`);
-                if (chart) {
-                    chart.style.display = 'block';
-                    if (['revenue', 'deductions', 'inventory', 'orderStatus'].includes(chartType)) {
-                        leftVisible = true;
-                    } else if (['performance', 'trends'].includes(chartType)) {
-                        rightVisible = true;
-                    }
-                }
-            });
-
-            if (selectedCharts.length === 1) {
-                const chart = document.querySelector(`.${selectedCharts[0]}-chart`);
-                if (chart) {
-                    chart.classList.add('col-span-2');
-                    const canvasContainer = chart.querySelector('.chart-canvas');
-                    if(canvasContainer) canvasContainer.classList.add('chart-full');
-                }
-                if (['revenue', 'deductions', 'inventory', 'orderStatus'].includes(selectedCharts[0])) {
-                    leftCharts.style.display = 'block';
-                    rightCharts.style.display = 'none';
-                } else {
-                    leftCharts.style.display = 'none';
-                    rightCharts.style.display = 'block';
-                }
-            } else if (selectedCharts.length > 1) {
-                document.querySelectorAll('.chart-container').forEach(chart => {
-                    if (chart.style.display === 'block') {
-                        const canvasContainer = chart.querySelector('.chart-canvas');
-                         if(canvasContainer) canvasContainer.classList.add('chart-half');
-                    }
-                });
-                leftCharts.style.display = leftVisible ? 'block' : 'none';
-                rightCharts.style.display = rightVisible ? 'block' : 'none';
-            } else {
-                leftCharts.style.display = 'none';
-                rightCharts.style.display = 'none';
-                if(chartsContainer) chartsContainer.style.display = 'none';
+        function createChart(canvasId, options) {
+            destroyChart(canvasId);
+            const canvasContainer = document.getElementById(canvasId + 'Container');
+            if (!canvasContainer) return null;
+            
+            canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`; 
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            
+            if (ctx) {
+                const newChart = new Chart(ctx, options);
+                chartInstances[canvasId] = newChart;
+                return newChart;
             }
-             if(chartsContainer) chartsContainer.style.display = 'grid';
+            return null;
         }
 
-        const chartFilter = document.getElementById('chartFilter');
-        if(chartFilter) {
-            chartFilter.addEventListener('change', function() {
-                const selectedOption = this.value;
-                const customSelection = document.getElementById('customChartSelection');
-                if (selectedOption === 'custom') {
-                    if(customSelection) customSelection.classList.remove('hidden');
-                } else {
-                    if(customSelection) customSelection.classList.add('hidden');
-                    updateChartDisplay(selectedOption);
-                }
-            });
-        }
-
-        const applyCustomCharts = document.getElementById('applyCustomCharts');
-        if(applyCustomCharts) {
-            applyCustomCharts.addEventListener('click', function() {
-                const selectedCharts = Array.from(document.querySelectorAll('input[name="customChart"]:checked')).map(el => el.value);
-                updateCustomChartDisplay(selectedCharts);
-            });
-        }
-
-        // --- Revenue Chart ---
-        const revenueChartCtx = document.getElementById('revenueChart');
-        if (revenueChartCtx) {
-            revenueChart = new Chart(revenueChartCtx.getContext('2d'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ label: 'Revenue (Delivered Orders)', data: [], borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, pointBackgroundColor: 'rgba(59, 130, 246, 1)', pointRadius: 3, pointHoverRadius: 5, fill: true }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (c) => `Revenue: ₱${c.raw.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}` } } },
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Revenue (₱)' }, ticks: { callback: (v) => '₱' + v.toLocaleString('en-PH') } }, x: { title: { display: true, text: 'Time Period' }, grid: { display: false } } },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        }
-        
-        const revenueTimePeriod = document.getElementById('revenueTimePeriod');
-        if(revenueTimePeriod) revenueTimePeriod.addEventListener('change', function() {
-            const period = this.value;
-            document.getElementById('revenueMonthContainer').classList.toggle('hidden', period === 'year');
-            document.getElementById('revenueWeekContainer').classList.toggle('hidden', period !== 'week');
-            if (period === 'week') updateWeekOptions('revenue');
-            updatePeriodDisplay('revenue');
-        });
-        document.getElementById('revenueMonthFilter')?.addEventListener('change', function() {
-            if (document.getElementById('revenueTimePeriod')?.value === 'week') updateWeekOptions('revenue');
-            updatePeriodDisplay('revenue');
-        });
-        document.getElementById('revenueYearFilter')?.addEventListener('change', function() {
-            if (document.getElementById('revenueTimePeriod')?.value === 'week') updateWeekOptions('revenue');
-            updatePeriodDisplay('revenue');
-        });
-        document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
-
-        function updateWeekOptions(chartPrefix) {
-            const year = document.getElementById(`${chartPrefix}YearFilter`)?.value;
-            const month = document.getElementById(`${chartPrefix}MonthFilter`)?.value;
-            if(!year || !month) return;
-            const date = new Date(year, month - 1, 1);
-            const daysInMonth = new Date(year, month, 0).getDate();
-            let weeksInMonth = Math.ceil((daysInMonth + date.getDay()) / 7);
-            const weekSelect = document.getElementById(`${chartPrefix}WeekFilter`);
-            if(!weekSelect) return;
-            weekSelect.innerHTML = '';
-            for (let i = 1; i <= weeksInMonth; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Week ${i}`;
-                weekSelect.appendChild(option);
+        function showChartLoader(containerId, text) {
+            const container = document.getElementById(containerId);
+            if(container) {
+                container.innerHTML = `<div class="loader h-full"><svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold text-blue-600">${text}</span></div>`;
             }
-        }
-
-        function updatePeriodDisplay(chartPrefix) {
-            const period = document.getElementById(`${chartPrefix}TimePeriod`)?.value;
-            const year = document.getElementById(`${chartPrefix}YearFilter`)?.value;
-            let displayText = '';
-            switch(period) {
-                case 'day':
-                case 'week':
-                    const month = document.getElementById(`${chartPrefix}MonthFilter`)?.value;
-                    displayText = `${new Date(year, month - 1, 1).toLocaleString('default', { month: 'long' })} ${year}`;
-                    break;
-                case 'month': displayText = `Year ${year}`; break;
-                case 'year': displayText = 'Multiple Years'; break;
-            }
-            const currentPeriodEl = document.getElementById('currentPeriod');
-            if(currentPeriodEl) currentPeriodEl.textContent = displayText;
         }
 
         async function updateRevenueChart() {
@@ -724,275 +546,211 @@
             const year = document.getElementById('revenueYearFilter')?.value;
             const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
             const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
-            const btn = document.getElementById('revenueUpdateBtn');
-            if(!btn || !revenueChart) return;
+            
+            showChartLoader('revenueChartContainer', 'Loading revenue data...');
 
-            btn.disabled = true;
-            btn.innerHTML = `<span class="inline-flex items-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Loading...</span>`;
             try {
-                let url = `/admin/revenue-data/${period}/${year}`;
-                if (month) url += `/${month}`;
-                if (week) url += `/${week}`;
-                const response = await fetch(url);
+                const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
                 if (!response.ok) throw new Error('Network response error');
                 const data = await response.json();
-                revenueChart.data.labels = data.labels;
-                revenueChart.data.datasets[0].data = data.values;
-                revenueChart.options.scales.x.title.text = period.charAt(0).toUpperCase() + period.slice(1);
-                document.getElementById('totalRevenue').textContent = `₱${data.total.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-                document.getElementById('avgRevenue').textContent = `₱${data.average.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-                revenueChart.update();
+                
+                createChart('revenueChart', {
+                    type: 'line',
+                    data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (v) => '₱' + v.toLocaleString('en-PH') } } }, interaction: { intersect: false, mode: 'index' } }
+                });
             } catch (error) {
                 console.error('Error fetching revenue data:', error);
-                Swal.fire('Error', 'Failed to load revenue data.', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Update Chart';
+                document.getElementById('revenueChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load revenue data.</p>';
             }
-        }
-        if(document.getElementById('revenueChart')) {
-            updatePeriodDisplay('revenue');
-            updateRevenueChart();
-        }
-
-        // --- Product Performance Chart ---
-        const perfChartCtx = document.getElementById('productPerformanceChart');
-        if(perfChartCtx) {
-            productPerformanceChart = new Chart(perfChartCtx.getContext('2d'), {
-                type: 'bar',
-                data: { labels: @json($labels), datasets: [{ label: 'Quantity of Products Sold', data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product Generic Name' } } } }
-            });
-            const performanceData = {
-                mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
-                moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
-                lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
-            };
-            function updatePerformanceChart(type) {
-                productPerformanceChart.data.labels = performanceData[type].labels;
-                productPerformanceChart.data.datasets[0].data = performanceData[type].data;
-                productPerformanceChart.data.datasets[0].backgroundColor = performanceData[type].backgroundColor;
-                productPerformanceChart.data.datasets[0].borderColor = performanceData[type].borderColor;
-                productPerformanceChart.data.datasets[0].label = performanceData[type].label;
-                productPerformanceChart.update();
-            }
-            document.getElementById('mostSoldBtn')?.addEventListener('click', () => updatePerformanceChart('mostSold'));
-            document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
-            document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
-        }
-
-        // --- Product Delivered Chart (Deducted Quantities) ---
-        const deductedChartCtx = document.getElementById('deductedQuantitiesChart');
-        if(deductedChartCtx) {
-            deductedQuantitiesChart = new Chart(deductedChartCtx.getContext('2d'), {
-                type: 'bar',
-                data: { labels: @json($deductedLabels), datasets: [{ label: 'Quantity Delivered', data: @json($deductedData), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Delivered' } }, x: { title: { display: true, text: 'Product (Generic Name)' } } } }
-            });
-            async function updateDeductedChart() {
-                const year = document.getElementById('deductedYearFilter')?.value;
-                const month = document.getElementById('deductedMonthFilter')?.value;
-                const location = document.getElementById('deductedLocationFilter')?.value || '';
-                if(!year || !month || !deductedQuantitiesChart) return;
-                try {
-                    const response = await fetch(`/admin/filtered-deducted-quantities/${year}/${month}/${location}`);
-                    if (!response.ok) throw new Error('Network error');
-                    const data = await response.json();
-                    deductedQuantitiesChart.data.labels = data.labels;
-                    deductedQuantitiesChart.data.datasets[0].data = data.deductedData;
-                    deductedQuantitiesChart.update();
-                } catch (error) {
-                    console.error('Error fetching deducted quantities:', error);
-                }
-            }
-            document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
-            document.getElementById('deductedMonthFilter')?.addEventListener('change', updateDeductedChart);
-            document.getElementById('deductedLocationFilter')?.addEventListener('change', updateDeductedChart);
-            updateDeductedChart();
-        }
-
-        // --- Inventory Levels Chart ---
-        const invChartCtx = document.getElementById('inventoryLevelsChart');
-        if (invChartCtx) {
-            inventoryLevelsChart = new Chart(invChartCtx.getContext('2d'), {
-                type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Current Stock', data: [], backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Total Quantity in Stock' } }, x: { title: { display: true, text: 'Product Generic Name' } } } }
-            });
-            async function updateInventoryChart() {
-                const year = document.getElementById('inventoryYearFilter')?.value;
-                const month = document.getElementById('inventoryMonthFilter')?.value;
-                const location = document.getElementById('inventoryLocationFilter')?.value || '';
-                if(!year || !month || !inventoryLevelsChart) return;
-                try {
-                    const response = await fetch(`/admin/inventory-levels/${year}/${month}/${location}`);
-                    if (!response.ok) throw new Error('Network error');
-                    const data = await response.json();
-                    inventoryLevelsChart.data.labels = data.labels;
-                    inventoryLevelsChart.data.datasets[0].data = data.inventoryData;
-                    inventoryLevelsChart.update();
-                } catch (error) {
-                    console.error('Error fetching inventory data:', error);
-                }
-            }
-            document.getElementById('inventoryYearFilter')?.addEventListener('change', updateInventoryChart);
-            document.getElementById('inventoryMonthFilter')?.addEventListener('change', updateInventoryChart);
-            document.getElementById('inventoryLocationFilter')?.addEventListener('change', updateInventoryChart);
-            updateInventoryChart();
-        }
-
-        // --- Seasonal Trends Chart ---
-        const trendsChartCtx = document.getElementById('seasonalTrendsChart');
-        if(trendsChartCtx) {
-            seasonalTrendsChart = new Chart(trendsChartCtx.getContext('2d'), {
-                type: 'bar',
-                data: { labels: [], datasets: [ { label: 'Current Sales', data: [], backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }, { label: 'Next Month Predicted', data: [], backgroundColor: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1 }, { label: 'Historical Average', data: [], backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1, type: 'line', tension: 0.3 } ] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Sales Quantity' } }, x: { title: { display: true, text: 'Products' } } }, plugins: { tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${Math.round(c.raw)}` } }, legend: { position: 'top' } } }
-            });
-            async function fetchAndUpdateTrendData() {
-                const season = document.getElementById('seasonFilter')?.value;
-                const year = document.getElementById('trendYearFilter')?.value;
-                const container = document.getElementById('predictionCardsContainer');
-                if(!season || !year || !container || !seasonalTrendsChart) return;
-                container.innerHTML = '<div class="text-center py-4 col-span-3"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div><p class="mt-2 text-gray-600">Loading data...</p></div>';
-                try {
-                    const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
-                    if (!response.ok) throw new Error('Network error');
-                    const data = await response.json();
-                    seasonalTrendsChart.data.labels = data.trending_products.map(p => p.generic_name);
-                    seasonalTrendsChart.data.datasets[0].data = data.trending_products.map(p => p.current_sales);
-                    seasonalTrendsChart.data.datasets[1].data = data.trending_products.map(p => p.next_month_prediction);
-                    seasonalTrendsChart.data.datasets[2].data = data.trending_products.map(p => p.historical_avg);
-                    seasonalTrendsChart.update();
-                    container.innerHTML = '';
-                    if (data.predicted_peaks.length === 0) {
-                        container.innerHTML = '<div class="col-span-3 text-center py-4 text-gray-500">No products found.</div>';
-                        return;
-                    }
-                    data.predicted_peaks.forEach(p => {
-                        const percent = Math.round(p.prediction_percent);
-                        const trendArrow = percent >= 60 ? '↑' : percent >= 30 ? '→' : '↓';
-                        const trendColor = percent >= 60 ? 'text-green-600' : percent >= 30 ? 'text-yellow-600' : 'text-red-600';
-                        const card = document.createElement('div');
-                        card.className = 'bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 hover:shadow-md transition-shadow';
-                        card.innerHTML = `<div class="flex justify-between items-start"><h4 class="font-medium text-gray-800">${p.generic_name}</h4><span class="text-xs font-semibold ${trendColor}">${trendArrow}</span></div><p class="text-sm text-gray-600 mt-1"><span class="font-medium">Season:</span> ${p.season_peak === 'tag-init' ? 'Summer' : p.season_peak === 'tag-ulan' ? 'Rainy' : 'All Year'}</p><div class="mt-2 flex items-center"><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-blue-600 h-2.5 rounded-full" style="width: ${percent}%"></div></div><span class="ml-2 text-xs font-semibold text-blue-600">${percent}%</span></div><div class="mt-2 grid grid-cols-2 gap-2 text-xs"><div class="bg-blue-50 p-1 rounded text-center"><span class="font-medium">Current:</span> ${Math.round(p.current_sales)}</div><div class="bg-orange-50 p-1 rounded text-center"><span class="font-medium">Predicted:</span> ${Math.round(p.next_month_prediction)}</div></div>`;
-                        container.appendChild(card);
-                    });
-                } catch (err) {
-                    console.error('Failed to load trend data:', err);
-                    Swal.fire('Error', 'Failed to load trend data.', 'error');
-                }
-            }
-            document.getElementById('seasonFilter')?.addEventListener('change', fetchAndUpdateTrendData);
-            document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
-            fetchAndUpdateTrendData();
-        }
-
-        // --- Order Status Distribution Chart ---
-        const statusChartCtx = document.getElementById('orderStatusChart');
-        if(statusChartCtx) {
-            orderStatusChart = new Chart(statusChartCtx.getContext('2d'), {
-                type: 'doughnut',
-                data: { labels: ['Delivered', 'Pending', 'Cancelled'], datasets: [{ label: 'Order Count', data: [{{$orderStatusCounts['delivered']??0}}, {{$orderStatusCounts['pending']??0}}, {{$orderStatusCounts['cancelled']??0}}], backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(255, 99, 132, 0.8)'], borderColor: ['#fff'], borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (c) => { const total = c.dataset.data.reduce((a,b) => a+b, 0); const perc = total > 0 ? (c.raw/total*100).toFixed(1)+'%' : '0%'; return `${c.label}: ${c.raw} (${perc})`; } } } } }
-            });
         }
         
-        if(document.getElementById('chartFilter')) {
-            updateChartDisplay(document.getElementById('chartFilter').value);
+        function updatePerformanceChart(type) {
+             const performanceData = {
+                 mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
+                 moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
+                 lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
+             };
+             const chartData = performanceData[type];
+             createChart('productPerformanceChart', {
+                 type: 'bar',
+                 data: { labels: chartData.labels, datasets: [{ label: chartData.label, data: chartData.data, backgroundColor: chartData.backgroundColor, borderColor: chartData.borderColor, borderWidth: 1 }] },
+                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
+             });
         }
-
-        // --- AI Analysis Logic ---
-        const aiAnalysisResultDiv = document.getElementById('aiAnalysisResult');
-        const aiModelNameSpan = document.getElementById('aiModelName');
-        const analyzeChartsBtn = document.getElementById('analyzeChartsBtn');
-        const speakAnalysisBtn = document.getElementById('speakAnalysisBtn');
-
-        if(analyzeChartsBtn) {
-            function speakText(text) {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'en-US';
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    Swal.fire('Browser Not Supported', 'Text-to-speech is not supported.', 'info');
-                }
-            }
-            analyzeChartsBtn.addEventListener('click', async function() {
-                if(!aiAnalysisResultDiv || !aiModelNameSpan || !speakAnalysisBtn) return;
-                aiAnalysisResultDiv.querySelector('p').innerHTML = '<div class="flex items-center justify-center"><div class="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-purple-500"></div><p class="ml-2 text-purple-600">Getting AI analysis...</p></div>';
-                aiModelNameSpan.textContent = '';
-                speakAnalysisBtn.classList.add('hidden');
-                
-                const chartsToAnalyze = {};
-                document.querySelectorAll('.chart-container').forEach(container => {
-                    if (container.style.display === 'block') {
-                        const chartName = container.querySelector('h3')?.textContent || 'Unknown Chart';
-                        let chartInstance;
-                        if (container.classList.contains('revenue-chart')) chartInstance = revenueChart;
-                        else if (container.classList.contains('deductions-chart')) chartInstance = deductedQuantitiesChart;
-                        else if (container.classList.contains('inventory-chart')) chartInstance = inventoryLevelsChart;
-                        else if (container.classList.contains('performance-chart')) chartInstance = productPerformanceChart;
-                        else if (container.classList.contains('trends-chart')) chartInstance = seasonalTrendsChart;
-                        else if (container.classList.contains('orderStatus-chart')) chartInstance = orderStatusChart;
-                        
-                        if (chartInstance) {
-                            chartsToAnalyze[chartName] = { labels: chartInstance.data.labels, values: chartInstance.data.datasets.map(d => d.data) };
-                        }
-                    }
+        
+        async function updateDeductedChart() {
+            const year = document.getElementById('deductedYearFilter')?.value;
+            const month = document.getElementById('deductedMonthFilter')?.value;
+            const location = document.getElementById('deductedLocationFilter')?.value || '';
+            showChartLoader('deductedQuantitiesChartContainer', 'Loading products delivered...');
+            try {
+                const response = await fetch(`/admin/filtered-deducted-quantities/${year}/${month}/${location}`);
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                createChart('deductedQuantitiesChart', {
+                    type: 'bar',
+                    data: { labels: data.labels, datasets: [{ label: 'Quantity Delivered', data: data.deductedData, backgroundColor: 'rgba(54, 162, 235, 0.6)', borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Product' } } } }
                 });
+            } catch (error) { 
+                console.error('Error fetching deducted quantities:', error);
+                document.getElementById('deductedQuantitiesChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load delivered products data.</p>';
+            }
+        }
 
-                if (Object.keys(chartsToAnalyze).length === 0) {
-                    aiAnalysisResultDiv.querySelector('p').innerHTML = '<p class="text-gray-500">No charts displayed.</p>';
-                    return;
-                }
+        async function updateInventoryChart() {
+            const locationId = document.getElementById('inventoryLocationFilter')?.value;
+            const url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
+            
+            showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network error fetching inventory data');
+                const data = await response.json();
+                createChart('inventoryLevelsChart', {
+                    type: 'bar',
+                    data: { labels: data.labels, datasets: [{ label: 'Current Stock', data: data.inventoryData, backgroundColor: 'rgba(255, 99, 132, 0.6)', borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Quantity' } } } }
+                });
+            } catch (error) { 
+                console.error('Error fetching inventory data:', error); 
+                document.getElementById('inventoryLevelsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load inventory data.</p>';
+            }
+        }
+        
+        async function fetchAndUpdateTrendData() {
+            const season = document.getElementById('seasonFilter')?.value;
+            const year = document.getElementById('trendYearFilter')?.value;
+            const predictionContainer = document.getElementById('predictionCardsContainer');
+            showChartLoader('seasonalTrendsChartContainer', 'Loading trend data...');
+            predictionContainer.innerHTML = `<div class="loader col-span-3">Loading predictions...</div>`;
+            try {
+                 const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
+                 if (!response.ok) throw new Error('Network error');
+                 const data = await response.json();
+                 
+                 createChart('seasonalTrendsChart', {
+                     type: 'bar',
+                     data: {
+                         labels: data.trending_products.map(p => p.generic_name),
+                         datasets: [
+                             { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'},
+                             { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 },
+                             { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] }
+                         ]
+                     },
+                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                 });
+                 
+                 predictionContainer.innerHTML = '';
+                 if(data.predicted_peaks.length === 0) {
+                      predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Walang available na prediksyon para sa filter na ito.</p>';
+                 } else {
+                     data.predicted_peaks.forEach(p => {
+                          const card = document.createElement('div');
+                          card.className = 'bg-white p-4 rounded-lg shadow-md border-l-4 animate__animated animate__fadeInUp';
 
-                try {
-                    const response = await fetch('/admin/analyze-charts', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify(chartsToAnalyze)
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    aiAnalysisResultDiv.querySelector('p').innerHTML = data.analysis;
-                    aiModelNameSpan.textContent = `Analysis by: ${data.model}`;
-                    speakAnalysisBtn.classList.remove('hidden');
-                } catch (error) {
-                    console.error('Error fetching AI analysis:', error);
-                    aiAnalysisResultDiv.querySelector('p').innerHTML = `<p class="text-red-600">Error: ${error.message}.</p>`;
-                    speakAnalysisBtn.classList.add('hidden');
-                }
-            });
+                          const percentage = p.prediction_percentage_change;
+                          const statusText = p.prediction_status_text;
 
-            speakAnalysisBtn.addEventListener('click', function() {
-                const analysisText = aiAnalysisResultDiv.querySelector('p').textContent;
-                if (analysisText && !analysisText.includes('Loading...')) {
-                    speakText(analysisText);
-                }
+                          let colorClass = 'text-gray-600';
+                          let iconClass = 'fa-solid fa-minus';
+                          let borderColor = 'border-gray-400';
+
+                          if (percentage >= 25) {
+                            colorClass = 'text-green-600';
+                            iconClass = 'fa-solid fa-arrow-trend-up';
+                            borderColor = 'border-green-500';
+                          } else if (percentage > 5) {
+                            colorClass = 'text-green-500';
+                            iconClass = 'fa-solid fa-arrow-up';
+                            borderColor = 'border-green-400';
+                          } else if (percentage < -20) {
+                            colorClass = 'text-red-600';
+                            iconClass = 'fa-solid fa-arrow-trend-down';
+                            borderColor = 'border-red-500';
+                          } else if (percentage < -5) {
+                             colorClass = 'text-yellow-600';
+                             iconClass = 'fa-solid fa-arrow-down';
+                             borderColor = 'border-yellow-500';
+                          }
+
+                          card.classList.add(borderColor);
+                          
+                          card.innerHTML = `
+                            <h4 class="font-semibold text-gray-800 mb-1 truncate">${p.generic_name}</h4>
+                            <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
+                                <i class="${iconClass} mr-2 fa-fw"></i>
+                                <span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span>
+                            </div>
+                            <p class="text-xs text-gray-500">${statusText}</p>
+                          `;
+
+                          predictionContainer.appendChild(card);
+                     });
+                 }
+
+            } catch(error) { 
+                console.error('Error fetching trend data:', error);
+                document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
+                predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nagkaroon ng error sa pag-analyze ng prediksyon.</p>';
+            }
+        }
+
+        function createOrderStatusChart() {
+            createChart('orderStatusChart', {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        label: 'Order Count',
+                        data: [{{ $orderStatusCounts['delivered'] ?? 0 }}, {{ $orderStatusCounts['pending'] ?? 0 }}, {{ $orderStatusCounts['cancelled'] ?? 0 }}],
+                        backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(255, 99, 132, 0.8)']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
         
-        // Geolocation for staff
-        @if(auth()->guard('staff')->check())
-        if (navigator.geolocation) {
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        fetch("{{ route('api.update-location') }}", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                            body: JSON.stringify({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
-                        });
-                    },
-                    function (error) { console.error("Geolocation is not supported."); }
-                );
-            }, 10000);
-        } else { console.error("Geolocation is not supported."); }
-        @endif
+        // --- Layout and Initialization ---
+        function initializeSortable() {
+            if(leftCharts) Sortable.create(leftCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
+            if(rightCharts) Sortable.create(rightCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
+        }
+
+        function saveChartLayout() {
+            const leftIds = [...leftCharts.children].map(el => el.dataset.chartId);
+            const rightIds = [...rightCharts.children].map(el => el.dataset.chartId);
+            localStorage.setItem('dashboardChartLayout', JSON.stringify({ left: leftIds, right: rightIds }));
+            Object.values(chartInstances).forEach(chart => chart.resize());
+        }
+
+        const initialChartRenders = async () => {
+            await Promise.allSettled([
+                updateRevenueChart(),
+                updateDeductedChart(),
+                updateInventoryChart(),
+                fetchAndUpdateTrendData(),
+            ]);
+            updatePerformanceChart('mostSold');
+            createOrderStatusChart();
+            initializeSortable();
+        };
+
+        initialChartRenders();
+        
+        // Event Listeners for Chart Filters
+        document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
+        document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedMonthFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedLocationFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('inventoryLocationFilter')?.addEventListener('change', updateInventoryChart);
+        document.getElementById('seasonFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+        document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+        document.getElementById('mostSoldBtn')?.addEventListener('click', () => updatePerformanceChart('mostSold'));
+        document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
+        document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
     });
     </script>
 </body>

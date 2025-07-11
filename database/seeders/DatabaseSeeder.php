@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // ✅ Seed Super Admin and Locations first
         $this->call(SuperAdminSeeder::class);
+        $this->call(AdminSeeder::class);
         $this->call(LocationSeeder::class);
 
         // Create base products and inventory
