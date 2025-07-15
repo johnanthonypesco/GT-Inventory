@@ -38,8 +38,7 @@
     </main>
 
     {{-- Google Maps API --}}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDuO1tIj5jngkzaGvkL8PMRx_MKIs8tr-I&callback=initMap" async defer></script>
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVcqHl9NVCpRwUxBy9eqsWxuXRF8mW_E&callback=initMap" async defer></script>
     <script>
         let map;
         let markers = [];

@@ -67,7 +67,7 @@ class StaffAuthenticatedSessionController extends Controller
     
         return back()->withErrors([
             'email' => 'Invalid credentials.',
-        ]);
+        ])->onlyInput('email');
     }
     
     /**

@@ -65,7 +65,7 @@
         
             return back()->withErrors([
                 'email' => 'Invalid credentials.',
-            ]);
+        ])->onlyInput('email');
         }
         
 
