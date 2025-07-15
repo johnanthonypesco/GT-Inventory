@@ -63,7 +63,6 @@ class SalesReportController extends Controller
             ->where('status', 'delivered')
             ->whereBetween('date_ordered', [$startDate, $endDate]);
 
-        // Filter by company if selected
         if ($companyId) {
             $ordersQuery->whereHas('exclusiveDeal', function($query) use ($companyId) {
                 $query->where('company_id', $companyId);
@@ -72,19 +71,19 @@ class SalesReportController extends Controller
 
         $orders = $ordersQuery->orderBy('date_ordered', 'asc')->get();
 
-        // Get companies for summary (either all or just the selected one)
+        // Get companies for summary
         $companiesQuery = Company::query();
-        
+
         if ($companyId) {
             $companiesQuery->where('id', $companyId);
         }
 
         $companies = $companiesQuery->with(['exclusiveDeals.orders' => function($query) use ($startDate, $endDate) {
                 $query->where('status', 'delivered')
-                      ->whereBetween('date_ordered', [$startDate, $endDate]);
-            }])
-            ->get();
+                        ->whereBetween('date_ordered', [$startDate, $endDate]);
+            }])->get();
 
+        // Prepare data for the view
         $data = [
             'start_date' => $startDate,
             'end_date' => $endDate,
@@ -97,10 +96,11 @@ class SalesReportController extends Controller
             })
         ];
 
+        // PDF download
         if ($request->has('download')) {
             $pdf = PDF::loadView('admin.reports.sales_pdf', $data);
             $filename = $companyId 
-                ? 'sales_report_'.$companies->first()->name.'_'.$startDate.'_to_'.$endDate.'.pdf'
+                ? 'sales_report_'.$data['companies']->first()->name.'_'.$startDate.'_to_'.$endDate.'.pdf'
                 : 'sales_report_'.$startDate.'_to_'.$endDate.'.pdf';
             return $pdf->download($filename);
         }

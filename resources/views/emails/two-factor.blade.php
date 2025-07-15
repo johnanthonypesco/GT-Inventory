@@ -48,9 +48,10 @@
         <p class="header">Two-Factor Authentication (2FA) Code</p>
         <p>Use the following code to complete your login:</p>
         <span class="code">{{ $code }}</span>
+        <p class="header" style="font-size: 17px"> (╯°□°）╯︵ ┻━┻ </p>
         <p>This code will expire in <strong>10 minutes</strong>.</p>
         <p class="footer">If you didn't request this code, please ignore this email.</p>
-        <p class="footer">Thank you,<br> {{ config('app.name') }}</p>
+        <p class="footer">Thank you,<br> RMPOIMS</p>
     </div>
 </body>
 </html>

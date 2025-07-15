@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,9 @@
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <title>Sales Report</title>
 </head>
+ 
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+   
     <x-admin.navbar />
 
     <main class="md:w-full h-full md:ml-[16%] ml-0">
@@ -169,5 +171,6 @@
             @endisset
         </div>
     </main>
+    
 </body>
 </html>

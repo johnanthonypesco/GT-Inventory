@@ -4,15 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <title>Dashboard</title>
+    <style>
+        /* Styles for the Executive Summary */
+        .kpi-card { background-color: #f8fafc; border-left: 4px solid #3b82f6; transition: all 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .anomaly-item.positive { border-left-color: #16a34a; }
+        .anomaly-item.negative { border-left-color: #dc2626; }
+        .anomaly-item.warning { border-left-color: #f59e0b; }
+        .recommendation-card { background: linear-gradient(135deg, #6d28d9, #4f46e5); }
+        .loader { display: flex; align-items: center; justify-content: center; padding: 2rem; color: #6b21a8; }
+        .loader svg { color: #6b21a8; }
+
+        /* Chart-related styles */
+        .chart-container { transition: all 0.3s ease; min-height: 300px; cursor: grab; }
+        .chart-container:active { cursor: grabbing; }
+    </style>
 </head>
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
     <x-admin.navbar/>
@@ -20,32 +37,75 @@
     <main class="md:w-full h-full md:ml-[16%] p-4">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <!-- 5 Cards Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '5' }} gap-3 items-center mt-5">
-            <!-- Total Orders -->
-            <x-admin.dashboardcard title="Total Orders" image="complete.png" count="{{ $totalOrders }}"/>
-
-            <!-- Pending Orders -->
+            <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
             <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
-
-            <!-- Cancelled Orders -->
             <x-admin.dashboardcard title="Cancelled Orders" image="cancel.png" count="{{ $cancelledOrders }}"/>
-
-            <!-- Total Revenue -->
             @if(!$currentUser instanceof \App\Models\Staff)
                 <x-admin.dashboardcard title="Total Revenue" image="pera.png" count="₱{{ number_format($totalRevenue, 2) }}"/>
             @endif
-            <!-- Unread Messages -->
             @if($currentUser instanceof \App\Models\SuperAdmin)
                 <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesSuperAdmin ?? 0 }}"/>
             @elseif($currentUser instanceof \App\Models\Admin)
-                <x-admin.dashboardcard title="Unread Messages (Admin)" image="messages.png" count="{{ $unreadMessagesAdmin ?? 0 }}"/>
+                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesAdmin ?? 0 }}"/>
             @elseif($currentUser instanceof \App\Models\Staff)
-                <x-admin.dashboardcard title="Unread Messages (Staff)" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
+                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
             @endif
         </div>
 
-        <!-- Low Stock Alerts -->
+        {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
+        @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
+        <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
+            {{-- Unified Controls --}}
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-brain mr-3 text-purple-600"></i>
+                    AI-Powered Analysis
+                </h2>
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                        <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
+                        <option value="mistral-small-latest">Mistral AI (Small)</option>
+                    </select>
+                    <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                        <i class="fas fa-redo-alt"></i> Refresh Analysis
+                    </button>
+                    <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                        <i class="far fa-clock mr-1"></i>
+                        <span id="ai-timer"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 border-gray-200">
+
+            {{-- Part 1: Executive Summary --}}
+            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+            <div id="ai-summary-content">
+                <div class="loader">
+                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-lg font-semibold">Loading AI summary...</span>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-200">
+
+            {{-- Part 2: Chart Analysis --}}
+            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
+            <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
+                <small id="aiModelName" class="text-gray-400 mt-2"></small>
+            </div>
+            <div class="flex justify-end mt-3">
+                 <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
+                    <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
+                </button>
+            </div>
+        </div>
+        @endif
+        {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
+
+
         @if(!$currentUser instanceof \App\Models\Staff)
             <div class="mt-5 bg-white p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
@@ -58,34 +118,121 @@
                 </ul>
             </div>
         @endif
-
-        <!-- Charts Section -->
+        
         @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
-            <!-- Left Column -->
-            <div class="space-y-4 md:space-y-6">
-                <!-- Revenue Chart -->
-                <div class="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
-                        <span class="text-xs sm:text-sm text-gray-500">Completed Orders</span>
-                    </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80">
-                        <canvas id="revenueChart"></canvas>
+        <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
+            <div class="flex flex-col md:flex-row md:items-center gap-3">
+                <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
+                <div class="flex-1 flex flex-col gap-4">
+                    <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <option value="all">Show All Charts</option>
+                        <option value="revenue">Revenue Chart Only</option>
+                        <option value="deductions">Products Delivered Only</option>
+                        <option value="performance">Product Performance Only</option>
+                        <option value="inventory">Inventory Levels Only</option>
+                        <option value="trends">Product Trends & Predictions Only</option>
+                        <option value="orderStatus">Order Status Distribution Only</option>
+                        <option value="custom">Custom Selection</option>
+                    </select>
+
+                    <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <div class="flex flex-col gap-3">
+                            <h4 class="text-sm font-medium text-gray-700">Select Charts to Display:</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="revenue" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Revenue</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="deductions" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Products Delivered</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="performance" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Product Performance</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="inventory" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Inventory Levels</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Product Trends & Predictions</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-gray-700">Order Status</span>
+                                </label>
+                            </div>
+                            <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                Apply Selection
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Deducted Quantities Chart -->
-                <div class="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100">
+            </div>
+        </div>
+        @endif
+        @if(!$currentUser instanceof \App\Models\Staff)
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
+            <div class="space-y-4 md:space-y-6" id="leftCharts">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Product Deductions</h3>
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
+                        <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 md:mb-6">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Time Period</label>
+                            <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="day">Daily</option>
+                                <option value="week">Weekly</option>
+                                <option value="month" selected>Monthly</option>
+                                <option value="year">Yearly</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <select id="revenueYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
+                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="revenueMonthContainer">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                            <select id="revenueMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @foreach(range(1, 12) as $month)
+                                    <option value="{{ $month }}" {{ $month == date('n') ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $month, 10)) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="revenueWeekContainer" class="hidden">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
+                            <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
+                                Update Chart
+                            </button>
+                        </div>
+                    </div>
+                     <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
+                </div>
+
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
                         <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
                     </div>
                     <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
                             <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach($availableYears as $year)
+                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
                                     <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
                                 @endforeach
                             </select>
@@ -94,9 +241,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
                             <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
-                                    </option>
+                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
                                 @endfor
                             </select>
                         </div>
@@ -110,61 +255,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80">
-                        <canvas id="deductedQuantitiesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="space-y-4 md:space-y-6">
-                <!-- Product Sales Chart -->
-                <div class="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
-                    <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
-                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                            bg-blue-100 text-blue-700 hover:bg-blue-200 active:bg-blue-300">
-                            Most Ordered
-                        </button>
-                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                            bg-emerald-100 text-emerald-700 hover:bg-emerald-200 active:bg-emerald-300">
-                            Moderate Ordered
-                        </button>
-                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors
-                            bg-amber-100 text-amber-700 hover:bg-amber-200 active:bg-amber-300">
-                            Low Ordered
-                        </button>
-                    </div>
-                    <div class="h-72 sm:h-80 md:h-96">
-                        <canvas id="chart1"></canvas>
-                    </div>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
                 </div>
 
-                <!-- Inventory Levels Chart -->
-                <div class="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels</h3>
-                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
+                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
+                    <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
                         <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="yearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach($availableYears as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="monthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <select id="locationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
+                            <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">All Locations</option>
                                 @foreach($locations as $location)
                                     <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
@@ -172,295 +271,487 @@
                             </select>
                         </div>
                     </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80">
-                        <canvas id="inventoryLevelsChart"></canvas>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
+                </div>
+            </div>
+
+            <div class="space-y-4 md:space-y-6" id="rightCharts">
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
+                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
+                            <select id="seasonFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="all">All Seasons</option>
+                                <option value="tag-init">Summer Season</option>
+                                <option value="tag-ulan">Rainy Season</option>
+                                <option value="all-year">All Year Products</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <select id="trendYearFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                @foreach(range(date('Y'), date('Y') - 2, -1) as $year)
+                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
+
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
+                    </div>
+                </div>
+
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
+                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
+                    <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
+                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
+                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
+                    </div>
+                    <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
+                </div>
+
+                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
+                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
+                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
                 </div>
             </div>
         </div>
         @endif
     </main>
 
-    <!-- Chart Scripts -->
     <script>
-        // Revenue Chart Data
-        const revenueData = {
-            labels: @json($revenueLabels),
-            datasets: [{
-                label: 'Revenue (Completed Orders)',
-                data: @json($revenueValues),
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 1,
-                fill: true
-            }]
-        };
+    document.addEventListener('DOMContentLoaded', function() {
+        // Global variables
+        const chartInstances = {};
+        
+        // --- UNIFIED AI ANALYSIS SCRIPT ---
+        if (document.getElementById('ai-analysis-section')) {
+            let executiveSummaryData = @json($executiveSummaryData);
+            let countdownInterval;
 
-        // Initialize the Revenue Chart
-        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctxRevenue, {
-            type: 'line',
-            data: revenueData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue (₱)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Revenue: ₱' + context.raw.toFixed(2);
-                            }
-                        }
-                    }
+            const summaryContentEl = document.getElementById('ai-summary-content');
+            const chartAnalysisContentEl = document.getElementById('ai-chart-analysis-content');
+            const timerEl = document.getElementById('ai-timer');
+            const timerContainerEl = document.getElementById('ai-timer-container');
+            const aiModelSelect = document.getElementById('aiModelSelect');
+            const refreshAiBtn = document.getElementById('refreshAiBtn');
+            const speakAnalysisBtn = document.getElementById('speakAnalysisBtn');
+            const aiModelNameSpan = document.getElementById('aiModelName');
+
+            function renderSummary(summary) {
+                if (!summary || !summary.kpis) {
+                    summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI summary...</span></div>`;
+                    return;
                 }
+                let kpisHtml = summary.kpis.map(kpi => {
+                    let trendIcon = '';
+
+                    console.log(kpi.trend);
+
+                    if (kpi.trend === 'up') trendIcon = `<span class="text-green-500"><i class="fas fa-arrow-up"></i></span>`;
+                    else if (kpi.trend === 'down') trendIcon = `<span class="text-red-500"><i class="fas fa-arrow-down"></i></span>`;
+                    else trendIcon = `<span class="text-gray-500"><i class="fas fa-minus"></i></span>`;
+                    return `<div class="kpi-card p-4 rounded-lg shadow"><h4 class="text-sm font-medium text-gray-500 flex justify-between items-center">${kpi.label || 'N/A'} ${trendIcon}</h4><p class="text-2xl font-semibold text-gray-900">${kpi.value || 'N/A'}</p></div>`;
+                }).join('');
+                let anomaliesHtml = summary.anomalies.map(anomaly => {
+                    let iconClass, iconColor;
+                    if (anomaly.type === 'positive') { iconClass = 'fa-check-circle'; iconColor = 'text-green-500'; }
+                    else if (anomaly.type === 'negative') { iconClass = 'fa-exclamation-triangle'; iconColor = 'text-red-500'; }
+                    else { iconClass = 'fa-exclamation-circle'; iconColor = 'text-yellow-500'; }
+                    return `<div class="anomaly-item ${anomaly.type} bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas ${iconClass} ${iconColor} mt-1"></i><p class="text-sm text-gray-700">${anomaly.message || 'No message.'}</p></div>`;
+                }).join('');
+                let recommendationsHtml = summary.recommendations.map(rec => `<div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3"><i class="fas fa-lightbulb mt-1"></i><p class="font-medium flex-1">${rec.message || 'No message.'}</p></div>`).join('');
+                
+                if (summary.kpis.length === 0) kpisHtml = `<p class="text-gray-700 col-span-1 md:col-span-3">No KPIs available.</p>`;
+                if (summary.anomalies.length === 0) anomaliesHtml = `<div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i><p class="text-sm text-green-700">No critical anomalies detected.</p></div>`;
+                if (summary.recommendations.length === 0) recommendationsHtml = `<div class="bg-gray-50 p-4 rounded-lg"><p class="text-sm text-gray-600">No specific recommendations.</p></div>`;
+
+                summaryContentEl.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">${kpisHtml}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>AI Anomaly Detection</h3><div class="space-y-3">${anomaliesHtml}</div></div><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-lightbulb mr-2 text-blue-500"></i>AI Recommendations</h3><div class="space-y-3">${recommendationsHtml}</div></div></div>`;
             }
-        });
 
-        // Data for Most Sold, Low Sold, and Moderate Sold
-        const mostSoldData = {
-            labels: @json($labels),
-            datasets: [{
-                label: 'Most Ordered Products',
-                data: @json($data),
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const lowSoldData = {
-            labels: @json($lowSoldLabels),
-            datasets: [{
-                label: 'Low Sold Products',
-                data: @json($lowSoldData),
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const moderateSoldData = {
-            labels: @json($moderateSoldLabels),
-            datasets: [{
-                label: 'Moderate Sold Products',
-                data: @json($moderateSoldData),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        // Initialize the chart with Most Sold data
-        const ctx1 = document.getElementById('chart1');
-        const chart1 = new Chart(ctx1, {
-            type: 'bar',
-            data: mostSoldData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    '3d': {
-                        enabled: true,
-                        depth: 20,
-                        alpha: 25,
-                        beta: 25,
-                        viewDistance: 25
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+            function renderChartAnalysis(analysisData) {
+                if (!analysisData || !analysisData.analysis) {
+                    chartAnalysisContentEl.innerHTML = `<p class="text-gray-500">Could not generate chart analysis.</p>`;
+                    speakAnalysisBtn.classList.add('hidden');
+                    return;
                 }
+                chartAnalysisContentEl.innerHTML = `<p>${analysisData.analysis}</p>`;
+                aiModelNameSpan.textContent = `Analysis by: ${analysisData.model}`;
+                speakAnalysisBtn.classList.remove('hidden');
             }
-        });
 
-        // Initialize the Deducted Quantities Chart
-        const ctxDeducted = document.getElementById('deductedQuantitiesChart').getContext('2d');
-        const deductedQuantitiesChart = new Chart(ctxDeducted, {
-            type: 'bar',
-            data: {
-                labels: @json($deductedLabels),
-                datasets: [{
-                    label: 'Deducted Quantities (Delivered Orders)',
-                    data: @json($deductedData),
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    '3d': {
-                        enabled: true,
-                        depth: 20,
-                        alpha: 25,
-                        beta: 25,
-                        viewDistance: 25
+            function startCountdown(expiryDateString) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                if (!expiryDateString) { timerContainerEl.style.display = 'none'; return; }
+                timerContainerEl.style.display = 'block';
+                const expiryDate = new Date(expiryDateString);
+                countdownInterval = setInterval(() => {
+                    const diff = expiryDate - new Date();
+                    if (diff <= 0) {
+                        clearInterval(countdownInterval);
+                        timerEl.textContent = 'Expired. Refreshing...';
+                        getInitialSummary();
+                        return;
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantity Deducted'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Product (Generic Name)'
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    timerEl.textContent = `Request resets in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            function showLoadingState() {
+                summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI Summary...</span></div>`;
+                chartAnalysisContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-md font-semibold ml-2">Analyzing Chart Data...</span></div>`;
+                aiModelNameSpan.textContent = '';
+                speakAnalysisBtn.classList.add('hidden');
+                startCountdown(null);
+            }
+
+            function handleError(error) {
+                console.error("Error fetching AI analysis:", error);
+                const errorMessage = error.message || 'Could not fetch analysis.';
+                renderSummary({ kpis: [], anomalies: [{type: 'negative', message: `Summary failed: ${errorMessage}`}], recommendations: [] });
+                chartAnalysisContentEl.innerHTML = `<p class="text-red-600">Chart analysis failed: ${errorMessage}</p>`;
+                timerEl.textContent = 'Error fetching data.';
+            }
+
+            async function getCombinedAnalysis() {
+                if (window.isFetchingAi) return;
+                window.isFetchingAi = true;
+                
+                showLoadingState();
+                const selectedAiModel = aiModelSelect.value;
+                const chartsToAnalyze = {};
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    if (container.style.display !== 'none') {
+                        const chartId = container.dataset.chartId;
+                        const chartInstance = chartInstances[`${chartId}Chart`];
+                        if (chartInstance) {
+                            chartsToAnalyze[chartId] = {
+                                name: container.querySelector('h3')?.textContent || 'Unknown Chart',
+                                labels: chartInstance.data.labels,
+                                values: chartInstance.data.datasets.map(d => d.data),
+                                datasetLabels: chartInstance.data.datasets.map(d => d.label)
+                            };
                         }
                     }
-                }
-            }
-        });
-
-        // Initialize the Inventory Levels Chart with empty data
-        const ctxInventory = document.getElementById('inventoryLevelsChart').getContext('2d');
-        const inventoryLevelsChart = new Chart(ctxInventory, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Inventory Levels',
-                    data: [],
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    '3d': {
-                        enabled: true,
-                        depth: 20,
-                        alpha: 25,
-                        beta: 25,
-                        viewDistance: 25
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Add event listeners to toggle between Most Sold, Low Sold, and Moderate Sold
-        document.getElementById('mostSoldBtn').addEventListener('click', () => {
-            chart1.data = mostSoldData;
-            chart1.update();
-        });
-
-        document.getElementById('lowSoldBtn').addEventListener('click', () => {
-            chart1.data = lowSoldData;
-            chart1.update();
-        });
-
-        document.getElementById('moderateSoldBtn').addEventListener('click', () => {
-            chart1.data = moderateSoldData;
-            chart1.update();
-        });
-
-        // Add event listeners to filter deducted quantities
-        document.getElementById('deductedYearFilter').addEventListener('change', updateDeductedChart);
-        document.getElementById('deductedMonthFilter').addEventListener('change', updateDeductedChart);
-        document.getElementById('deductedLocationFilter').addEventListener('change', updateDeductedChart);
-
-        // Add event listeners to filter inventory levels
-        document.getElementById('yearFilter').addEventListener('change', updateInventoryChart);
-        document.getElementById('monthFilter').addEventListener('change', updateInventoryChart);
-        document.getElementById('locationFilter').addEventListener('change', updateInventoryChart);
-
-        // Initial load of charts
-        updateDeductedChart();
-        updateInventoryChart();
-
-        function updateDeductedChart() {
-            const selectedYear = document.getElementById('deductedYearFilter').value;
-            const selectedMonth = document.getElementById('deductedMonthFilter').value;
-            const selectedLocation = document.getElementById('deductedLocationFilter').value || '';
-
-            fetch(`/deducted-quantities/${selectedYear}/${selectedMonth}/${selectedLocation}`)
-                .then(response => response.json())
-                .then(data => {
-                    deductedQuantitiesChart.data.labels = data.labels;
-                    deductedQuantitiesChart.data.datasets[0].data = data.deductedData;
-                    deductedQuantitiesChart.update();
-                })
-                .catch(error => {
-                    console.error('Error fetching deducted quantities:', error);
                 });
+
+                try {
+                    const response = await fetch("{{ route('admin.ai.handler') }}", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: JSON.stringify({
+                            request_type: 'combined_analysis',
+                            ai_model: selectedAiModel,
+                            chart_data: chartsToAnalyze
+                        })
+                    });
+                    if (!response.ok) { throw new Error( (await response.json()).error || 'Failed to fetch from server.'); }
+                    
+                    const result = await response.json();
+                    renderSummary(result.summary_data.summary);
+                    startCountdown(result.summary_data.expires_at);
+                    renderChartAnalysis(result.chart_analysis_data);
+
+                } catch (error) {
+                    handleError(error);
+                } finally {
+                    window.isFetchingAi = false;
+                }
+            }
+            
+            async function getInitialSummary() {
+                 try {
+                     const response = await fetch("{{ route('admin.ai.handler') }}", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                         body: JSON.stringify({ request_type: 'executive_summary_only', ai_model: aiModelSelect.value })
+                     });
+                     if (!response.ok) { throw new Error((await response.json()).error || 'Failed to fetch initial summary.'); }
+                     
+                     const result = await response.json();
+                     executiveSummaryData = result.summary_data;
+                     renderSummary(executiveSummaryData.summary);
+                     startCountdown(executiveSummaryData.expires_at);
+                 } catch (error) {
+                     handleError(error);
+                 }
+            }
+
+            refreshAiBtn.addEventListener('click', getCombinedAnalysis);
+            speakAnalysisBtn.addEventListener('click', () => {
+                const analysisText = chartAnalysisContentEl.querySelector('p')?.textContent;
+                if (analysisText) {
+                    const utterance = new SpeechSynthesisUtterance(analysisText);
+                    utterance.lang = 'en-US';
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+
+            if (executiveSummaryData && new Date(executiveSummaryData.expires_at) > new Date()) {
+                renderSummary(executiveSummaryData.summary);
+                startCountdown(executiveSummaryData.expires_at);
+                if (executiveSummaryData.summary._model_used) {
+                    aiModelSelect.value = executiveSummaryData.summary._model_used;
+                }
+            } else {
+                getInitialSummary();
+            }
         }
 
-        function updateInventoryChart() {
-            const selectedYear = document.getElementById('yearFilter').value;
-            const selectedMonth = document.getElementById('monthFilter').value;
-            const selectedLocation = document.getElementById('locationFilter').value || '';
+        // --- CHARTING LOGIC ---
+        const chartsContainer = document.getElementById('chartsContainer');
+        const leftCharts = document.getElementById('leftCharts');
+        const rightCharts = document.getElementById('rightCharts');
 
-            fetch(`/inventory-by-month/${selectedYear}/${selectedMonth}/${selectedLocation}`)
-                .then(response => response.json())
-                .then(data => {
-                    inventoryLevelsChart.data.labels = data.labels;
-                    inventoryLevelsChart.data.datasets[0].data = data.inventoryData;
-                    inventoryLevelsChart.update();
-                })
-                .catch(error => {
-                    console.error('Error fetching inventory data:', error);
+        function destroyChart(canvasId) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+                delete chartInstances[canvasId];
+            }
+        }
+
+        function createChart(canvasId, options) {
+            destroyChart(canvasId);
+            const canvasContainer = document.getElementById(canvasId + 'Container');
+            if (!canvasContainer) return null;
+            
+            canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`; 
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            
+            if (ctx) {
+                const newChart = new Chart(ctx, options);
+                chartInstances[canvasId] = newChart;
+                return newChart;
+            }
+            return null;
+        }
+
+        function showChartLoader(containerId, text) {
+            const container = document.getElementById(containerId);
+            if(container) {
+                container.innerHTML = `<div class="loader h-full"><svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold text-blue-600">${text}</span></div>`;
+            }
+        }
+
+        async function updateRevenueChart() {
+            const period = document.getElementById('revenueTimePeriod')?.value;
+            const year = document.getElementById('revenueYearFilter')?.value;
+            const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
+            const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
+            
+            showChartLoader('revenueChartContainer', 'Loading revenue data...');
+
+            try {
+                const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
+                if (!response.ok) throw new Error('Network response error');
+                const data = await response.json();
+                
+                createChart('revenueChart', {
+                    type: 'line',
+                    data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (v) => '₱' + v.toLocaleString('en-PH') } } }, interaction: { intersect: false, mode: 'index' } }
                 });
+            } catch (error) {
+                console.error('Error fetching revenue data:', error);
+                document.getElementById('revenueChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load revenue data.</p>';
+            }
         }
-    </script>
+        
+        function updatePerformanceChart(type) {
+             const performanceData = {
+                 mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
+                 moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
+                 lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
+             };
+             const chartData = performanceData[type];
+             createChart('productPerformanceChart', {
+                 type: 'bar',
+                 data: { labels: chartData.labels, datasets: [{ label: chartData.label, data: chartData.data, backgroundColor: chartData.backgroundColor, borderColor: chartData.borderColor, borderWidth: 1 }] },
+                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
+             });
+        }
+        
+        async function updateDeductedChart() {
+            const year = document.getElementById('deductedYearFilter')?.value;
+            const month = document.getElementById('deductedMonthFilter')?.value;
+            const location = document.getElementById('deductedLocationFilter')?.value || '';
+            showChartLoader('deductedQuantitiesChartContainer', 'Loading products delivered...');
+            try {
+                const response = await fetch(`/admin/filtered-deducted-quantities/${year}/${month}/${location}`);
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                createChart('deductedQuantitiesChart', {
+                    type: 'bar',
+                    data: { labels: data.labels, datasets: [{ label: 'Quantity Delivered', data: data.deductedData, backgroundColor: 'rgba(54, 162, 235, 0.6)', borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Product' } } } }
+                });
+            } catch (error) { 
+                console.error('Error fetching deducted quantities:', error);
+                document.getElementById('deductedQuantitiesChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load delivered products data.</p>';
+            }
+        }
 
-    <!-- Location Tracking Script -->
-    @if(auth()->guard('staff')->check())
-    <script>
-        if (navigator.geolocation) {
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        fetch("{{ route('api.update-location') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            },
-                            body: JSON.stringify({
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude,
-                            }),
-                        });
-                    },
-                    function (error) {
-                        console.error("Error getting location: ", error);
-                    }
-                );
-            }, 10000); // Send location every 10 seconds
-        } else {
-            console.error("Geolocation is not supported.");
+        async function updateInventoryChart() {
+            const locationId = document.getElementById('inventoryLocationFilter')?.value;
+            const url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
+            
+            showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network error fetching inventory data');
+                const data = await response.json();
+                createChart('inventoryLevelsChart', {
+                    type: 'bar',
+                    data: { labels: data.labels, datasets: [{ label: 'Current Stock', data: data.inventoryData, backgroundColor: 'rgba(255, 99, 132, 0.6)', borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Quantity' } } } }
+                });
+            } catch (error) { 
+                console.error('Error fetching inventory data:', error); 
+                document.getElementById('inventoryLevelsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load inventory data.</p>';
+            }
         }
+        
+        async function fetchAndUpdateTrendData() {
+            const season = document.getElementById('seasonFilter')?.value;
+            const year = document.getElementById('trendYearFilter')?.value;
+            const predictionContainer = document.getElementById('predictionCardsContainer');
+            showChartLoader('seasonalTrendsChartContainer', 'Loading trend data...');
+            predictionContainer.innerHTML = `<div class="loader col-span-3">Loading predictions...</div>`;
+            try {
+                 const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
+                 if (!response.ok) throw new Error('Network error');
+                 const data = await response.json();
+                 
+                 createChart('seasonalTrendsChart', {
+                     type: 'bar',
+                     data: {
+                         labels: data.trending_products.map(p => p.generic_name),
+                         datasets: [
+                             { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'},
+                             { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 },
+                             { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] }
+                         ]
+                     },
+                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                 });
+                 
+                 predictionContainer.innerHTML = '';
+                 if(data.predicted_peaks.length === 0) {
+                      predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Walang available na prediksyon para sa filter na ito.</p>';
+                 } else {
+                     data.predicted_peaks.forEach(p => {
+                          const card = document.createElement('div');
+                          card.className = 'bg-white p-4 rounded-lg shadow-md border-l-4 animate__animated animate__fadeInUp';
+
+                          const percentage = p.prediction_percentage_change;
+                          const statusText = p.prediction_status_text;
+
+                          let colorClass = 'text-gray-600';
+                          let iconClass = 'fa-solid fa-minus';
+                          let borderColor = 'border-gray-400';
+
+                          if (percentage >= 25) {
+                            colorClass = 'text-green-600';
+                            iconClass = 'fa-solid fa-arrow-trend-up';
+                            borderColor = 'border-green-500';
+                          } else if (percentage > 5) {
+                            colorClass = 'text-green-500';
+                            iconClass = 'fa-solid fa-arrow-up';
+                            borderColor = 'border-green-400';
+                          } else if (percentage < -20) {
+                            colorClass = 'text-red-600';
+                            iconClass = 'fa-solid fa-arrow-trend-down';
+                            borderColor = 'border-red-500';
+                          } else if (percentage < -5) {
+                             colorClass = 'text-yellow-600';
+                             iconClass = 'fa-solid fa-arrow-down';
+                             borderColor = 'border-yellow-500';
+                          }
+
+                          card.classList.add(borderColor);
+                          
+                          card.innerHTML = `
+                            <h4 class="font-semibold text-gray-800 mb-1 truncate">${p.generic_name}</h4>
+                            <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
+                                <i class="${iconClass} mr-2 fa-fw"></i>
+                                <span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span>
+                            </div>
+                            <p class="text-xs text-gray-500">${statusText}</p>
+                          `;
+
+                          predictionContainer.appendChild(card);
+                     });
+                 }
+
+            } catch(error) { 
+                console.error('Error fetching trend data:', error);
+                document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
+                predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nagkaroon ng error sa pag-analyze ng prediksyon.</p>';
+            }
+        }
+
+        function createOrderStatusChart() {
+            createChart('orderStatusChart', {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        label: 'Order Count',
+                        data: [{{ $orderStatusCounts['delivered'] ?? 0 }}, {{ $orderStatusCounts['pending'] ?? 0 }}, {{ $orderStatusCounts['cancelled'] ?? 0 }}],
+                        backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(255, 99, 132, 0.8)']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        
+        // --- Layout and Initialization ---
+        function initializeSortable() {
+            if(leftCharts) Sortable.create(leftCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
+            if(rightCharts) Sortable.create(rightCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
+        }
+
+        function saveChartLayout() {
+            const leftIds = [...leftCharts.children].map(el => el.dataset.chartId);
+            const rightIds = [...rightCharts.children].map(el => el.dataset.chartId);
+            localStorage.setItem('dashboardChartLayout', JSON.stringify({ left: leftIds, right: rightIds }));
+            Object.values(chartInstances).forEach(chart => chart.resize());
+        }
+
+        const initialChartRenders = async () => {
+            await Promise.allSettled([
+                updateRevenueChart(),
+                updateDeductedChart(),
+                updateInventoryChart(),
+                fetchAndUpdateTrendData(),
+            ]);
+            updatePerformanceChart('mostSold');
+            createOrderStatusChart();
+            initializeSortable();
+        };
+
+        initialChartRenders();
+        
+        // Event Listeners for Chart Filters
+        document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
+        document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedMonthFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('deductedLocationFilter')?.addEventListener('change', updateDeductedChart);
+        document.getElementById('inventoryLocationFilter')?.addEventListener('change', updateInventoryChart);
+        document.getElementById('seasonFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+        document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+        document.getElementById('mostSoldBtn')?.addEventListener('click', () => updatePerformanceChart('mostSold'));
+        document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
+        document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
+    });
     </script>
-    @endif
 </body>
 </html>
