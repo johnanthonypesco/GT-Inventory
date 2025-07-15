@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\ImmutableHistory;
 use App\Models\Inventory;
 use Carbon\Carbon;
 use App\Models\Order;
@@ -166,16 +167,46 @@ class OrderController extends Controller
 
     public function updateOrder(Request $request, Order $order) {
         $validate = $request->validate([
-            'status' => 'required|string',
             'mother_div' => 'required|string',
+
+            'province' => 'required|string',
+            'company' => 'required|string',
+            'employee' => 'required|string',
+            'date_ordered' => 'required|date',
+            'status' => 'required|string',
+            'generic_name' => 'required|string',
+            'brand_name' => 'required|string',
+            'form' => 'required|string',
+            'quantity' => 'required|string',
+            'price' => 'required|integer',
+            'subtotal' => 'required|integer',
         ]);
 
         $validate = array_map('strip_tags', $validate);
 
-        // dd($validate['mother_div']);
-
         $order->update($validate);
 
-        return to_route('admin.order')->with("update-success", $validate['mother_div']);
+        $mother = $validate['mother_div'];
+
+        // ADD TO THE ORDER HISTORY ARCHIVE IF DELIVERED OR CANCELLED
+        if ($validate['status'] === 'delivered' || $validate['status'] ===  "cancelled") {
+            unset($validate['mother_div']);
+
+            ImmutableHistory::createOrFirst([
+                'province' => $validate['province'],
+                'company' => $validate['company'],
+                'employee' => $validate['employee'],
+                'date_ordered' => $validate['date_ordered'],
+                'status' => $validate['status'],
+                'generic_name' => $validate['generic_name'],
+                'brand_name' => $validate['brand_name'],
+                'form' => $validate['form'],
+                'quantity' => $validate['quantity'],
+                'price' => $validate['price'],
+                'subtotal' => $validate['subtotal'],
+            ]);
+        }
+
+        return to_route('admin.order')->with("update-success", $mother);
     }
 }

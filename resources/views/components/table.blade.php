@@ -138,7 +138,7 @@
                     @foreach ($statuses as $orders)
                         @foreach ($orders as $order)
                             @php
-                                $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                $order_calc = $order->price * $order->quantity;
                                 $totalPrice += $order_calc;
                             @endphp
                         @endforeach

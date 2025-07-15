@@ -83,11 +83,15 @@ class ProductlistingController extends Controller
     
         $exclusiveDeal->delete();
     
+        
+
+        // gawa ni pesco
         HistorylogController::deleteproductlog(
             "Delete",
             "Deleted product " . $product->generic_name . " in company " . $company->name,
             $product->id
         );
+        // gawa ni pesco
     
         return to_route('admin.productlisting')->with('reSummon', $company->id);
     }
