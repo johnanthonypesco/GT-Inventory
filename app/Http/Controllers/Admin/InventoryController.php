@@ -195,7 +195,7 @@ class InventoryController extends Controller
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
-            'img_file_path' => 'string|min:3|nullable',
+            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
         ]);
 
         $validated = array_map('strip_tags', $validated);
@@ -205,6 +205,28 @@ class InventoryController extends Controller
         HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
         return to_route('admin.inventory');
+    }
+
+    public function editRegisteredProduct(Request $request, Product $product) {
+        $validated = $request->validate([
+            'id' => 'integer|min:1|required',
+            'form_type' => 'string|min:3|required|in:edit-product',
+            'generic_name' => 'string|min:3|max:120|nullable',
+            'brand_name' => 'string|min:3|max:120|nullable',
+            'form' => 'string|min:3|max:120|required',
+            'strength' => 'string|min:3|max:120|required',
+            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
+        ]);
+
+        $validated = array_map('strip_tags', $validated);
+
+        $prod = Product::findOrFail($validated['id']);
+        unset($validated['id']); // this will exclude the id in the update array
+
+        $prod->update($validated);
+
+        // dd("updated");
+        return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }
 
 
