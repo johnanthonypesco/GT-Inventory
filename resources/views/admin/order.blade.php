@@ -104,8 +104,8 @@
         </div>
 
         {{-- View Order Modal --}}
-        @foreach ($provinces as $companies)
-            @foreach ($companies as $employees)
+        @foreach ($provinces as $provinceName => $companies)
+            @foreach ($companies as $companyName => $employees)
                 @foreach ($employees as $employeeNameAndDate => $groupedStatuses)
                     @php
                         $total = 0;
@@ -191,7 +191,18 @@
                                                         @else
                                                             <div class="flex gap-1 items-center justify-center">
                                                                 <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
-                                                                'order-modal-{{ $employeeNameAndDate }}')">
+                                                                'order-modal-{{ $employeeNameAndDate }}', {
+                                                                    province: '{{$provinceName}}',
+                                                                    company: '{{$companyName}}',
+                                                                    emp_name: '{{$separatedInModal[0]}}',
+                                                                    date_ordered: '{{$separatedInModal[1]}}',
+                                                                    generic: '{{$productInfo->generic_name}}',
+                                                                    brand: '{{$productInfo->brand_name}}',
+                                                                    form: '{{$productInfo->form}}',
+                                                                    quantity: {{$order->quantity}},
+                                                                    price: {{$order->exclusive_deal->price}},
+                                                                    subtotal: {{$order_calc}},
+                                                                })">
                                                                     Change Status
                                                                 </button>
 
@@ -269,16 +280,30 @@
         {{-- Add New Order Modal --}}
         
         {{-- Update Order Status Modal --}}
+        @if (session("manualUpdateFailed"))
+            <script> alert("INSUFFICIENT STOCK: Please restock the product to update the status to delivered") </script>
+        @endif
+        
         <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
-                <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Product's Status:</h1>
+                <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
                 
                 <form action="{{ route("admin.order.update", 0) }}" method="POST" class="overflow-y-auto h-fit max-h-[400px] flex flex-col gap-4 mt-5">
                     @csrf
                     @method("PUT")
                     
-                    <div class="hidden" id="id-container"></div>
+                    <input type="hidden" name="customer_id" id="id-container"></input>
+                    <input type="hidden" id="archive-province" name="province">
+                    <input type="hidden" id="archive-company" name="company">
+                    <input type="hidden" id="archive-employee" name="employee">
+                    <input type="hidden" id="archive-date-ordered" name="date_ordered">
+                    <input type="hidden" id="archive-generic-name" name="generic_name">
+                    <input type="hidden" id="archive-brand-name" name="brand_name">
+                    <input type="hidden" id="archive-form" name="form">
+                    <input type="hidden" id="archive-quantity" name="quantity">
+                    <input type="hidden" id="archive-price" name="price">
+                    <input type="hidden" id="archive-subtotal" name="subtotal">
 
                     <input type="hidden" id="status-id" name="status">
                     <input type="hidden" id="mother-id" name="mother_div">
@@ -328,7 +353,7 @@
                 Orders That Cannot Be Fulfilled:
             </h1>
 
-           <div class="h-[76vh] overflow-auto">
+           <div class="h-[70vh] overflow-auto">
                 @foreach ($insufficients as $orderName => $orders)
                 <table>
                     <thead>
@@ -380,24 +405,26 @@
                 Summary of Products That Cannot Fulfill Orders:
             </h1>
     
-            <table class="w-full text-left border border-gray-300">
+            <div class="h-[70vh] overflow-auto">
+                <table>
                 <thead>
-                    <tr class="bg-gray-200 text-gray-700">
-                        <th class="py-2 px-4">Product Name</th>
-                        <th class="py-2 px-4">Available Stock</th>
-                        <th class="py-2 px-4">Total Ordered</th>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Available Stock</th>
+                        <th>Total Ordered</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($insufficientSummary as $item)
-                        <tr class="border-t border-gray-300">
-                            <td class="py-2 px-4">{{ $item['product'] }}</td>
-                            <td class="py-2 px-4">{{ $item['available'] }}</td>
-                            <td class="py-2 px-4">{{ $item['ordered'] }}</td>
+                        <tr>
+                            <td>{{ $item['product'] }}</td>
+                            <td>{{ $item['available'] }}</td>
+                            <td>{{ $item['ordered'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     

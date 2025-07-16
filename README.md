@@ -1,3 +1,15 @@
+# RMPOIMS
+<p style="color: gray; margin: -20px 0 38px; font-style: italic"> Your one and only solution to ordering and inventory management! <br><br> Aptly named as "RCT Med Pharma: Ordering and Inventory Management System" it is designed and specialized for Pharmaceutical Companies to aid & ease the some of the company's operations. </p>
+
+|ROLES|MEMBERS|
+|:--------:|:------:|
+|**PROJECT MANAGER / BACKEND / DEVOPS**|SIGRAE DERF E. GABRIEL|
+|**BACKEND / LEAD MOBILE DEV**|ROMARK A. BAYAN|
+|**FRONTEND / UI & UX**|JOHN ANTHONY L. PESCO|
+|**FULLY STACKED DEV**|JOHN MICHAEL G. JONATAS|
+---
+---
+
 # How to Make the Project Run
 
 1. Go to XAMPP's apache php.ini file
@@ -9,7 +21,7 @@
     ```dotenv
     DB_CONNECTION=mysql
     DB_HOST=127.0.0.1
-    DB_PORT=3306
+    DB_PORT=*3306
     DB_DATABASE=rmpoims_breeze
     
     SESSION_DRIVER=cookie

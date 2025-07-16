@@ -29,16 +29,16 @@
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                         <td>
                           <button 
-    class="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
-    onclick="openTransferModal(
-        '{{ $inv->inventory_id }}', 
-        '{{ $inv->batch_number }}', 
-        '{{ $inv->product->name }}', 
-        '{{ $inv->location->province }}'
-    )"
->
-    Transfer
-</button>
+                            class="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                            onclick="openTransferModal(
+                                '{{ $inv->inventory_id }}', 
+                                '{{ $inv->batch_number }}', 
+                                '{{ $inv->product->name }}', 
+                                '{{ $inv->location->province }}'
+                            )"
+                        >
+                            Transfer
+                        </button>
                         </td>
                     </tr>
                 @endforeach
@@ -138,7 +138,7 @@
                     @foreach ($statuses as $orders)
                         @foreach ($orders as $order)
                             @php
-                                $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                $order_calc = $order->price * $order->quantity;
                                 $totalPrice += $order_calc;
                             @endphp
                         @endforeach

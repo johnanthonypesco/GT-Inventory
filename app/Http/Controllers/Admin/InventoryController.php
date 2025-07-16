@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\ImmutableHistory;
 use DB;
 use Carbon\Carbon;
 use Zxing\QrReader;
@@ -23,7 +24,7 @@ class InventoryController extends Controller
     public function showInventory
     (
         $searched_name = null, //product name
-        $form_data = null,  // results ng sinearch 
+        $form_data = null,  // results ng sinearch
         $search_type = null, // stock = yung una na table. product = yung nasa loob ng "view products" modal
         $location_filter = 'All', // Ginagamit ng dropdown location select & search function
     )
@@ -37,7 +38,7 @@ class InventoryController extends Controller
                 ->orderBy('expiry_date', 'desc')
                 ->get()->groupBy(fn ($stock) => $stock->location_id);
                 break;
- 
+
             case 'Nueva Ecija':
                 $inventory = Inventory::with(['product', 'location'])->where('location_id', 2)
                 ->orderBy('expiry_date', 'desc')
@@ -81,7 +82,7 @@ class InventoryController extends Controller
             'products' => Product::all(),
 
             'registeredProducts' => $search_type === 'product' ? $form_data : Product::all(),
-            
+
             // if the user searches something it will provide the data from the searched result instead
             'inventories' => $search_type === 'stock' ? $form_data : $inventory,
             'current_inventory' => $location_filter,
@@ -90,13 +91,13 @@ class InventoryController extends Controller
 
             // The current state of the page (Dito sinesetup lahat ng filters)
             'currentSearch' => ['query' => $searched_name, 'type' => $search_type, 'location' => $location_filter],
-            
+
             // SEARCH SUGGESTIONS FOR THE STOCK SEARCH BAR
             'tarlacSuggestions' => $suggestionsForTarlac,
             'nuevaSuggestions' => $suggestionsForNueva,
 
             // for the inventory stock notifications
-            'stockMonitor' => $inventory = Inventory::has('product') 
+            'stockMonitor' => $inventory = Inventory::has('product')
             ->with('product', 'location') // Ensure 'location' is eager-loaded
             ->get() // Get all inventory records
             ->groupBy('location.province') // First, group by province
@@ -107,7 +108,7 @@ class InventoryController extends Controller
                 ->map(function ($group) { // Calculate totals for each product grouping
                     $total = $group->sum('quantity');
                     $status = $total > 50 ? 'in-stock' : ($total > 0 ? 'low-stock' : 'no-stock');
-        
+
                     return [
                         'total' => $total,
                         'status' => $status,
@@ -115,9 +116,9 @@ class InventoryController extends Controller
                     ];
                 })->sortKeys();
             }),
-        
+
         // dd($inventory->toArray());
-        
+
 
             // for the stock notifs as wells
             'expiryTotalCounts' => [
@@ -139,7 +140,7 @@ class InventoryController extends Controller
         ]);
 
         $validated = array_map('strip_tags', $validated);
-        
+
         switch ($validated['location']){
             case 'Tarlac':
                 return $this->showInventory(location_filter:"Tarlac");
@@ -162,7 +163,7 @@ class InventoryController extends Controller
         // splits up the string and returns an array
         $validatedSearch = explode(' - ',$validated['search']);
 
-        
+
         if($type === "stock") {
             $location_id = Location::where('province', $validated['location_filter'])
             ->select('id')->first()->id;
@@ -175,16 +176,16 @@ class InventoryController extends Controller
                 ->where('brand_name', '=', $validatedSearch[1]);
             })
             ->get();
-    
+
             // dd($validated['location_filter']);
             return $this->showInventory($validatedSearch,$result, "stock", $validated['location_filter']);
-        } 
+        }
         elseif ($type === "product") {
             $result = Product::where('generic_name', '=', $validatedSearch[0])
             ->where('brand_name', '=', $validatedSearch[1])
             ->get();
-            
-            return $this->showInventory($validatedSearch, $result, 'product'); 
+
+            return $this->showInventory($validatedSearch, $result, 'product');
         }
     }
 
@@ -195,8 +196,8 @@ class InventoryController extends Controller
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
-            'img_file_path' => 'string|min:3|nullable',
-        ]); 
+            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
+        ]);
 
         $validated = array_map('strip_tags', $validated);
 
@@ -205,6 +206,28 @@ class InventoryController extends Controller
         HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
         return to_route('admin.inventory');
+    }
+
+    public function editRegisteredProduct(Request $request, Product $product) {
+        $validated = $request->validate([
+            'id' => 'integer|min:1|required',
+            'form_type' => 'string|min:3|required|in:edit-product',
+            'generic_name' => 'string|min:3|max:120|nullable',
+            'brand_name' => 'string|min:3|max:120|nullable',
+            'form' => 'string|min:3|max:120|required',
+            'strength' => 'string|min:3|max:120|required',
+            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
+        ]);
+
+        $validated = array_map('strip_tags', $validated);
+
+        $prod = Product::findOrFail($validated['id']);
+        unset($validated['id']); // this will exclude the id in the update array
+
+        $prod->update($validated);
+
+        // dd("updated");
+        return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }
 
 
@@ -249,7 +272,7 @@ class InventoryController extends Controller
             ];
 
             $product = Product::findOrFail($validated['product_id'][$i]);
-    
+
             $product->inventories()->create($datas);
         }
 
@@ -269,9 +292,10 @@ class InventoryController extends Controller
 
 
 
-  
+
     public function deductInventory(Request $request)
     {
+        // dd("yeppers");
         try {
             // ✅ Extract Data from Request
             $data = $request->all();
@@ -328,15 +352,40 @@ class InventoryController extends Controller
                     'updated_at' => now()
                 ]);
 
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+                $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+                
+                $companyDeets = $orderArchiveArray['user']['company'];
+                $province = $orderArchiveArray['user']['company']['location']['province'];
+                $employeeDeets = $orderArchiveArray['user'];
+
+                $productDeets = $orderArchiveArray['exclusivedeal']['product'];
+                $productPrice = $orderArchiveArray['exclusivedeal']['price'];
+                
+                ImmutableHistory::createOrFirst([
+                    'province' => $province,
+                    'company' => $companyDeets["name"],
+                    'employee' => $employeeDeets["name"],
+                    'date_ordered' => Carbon::parse($orderArchiveArray["date_ordered"])->addDay()->toDateString(), // i added 1 more day because the QR data is somehow behind by 1 day???
+                    'status' => $orderArchiveArray["status"],
+                    'generic_name' => $productDeets["generic_name"],
+                    'brand_name' => $productDeets["brand_name"],
+                    'form' => $productDeets["form"],
+                    'quantity' => $orderArchiveArray["quantity"],
+                    'price' => $productPrice,
+                    'subtotal' => $productPrice * $orderArchiveArray["quantity"],
+                ]);
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+
                 // ✅ Step 6: Process and store the signature
                 $signaturePath = null;
                 if ($signature) {
                     // Generate a filename for the signature
                     $fileName = "signatures/signature_{$orderId}.png";
-                
+
                     // Store the image manually using Storage::disk('public')
                     Storage::disk('public')->put($fileName, file_get_contents($signature->getRealPath()));
-                
+
                     // Save only the path in the database
                     $signaturePath = $fileName;
                 }
@@ -370,7 +419,7 @@ class InventoryController extends Controller
     }
 
 
-   
+
         public function uploadQrCode(Request $request)
         {
             try {
@@ -382,30 +431,30 @@ class InventoryController extends Controller
                 $request->validate([
                     'qr_code' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 ]);
-    
+
                 // Store uploaded image temporarily
                 $path = $request->file('qr_code')->store('temp_qr_codes');
-    
+
                 // Read QR code data
                 $qrReader = new QrReader(storage_path('app/private/' . $path));
                 $qrData = $qrReader->text();
-    
+
                 // Delete temp file
                 // unlink(storage_path('app/public' . $path));
-    
+
                 if (!$qrData) {
                     return response()->json(['message' => 'Error: Unable to read QR code.'], 400);
                 }
-    
+
                 // Convert JSON string to array
                 $data = json_decode($qrData, true);
-    
+
                 if (!$data) {
                     return response()->json(['message' => 'Error: Invalid QR code format.'], 400);
                 }
-    
+
                 Log::info("Uploaded QR Code Data:", $data);
-    
+
                 // Extract order details
                 $orderId     = $data['order_id'] ?? null;
                 $productName = $data['product_name'] ?? null;
@@ -413,26 +462,26 @@ class InventoryController extends Controller
                 $expiryDate  = $data['expiry_date'] ?? null;
                 $location    = $data['location'] ?? null;
                 $quantity    = $data['quantity'] ?? 1;
-    
+
                 // Check if QR code was already scanned
                 if (ScannedQrCode::where('order_id', $orderId)->exists()) {
                     return response()->json(['message' => '⚠️ Error: This QR code has already been used!'], 400);
                 }
-    
+
                 // Get `location_id`
                 $locationId = Location::where('province', $location)->value('id');
-    
+
                 if (!$locationId) {
                     return response()->json(['message' => 'Error: Location not found'], 400);
                 }
-    
+
                 // Get `product_id`
                 $productId = Product::where('generic_name', $productName)->value('id');
-    
+
                 if (!$productId) {
                     return response()->json(['message' => 'Error: Product not found'], 400);
                 }
-    
+
                 // Find inventory
                 $inventory = Inventory::where('location_id', $locationId)
                                       ->where('product_id', $productId)
@@ -442,11 +491,11 @@ class InventoryController extends Controller
                                       ->orderBy('expiry_date', 'asc')
                                       ->orderBy('created_at', 'asc')
                                       ->first();
-    
+
                 if (!$inventory) {
                     return response()->json(['message' => 'Error: Inventory not found'], 400);
                 }
-    
+
                 // Deduct the quantity
                 // Inventory::where('inventory_id', $inventory->inventory_id)->update([
                 //     'quantity'   => $inventory->quantity - $quantity,
@@ -458,11 +507,37 @@ class InventoryController extends Controller
                     'quantity' => $inventory->quantity - $quantity
                 ], ['inventory_id' => $inventory->inventory_id]);
                 }
-    
+
                 Order::where('id', $orderId)->update([
                     'status'     => 'delivered',
                     'updated_at' => now()
                 ]);
+
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+                $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+                
+                $companyDeets = $orderArchiveArray['user']['company'];
+                $province = $orderArchiveArray['user']['company']['location']['province'];
+                $employeeDeets = $orderArchiveArray['user'];
+
+                $productDeets = $orderArchiveArray['exclusivedeal']['product'];
+                $productPrice = $orderArchiveArray['exclusivedeal']['price'];
+                
+                ImmutableHistory::createOrFirst([
+                    'province' => $province,
+                    'company' => $companyDeets["name"],
+                    'employee' => $employeeDeets["name"],
+                    'date_ordered' => Carbon::parse($orderArchiveArray["date_ordered"])->addDay()->toDateString(), // i added 1 more day because the QR data is somehow behind by 1 day???
+                    'status' => $orderArchiveArray["status"],
+                    'generic_name' => $productDeets["generic_name"],
+                    'brand_name' => $productDeets["brand_name"],
+                    'form' => $productDeets["form"],
+                    'quantity' => $orderArchiveArray["quantity"],
+                    'price' => $productPrice,
+                    'subtotal' => $productPrice * $orderArchiveArray["quantity"],
+                ]);
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+
 
                 // Record the scan
                 ScannedQrCode::create([
@@ -474,9 +549,9 @@ class InventoryController extends Controller
                     'quantity'      => $quantity,
                     'scanned_at'    => now(),
                 ]);
-    
+
                 return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
-    
+
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => '❌ Server error: ' . $e->getMessage(),
@@ -491,13 +566,13 @@ class InventoryController extends Controller
             try {
                 // Log the received request data
                 \Log::info("Received Transfer Request:", $request->all());
-        
+
                 // Validate the request
                 $validated = $request->validate([
                     'inventory_id' => 'required|exists:inventories,inventory_id',
                     'new_location' => 'required' // We will check if it's an ID or a name
                 ]);
-        
+
                 // Check if new_location is an ID or a province name
                 if (!is_numeric($validated['new_location'])) {
                     // If it's a province name, fetch the corresponding ID
@@ -507,28 +582,28 @@ class InventoryController extends Controller
                     }
                     $validated['new_location'] = $location->id; // Replace name with ID
                 }
-        
+
                 // Find the inventory record
                 $inventory = Inventory::where('inventory_id', $validated['inventory_id'])->first();
                 if (!$inventory) {
                     return response()->json(['success' => false, 'message' => 'Inventory not found.'], 404);
                 }
-        
+
                 // Update the inventory's location_id
                 $inventory->update(['location_id' => $validated['new_location']]);
-        
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Inventory successfully transferred!'
                 ], 200);
-        
+
             } catch (\Exception $e) {
                 \Log::error("Error transferring inventory", ['error' => $e->getMessage()]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Error: ' . $e->getMessage()
                 ], 500);
-            }   
+            }
         }
 
     }

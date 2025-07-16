@@ -40,6 +40,41 @@ function closeregisterproductmodal() {
 }
 // Register New Product
 
+// EDIT REGISTERED PRODUCTS
+
+function editRegisteredProduct(prod_id, prod_generic, prod_brand, prod_form, prod_strength) {
+    const modal = document.getElementById('edit-registered');
+    const actual_form = document.getElementById('edit-prod-reset');
+    const h1 = document.getElementById('title-prod-edit');
+
+    const id = document.getElementById("edit-prod-id");
+    const generic = document.getElementById("edit-prod-generic");
+    const brand = document.getElementById("edit-prod-brand");
+    const form = document.getElementById("edit-prod-form");
+    const strength = document.getElementById("edit-prod-strength");
+
+    if (modal.classList.contains('-mt-[0px]')) {
+        modal.classList.replace('-mt-[0px]', '-mt-[1000px]');
+
+        console.log("CLOSING UPDATE MODAL")
+        actual_form.reset();
+        h1.innerHTML = "UPDATING: NOTHING";
+        
+        return;
+    } 
+
+    console.log("SHOWING UPDATE MODAL");
+    modal.classList.replace('-mt-[1000px]', '-mt-[0px]');
+    h1.innerHTML = `Updating Product ID: ${prod_id}`;
+    id.value = prod_id;
+    generic.value = prod_generic;
+    brand.value = prod_brand;
+    form.value = prod_form;
+    strength.value = prod_strength;
+}
+
+// EDIT REGISTERED PRODUCTS
+
 
 // SHOW THE STOCK PRODUCTS POPUP MODAL
 function showStockModals(type) {

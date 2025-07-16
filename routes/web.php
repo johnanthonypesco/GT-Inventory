@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Admin\SalesReportController;
+
 
 // Staff Controller
 use App\Http\Controllers\Export\ExportController;
@@ -76,31 +78,54 @@ Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountContro
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+
 });
 // ADMIN ROUTES
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
-    Route::middleware(['auth:superadmin,admin'])->group(function () {        
+    Route::middleware(['auth:superadmin,admin'])->group(function () {
+        Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+        
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
         Route::get('admin/inventory/{location_filter?}', [InventoryController::class, 'showInventory'])->name('admin.inventory');
         Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
-    
+
         Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
+        Route::put('admin/inventory/product/', [InventoryController::class, 'editRegisteredProduct'])->name('admin.edit.product');
         Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
-    
+
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
         Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        
+        // dashboard routes
+         // API routes for dashboard charts
+        Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
+        Route::get('admin/filtered-deducted-quantities/{year}/{month}/{locationId?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
+        // Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
+        Route::get('admin/inventory-levels/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
+        Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);
 
-        // Route::get('/deducted-quantities/{year}/{month}', [InventoryController::class, 'getFilteredDeductedQuantities']);
-        // Route::get('/inventory-by-month/{year}/{month}', [InventoryController::class, 'getInventoryByMonth']);
-        Route::get('/inventory-by-month/{year}/{month}/{location?}', [DashboardController::class, 'getInventoryByMonth']);
-Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
+        // New API routes for added dashboard charts
+        Route::get('admin/order-status-counts', [DashboardController::class, 'getOrderStatusCounts']);
+        Route::get('admin/average-order-value/{year}/{month?}', [DashboardController::class, 'getAverageOrderValue']);
+        Route::get('admin/fulfillment-time/{period}/{year}/{month?}', [DashboardController::class, 'getOrderFulfillmentTime']);
+        Route::get('admin/orders-by-location/{year}/{month?}', [DashboardController::class, 'getOrdersByLocation']);
 
-        Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+        // NEW: AI Chart Analysis Route
+        // Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI'])->name('admin.analyze.charts');
+        // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
+        Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
+        Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
+        
+        Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
+        // sales reports
+        Route::get('admin/sales', [SalesReportController::class, 'index'])->name('admin.sales');
+        Route::post('admin/sales/generate', [SalesReportController::class, 'generateReport'])->name('admin.sales.generate');
+        
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
 
 
@@ -109,15 +134,15 @@ Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardControll
         //2//////////////////////// << ORDER HISTORY ROUTE >> //////////////////////////////2//
 
 
-        //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
+        //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//
         Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
         Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
         Route::put('admin/productlisting/{aidee}', [ProductlistingController::class, 'updateExclusiveDeal'])->name('admin.productlisting.update');
         Route::delete('admin/productlisting/{deal_id}/{company}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
-        //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//        
+        //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//
 
 
-        //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//        
+        //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
         Route::get('/manageaccounts', [SuperAdminAccountController::class, 'index'])->name('superadmin.account.index');
         Route::post('/manageaccounts', [SuperAdminAccountController::class, 'store'])->name('superadmin.account.store');
 
@@ -125,11 +150,11 @@ Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardControll
         Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
 
         Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
-        //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4// 
+        //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
 
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
-        
+
         // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
         //     ->name('orders.generateQrCode');
 
@@ -152,9 +177,9 @@ Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardControll
         Route::get('/upload-receipt', function () {
             return view('upload_receipt');
         })->name('upload.receipt');
-        
+
         Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
-        Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt'); 
+        Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt');
         Route::get('/get-locations', function () {
             $locations = Location::pluck('province')->toArray();
             return response()->json(['locations' => $locations]);
@@ -175,7 +200,7 @@ Route::get('/deducted-quantities/{year}/{month}/{location?}', [DashboardControll
 
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED ROUTES FOR ALL EMPLOYEES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
-    
+
 
     //6///////////////////////// << DASHBOARD ROUTE >> //////////////////////////////6//
     // Bakit dalawa yung dashboard routes dito??? <<<<<-------------------
@@ -290,11 +315,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
 
-    
+
     //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
     Route::get('customer/manageorder', [ManageorderController::class, 'showManageOrder'])->name('customer.manageorder');
     //12////////////////////// << CUSTOMER MANAGE ORDER ROUTES >> ///////////////////////////12//
-    
+
 
     //13////////////////////// << CUSTOMER ORDER HISTORY ROUTES >> ///////////////////////////13//
     Route::get('customer/history', [CustomerHistoryController::class, 'showHistory'])->name('customer.history');
@@ -360,7 +385,7 @@ Route::prefix('chat')->middleware('auth')->group(function () {
 Route::middleware('guest:superadmin')->group(function () {
     Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
         ->name('superadmins.login');
-    
+
     Route::post('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'store'])
         ->name('superadmin.login.store');
 });
@@ -371,7 +396,7 @@ Route::middleware('guest:superadmin')->group(function () {
 Route::middleware('guest:admin')->group(function () {
     Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])
         ->name('admins.login');
-    
+
     Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'])
         ->name('admin.login.store');
 });
@@ -381,7 +406,7 @@ Route::middleware('guest:admin')->group(function () {
 Route::middleware('guest:staff')->group(function () {
     Route::get('/staff/login', [StaffAuthenticatedSessionController::class, 'create'])
         ->name('staffs.login');
-    
+
     Route::post('/staff/login', [StaffAuthenticatedSessionController::class, 'store'])
         ->name('staff.login.store');
 });

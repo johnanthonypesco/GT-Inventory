@@ -20,20 +20,23 @@ class ExclusiveDeal extends Model
         "price"
     ];
 
-    public function company():BelongsTo {
+        public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 
     public function orders()
-    {
-        // The second argument is the foreign key in the orders table
-        return $this->hasMany(Order::class, 'exclusive_deal_id');
-    }
+{
+    return $this->hasMany(Order::class);
+}
 
     // Typically you also have:
     public function product()
-    {
-        // The second argument is the foreign key in the exclusive_deals table
-        return $this->belongsTo(Product::class, 'product_id');
-    }
+{
+    return $this->belongsTo(Product::class);
+}
+public function inventories()
+{
+    return $this->hasMany(Inventory::class, 'product_id', 'product_id');
+}
 }

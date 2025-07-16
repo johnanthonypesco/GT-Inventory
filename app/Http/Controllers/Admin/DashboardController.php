@@ -2,78 +2,508 @@
 
 namespace App\Http\Controllers\Admin;
 
-use DB;
-use App\Models\Order;
-use App\Models\Location;
-use App\Models\Inventory;
 use App\Http\Controllers\Controller;
+use App\Models\AIGeneratedExecutiveSummary;
+use App\Models\Admin;
+use App\Models\Conversation;
+use App\Models\Inventory;
+use App\Models\Location;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Staff;
+use App\Models\SuperAdmin;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
+    private const AI_SUMMARY_CACHE_KEY = 'ai_executive_summary_data';
+    private const MISTRAL_API_KEY_ENV = 'MISTRAL_API_KEY';
+    private const MISTRAL_CHAT_API_URL = 'https://api.mistral.ai/v1/chat/completions';
+    private const GEMINI_API_KEY_ENV = 'GEMINI_API_KEY';
+
+    public function handleAiRequest(Request $request): JsonResponse
+    {
+        $requestType = $request->input('request_type');
+        $aiModel = $request->input('ai_model', 'gemini-1.5-flash');
+
+        try {
+            switch ($requestType) {
+                case 'executive_summary_only':
+                    $summaryData = $this->generateAndCacheExecutiveSummary($aiModel);
+                    return response()->json(['summary_data' => $summaryData]);
+
+                case 'combined_analysis':
+                    $chartData = $request->input('chart_data', []);
+                    $summaryResult = $this->generateAndCacheExecutiveSummary($aiModel);
+                    $analysisResult = $this->analyzeChartsWithAI($chartData, $aiModel);
+                    return response()->json([
+                        'summary_data' => $summaryResult,
+                        'chart_analysis_data' => $analysisResult,
+                    ]);
+
+                default:
+                    return response()->json(['error' => 'Invalid AI request type specified.'], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error("AI Request Handler failed for type '{$requestType}': " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'An unexpected error occurred while processing the AI request.'], 500);
+        }
+    }
+    
     public function showDashboard()
     {
         $locations = Location::all();
-        return view('admin.dashboard', compact('locations'));
+        $currentUser = Auth::user();
+        $adminsidebar_counter = 0;
+        $unreadMessagesAdmin = 0;
+        $unreadMessagesSuperAdmin = 0;
+        $unreadMessagesStaff = 0;
+
+        if ($currentUser instanceof SuperAdmin) {
+            $unreadMessagesSuperAdmin = Conversation::where('is_read', false)->where('receiver_type', 'super_admin')->where('receiver_id', $currentUser->id)->count();
+            $adminsidebar_counter = $unreadMessagesSuperAdmin;
+        } elseif ($currentUser instanceof Admin) {
+            $unreadMessagesAdmin = Conversation::where('is_read', false)->where('receiver_type', 'admin')->where('receiver_id', $currentUser->id)->count();
+            $adminsidebar_counter = $unreadMessagesAdmin;
+        } elseif ($currentUser instanceof Staff) {
+            $unreadMessagesStaff = Conversation::where('is_read', false)->where('receiver_type', 'staff')->where('receiver_id', $currentUser->id)->count();
+            $adminsidebar_counter = $unreadMessagesStaff;
+        }
+
+        $totalOrders = Order::where('status', 'delivered')->count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $cancelledOrders = Order::where('status', 'cancelled')->count();
+        
+        $mostSoldProducts = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')
+            ->groupBy('products.generic_name')->orderBy('total_quantity', 'DESC')->limit(6)->get();
+
+        $labels = $mostSoldProducts->pluck('generic_name')->toArray();
+        $data = $mostSoldProducts->pluck('total_quantity')->toArray();
+
+        $lowSoldProductsQuery = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '<=', 10)
+            ->orderBy('total_quantity', 'ASC')->limit(6)->get();
+
+        $lowSoldLabels = $lowSoldProductsQuery->pluck('generic_name')->toArray();
+        $lowSoldData = $lowSoldProductsQuery->pluck('total_quantity')->toArray();
+
+        $moderateSoldProducts = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '>', 10)
+            ->having('total_quantity', '<=', 50)->orderBy('total_quantity', 'DESC')->limit(6)->get();
+
+        $moderateSoldLabels = $moderateSoldProducts->pluck('generic_name')->toArray();
+        $moderateSoldData = $moderateSoldProducts->pluck('total_quantity')->toArray();
+
+        $lowStockProductsList = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
+            ->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->get();
+            
+        $totalRevenue = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->where('orders.status', 'delivered')->sum(DB::raw('orders.quantity * exclusive_deals.price'));
+        
+        $availableYears = Order::select(DB::raw('YEAR(date_ordered) as year'))->distinct()->orderBy('year', 'DESC')->pluck('year')
+            ->merge(Inventory::select(DB::raw('YEAR(created_at) as year'))->distinct()->pluck('year'))
+            ->unique()->sortDesc()->values();
+            
+        $orderStatusCounts = Order::select('status', DB::raw('COUNT(*) as count'))->groupBy('status')->pluck('count', 'status')->toArray();
+        
+        $executiveSummaryData = Cache::get(self::AI_SUMMARY_CACHE_KEY);
+
+        return view('admin.dashboard', [
+            'locations' => $locations,
+            'currentUser' => $currentUser,
+            'adminsidebar_counter' => $adminsidebar_counter,
+            'unreadMessagesAdmin' => $unreadMessagesAdmin,
+            'unreadMessagesSuperAdmin' => $unreadMessagesSuperAdmin,
+            'unreadMessagesStaff' => $unreadMessagesStaff,
+            'totalOrders' => $totalOrders,
+            'pendingOrders' => $pendingOrders,
+            'cancelledOrders' => $cancelledOrders,
+            'totalRevenue' => $totalRevenue,
+            'lowStockProducts' => $lowStockProductsList,
+            'labels' => $labels,
+            'data' => $data,
+            'lowSoldLabels' => $lowSoldLabels,
+            'lowSoldData' => $lowSoldData,
+            'moderateSoldLabels' => $moderateSoldLabels,
+            'moderateSoldData' => $moderateSoldData,
+            'availableYears' => $availableYears,
+            'orderStatusCounts' => $orderStatusCounts,
+            'executiveSummaryData' => $executiveSummaryData,
+        ]);
     }
-    public function getInventoryByMonth($year, $month, $locationId = null)
-{
-    // Base query for inventory data
-    $inventoryQuery = Inventory::whereYear('inventories.created_at', $year)
-        ->whereMonth('inventories.created_at', $month)
-        ->join('products', 'inventories.product_id', '=', 'products.id');
 
-    // Apply location filter if provided
-    if ($locationId) {
-        $inventoryQuery->where('inventories.location_id', $locationId);
+    private function generateAndCacheExecutiveSummary(string $aiModel): array
+    {
+        try {
+            $dataForPrompt = $this->gatherDataForSummary();
+            $prompt = $this->createExecutiveSummaryPrompt($dataForPrompt);
+            $response = $this->_dispatchAiRequest($prompt, $aiModel, true);
+            $summary = json_decode($response['content'], true);
+            
+            if (!is_array($summary) || !isset($summary['kpis'])) {
+                Log::warning('AI executive summary response was not in the expected JSON format.', ['response' => $response['content']]);
+                throw new \Exception('AI summary response was malformed.');
+            }
+            
+            $summary['_model_used'] = $response['model_name'];
+            AIGeneratedExecutiveSummary::create(['summary_data' => $summary]);
+            
+            $cacheData = ['summary' => $summary, 'expires_at' => now()->addHour()->toIso8601String()];
+            Cache::put(self::AI_SUMMARY_CACHE_KEY, $cacheData, now()->addHour());
+            
+            return $cacheData;
+        } catch (\Exception $e) {
+            Log::error('Exception in generateAndCacheExecutiveSummary: ' . $e->getMessage());
+            return ['summary' => $this->getDefaultSummaryStructure($e->getMessage()), 'expires_at' => now()->addMinutes(2)->toIso8601String()];
+        }
     }
 
-    // Get inventory data
-    $inventoryData = $inventoryQuery
-        ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
-        ->groupBy('products.generic_name')
-        ->get();
+    private function analyzeChartsWithAI(array $chartData, string $aiModel): array
+    {
+        try {
+            if (empty($chartData)) {
+                return ['analysis' => 'No chart data provided for analysis. Please ensure charts are visible on the dashboard.', 'model' => 'N/A'];
+            }
+            $prompt = $this->createChartAnalysisPrompt($chartData);
+            $response = $this->_dispatchAiRequest($prompt, $aiModel, false);
+            return ['analysis' => $response['content'], 'model' => $response['model_name']];
+        } catch(\Exception $e) {
+            Log::error('Exception in analyzeChartsWithAI: ' . $e->getMessage());
+            return ['analysis' => 'Error: Could not generate chart analysis. ' . $e->getMessage(), 'model' => 'N/A'];
+        }
+    }
 
-    // Base query for deducted quantities
-    $deductedQuery = Order::whereYear('orders.created_at', $year)
-        ->whereMonth('orders.created_at', $month)
-        ->where('orders.status', 'delivered')
-        ->join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-        ->join('products', 'exclusive_deals.product_id', '=', 'products.id');
-
-    // Get deducted quantities (removed location filter for orders)
-    $deductedData = $deductedQuery
-        ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_deducted'))
-        ->groupBy('products.generic_name')
-        ->get();
-
-    return response()->json([
-        'labels' => $inventoryData->pluck('generic_name'),
-        'inventoryData' => $inventoryData->pluck('total_quantity'),
-        'deductedData' => $deductedData->pluck('total_deducted'),
-    ]);
-}
-
-public function getFilteredDeductedQuantities($year, $month)
+    private function _dispatchAiRequest(string $prompt, string $model, bool $jsonMode = false): array
+    {
+        if (str_starts_with($model, 'gemini')) {
+            $apiKey = env(self::GEMINI_API_KEY_ENV);
+            if (!$apiKey) throw new \Exception('Gemini API Key is not set.');
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+            $payload = [
+                'contents' => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
+                'generationConfig' => [ 'temperature' => $jsonMode ? 0.5 : 0.7, 'maxOutputTokens' => $jsonMode ? 1200 : 512, 'responseMimeType' => $jsonMode ? 'application/json' : 'text/plain', ],
+            ];
+            $response = Http::timeout(100)->post($url, $payload);
+            if (!$response->successful()) {
+                Log::error('Gemini API request failed: ' . $response->body());
+                throw new \Exception('Failed to get a response from Gemini.');
+            }
+            return [ 'content' => $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '', 'model_name' => 'Gemini 1.5 Flash', ];
+        } elseif (str_starts_with($model, 'mistral')) {
+            $apiKey = env(self::MISTRAL_API_KEY_ENV);
+            if (!$apiKey) throw new \Exception('Mistral API Key is not set.');
+            $payload = [ 'model' => $model, 'messages' => [['role' => 'user', 'content' => $prompt]], 'temperature' => $jsonMode ? 0.5 : 0.7, 'max_tokens' => $jsonMode ? 1200 : 512, ];
+            if($jsonMode) { $payload['response_format'] = ['type' => 'json_object']; }
+            $response = Http::timeout(100)->withToken($apiKey)->post(self::MISTRAL_CHAT_API_URL, $payload);
+            if (!$response->successful()) {
+                Log::error('Mistral API request failed: ' . $response->body());
+                throw new \Exception('Failed to get a response from Mistral AI.');
+            }
+            return [ 'content' => $response->json()['choices'][0]['message']['content'] ?? '', 'model_name' => $model, ];
+        }
+        throw new \Exception('Invalid AI model selected.');
+    }
+    
+    private function gatherDataForSummary(): array
+    {
+        $sevenDaysAgo = Carbon::now()->subDays(7);
+        $recentSalesData = Order::where('status', 'delivered')->where('date_ordered', '>=', $sevenDaysAgo)->join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')->join('products', 'exclusive_deals.product_id', '=', 'products.id')->select('products.generic_name', 'orders.quantity', DB::raw('orders.quantity * exclusive_deals.price as revenue'), DB::raw('DATE(orders.date_ordered) as date'))->orderBy('date_ordered', 'desc')->get();
+        $overallStats = [ 'total_revenue_last_7_days' => $recentSalesData->sum('revenue'), 'total_orders_last_7_days' => $recentSalesData->count(), 'average_order_value_last_7_days' => $recentSalesData->count() > 0 ? $recentSalesData->sum('revenue') / $recentSalesData->count() : 0, ];
+        $inactiveProducts = Product::whereDoesntHave('orders', fn($q) => $q->where('date_ordered', '>=', Carbon::now()->subDays(14)))->limit(5)->pluck('generic_name');
+        $lowStockProducts = Inventory::join('products', 'inventories.product_id', '=', 'products.id')->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->orderBy('total_quantity', 'asc')->limit(5)->get();
+        return [ 'current_date' => Carbon::now('Asia/Manila')->format('Y-m-d'), 'upcoming_season' => match (Carbon::now()->addMonth()->month) { 3,4,5 => 'Summer', 6,7,8,9,10,11 => 'Rainy', default => 'Neutral' }, 'overall_stats_last_7_days' => $overallStats, 'recent_sales_details' => $recentSalesData->toArray(), 'low_stock_products' => $lowStockProducts->toArray(), 'inactive_products_last_14_days' => $inactiveProducts->toArray(), ];
+    }
+    
+    private function createExecutiveSummaryPrompt(array $data): string
+    {
+        $json_data = json_encode($data, JSON_PRETTY_PRINT);
+        return <<<PROMPT
+You are a world-class business analyst for an e-commerce company in the Philippines. Analyze the provided data and generate a concise "Executive Summary" for the CEO.
+Your output MUST be a single, valid JSON object with this exact structure:
 {
-    // Query to get deducted quantities (removed location filter)
-    $deductedQuantities = DB::table('orders')
-        ->join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-        ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-        ->where('orders.status', 'delivered')
-        ->whereYear('orders.updated_at', $year)
-        ->whereMonth('orders.updated_at', $month)
-        ->select(
-            'products.generic_name',
-            DB::raw('SUM(orders.quantity) as total_deducted')
-        )
-        ->groupBy('products.generic_name')
-        ->orderBy('total_deducted', 'DESC')
-        ->limit(10)
-        ->get();
-
-    return response()->json([
-        'labels' => $deductedQuantities->pluck('generic_name'),
-        'deductedData' => $deductedQuantities->pluck('total_deducted')
-    ]);
+  "kpis": [ { "label": "Key Metric Name", "value": "Value with units (e.g., ₱, %)", "trend": "up|down|stable" } ],
+  "anomalies": [ { "type": "positive|negative|warning", "message": "A concise description of the anomaly." } ],
+  "recommendations": [ { "message": "A short, actionable recommendation." } ]
 }
+- **KPIs:** Identify 2-3 critical KPIs from the data.
+- **Anomalies:** Detect significant events or deviations.
+- **Recommendations:** Provide 1-2 strategic, actionable recommendations.
+- Use professional business English. All monetary values are in Philippine Peso (PHP).
+
+Here is the business data:
+$json_data
+PROMPT;
+    }
+
+    private function createChartAnalysisPrompt(array $chartData): string
+    {
+        $promptParts = [];
+        foreach ($chartData as $chartId => $data) {
+            $promptParts[] = "Chart '{$data['name']}':";
+            $labels = json_encode($data['labels']);
+            $values = json_encode($data['values']);
+            $promptParts[] = "Labels: {$labels}";
+            $promptParts[] = "Data: {$values}\n";
+        }
+        $fullData = implode("\n", $promptParts);
+        return "As a business analytics expert, review the given chart data. Identify key trends, anomalies, and provide a single, concise paragraph (3-7 sentences) of actionable insights for a CEO. Focus on the business implications rather than just stating the numbers. Use Philippine Peso (₱) for currency values. Data: \n{$fullData}";
+    }
+
+    private function getDefaultSummaryStructure(string $errorMessage): array
+    {
+        return [
+            'kpis' => [['label' => 'System Status', 'value' => 'Error', 'trend' => 'stable']],
+            'anomalies' => [['type' => 'negative', 'message' => $errorMessage]],
+            'recommendations' => [['message' => 'Please check the system logs or try again later.']]
+        ];
+    }
+    
+    public function getInventoryLevels($locationId = null)
+    {
+        $query = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'));
+
+        // If a locationId is provided and is not null/empty, filter the query.
+        if ($locationId) {
+            $query->where('inventories.location_id', $locationId);
+        }
+
+        $inventoryData = $query->groupBy('products.generic_name')
+            ->orderBy('total_quantity', 'ASC')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'labels' => $inventoryData->pluck('generic_name'),
+            'inventoryData' => $inventoryData->pluck('total_quantity')
+        ]);
+    }
+
+    public function getFilteredDeductedQuantities($year, $month, $locationId = null)
+    {
+        $deductedQuery = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->where('orders.status', 'delivered')
+            ->whereYear('orders.updated_at', $year)
+            ->whereMonth('orders.updated_at', $month);
+
+        if ($locationId) {
+            // This assumes a relationship exists that can link an order to a location.
+            // A more direct link might be needed if this is too slow or inaccurate.
+            $deductedQuery->whereHas('exclusiveDeal.product.inventories', function($q) use ($locationId) {
+                $q->where('location_id', $locationId);
+            });
+        }
+
+        $deductedQuantities = $deductedQuery->select(
+                'products.generic_name',
+                DB::raw('SUM(orders.quantity) as total_deducted')
+            )
+            ->groupBy('products.generic_name')
+            ->orderBy('total_deducted', 'DESC')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'labels' => $deductedQuantities->pluck('generic_name'),
+            'deductedData' => $deductedQuantities->pluck('total_deducted')
+        ]);
+    }
+
+    public function getRevenueData($period, $year, $month = null, $week = null)
+    {
+        if (!in_array($period, ['day', 'week', 'month', 'year'])) {
+            return response()->json(['error' => 'Invalid period'], 400);
+        }
+
+        $query = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->where('orders.status', 'delivered')
+            ->whereYear('orders.date_ordered', $year);
+
+        switch ($period) {
+            case 'day':
+                if (!$month) return response()->json(['error' => 'Month required for daily data'], 400);
+                $query->whereMonth('orders.date_ordered', $month)
+                    ->select(DB::raw('DAY(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
+                    ->groupBy('period_value')->orderBy('period_value');
+                break;
+            case 'week':
+                 if (!$month) return response()->json(['error' => 'Month required for weekly data'], 400);
+                 $query->whereMonth('orders.date_ordered', $month)
+                    ->select(DB::raw('WEEK(orders.date_ordered, 1) - WEEK(DATE_FORMAT(orders.date_ordered, "%Y-%m-01"), 1) + 1 as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
+                    ->groupBy('period_value')->orderBy('period_value');
+                break;
+            case 'month':
+                $query->select(DB::raw('MONTH(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
+                    ->groupBy('period_value')->orderBy('period_value');
+                break;
+            case 'year':
+                 $query->select(DB::raw('YEAR(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
+                    ->groupBy('period_value')->orderBy('period_value');
+                break;
+        }
+
+        $data = $query->get()->keyBy('period_value');
+        $labels = [];
+        $values = [];
+        $valueMap = $data->pluck('total_revenue', 'period_value')->toArray();
+
+        switch ($period) {
+            case 'day':
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                for ($day = 1; $day <= $daysInMonth; $day++) {
+                    $labels[] = date('M j', mktime(0, 0, 0, $month, $day, $year));
+                    $values[] = $valueMap[$day] ?? 0;
+                }
+                break;
+            case 'week':
+                $date = new \DateTime("$year-$month-01");
+                $weeksInMonth = ceil(($date->format('t') + $date->format('N')) / 7);
+                for ($weekNum = 1; $weekNum <= $weeksInMonth; $weekNum++) {
+                    $labels[] = "Week " . $weekNum;
+                    $values[] = $valueMap[$weekNum] ?? 0;
+                }
+                break;
+            case 'month':
+                $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                for ($monthNum = 1; $monthNum <= 12; $monthNum++) {
+                    $labels[] = $monthNames[$monthNum - 1];
+                    $values[] = $valueMap[$monthNum] ?? 0;
+                }
+                break;
+            case 'year':
+                $startYear = Order::min(DB::raw('YEAR(date_ordered)')) ?? $year;
+                for ($y = $startYear; $y <= $year; $y++) {
+                    $labels[] = $y;
+                    $values[] = $valueMap[$y] ?? 0;
+                }
+                break;
+        }
+        
+        return response()->json(['labels' => $labels, 'values' => $values]);
+    }
+    
+    public function getTrendingProducts(Request $request)
+    {
+        // Suppress ONLY_FULL_GROUP_BY errors for this complex query
+        DB::statement("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+
+        $seasonFilter = $request->input('season', 'all');
+        $today = Carbon::now('Asia/Manila');
+        $startOfHistory = $today->copy()->subYears(2)->startOfYear(); // Use up to 2 years of data
+
+        // 1. Get all relevant historical sales data in one query
+        $historicalData = Order::where('status', 'delivered')
+            ->where('date_ordered', '>=', $startOfHistory)
+            ->join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select(
+                'products.id as product_id',
+                'products.generic_name',
+                'products.season_peak',
+                DB::raw('YEAR(orders.date_ordered) as year'),
+                DB::raw('MONTH(orders.date_ordered) as month'),
+                DB::raw('SUM(orders.quantity) as total_quantity')
+            )
+            ->groupBy('product_id', 'generic_name', 'season_peak', 'year', 'month')
+            ->get()
+            ->groupBy('product_id');
+
+        $allProducts = Product::all();
+        $predictions = [];
+
+        foreach ($allProducts as $product) {
+            $productData = $historicalData->get($product->id);
+            if (!$productData) continue;
+
+            $monthlyAverages = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $monthlyAverages[$m] = $productData->where('month', $m)->avg('total_quantity') ?? 0;
+            }
+            $historicalOverallAverage = collect($monthlyAverages)->avg();
+
+            $currentSales = $productData->where('year', $today->year)->where('month', '>=', $today->month-1)->where('month', '<=', $today->month)->sum('total_quantity') ?? 0;
+            $m2_sales = $productData->where('year', $today->copy()->subMonth()->year)->where('month', $today->copy()->subMonth()->month)->sum('total_quantity') ?? 0;
+            $m3_sales = $productData->where('year', $today->copy()->subMonths(2)->year)->where('month', '>=', $today->copy()->subMonths(2)->month)->where('month', '<=', $today->copy()->subMonths(1)->month)->sum('total_quantity') ?? 0;
+            $recentTrend = ($currentSales * 0.5) + ($m2_sales * 0.3) + ($m3_sales * 0.2);
+
+            $nextMonth = $today->copy()->addMonth();
+            $nextMonthHistoricalAvg = $monthlyAverages[$nextMonth->month] ?? 0;
+            $basePrediction = ($nextMonthHistoricalAvg * 0.6) + ($recentTrend * 0.4);
+
+            $nextMonthSeason = match ($nextMonth->month) {
+                3, 4, 5 => 'tag-init',
+                6, 7, 8, 9, 10, 11 => 'tag-ulan',
+                default => 'all-year',
+            };
+            
+            $seasonalMultiplier = 1.0;
+            if ($product->season_peak !== 'all-year') {
+                if ($product->season_peak === $nextMonthSeason) $seasonalMultiplier = 1.25;
+                else $seasonalMultiplier = 0.80;
+            }
+            $finalPrediction = $basePrediction * $seasonalMultiplier;
+
+            // --- NEW LOGIC FOR PERCENTAGE AND STATUS TEXT ---
+            $percentageChange = 0;
+            if ($currentSales > 0) {
+                $percentageChange = (($finalPrediction - $currentSales) / $currentSales) * 100;
+            } elseif ($finalPrediction > 0) {
+                $percentageChange = 100; // From 0 to something is a big jump
+            }
+
+            $statusText = '';
+            if ($percentageChange >= 25) {
+                $statusText = 'There is a strong potential for a significant increase in sales.';
+            } elseif ($percentageChange > 5) {
+                $statusText = 'A slight increase in sales is expected.';
+            } elseif ($percentageChange < -20) {
+                $statusText = 'There is a high possibility of a significant drop in sales.';
+            } elseif ($percentageChange < -5) {
+                $statusText = 'Sales may decrease in the coming month.';
+            } else {
+                $statusText = 'No significant change is expected in the sales forecast.';
+            }
+
+
+            $predictions[] = [
+                'id' => $product->id,
+                'generic_name' => $product->generic_name,
+                'season_peak' => $product->season_peak,
+                'current_sales' => round($currentSales),
+                'next_month_prediction' => round($finalPrediction),
+                'historical_avg' => round($historicalOverallAverage, 2),
+                'prediction_percentage_change' => round($percentageChange),
+                'prediction_status_text' => $statusText,
+            ];
+        }
+
+        $predictionsCollection = collect($predictions);
+        if ($seasonFilter !== 'all') {
+            $predictionsCollection = $predictionsCollection->filter(fn($p) => $p['season_peak'] === $seasonFilter);
+        }
+        
+        $trendingProducts = $predictionsCollection->sortByDesc('current_sales')->take(10)->values();
+        $predictedPeaks = $predictionsCollection->sortByDesc('next_month_prediction')->take(6)->values();
+
+        return response()->json([
+            'trending_products' => $trendingProducts,
+            'predicted_peaks' => $predictedPeaks
+        ]);
+    }
 }

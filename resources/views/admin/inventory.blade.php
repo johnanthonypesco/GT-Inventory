@@ -132,7 +132,7 @@
                     {{-- Search --}}
 
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                        <button onclick="window.location.href='{{ route('upload.receipt') }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
+                       <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
@@ -161,7 +161,7 @@
     </main>
 
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ request()->is('admin/inventory/search/product') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ request()->is('admin/inventory/search/product') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
@@ -208,6 +208,11 @@
                                 <td class="flex items-center gap-4 justify-center">
                                     <button onclick="addstock('{{ $product->id }}', '{{ $generic_name }} - {{ $brand_name }}')" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
+                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', '{{$generic_name}}', '{{$brand_name}}', '{{$product->form}}', '{{$product->strength}}')">
+                                        <i class="fa-regular fa-pen-to-square mr-2"></i>
+                                        Edit
+                                    </button>
+
                                     <x-delete-button route="admin.destroy.product" routeid="{{$product->id}}" method="DELETE" id="delete"/>
                                 </td>
                             </tr>
@@ -229,7 +234,7 @@
         $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength']);
     @endphp
 
-    <div class="w-full {{ $failedToRegister ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
+    <div class="w-full {{ $failedToRegister && old('form_type') !== "edit-product" ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeregisterproductmodal"/>
             {{-- Form for register new product --}}
@@ -237,13 +242,13 @@
                 @csrf
 
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('generic_name') }}" :errorChecker="$errors->first('generic_name')"/>
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
 
-                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('brand_name') }}" :errorChecker="$errors->first('brand_name')"/>
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('form_type') !== 'edit-product' ? old('brand_name') : '' }}  " :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('brand_name') : null"/>
 
-                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form') }}" :errorChecker="$errors->first('form')"/>
+                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form_type') !== 'edit-product' ? old('form') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('form') : null"/>
 
-                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative" value="{{ old('strength') }}" :errorChecker="$errors->first('strength')"/>
+                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative" value="{{ old('form_type') !== 'edit-product' ? old('strength') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('strength') : null"/>
 
                 <x-submit-button id="addproductBtn"/>
             </form>
@@ -442,6 +447,38 @@
             </form>
         </div>
     </div>
+
+
+    {{-- EDIT REGISTERED PRODUCTS MODAL --}}
+    @php
+        $errorPresentInEdit = old('form_type') === 'edit-product';
+    @endphp
+    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[1000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-registered">        
+        <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose click="editRegisteredProduct" />
+
+            <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset">
+                @csrf
+                @method('PUT')
+
+                <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> Updating Product ID: {{ $errorPresentInEdit ? old("id")  : '' }} </h1>
+                <input type="hidden" name="id" id="edit-prod-id" value="{{ $errorPresentInEdit ? old('id') : '' }}">
+                <input type="hidden" name="form_type" value="edit-product">
+                
+                <x-label-input label="Generic Name:" inputid="edit-prod-generic" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('generic_name') }}"  :errorChecker="$errorPresentInEdit ? $errors->first('generic_name') : null " />
+                    
+                <x-label-input label="Brand Name:" inputid="edit-prod-brand" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('brand_name')}}" :errorChecker="$errorPresentInEdit ? $errors->first('brand_name') : null" />
+
+                <x-label-input label="Form:" inputid="edit-prod-form" name="form" type="text" for="form" divclass="mt-5" placeholder="Enter Form" value="{{  old('form') }}" :errorChecker="$errorPresentInEdit ? $errors->first('form') : null" />
+
+                <x-label-input label="Strength:" inputid="edit-prod-strength" name="strength" type="text" for="strength" divclass="mt-5" placeholder="Enter strength" value="{{ old('strength') }}" :errorChecker="$errorPresentInEdit ? $errors->first('strength') : null" />
+                
+                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> Save Changes </button>
+            </form>
+        </div>
+    </div>
+    {{-- EDIT REGISTERED PRODUCTS MODAL --}}
+
 
    {{-- Transfer Inventory Modal --}}
 <div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 ">
