@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\ImmutableHistory;
 use DB;
 use Carbon\Carbon;
 use Zxing\QrReader;
@@ -294,6 +295,7 @@ class InventoryController extends Controller
 
     public function deductInventory(Request $request)
     {
+        // dd("yeppers");
         try {
             // ✅ Extract Data from Request
             $data = $request->all();
@@ -349,6 +351,31 @@ class InventoryController extends Controller
                     'status'     => 'delivered',
                     'updated_at' => now()
                 ]);
+
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+                $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+                
+                $companyDeets = $orderArchiveArray['user']['company'];
+                $province = $orderArchiveArray['user']['company']['location']['province'];
+                $employeeDeets = $orderArchiveArray['user'];
+
+                $productDeets = $orderArchiveArray['exclusivedeal']['product'];
+                $productPrice = $orderArchiveArray['exclusivedeal']['price'];
+                
+                ImmutableHistory::createOrFirst([
+                    'province' => $province,
+                    'company' => $companyDeets["name"],
+                    'employee' => $employeeDeets["name"],
+                    'date_ordered' => Carbon::parse($orderArchiveArray["date_ordered"])->addDay()->toDateString(), // i added 1 more day because the QR data is somehow behind by 1 day???
+                    'status' => $orderArchiveArray["status"],
+                    'generic_name' => $productDeets["generic_name"],
+                    'brand_name' => $productDeets["brand_name"],
+                    'form' => $productDeets["form"],
+                    'quantity' => $orderArchiveArray["quantity"],
+                    'price' => $productPrice,
+                    'subtotal' => $productPrice * $orderArchiveArray["quantity"],
+                ]);
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
 
                 // ✅ Step 6: Process and store the signature
                 $signaturePath = null;
@@ -485,6 +512,32 @@ class InventoryController extends Controller
                     'status'     => 'delivered',
                     'updated_at' => now()
                 ]);
+
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+                $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+                
+                $companyDeets = $orderArchiveArray['user']['company'];
+                $province = $orderArchiveArray['user']['company']['location']['province'];
+                $employeeDeets = $orderArchiveArray['user'];
+
+                $productDeets = $orderArchiveArray['exclusivedeal']['product'];
+                $productPrice = $orderArchiveArray['exclusivedeal']['price'];
+                
+                ImmutableHistory::createOrFirst([
+                    'province' => $province,
+                    'company' => $companyDeets["name"],
+                    'employee' => $employeeDeets["name"],
+                    'date_ordered' => Carbon::parse($orderArchiveArray["date_ordered"])->addDay()->toDateString(), // i added 1 more day because the QR data is somehow behind by 1 day???
+                    'status' => $orderArchiveArray["status"],
+                    'generic_name' => $productDeets["generic_name"],
+                    'brand_name' => $productDeets["brand_name"],
+                    'form' => $productDeets["form"],
+                    'quantity' => $orderArchiveArray["quantity"],
+                    'price' => $productPrice,
+                    'subtotal' => $productPrice * $orderArchiveArray["quantity"],
+                ]);
+                // SIGRAE CODE FOR ARCHIVAL PURPOSES
+
 
                 // Record the scan
                 ScannedQrCode::create([

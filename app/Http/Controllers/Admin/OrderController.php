@@ -166,8 +166,10 @@ class OrderController extends Controller
     }
 
     public function updateOrder(Request $request, Order $order) {
+        
         $validate = $request->validate([
             'mother_div' => 'required|string',
+            'customer_id' => 'required|string', //this is the damn order ID
 
             'province' => 'required|string',
             'company' => 'required|string',
@@ -181,12 +183,49 @@ class OrderController extends Controller
             'price' => 'required|integer',
             'subtotal' => 'required|integer',
         ]);
-
         $validate = array_map('strip_tags', $validate);
+
+        // TO DEDUCT THE DAMN STOCKS
+        $orderDeets = Order::with(['user.company.location', 'exclusivedeal.product'])->where('id', '=', $validate['customer_id'])->first();
+
+        if ($validate['status'] === 'delivered') {
+            // params for the near expiry filter
+            $today = Carbon::today();
+            $threshold = Carbon::today()->addYears(3);
+    
+            $inventory = Inventory::where('location_id',$orderDeets->user->company->location->id)
+            ->where('product_id', $orderDeets->exclusive_deal->product->id)
+            ->whereBetween('expiry_date', [$today, $threshold]) // only deduct from stocks that are going to expire in a month
+            ->where('quantity', '>', $validate['quantity']) // will only take from stocks that can supply the need
+            ->orderBy('expiry_date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->first();
+    
+            // dd($inventory);
+
+            if (!$inventory) { // will reject the update until stocks have been found
+                return back()->with("manualUpdateFailed", true);
+            }
+
+            // MIND YOU WHAT IF THE ORDER QUANTITY IS 800 BUT NO SINGULAR STOCK CAN SUPPLY THAT? THE CONDITION WILL FAIL BECAUSE IT ONLY TAKES INTO ACCOUNT ONLY ONE SINGULAR STOCK RECORD, IF THERE WAS TWO STOCK RECORDS LIKE 200 ON ONE AND THE OTHER IS 600, TECHNICALLY IT WOULD COUNT AND PASS THE IF CONDITION, BUT THE CURRENT ONE WILL FAIL BECAUSE IT ONLY DOES SINGULAR COMPARISONS. I WILL FIX THIS ONCE IT BECOMES MORE RELEVANT 
+            // 
+            // --SIGRAE GYAD DAMN IT
+
+            if ($inventory->quantity >= $validate['quantity']) {
+                $inventory->update([
+                    'quantity' => $inventory->quantity - $validate['quantity']
+                ], ['inventory_id' => $inventory->inventory_id]);
+
+                // dd("deducted successfully");
+            } else {
+                dd("inventory stock not enough");
+            }
+        }
+        // TO DEDUCT THE DAMN STOCKS
 
         $order->update($validate);
 
-        $mother = $validate['mother_div'];
+        $mother = $validate['mother_div']; // save our mother :)
 
         // ADD TO THE ORDER HISTORY ARCHIVE IF DELIVERED OR CANCELLED
         if ($validate['status'] === 'delivered' || $validate['status'] ===  "cancelled") {
@@ -206,6 +245,8 @@ class OrderController extends Controller
                 'subtotal' => $validate['subtotal'],
             ]);
         }
+
+        // dd($inventory);
 
         return to_route('admin.order')->with("update-success", $mother);
     }

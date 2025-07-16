@@ -280,6 +280,10 @@
         {{-- Add New Order Modal --}}
         
         {{-- Update Order Status Modal --}}
+        @if (session("manualUpdateFailed"))
+            <script> alert("INSUFFICIENT STOCK: Please restock the product to update the status to delivered") </script>
+        @endif
+        
         <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
