@@ -4,23 +4,23 @@
         <hr class="mt-2">
     </div>
 
-    <li class="list-none flex flex-col p-2 gap-[8px] h-full">
-        <a href="{{ route('admin.dashboard') }}" class="text-md">
-            <i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard
+    <li class="list-none flex flex-col p-2 gap-[3px] h-full">
+        <a href="{{ route('admin.dashboard') }}" class="text-sm">
+            <i class="fa-solid fa-gauge text-[#005382] text-sm"></i>Dashboard
         </a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <a href="{{ route('admin.inventory') }}" class="text-md">
-                <i class="fa-solid fa-boxes-stacked text-[#005382] text-md"></i>Inventory
+            <a href="{{ route('admin.inventory') }}" class="text-sm">
+                <i class="fa-solid fa-boxes-stacked text-[#005382] text-sm"></i>Inventory
             </a>
-            <a href="{{ route('admin.sales') }}" class="text-md">
-                <i class="fa-solid fa-print text-[#005382] text-md"></i>Sales Reports
+            <a href="{{ route('admin.sales') }}" class="text-sm">
+                <i class="fa-solid fa-print text-[#005382] text-sm"></i>Sales Reports
             </a>
             
-            <a href="{{ route('admin.productlisting') }}" class="text-md">
-                <i class="fa-solid fa-list-check text-[#005382] text-md"></i>Product Deals
+            <a href="{{ route('admin.productlisting') }}" class="text-sm">
+                <i class="fa-solid fa-list-check text-[#005382] text-sm"></i>Product Deals
             </a>
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-md relative">
+            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-sm relative">
                 <i class="fa-brands fa-rocketchat text-[#005382]"></i>Chat
                 @if ($adminsidebar_counter > 0)
                     <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
@@ -29,30 +29,30 @@
                 @endif
             </a>
             
-            <a href="{{ route('superadmin.account.index') }}" class="text-md whitespace-nowrap">
-                <i class="fa-solid fa-bars-progress text-[#005382] text-md"></i>Manage Accounts
+            <a href="{{ route('superadmin.account.index') }}" class="text-sm whitespace-nowrap">
+                <i class="fa-solid fa-bars-progress text-[#005382] text-sm"></i>Manage Accounts
             </a>
             
-            <a href="{{ route('admin.order') }}" class="text-md">
-                <i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders
+            <a href="{{ route('admin.order') }}" class="text-sm">
+                <i class="fa-solid fa-cart-shopping text-[#005382] text-sm"></i>Orders
             </a>
 
-            <a href="{{ route('admin.history') }}" class="text-md">
-                <i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History
+            <a href="{{ route('admin.history') }}" class="text-sm">
+                <i class="fa-solid fa-clock-rotate-left text-[#005382] text-sm"></i>Order History
             </a>
             
 
-            <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-md"></i>History Log</a>
+            <a href="{{ route ('admin.historylog')}}" class="text-sm"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-sm"></i>History Log</a>
 
-            <a href="{{ route ('admin.stafflocation')}}" class="text-md"><i class="fa-solid fa-map-location-dot text-[#005382] text-md"></i>Staff Location</a>
+            <a href="{{ route ('admin.stafflocation')}}" class="text-sm"><i class="fa-solid fa-map-location-dot text-[#005382] text-sm"></i>Staff Location</a>
         @endif
 
         @if (auth('staff')->check())
-            <a href="{{ route('admin.order') }}" class="text-md">
-                <i class="fa-solid fa-cart-shopping text-[#005382] text-md"></i>Orders
+            <a href="{{ route('admin.order') }}" class="text-sm">
+                <i class="fa-solid fa-cart-shopping text-[#005382] text-sm"></i>Orders
             </a>
 
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-md relative">
+            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-sm relative">
                 <i id="navBarCounter" class="fa-brands fa-rocketchat"></i>Chat
                 @if ($adminsidebar_counter > 0)
                     <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
@@ -64,8 +64,8 @@
 
         <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
             @csrf
-            <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full">
-                <i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout
+            <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full">
+                <i class="fa-solid fa-right-from-bracket text-white text-sm"></i>Logout
             </button>
         </form>    
     </li>

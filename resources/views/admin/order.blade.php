@@ -353,7 +353,7 @@
                 Orders That Cannot Be Fulfilled:
             </h1>
 
-           <div class="h-[76vh] overflow-auto">
+           <div class="h-[70vh] overflow-auto">
                 @foreach ($insufficients as $orderName => $orders)
                 <table>
                     <thead>
@@ -405,24 +405,26 @@
                 Summary of Products That Cannot Fulfill Orders:
             </h1>
     
-            <table class="w-full text-left border border-gray-300">
+            <div class="h-[70vh] overflow-auto">
+                <table>
                 <thead>
-                    <tr class="bg-gray-200 text-gray-700">
-                        <th class="py-2 px-4">Product Name</th>
-                        <th class="py-2 px-4">Available Stock</th>
-                        <th class="py-2 px-4">Total Ordered</th>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Available Stock</th>
+                        <th>Total Ordered</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($insufficientSummary as $item)
-                        <tr class="border-t border-gray-300">
-                            <td class="py-2 px-4">{{ $item['product'] }}</td>
-                            <td class="py-2 px-4">{{ $item['available'] }}</td>
-                            <td class="py-2 px-4">{{ $item['ordered'] }}</td>
+                        <tr>
+                            <td>{{ $item['product'] }}</td>
+                            <td>{{ $item['available'] }}</td>
+                            <td>{{ $item['ordered'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     

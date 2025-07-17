@@ -34,10 +34,11 @@
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%] p-4">
+    <main class="md:w-full h-full md:ml-[16%] md:p-4 p-2">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '5' }} gap-3 items-center mt-5">
+        <div class="md:h-[550px] h-[700px] mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '4' }} gap-3 items-center mt-5">
             <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
             <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
             <x-admin.dashboardcard title="Cancelled Orders" image="cancel.png" count="{{ $cancelledOrders }}"/>
@@ -52,277 +53,277 @@
                 <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
             @endif
         </div>
+                {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
+            @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
+            <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
+                {{-- Unified Controls --}}
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-brain mr-3 text-purple-600"></i>
+                        AI-Powered Analysis
+                    </h2>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                            <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
+                            <option value="mistral-small-latest">Mistral AI (Small)</option>
+                        </select>
+                        <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                            <i class="fas fa-redo-alt"></i> Refresh Analysis
+                        </button>
+                        <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                            <i class="far fa-clock mr-1"></i>
+                            <span id="ai-timer"></span>
+                        </div>
+                    </div>
+                </div>
 
-        {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
-        @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
-        <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
-            {{-- Unified Controls --}}
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-brain mr-3 text-purple-600"></i>
-                    AI-Powered Analysis
-                </h2>
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                        <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
-                        <option value="mistral-small-latest">Mistral AI (Small)</option>
-                    </select>
-                    <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                        <i class="fas fa-redo-alt"></i> Refresh Analysis
+                <hr class="my-4 border-gray-200">
+
+                {{-- Part 1: Executive Summary --}}
+                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+                <div id="ai-summary-content">
+                    <div class="loader">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-lg font-semibold">Loading AI summary...</span>
+                    </div>
+                </div>
+                
+                <hr class="my-6 border-gray-200">
+
+                {{-- Part 2: Chart Analysis --}}
+                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
+                <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
+                    <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
+                    <small id="aiModelName" class="text-gray-400 mt-2"></small>
+                </div>
+                <div class="flex justify-end mt-3">
+                    <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
+                        <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
                     </button>
-                    <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
-                        <i class="far fa-clock mr-1"></i>
-                        <span id="ai-timer"></span>
-                    </div>
                 </div>
             </div>
+            @endif
+            {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
 
-            <hr class="my-4 border-gray-200">
 
-            {{-- Part 1: Executive Summary --}}
-            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
-            <div id="ai-summary-content">
-                <div class="loader">
-                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span class="text-lg font-semibold">Loading AI summary...</span>
+            @if(!$currentUser instanceof \App\Models\Staff)
+                <div class="mt-5 bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
+                    <ul>
+                        @forelse($lowStockProducts as $product)
+                            <li class="text-red-600">{{ $product->generic_name }} - {{ $product->total_quantity }} units left</li>
+                        @empty
+                            <li class="text-green-600">No low stock products.</li>
+                        @endforelse
+                    </ul>
                 </div>
-            </div>
+            @endif
             
-            <hr class="my-6 border-gray-200">
+            @if(!$currentUser instanceof \App\Models\Staff)
+            <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
+                    <div class="flex-1 flex flex-col gap-4">
+                        <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            <option value="all">Show All Charts</option>
+                            <option value="revenue">Revenue Chart Only</option>
+                            <option value="deductions">Products Delivered Only</option>
+                            <option value="performance">Product Performance Only</option>
+                            <option value="inventory">Inventory Levels Only</option>
+                            <option value="trends">Product Trends & Predictions Only</option>
+                            <option value="orderStatus">Order Status Distribution Only</option>
+                            <option value="custom">Custom Selection</option>
+                        </select>
 
-            {{-- Part 2: Chart Analysis --}}
-            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
-            <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
-                <small id="aiModelName" class="text-gray-400 mt-2"></small>
-            </div>
-            <div class="flex justify-end mt-3">
-                 <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
-                    <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
-                </button>
-            </div>
-        </div>
-        @endif
-        {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
-
-
-        @if(!$currentUser instanceof \App\Models\Staff)
-            <div class="mt-5 bg-white p-4 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
-                <ul>
-                    @forelse($lowStockProducts as $product)
-                        <li class="text-red-600">{{ $product->generic_name }} - {{ $product->total_quantity }} units left</li>
-                    @empty
-                        <li class="text-green-600">No low stock products.</li>
-                    @endforelse
-                </ul>
-            </div>
-        @endif
-        
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
-            <div class="flex flex-col md:flex-row md:items-center gap-3">
-                <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
-                <div class="flex-1 flex flex-col gap-4">
-                    <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                        <option value="all">Show All Charts</option>
-                        <option value="revenue">Revenue Chart Only</option>
-                        <option value="deductions">Products Delivered Only</option>
-                        <option value="performance">Product Performance Only</option>
-                        <option value="inventory">Inventory Levels Only</option>
-                        <option value="trends">Product Trends & Predictions Only</option>
-                        <option value="orderStatus">Order Status Distribution Only</option>
-                        <option value="custom">Custom Selection</option>
-                    </select>
-
-                    <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <div class="flex flex-col gap-3">
-                            <h4 class="text-sm font-medium text-gray-700">Select Charts to Display:</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="revenue" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Revenue</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="deductions" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Products Delivered</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="performance" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Product Performance</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="inventory" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Inventory Levels</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Product Trends & Predictions</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Order Status</span>
-                                </label>
+                        <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div class="flex flex-col gap-3">
+                                <h4 class="text-sm font-medium text-gray-700">Select Charts to Display:</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="revenue" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Revenue</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="deductions" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Products Delivered</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="performance" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Product Performance</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="inventory" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Inventory Levels</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Product Trends & Predictions</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Order Status</span>
+                                    </label>
+                                </div>
+                                <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Apply Selection
+                                </button>
                             </div>
-                            <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Apply Selection
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+            @endif
+            @if(!$currentUser instanceof \App\Models\Staff)
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
+                <div class="space-y-4 md:space-y-6" id="leftCharts">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
+                            <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
+                            <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Time Period</label>
+                                <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month" selected>Monthly</option>
+                                    <option value="year">Yearly</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="revenueYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="revenueMonthContainer">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                                <select id="revenueMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(1, 12) as $month)
+                                        <option value="{{ $month }}" {{ $month == date('n') ? 'selected' : '' }}>
+                                            {{ date('F', mktime(0, 0, 0, $month, 10)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="revenueWeekContainer" class="hidden">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
+                                <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                            </div>
+                            <div class="flex items-end">
+                                <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
+                                    Update Chart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
+                            <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
+                            <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                                <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @for($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Locations</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
+                        <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
+                                <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Locations</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 md:space-y-6" id="rightCharts">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
+                        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
+                                <select id="seasonFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">All Seasons</option>
+                                    <option value="tag-init">Summer Season</option>
+                                    <option value="tag-ulan">Rainy Season</option>
+                                    <option value="all-year">All Year Products</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="trendYearFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 2, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
+
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
+                            <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
+                            <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
+                        </div>
+                        <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-        @endif
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
-            <div class="space-y-4 md:space-y-6" id="leftCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
-                        <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Time Period</label>
-                            <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="day">Daily</option>
-                                <option value="week">Weekly</option>
-                                <option value="month" selected>Monthly</option>
-                                <option value="year">Yearly</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="revenueYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div id="revenueMonthContainer">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="revenueMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(1, 12) as $month)
-                                    <option value="{{ $month }}" {{ $month == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $month, 10)) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div id="revenueWeekContainer" class="hidden">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
-                            <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
-                        </div>
-                        <div class="flex items-end">
-                            <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
-                                Update Chart
-                            </button>
-                        </div>
-                    </div>
-                     <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
-                        <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Locations</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
-                    <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
-                            <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Locations</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
-                </div>
-            </div>
-
-            <div class="space-y-4 md:space-y-6" id="rightCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
-                    <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
-                            <select id="seasonFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="all">All Seasons</option>
-                                <option value="tag-init">Summer Season</option>
-                                <option value="tag-ulan">Rainy Season</option>
-                                <option value="all-year">All Year Products</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="trendYearFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 2, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
-
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
-                    </div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
-                    <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
-                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
-                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
-                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
-                    </div>
-                    <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
-                </div>
-            </div>
-        </div>
-        @endif
     </main>
 
     <script>
