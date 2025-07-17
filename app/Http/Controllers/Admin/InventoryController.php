@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use DB;
+
 use Carbon\Carbon;
 use Zxing\QrReader;
 use App\Models\Order;
@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Admin\HistorylogController;
+use Illuminate\Support\Facades\DB;
 
 
 class InventoryController extends Controller
@@ -270,221 +271,234 @@ class InventoryController extends Controller
 
 
 
-    public function deductInventory(Request $request)
-    {
-        try {
-            // ✅ Extract Data from Request
-            $data = $request->all();
-            $orderId     = $data['order_id'] ?? null;
-            $productName = $data['product_name'] ?? null;
-            $batchNumber = $data['batch_number'] ?? null;
-            $expiryDate  = $data['expiry_date'] ?? null;
-            $location    = $data['location'] ?? null;
-            $quantity    = $data['quantity'] ?? 1;
-            $signature   = $request->file('signature'); // Get uploaded signature file
+   public function deductInventory(Request $request)
+{
+    // A database transaction ensures all database queries succeed or none of them do.
+    // This prevents partial updates and keeps your data consistent.
+    DB::beginTransaction();
 
-            Log::info("Received QR Data:", $data); // Debug log
+    try {
+        // ✅ Extract Data from Request
+        $data = $request->all();
+        $orderId = $data['order_id'] ?? null;
+        $productName = $data['product_name'] ?? null;
+        $batchNumber = $data['batch_number'] ?? null; // Keep for logging purposes
+        $expiryDate = $data['expiry_date'] ?? null;   // Keep for logging purposes
+        $location = $data['location'] ?? null;
+        $quantity = $data['quantity'] ?? 1;
+        $signature = $request->file('signature');
 
-            // ✅ Check if QR code has already been scanned
-            if (ScannedQrCode::where('order_id', $orderId)->exists()) {
-                return response()->json(['message' => '❌ Error: This QR code has already been scanned!'], 400);
-            }
+        Log::info("Deducting inventory for Order ID: {$orderId}", $data);
 
-            // ✅ Step 1: Get `location_id`
-            $locationId = Location::where('province', $location)->value('id');
-            if (!$locationId) {
-                return response()->json(['message' => '❌ Error: Location "' . $location . '" not found in the database'], 400);
-            }
-
-            // ✅ Step 2: Get `product_id`
-            $productId = Product::where('generic_name', $productName)->value('id');
-            if (!$productId) {
-                return response()->json(['message' => '❌ Error: Product "' . $productName . '" not found in the database'], 400);
-            }
-
-            // ✅ Step 3: Find inventory using `batch_number` and `expiry_date`
-            $inventory = Inventory::where('location_id', $locationId)
-                                  ->where('product_id', $productId)
-                                  ->where('batch_number', $batchNumber)
-                                  ->where('expiry_date', $expiryDate)
-                                  ->where('quantity', '>', 0)
-                                  ->orderBy('expiry_date', 'asc')
-                                  ->orderBy('created_at', 'asc')
-                                  ->first();
-
-            if (!$inventory) {
-                return response()->json(['message' => '❌ Error: Inventory not found for batch "' . $batchNumber . '" at location "' . $location . '"'], 400);
-            }
-
-            // ✅ Step 4: Deduct the quantity
-            if ($inventory->quantity >= $quantity) {
-                $inventory->update([
-                    'quantity' => $inventory->quantity - $quantity
-                ]);
-
-                // ✅ Step 5: Update Order Status
-                Order::where('id', $orderId)->update([
-                    'status'     => 'delivered',
-                    'updated_at' => now()
-                ]);
-
-                // ✅ Step 6: Process and store the signature
-                $signaturePath = null;
-                if ($signature) {
-                    // Generate a filename for the signature
-                    $fileName = "signatures/signature_{$orderId}.png";
-
-                    // Store the image manually using Storage::disk('public')
-                    Storage::disk('public')->put($fileName, file_get_contents($signature->getRealPath()));
-
-                    // Save only the path in the database
-                    $signaturePath = $fileName;
-                }
-
-                // ✅ Step 7: Record the scan
-                ScannedQrCode::create([
-                    'order_id'      => $orderId,
-                    'product_name'  => $productName,
-                    'batch_number'  => $batchNumber,
-                    'expiry_date'   => $expiryDate,
-                    'location'      => $location,
-                    'quantity'      => $quantity,
-                    'scanned_at'    => now(),
-                    'signature'     => $signaturePath, // Store signature file path
-                ]);
-
-                return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
-            } else {
-                return response()->json([
-                    'message' => '❌ Error: Not enough stock available. Requested: ' . $quantity . ', Available: ' . $inventory->quantity
-                ], 400);
-            }
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => '❌ Server error: ' . $e->getMessage(),
-                'line'    => $e->getLine(),
-                'file'    => $e->getFile()
-            ], 500);
+        // ✅ Check if QR code has already been scanned
+        if (ScannedQrCode::where('order_id', $orderId)->exists()) {
+            // Using an exception allows the 'catch' block to handle the response
+            throw new \Exception('This QR code has already been scanned!');
         }
+
+        // ✅ Get location_id and product_id
+        $locationId = Location::where('province', $location)->value('id');
+        if (!$locationId) {
+            throw new \Exception('Location "' . $location . '" not found in the database');
+        }
+
+        $productId = Product::where('generic_name', $productName)->value('id');
+        if (!$productId) {
+            throw new \Exception('Product "' . $productName . '" not found in the database');
+        }
+
+        // ✅ MODIFIED: Find ALL available batches for the product
+        // We no longer filter by a specific batch number here.
+        // `lockForUpdate()` prevents two simultaneous orders from using the same stock.
+        $inventories = Inventory::where('location_id', $locationId)
+            ->where('product_id', $productId)
+            ->where('quantity', '>', 0)
+            ->orderBy('expiry_date', 'asc') // First-Expiry-First-Out (FEFO)
+            ->orderBy('created_at', 'asc')
+            ->lockForUpdate() // Crucial for preventing overselling
+            ->get();
+
+        // ✅ Check total available quantity across all batches
+        $totalAvailable = $inventories->sum('quantity');
+        if ($totalAvailable < $quantity) {
+            throw new \Exception('Not enough stock available. Requested: ' . $quantity . ', Available: ' . $totalAvailable);
+        }
+
+        // ✅ MODIFIED: Loop through batches and deduct quantity sequentially
+        $quantityToDeduct = $quantity;
+        foreach ($inventories as $inventory) {
+            if ($quantityToDeduct <= 0) {
+                break; // Stop when the order is fulfilled
+            }
+
+            $deductFromThisBatch = min($inventory->quantity, $quantityToDeduct);
+
+            $inventory->update([
+                'quantity' => $inventory->quantity - $deductFromThisBatch
+            ]);
+
+            $quantityToDeduct -= $deductFromThisBatch;
+        }
+
+        // ✅ Update Order Status
+        Order::where('id', $orderId)->update([
+            'status' => 'delivered',
+            'updated_at' => now()
+        ]);
+
+        // ✅ Process and store the signature
+        $signaturePath = null;
+        if ($signature) {
+            $fileName = "signatures/signature_{$orderId}.png";
+            Storage::disk('public')->put($fileName, file_get_contents($signature->getRealPath()));
+            $signaturePath = $fileName;
+        }
+
+        // ✅ Record the scan
+        ScannedQrCode::create([
+            'order_id' => $orderId,
+            'product_name' => $productName,
+            'batch_number' => $batchNumber, // Stored for reference
+            'expiry_date' => $expiryDate,   // Stored for reference
+            'location' => $location,
+            'quantity' => $quantity,
+            'scanned_at' => now(),
+            'signature' => $signaturePath,
+        ]);
+        
+        // If everything was successful, commit the transaction
+        DB::commit();
+
+        return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
+
+    } catch (\Exception $e) {
+        // If any error occurred, roll back all database changes
+        DB::rollBack();
+
+        // Log the detailed error
+        Log::error("Inventory deduction failed: " . $e->getMessage());
+
+        return response()->json([
+            'message' => '❌ Error: ' . $e->getMessage()
+        ], 400);
     }
+}
 
 
 
-        public function uploadQrCode(Request $request)
-        {
-            try {
+      public function uploadQrCode(Request $request)
+{
+    // Use a database transaction for data integrity.
+    DB::beginTransaction();
+    
+    // Define $path outside the try block so it can be accessed in the catch block for cleanup.
+    $path = null;
 
-                if (Auth::guard('staff')->check()) {
-                    return response()->json(['message' => 'Unauthorized: Staff cannot upload QR codes'], 403);
-                }
-                // Validate uploaded QR code image
-                $request->validate([
-                    'qr_code' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                ]);
-
-                // Store uploaded image temporarily
-                $path = $request->file('qr_code')->store('temp_qr_codes');
-
-                // Read QR code data
-                $qrReader = new QrReader(storage_path('app/private/' . $path));
-                $qrData = $qrReader->text();
-
-                // Delete temp file
-                // unlink(storage_path('app/public' . $path));
-
-                if (!$qrData) {
-                    return response()->json(['message' => 'Error: Unable to read QR code.'], 400);
-                }
-
-                // Convert JSON string to array
-                $data = json_decode($qrData, true);
-
-                if (!$data) {
-                    return response()->json(['message' => 'Error: Invalid QR code format.'], 400);
-                }
-
-                Log::info("Uploaded QR Code Data:", $data);
-
-                // Extract order details
-                $orderId     = $data['order_id'] ?? null;
-                $productName = $data['product_name'] ?? null;
-                $batchNumber = $data['batch_number'] ?? null;
-                $expiryDate  = $data['expiry_date'] ?? null;
-                $location    = $data['location'] ?? null;
-                $quantity    = $data['quantity'] ?? 1;
-
-                // Check if QR code was already scanned
-                if (ScannedQrCode::where('order_id', $orderId)->exists()) {
-                    return response()->json(['message' => '⚠️ Error: This QR code has already been used!'], 400);
-                }
-
-                // Get `location_id`
-                $locationId = Location::where('province', $location)->value('id');
-
-                if (!$locationId) {
-                    return response()->json(['message' => 'Error: Location not found'], 400);
-                }
-
-                // Get `product_id`
-                $productId = Product::where('generic_name', $productName)->value('id');
-
-                if (!$productId) {
-                    return response()->json(['message' => 'Error: Product not found'], 400);
-                }
-
-                // Find inventory
-                $inventory = Inventory::where('location_id', $locationId)
-                                      ->where('product_id', $productId)
-                                      ->where('batch_number', $batchNumber)
-                                      ->where('expiry_date', $expiryDate)
-                                      ->where('quantity', '>', 0)
-                                      ->orderBy('expiry_date', 'asc')
-                                      ->orderBy('created_at', 'asc')
-                                      ->first();
-
-                if (!$inventory) {
-                    return response()->json(['message' => 'Error: Inventory not found'], 400);
-                }
-
-                // Deduct the quantity
-                // Inventory::where('inventory_id', $inventory->inventory_id)->update([
-                //     'quantity'   => $inventory->quantity - $quantity,
-                //     'updated_at' => now()
-                // ]);
-
-                 if ($inventory->quantity >= $quantity) {
-                $inventory->update([
-                    'quantity' => $inventory->quantity - $quantity
-                ], ['inventory_id' => $inventory->inventory_id]);
-                }
-
-                Order::where('id', $orderId)->update([
-                    'status'     => 'delivered',
-                    'updated_at' => now()
-                ]);
-
-                // Record the scan
-                ScannedQrCode::create([
-                    'order_id'      => $orderId,
-                    'product_name'  => $productName,
-                    'batch_number'  => $batchNumber,
-                    'expiry_date'   => $expiryDate,
-                    'location'      => $location,
-                    'quantity'      => $quantity,
-                    'scanned_at'    => now(),
-                ]);
-
-                return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
-
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => '❌ Server error: ' . $e->getMessage(),
-                    'line'    => $e->getLine(),
-                    'file'    => $e->getFile()
-                ], 500);
-            }
+    try {
+        if (Auth::guard('staff')->check()) {
+            throw new \Exception('Unauthorized: Staff cannot upload QR codes', 403);
         }
+        
+        $request->validate([
+            'qr_code' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Store the file on the default 'local' disk (storage/app/temp_qr_codes)
+        $path = $request->file('qr_code')->store('temp_qr_codes');
+
+        // ✅ MODIFIED: Get the absolute path using the Storage facade for reliability.
+        $fullPath = Storage::path($path);
+        $qrReader = new QrReader($fullPath);
+        $qrData = $qrReader->text();
+
+        // Clean up the temporary file immediately after reading it.
+        Storage::delete($path);
+        $path = null; // Set path to null after deletion.
+
+        if (!$qrData || !($data = json_decode($qrData, true))) {
+            throw new \Exception('Invalid or unreadable QR code.');
+        }
+
+        Log::info("Uploaded QR Code Data:", $data);
+
+        // --- Inventory Deduction Logic ---
+        $orderId = $data['order_id'] ?? null;
+        $productName = $data['product_name'] ?? null;
+        $batchNumber = $data['batch_number'] ?? null;
+        $expiryDate = $data['expiry_date'] ?? null;
+        $location = $data['location'] ?? null;
+        $quantity = $data['quantity'] ?? 1;
+
+        if (ScannedQrCode::where('order_id', $orderId)->exists()) {
+            throw new \Exception('This QR code has already been used!');
+        }
+        
+        $locationId = Location::where('province', $location)->value('id');
+        if (!$locationId) {
+            throw new \Exception('Location not found in the database.');
+        }
+
+        $productId = Product::where('generic_name', $productName)->value('id');
+        if (!$productId) {
+            throw new \Exception('Product not found in the database.');
+        }
+
+        $inventories = Inventory::where('location_id', $locationId)
+            ->where('product_id', $productId)
+            ->where('quantity', '>', 0)
+            ->orderBy('expiry_date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->lockForUpdate()
+            ->get();
+            
+        $totalAvailable = $inventories->sum('quantity');
+        if ($totalAvailable < $quantity) {
+            throw new \Exception('Not enough stock available. Requested: ' . $quantity . ', Available: ' . $totalAvailable);
+        }
+
+        $quantityToDeduct = $quantity;
+        foreach ($inventories as $inventory) {
+            if ($quantityToDeduct <= 0) break;
+
+            $deductFromThisBatch = min($inventory->quantity, $quantityToDeduct);
+            $inventory->update(['quantity' => $inventory->quantity - $deductFromThisBatch]);
+            $quantityToDeduct -= $deductFromThisBatch;
+        }
+
+        Order::where('id', $orderId)->update([
+            'status' => 'delivered',
+            'updated_at' => now()
+        ]);
+
+        ScannedQrCode::create([
+            'order_id' => $orderId,
+            'product_name' => $productName,
+            'batch_number' => $batchNumber,
+            'expiry_date' => $expiryDate,
+            'location' => $location,
+            'quantity' => $quantity,
+            'scanned_at' => now(),
+        ]);
+
+        DB::commit();
+
+        return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // If an error happened after the file was stored but before it was deleted, clean it up.
+        if ($path && Storage::exists($path)) {
+            Storage::delete($path);
+        }
+
+        $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 400;
+
+        return response()->json([
+            'message' => '❌ Error: ' . $e->getMessage()
+        ], $statusCode);
+    }
+}
 
         public function transferInventory(Request $request)
         {
