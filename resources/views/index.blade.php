@@ -36,8 +36,8 @@
                     at your fingertips, no matter where you are.
                 </p>
                 <div class="flex gap-5">
-                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Inquire Now</a>
-                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold">Reach Us</a>
+                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</a>
+                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold">About Us</a>
                 </div>
             </div>
             <div id="content-right" class="flex justify-center items-center lg:w-1/2">
