@@ -196,8 +196,25 @@ class InventoryController extends Controller
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
-            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
+            'img_file_path' => 'nullable|image|mimes:jpeg,png,jpg|max:30048', // 30MB limit
         ]);
+
+        if ($request->hasFile('img_file_path')) {
+            $file = $request->file('img_file_path');
+            
+            // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $targetDir = public_path('/products'); 
+
+            if (!is_dir($targetDir)) { // pag wala pang folder sa public
+                mkdir($targetDir, 0755, true);
+            }
+            
+            $file->move($targetDir, $filename);
+
+            // ganto na magiging itsura sa DB: "products/159357_image.jpg"
+            $validated['img_file_path'] = 'products/' . $filename;
+        }
 
         $validated = array_map('strip_tags', $validated);
 
@@ -216,8 +233,31 @@ class InventoryController extends Controller
             'brand_name' => 'string|min:3|max:120|nullable',
             'form' => 'string|min:3|max:120|required',
             'strength' => 'string|min:3|max:120|required',
-            'img_file_path' => 'string|nullable|max:255|regex:/^[\w\-\/\.]+$/',
+            'img_file_path' => 'nullable|image|mimes:jpeg,png,jpg|max:30048', // 30MB limit
         ]);
+
+        if ($request->hasFile('img_file_path')) {
+            $file = $request->file('img_file_path');
+            
+            // Deletes the old one
+            $oldImage = Product::findOrFail($validated['id'])->img_file_path;
+            if ($oldImage && file_exists(public_path($oldImage)) && $oldImage !== 'image/default-product-pic.png') {
+                unlink(public_path($oldImage));
+            }
+
+            // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $targetDir = public_path('/products'); 
+
+            if (!is_dir($targetDir)) { // pag wala pang folder sa public
+                mkdir($targetDir, 0755, true);
+            }
+            
+            $file->move($targetDir, $filename);
+
+            // ganto na magiging itsura sa DB: "products/159357_image.jpg"
+            $validated['img_file_path'] = 'products/' . $filename;
+        }
 
         $validated = array_map('strip_tags', $validated);
 

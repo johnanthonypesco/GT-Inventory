@@ -31,12 +31,12 @@
                     @foreach ($listedDeals as $deal)
                         <div class="product-form shadow-sm shadow-[#005382]/50 flex flex-col lg:flex-row justify-between rounded-xl p-5 mt-2">
                             <div class="flex gap-2">
-                                <img src="{{ asset('image/download.jpg') }}" alt="" class="w-[100px] shadow-lg shadow-[#005382]/60 rounded-xl">
+                                <img src="{{ asset($deal->product->img_file_path) }}" alt="picture of product" class="w-[100px] h-[100px] shadow-lg shadow-[#005382]/60 rounded-xl bg-black/60 object-scale-down">
 
                                 <div class="flex flex-col gap-2 justify-center">
                                     <div class="flex gap-2">
                                         <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->product->form }}</p>
-                                        <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->deal_type }}</p>
+                                        {{-- <p class="border border-[#005382] rounded-xl px-2 w-fit">{{ $deal->deal_type }}</p> --}}
                                     </div>
 
                                     <h1 class="product-name">{{ $deal->product->generic_name ?? "No Generic Name" }}</h1>

@@ -5,6 +5,7 @@
 /public/storage
 /public/qrcodes/
 /public/uploads/
+/public/products/
 /storage/*.key
 /storage/pail
 /vendor
