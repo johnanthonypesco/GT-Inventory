@@ -150,6 +150,10 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
 
         Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
+
+        // Add these with your other superadmin routes
+Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 'checkEmail'])->name('superadmin.account.checkEmail');
+Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
         //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
 
 

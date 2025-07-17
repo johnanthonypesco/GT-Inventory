@@ -20,23 +20,28 @@ class MobileOrderHistoryController extends Controller
         $orders = Order::where('user_id', $user->id)
             ->whereIn('status', ['cancelled', 'delivered'])
             ->with('exclusive_deal.product')
-            ->orderBy('date_ordered', 'desc')
+            ->orderBy('created_at', 'desc') // <-- CHANGE 1: Sorting by creation date
             ->get()
             ->map(function ($order) {
+                // Safely get product details
+                $product = optional(optional($order->exclusive_deal)->product);
+
                 return [
                     'id' => $order->id,
-                    'date_ordered' => $order->date_ordered,
+                    'date_ordered' => $order->created_at, // <-- CHANGE 2: Use created_at value
                     'status' => $order->status,
                     'quantity' => $order->quantity,
-                    'total' => $order->quantity * optional($order->exclusive_deal)->price, // Prevent errors if null
+                    'total' => $order->quantity * optional($order->exclusive_deal)->price,
                     'exclusive_deal' => $order->exclusive_deal ? [
                         'id' => $order->exclusive_deal->id,
                         'price' => $order->exclusive_deal->price,
-                        'product' => $order->exclusive_deal->product ? [
-                            'brand_name' => $order->exclusive_deal->product->brand_name,
-                            'form' => $order->exclusive_deal->product->form,
-                            'strength' => $order->exclusive_deal->product->strength,
-                        ] : null
+                        'product' => [
+                            'brand_name' => $product->brand_name,
+                            'generic_name' => $product->generic_name, // Added for modal
+                            'form' => $product->form,
+                            'strength' => $product->strength,
+                            'img_file_path' => $product->img_file_path, // Added for modal image
+                        ]
                     ] : null,
                 ];
             });
@@ -63,23 +68,28 @@ class MobileOrderHistoryController extends Controller
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
+        
+        // Safely get product details
+        $product = optional(optional($order->exclusive_deal)->product);
 
         return response()->json([
             'success' => true,
             'order' => [
                 'id' => $order->id,
-                'date_ordered' => $order->date_ordered,
+                'date_ordered' => $order->created_at, // <-- CHANGE 3: Use created_at value
                 'status' => $order->status,
                 'quantity' => $order->quantity,
                 'total' => $order->quantity * optional($order->exclusive_deal)->price,
-                'exclusive_deal' => optional($order->exclusive_deal) ? [
+                'exclusive_deal' => $order->exclusive_deal ? [
                     'id' => $order->exclusive_deal->id,
                     'price' => $order->exclusive_deal->price,
-                    'product' => optional($order->exclusive_deal->product) ? [
-                        'brand_name' => $order->exclusive_deal->product->brand_name,
-                        'form' => $order->exclusive_deal->product->form,
-                        'strength' => $order->exclusive_deal->product->strength,
-                    ] : null
+                    'product' => [
+                        'brand_name' => $product->brand_name,
+                        'generic_name' => $product->generic_name, // Added for modal
+                        'form' => $product->form,
+                        'strength' => $product->strength,
+                        'img_file_path' => $product->img_file_path, // Added for modal image
+                    ]
                 ] : null,
             ]
         ]);

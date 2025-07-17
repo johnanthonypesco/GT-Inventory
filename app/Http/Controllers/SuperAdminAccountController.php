@@ -377,5 +377,30 @@ class SuperAdminAccountController extends Controller
     return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
 }
 
-    
+    public function checkEmail(Request $request)
+    {
+        $email = $request->input('email');
+        
+        $exists = Admin::where('email', $email)->exists() ||
+                  Staff::where('email', $email)->exists() ||
+                  User::where('email', $email)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    public function checkContact(Request $request)
+    {
+        $contact = $request->input('contact_number');
+
+        // Check only if the contact number is not empty
+        if (empty($contact)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = Admin::where('contact_number', $contact)->exists() ||
+                  Staff::where('contact_number', $contact)->exists() ||
+                  User::where('contact_number', $contact)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }
