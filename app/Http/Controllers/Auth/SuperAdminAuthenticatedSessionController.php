@@ -68,7 +68,7 @@ class SuperAdminAuthenticatedSessionController extends Controller
     
         return back()->withErrors([
             'email' => 'Invalid credentials.',
-        ]);
+        ])->onlyInput('email');
     }
     
 

@@ -25,7 +25,7 @@
             </h1>
 
             {{-- ✅ Email Field --}}
-            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border md:border-none" value="{{ old('username') }}"/>
+            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border md:border-none" value="{{ old('email') }}"/>
             @error('email') 
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>  
             @enderror
