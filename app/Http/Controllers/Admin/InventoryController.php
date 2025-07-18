@@ -77,10 +77,14 @@ class InventoryController extends Controller
         $nearExpiredStocks = $totalNearExpiry->groupBy(function ($stocks) {
             return $stocks->location->province;
         });
+        
+        // dd($inventory);
+
 
         return view('admin.inventory', [
             'products' => Product::all(),
 
+            // if the user searches in the registered products table, it will provide the data from the searched result instead
             'registeredProducts' => $search_type === 'product' ? $form_data : Product::all(),
 
             // if the user searches something it will provide the data from the searched result instead
@@ -116,9 +120,6 @@ class InventoryController extends Controller
                     ];
                 })->sortKeys();
             }),
-
-        // dd($inventory->toArray());
-
 
             // for the stock notifs as wells
             'expiryTotalCounts' => [
@@ -165,8 +166,10 @@ class InventoryController extends Controller
 
 
         if($type === "stock") {
-            $location_id = Location::where('province', $validated['location_filter'])
-            ->select('id')->first()->id;
+            $location = Location::where('province', $validated['location_filter'])
+            ->first();
+
+            $location_id = $location->id;
 
             // makes the where query on the Products table instead of the Inventory table
             $result =  Inventory::with(['product', 'location'])

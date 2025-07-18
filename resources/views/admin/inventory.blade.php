@@ -105,6 +105,16 @@
         </div>
         {{-- Filters Location --}}
 
+        @if ($inventories->isEmpty() && $currentSearch['type'] === "stock")
+            <script> 
+                alert("Nothing in Inventory Records Found. Reloading The Page!");
+                
+                setTimeout(() => {
+                    window.location.href = '{{ route('admin.inventory') }}';                    
+                }, 1000);
+            </script>
+        @endif
+
         @foreach ($inventories as $inventory)
             @php
                 $provinceName = $inventory->first()->location->province;
@@ -112,7 +122,7 @@
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $provinceName }}
+                Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
             </h1>
 
             <div class="flex flex-wrap justify-between items-center">
@@ -165,7 +175,7 @@
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
-
+            
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
                 <x-input name="search"

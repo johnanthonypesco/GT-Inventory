@@ -50,7 +50,12 @@
         id="{{ $id }}" 
         class="w-full p-2 border border-[#005382] rounded-lg outline-[#005382]"
         autocomplete="{{$autofill ? 'on' : 'off'}}"
-        list="search-options-{{$id}}-{{$location_filter}}"
+
+        @if ($searchType === 'stock')
+            list="search-options-{{$id}}-{{$location_filter}}"
+        @else
+            list="search-options-product"            
+        @endif
         value="{{ $currentSearch ? $currentSearch[0] . " - " . $currentSearch[1] : '' }}"
         onkeydown="if(event.key === 'Enter') {event.preventDefault()}"
         >

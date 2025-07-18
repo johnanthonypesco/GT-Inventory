@@ -211,6 +211,8 @@ class OrderController extends Controller
             // 
             // --SIGRAE GYAD DAMN IT
 
+            // KUYA HAS MADE A SOLUTION IN INVENTORYCONTROLLER
+
             if ($inventory->quantity >= $validate['quantity']) {
                 $inventory->update([
                     'quantity' => $inventory->quantity - $validate['quantity']
