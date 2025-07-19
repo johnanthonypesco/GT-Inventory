@@ -37,7 +37,7 @@
     <main class="md:w-full h-full md:ml-[16%] md:p-4 p-2">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="md:h-[550px] h-[700px] mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '4' }} gap-3 items-center mt-5">
             <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
             <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
