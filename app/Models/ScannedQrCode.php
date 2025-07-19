@@ -18,6 +18,7 @@ class ScannedQrCode extends Model
         'quantity',
         'scanned_at',
         'signature',
+        'affected_batches'
 
     ];
 

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use DB;
 use Carbon\Carbon;
 use Zxing\QrReader;
 use App\Models\Order;
@@ -10,6 +9,7 @@ use App\Models\Location;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use App\Models\ScannedQrCode;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -270,13 +270,10 @@ class InventoryController extends Controller
 
 
 
-   public function deductInventory(Request $request)
+ public function deductInventory(Request $request)
 {
-    // A database transaction ensures all queries succeed or none do.
     DB::beginTransaction();
-
     try {
-        // ✅ Step 1: Extract and validate data
         $data = $request->all();
         $orderId = $data['order_id'] ?? null;
         $productName = $data['product_name'] ?? null;
@@ -286,12 +283,10 @@ class InventoryController extends Controller
 
         Log::info("Initiating inventory deduction for Order ID: {$orderId}", $data);
 
-        // ✅ Step 2: Perform initial checks
         if (ScannedQrCode::where('order_id', $orderId)->exists()) {
             throw new \Exception('This QR code has already been scanned!');
         }
 
-        // This is the correct way to handle "not found" inside a transaction
         $locationId = Location::where('province', $location)->value('id');
         if (!$locationId) {
             throw new \Exception('Location "' . $location . '" not found in the database');
@@ -302,7 +297,6 @@ class InventoryController extends Controller
             throw new \Exception('Product "' . $productName . '" not found in the database');
         }
 
-        // ✅ Step 3: Find and lock all available batches for the product
         $inventories = Inventory::where('location_id', $locationId)
             ->where('product_id', $productId)
             ->where('quantity', '>', 0)
@@ -316,7 +310,7 @@ class InventoryController extends Controller
             throw new \Exception('Not enough stock available. Requested: ' . $quantity . ', Available: ' . $totalAvailable);
         }
 
-        // ✅ Step 4: Deduct from batches sequentially and create an audit trail
+        // ✅ 1. The audit trail array is correctly initialized here
         $quantityToDeduct = $quantity;
         $affectedBatches = [];
 
@@ -330,6 +324,7 @@ class InventoryController extends Controller
 
             $quantityToDeduct -= $deductFromThisBatch;
             
+            // ✅ 2. The array is correctly populated with details from each batch
             $affectedBatches[] = [
                 'batch_number' => $inventory->batch_number,
                 'expiry_date' => $inventory->expiry_date,
@@ -337,7 +332,6 @@ class InventoryController extends Controller
             ];
         }
 
-        // ✅ Step 5: Update related records
         Order::where('id', $orderId)->update([
             'status' => 'delivered',
             'updated_at' => now()
@@ -350,6 +344,7 @@ class InventoryController extends Controller
             $signaturePath = $fileName;
         }
 
+        // ✅ 3. The array is correctly JSON encoded and saved to the database
         ScannedQrCode::create([
             'order_id' => $orderId,
             'product_name' => $productName,
@@ -360,17 +355,12 @@ class InventoryController extends Controller
             'signature' => $signaturePath,
         ]);
         
-        // ✅ Step 6: Finalize the transaction
         DB::commit();
-
         return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
 
     } catch (\Exception $e) {
-        // This single block catches ALL errors and safely rolls back the transaction.
         DB::rollBack();
-
         Log::error("Inventory deduction failed for Order ID: {$orderId}. Error: " . $e->getMessage());
-
         return response()->json(['message' => '❌ Error: ' . $e->getMessage()], 400);
     }
 }
