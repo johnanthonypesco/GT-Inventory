@@ -431,6 +431,7 @@ class InventoryController extends Controller
             'quantity' => $orderArchiveArray["quantity"],
             'price' => $productPrice,
             'subtotal' => $productPrice * $orderArchiveArray["quantity"],
+            'order_id' => $orderId,
         ]);
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
 
@@ -466,7 +467,7 @@ class InventoryController extends Controller
         return response()->json(['message' => '❌ Error: ' . $e->getMessage()], 400);
     }
 }
-       public function uploadQrCode(Request $request)
+     public function uploadQrCode(Request $request)
 {
     // Use a database transaction for data integrity.
     DB::beginTransaction();
@@ -537,19 +538,30 @@ class InventoryController extends Controller
         }
 
         $quantityToDeduct = $quantity;
+        $affectedBatches = [];
+
         foreach ($inventories as $inventory) {
             if ($quantityToDeduct <= 0) break;
 
             $deductFromThisBatch = min($inventory->quantity, $quantityToDeduct);
-            $inventory->update(['quantity' => $inventory->quantity - $deductFromThisBatch]);
+            
+            $inventory->quantity -= $deductFromThisBatch;
+            $inventory->save();
+
             $quantityToDeduct -= $deductFromThisBatch;
+            
+            $affectedBatches[] = [
+                'batch_number' => $inventory->batch_number,
+                'expiry_date' => $inventory->expiry_date,
+                'deducted_quantity' => $deductFromThisBatch
+            ];
         }
 
+        // ✅ Step 5: Update related records
         Order::where('id', $orderId)->update([
             'status' => 'delivered',
             'updated_at' => now()
         ]);
-
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
         $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
         
@@ -561,6 +573,7 @@ class InventoryController extends Controller
         $productPrice = $orderArchiveArray['exclusivedeal']['price'];
         
         ImmutableHistory::createOrFirst([
+            'order_id' => $orderId,
             'province' => $province,
             'company' => $companyDeets["name"],
             'employee' => $employeeDeets["name"],
@@ -583,6 +596,8 @@ class InventoryController extends Controller
             'expiry_date' => $expiryDate,
             'location' => $location,
             'quantity' => $quantity,
+            'affected_batches' => json_encode($affectedBatches),
+
             'scanned_at' => now(),
         ]);
 

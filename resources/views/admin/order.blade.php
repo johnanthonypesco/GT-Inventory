@@ -191,18 +191,18 @@
                                                         @else
                                                             <div class="flex gap-1 items-center justify-center">
                                                                 <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
-                                                                'order-modal-{{ $employeeNameAndDate }}', {
-                                                                    province: '{{$provinceName}}',
-                                                                    company: '{{$companyName}}',
-                                                                    emp_name: '{{$separatedInModal[0]}}',
-                                                                    date_ordered: '{{$separatedInModal[1]}}',
-                                                                    generic: '{{$productInfo->generic_name}}',
-                                                                    brand: '{{$productInfo->brand_name}}',
-                                                                    form: '{{$productInfo->form}}',
-                                                                    quantity: {{$order->quantity}},
-                                                                    price: {{$order->exclusive_deal->price}},
-                                                                    subtotal: {{$order_calc}},
-                                                                })">
+    'order-modal-{{ $employeeNameAndDate }}', {
+    province: '{{$provinceName}}',
+    company: '{{$companyName}}',
+    employee: '{{$separatedInModal[0]}}',         // ✅ FIXED
+    date_ordered: '{{$separatedInModal[1]}}',
+    generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
+    brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
+    form: '{{$productInfo->form}}',
+    quantity: {{$order->quantity}},
+    price: {{$order->exclusive_deal->price}},
+    subtotal: {{$order_calc}},
+})">
                                                                     Change Status
                                                                 </button>
 
@@ -280,48 +280,67 @@
         {{-- Add New Order Modal --}}
         
         {{-- Update Order Status Modal --}}
-        @if (session("manualUpdateFailed"))
-            <script> alert("INSUFFICIENT STOCK: Please restock the product to update the status to delivered") </script>
-        @endif
-        
-        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+@if (session("manualUpdateFailed"))
+    <script>
+        // Get the actual error message from the session and display it
+        var errorMessage = @json(session('manualUpdateFailed'));
+        alert(errorMessage);
+    </script>
+@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
                 <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
                 
-                <form action="{{ route("admin.order.update", 0) }}" method="POST" class="overflow-y-auto h-fit max-h-[400px] flex flex-col gap-4 mt-5">
-                    @csrf
-                    @method("PUT")
-                    
-                    <input type="hidden" name="customer_id" id="id-container"></input>
-                    <input type="hidden" id="archive-province" name="province">
-                    <input type="hidden" id="archive-company" name="company">
-                    <input type="hidden" id="archive-employee" name="employee">
-                    <input type="hidden" id="archive-date-ordered" name="date_ordered">
-                    <input type="hidden" id="archive-generic-name" name="generic_name">
-                    <input type="hidden" id="archive-brand-name" name="brand_name">
-                    <input type="hidden" id="archive-form" name="form">
-                    <input type="hidden" id="archive-quantity" name="quantity">
-                    <input type="hidden" id="archive-price" name="price">
-                    <input type="hidden" id="archive-subtotal" name="subtotal">
+              -->
 
-                    <input type="hidden" id="status-id" name="status">
-                    <input type="hidden" id="mother-id" name="mother_div">
-                    
-                    <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
-                        PENDING
-                    </button>
-                    <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'completed')" type="button">
-                        COMPLETED
-                    </button>
-                    <button class="bg-blue-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'delivered')" type="button">
-                        DELIVERED
-                    </button>
-                    <button class="bg-red-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'cancelled')" type="button">
-                        CANCELLED
-                    </button>
-                </form>
+<form id="change-status-form" action="{{ route("admin.order.update", 0) }}" method="POST" class="overflow-y-auto h-fit max-h-[400px] flex flex-col gap-4 mt-5">
+    @csrf
+    @method("PUT")
+
+    <input type="hidden" name="order_id" id="id-container">
+    <input type="hidden" id="archive-province" name="province">
+    <input type="hidden" id="archive-company" name="company">
+    <input type="hidden" id="archive-employee" name="employee">
+    <input type="hidden" id="archive-date-ordered" name="date_ordered">
+    <input type="hidden" id="archive-generic-name" name="generic_name">
+    <input type="hidden" id="archive-brand-name" name="brand_name">
+    <input type="hidden" id="archive-form" name="form">
+    <input type="hidden" id="archive-quantity" name="quantity">
+    <input type="hidden" id="archive-price" name="price">
+    <input type="hidden" id="archive-subtotal" name="subtotal">
+
+    <input type="hidden" id="status-id" name="status">
+    <input type="hidden" id="mother-id" name="mother_div">
+
+    <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
+        PENDING
+    </button>
+    <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'completed')" type="button">
+        COMPLETED
+    </button>
+    <button class="bg-blue-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'delivered')" type="button">
+        DELIVERED
+    </button>
+    <button class="bg-red-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'cancelled')" type="button">
+        CANCELLED
+    </button>
+</form>
             </div>
+
+            @if (session('update-success'))
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Updated',
+            text: 'Status updated successfully and has been deducted',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
+
         </div>
         {{-- Update Order Status Modal --}}
 
@@ -432,7 +451,7 @@
 </body>
 </html>
 
-<script src="{{ asset('js/order.js') }}"></script>
+{{-- <script src="{{ asset('js/order.js') }}"></script> --}}
 
 <script>
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
@@ -465,4 +484,135 @@ function showInsufficientProducts() {
     const modal = document.getElementById('insufficientProductsModal');
     modal.classList.toggle('hidden');
 }
+</script>
+
+<script> 
+function viewOrder(id) {
+    var viewOrderModal = document.getElementById("order-modal-" + id);
+    viewOrderModal.classList.replace("hidden", "flex");
+}
+function closeOrderModal(id) {
+    var viewOrderModal = document.getElementById("order-modal-" + id);
+    viewOrderModal.classList.replace("flex", "hidden");
+}
+
+function addneworder() {
+    var addOrderModal = document.querySelector(".add-new-order-modal");
+    addOrderModal.style.display = "block";
+}
+function closeaddneworder() {
+    var addOrderModal = document.querySelector(".add-new-order-modal");
+    addOrderModal.style.display = "none";
+}
+
+function uploadqr() {
+    var uploadQrModal = document.querySelector(".upload-qr-modal");
+    uploadQrModal.style.display = "block";
+}
+
+function closeuploadqrmodal() {
+    var uploadQrModal = document.querySelector(".upload-qr-modal");
+    uploadQrModal.style.display = "none";
+}
+
+function showInsufficients() {
+    const summaryDiv = document.getElementById("insufficientsModal");
+
+    if(summaryDiv.classList.contains("hidden")) {
+        summaryDiv.classList.replace("hidden", "flex");
+    } else {
+        summaryDiv.classList.replace("flex", "hidden");
+    }
+}
+
+/**
+ * Open or close the “Change Status” modal and (when opening)
+ * populate every hidden input required by the backend.
+ *
+ * @param {number}  id             Order ID
+ * @param {string}  motherDiv      Row / card ID (used later for UI refresh)
+ * @param {object}  archivingDetails
+ *        {
+ *          province, company, employee, date_ordered,
+ *          generic_name, brand_name, form,
+ *          quantity, price, subtotal
+ *        }
+ */
+function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
+
+    const modal        = document.getElementById('change-status-modal');
+    const orderIdInput = document.getElementById('id-container');
+    const motherInput  = document.getElementById('mother-id');
+
+    /* Map every hidden field only once */
+    const fields = {
+        province     : document.getElementById('archive-province'),
+        company      : document.getElementById('archive-company'),
+        employee     : document.getElementById('archive-employee'),
+        date_ordered : document.getElementById('archive-date-ordered'),
+        generic_name : document.getElementById('archive-generic-name'),
+        brand_name   : document.getElementById('archive-brand-name'),
+        form         : document.getElementById('archive-form'),
+        quantity     : document.getElementById('archive-quantity'),
+        price        : document.getElementById('archive-price'),
+        subtotal     : document.getElementById('archive-subtotal')
+    };
+
+    /* Helper – assign every expected key, fallback to empty string */
+    const assignValues = data => {
+        Object.keys(fields).forEach(k => fields[k].value = data[k] ?? '');
+    };
+
+    /* ----- OPEN ----- */
+    if (modal.classList.contains('hidden')) {
+
+        modal.classList.replace('hidden', 'flex');
+
+        orderIdInput.value      = id;
+        orderIdInput.dataset.id = id;
+        motherInput.value       = motherDiv;
+
+        assignValues(archivingDetails);
+
+        // Remove after confirming everything works
+        console.log('Change-Status modal opened:', { id, archivingDetails });
+        return;
+    }
+
+    /* ----- CLOSE ----- */
+    modal.classList.replace('flex', 'hidden');
+
+    orderIdInput.value      = 0;
+    orderIdInput.dataset.id = 0;
+    motherInput.value       = '';
+
+    assignValues({});   // clear all hidden inputs
+}
+
+
+
+
+function changeStatus(form, statusType) {
+
+    const orderIdInput = document.getElementById('id-container');
+    const statusInput  = document.getElementById('status-id');
+    const orderId      = Number(orderIdInput.value);
+
+    if (!orderId) {
+        alert('Order ID is missing or invalid.');
+        return;
+    }
+
+    statusInput.value = statusType.toLowerCase();
+
+    /* Build action URL:  /admin/orders/{id} */
+    const baseUrl = "{{ url('admin/orders') }}";
+    form.action   = `${baseUrl}/${orderId}`;
+
+    if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
+        form.submit();
+    }
+}
+
+
 </script>
