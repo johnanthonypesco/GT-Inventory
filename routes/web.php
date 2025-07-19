@@ -37,6 +37,7 @@ use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
+use App\Http\Controllers\Admin\ContentmanagementController;
 
 
 
@@ -155,6 +156,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 'checkEmail'])->name('superadmin.account.checkEmail');
 Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
         //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
+
+        //5///////////////////////// << CONTENT MANAGEMENT ROUTES >> //////////////////////////////5//
+        Route::get('admin/contentmanagement', [ContentmanagementController::class, 'showContentmanagement'])->name('admin.contentmanagement');
 
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//

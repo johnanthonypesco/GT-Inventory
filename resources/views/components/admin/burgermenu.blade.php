@@ -26,6 +26,8 @@
         <a href="{{ route ('admin.history')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>Order History</a>
 
         <a href="{{ route ('admin.historylog')}}" class="text-md"><i class="fa-solid fa-clock-rotate-left text-[#005382] text-md"></i>History Log</a>
+        <a href="{{ route ('admin.contentmanagement')}}" class="text-sm"><i class="fa-solid fa-file text-[#005382] text-sm"></i>Manage Content</a>
+
 
     @endif
 
