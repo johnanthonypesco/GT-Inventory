@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+     <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -34,16 +34,21 @@
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%] p-4">
+    <main class="md:w-full h-full md:ml-[16%] md:p-4 p-2">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '5' }} gap-3 items-center mt-5">
+        <div class="md:h-[550px] h-[700px] mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '4' }} gap-3 items-center mt-5">
             <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
             <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
             <x-admin.dashboardcard title="Cancelled Orders" image="cancel.png" count="{{ $cancelledOrders }}"/>
             @if(!$currentUser instanceof \App\Models\Staff)
-                <x-admin.dashboardcard title="Total Revenue" image="pera.png" count="₱{{ number_format($totalRevenue, 2) }}"/>
+                <x-admin.dashboardcard 
+                    title="Total Revenue" 
+                    image="pera.png" 
+                    count="₱{{ number_format($totalRevenue, 0) }}"/>
             @endif
+
             @if($currentUser instanceof \App\Models\SuperAdmin)
                 <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesSuperAdmin ?? 0 }}"/>
             @elseif($currentUser instanceof \App\Models\Admin)
@@ -52,58 +57,79 @@
                 <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
             @endif
         </div>
-
-        {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
-        @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
-        <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
-            {{-- Unified Controls --}}
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-brain mr-3 text-purple-600"></i>
-                    AI-Powered Analysis
-                </h2>
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                        <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
-                        <option value="mistral-small-latest">Mistral AI (Small)</option>
-                    </select>
-                    <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                        <i class="fas fa-redo-alt"></i> Refresh Analysis
-                    </button>
-                    <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
-                        <i class="far fa-clock mr-1"></i>
-                        <span id="ai-timer"></span>
+                {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
+            @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
+            <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
+                {{-- Unified Controls --}}
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-brain mr-3 text-purple-600"></i>
+                        AI-Powered Analysis
+                    </h2>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                            <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
+                            <option value="mistral-small-latest">Mistral AI (Small)</option>
+                        </select>
+                        <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                            <i class="fas fa-redo-alt"></i> Refresh Analysis
+                        </button>
+                        <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                            <i class="far fa-clock mr-1"></i>
+                            <span id="ai-timer"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <hr class="my-4 border-gray-200">
+                <hr class="my-4 border-gray-200">
 
             {{-- Part 1: Executive Summary --}}
             <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+
+            {{-- Executive Summary Filter Controls --}}
+            <div class="flex flex-col sm:flex-row gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4">
+                <label for="summaryPeriodSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
+                <select id="summaryPeriodSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                    <option value="7d" selected>Last 7 Days</option>
+                    <option value="today">Today</option>
+                    <option value="this_week">This Week</option>
+                    <option value="this_month">This Month</option>
+                    <option value="this_year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <div id="summaryCustomRangeContainer" class="hidden flex flex-col sm:flex-row gap-2 items-center">
+                    <input type="date" id="summaryStartDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                    <span class="text-gray-500">to</span>
+                    <input type="date" id="summaryEndDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                </div>
+                <button id="applySummaryFilterBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto">
+                    <i class="fas fa-filter mr-1"></i> Apply
+                </button>
+            </div>
+
             <div id="ai-summary-content">
                 <div class="loader">
                     <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     <span class="text-lg font-semibold">Loading AI summary...</span>
                 </div>
             </div>
-            
+
             <hr class="my-6 border-gray-200">
 
-            {{-- Part 2: Chart Analysis --}}
-            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
-            <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
-                <small id="aiModelName" class="text-gray-400 mt-2"></small>
+                {{-- Part 2: Chart Analysis --}}
+                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
+                <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
+                    <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
+                    <small id="aiModelName" class="text-gray-400 mt-2"></small>
+                </div>
+                <div class="flex justify-end mt-3">
+                    <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
+                        <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
+                    </button>
+                </div>
             </div>
-            <div class="flex justify-end mt-3">
-                 <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
-                    <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
-                </button>
-            </div>
-        </div>
-        @endif
-        {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
+            @endif
+            {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
 
 
         @if(!$currentUser instanceof \App\Models\Staff)
@@ -118,7 +144,7 @@
                 </ul>
             </div>
         @endif
-        
+
         @if(!$currentUser instanceof \App\Models\Staff)
         <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
             <div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -135,201 +161,202 @@
                         <option value="custom">Custom Selection</option>
                     </select>
 
-                    <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <div class="flex flex-col gap-3">
-                            <h4 class="text-sm font-medium text-gray-700">Select Charts to Display:</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="revenue" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Revenue</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="deductions" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Products Delivered</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="performance" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Product Performance</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="inventory" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Inventory Levels</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Product Trends & Predictions</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-                                    <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-gray-700">Order Status</span>
-                                </label>
+                        <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div class="flex flex-col gap-3">
+                                <h4 class="text-sm font-medium text-gray-700">Select Charts to Display:</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="revenue" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Revenue</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="deductions" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Products Delivered</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="performance" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Product Performance</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="inventory" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Inventory Levels</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Product Trends & Predictions</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                        <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-700">Order Status</span>
+                                    </label>
+                                </div>
+                                <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Apply Selection
+                                </button>
                             </div>
-                            <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Apply Selection
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+            @endif
+            @if(!$currentUser instanceof \App\Models\Staff)
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
+                <div class="space-y-4 md:space-y-6" id="leftCharts">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
+                            <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
+                            <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Time Period</label>
+                                <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month" selected>Monthly</option>
+                                    <option value="year">Yearly</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="revenueYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="revenueMonthContainer">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                                <select id="revenueMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(1, 12) as $month)
+                                        <option value="{{ $month }}" {{ $month == date('n') ? 'selected' : '' }}>
+                                            {{ date('F', mktime(0, 0, 0, $month, 10)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="revenueWeekContainer" class="hidden">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
+                                <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                            </div>
+                            <div class="flex items-end">
+                                <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
+                                    Update Chart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
+                            <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
+                            <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
+                                <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @for($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Locations</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
+                        <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
+                                <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Locations</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 md:space-y-6" id="rightCharts">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
+                        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
+                                <select id="seasonFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">All Seasons</option>
+                                    <option value="tag-init">Summer Season</option>
+                                    <option value="tag-ulan">Rainy Season</option>
+                                    <option value="all-year">All Year Products</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
+                                <select id="trendYearFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    @foreach(range(date('Y'), date('Y') - 2, -1) as $year)
+                                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
+
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
+                            <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
+                            <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
+                        </div>
+                        <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
+                    </div>
+
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
+                        <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-        @endif
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
-            <div class="space-y-4 md:space-y-6" id="leftCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time</h3>
-                        <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Time Period</label>
-                            <select id="revenueTimePeriod" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="day">Daily</option>
-                                <option value="week">Weekly</option>
-                                <option value="month" selected>Monthly</option>
-                                <option value="year">Yearly</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="revenueYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div id="revenueMonthContainer">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="revenueMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(1, 12) as $month)
-                                    <option value="{{ $month }}" {{ $month == date('n') ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $month, 10)) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div id="revenueWeekContainer" class="hidden">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Week</label>
-                            <select id="revenueWeekFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
-                        </div>
-                        <div class="flex items-end">
-                            <button id="revenueUpdateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 sm:py-2 px-3 rounded-lg text-xs sm:text-sm transition-colors">
-                                Update Chart
-                            </button>
-                        </div>
-                    </div>
-                     <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)</h3>
-                        <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 5, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Month</label>
-                            <select id="deductedMonthFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Locations</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)</h3>
-                    <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
-                            <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Locations</option>
-                                @foreach($locations as $location)
-                                    <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="inventoryLevelsChartContainer"></div>
-                </div>
-            </div>
-
-            <div class="space-y-4 md:space-y-6" id="rightCharts">
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions</h3>
-                    <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Season</label>
-                            <select id="seasonFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="all">All Seasons</option>
-                                <option value="tag-init">Summer Season</option>
-                                <option value="tag-ulan">Rainy Season</option>
-                                <option value="all-year">All Year Products</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
-                            <select id="trendYearFilter" class="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                @foreach(range(date('Y'), date('Y') - 2, -1) as $year)
-                                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
-
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
-                    </div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
-                    <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
-                        <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
-                        <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
-                        <button id="lowSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200">Low Ordered</button>
-                    </div>
-                    <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
-                </div>
-
-                <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
-                    <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
-                    <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
-                </div>
-            </div>
-        </div>
-        @endif
     </main>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Global variables
         const chartInstances = {};
-        
+
         // --- UNIFIED AI ANALYSIS SCRIPT ---
         if (document.getElementById('ai-analysis-section')) {
             let executiveSummaryData = @json($executiveSummaryData);
@@ -344,6 +371,25 @@
             const speakAnalysisBtn = document.getElementById('speakAnalysisBtn');
             const aiModelNameSpan = document.getElementById('aiModelName');
 
+            // Summary filter elements
+            const summaryPeriodSelect = document.getElementById('summaryPeriodSelect');
+            const customRangeContainer = document.getElementById('summaryCustomRangeContainer');
+            const startDateInput = document.getElementById('summaryStartDate');
+            const endDateInput = document.getElementById('summaryEndDate');
+            const applySummaryFilterBtn = document.getElementById('applySummaryFilterBtn');
+
+            // Function to get summary filter parameters from the UI
+            function getSummaryFilterParams() {
+                const period = summaryPeriodSelect.value;
+                let startDate = '';
+                let endDate = '';
+                if (period === 'custom') {
+                    startDate = startDateInput.value;
+                    endDate = endDateInput.value;
+                }
+                return { period: period, start_date: startDate, end_date: endDate };
+            }
+
             function renderSummary(summary) {
                 if (!summary || !summary.kpis) {
                     summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI summary...</span></div>`;
@@ -351,12 +397,9 @@
                 }
                 let kpisHtml = summary.kpis.map(kpi => {
                     let trendIcon = '';
-
-                    console.log(kpi.trend);
-
                     if (kpi.trend === 'up') trendIcon = `<span class="text-green-500"><i class="fas fa-arrow-up"></i></span>`;
                     else if (kpi.trend === 'down') trendIcon = `<span class="text-red-500"><i class="fas fa-arrow-down"></i></span>`;
-                    else trendIcon = `<span class="text-gray-500"><i class="fas fa-minus"></i></span>`;
+                    else if (kpi.trend === 'stable' || kpi.trend === null) trendIcon = `<span class="text-gray-500"><i class="fas fa-minus"></i></span>`;
                     return `<div class="kpi-card p-4 rounded-lg shadow"><h4 class="text-sm font-medium text-gray-500 flex justify-between items-center">${kpi.label || 'N/A'} ${trendIcon}</h4><p class="text-2xl font-semibold text-gray-900">${kpi.value || 'N/A'}</p></div>`;
                 }).join('');
                 let anomaliesHtml = summary.anomalies.map(anomaly => {
@@ -367,7 +410,7 @@
                     return `<div class="anomaly-item ${anomaly.type} bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas ${iconClass} ${iconColor} mt-1"></i><p class="text-sm text-gray-700">${anomaly.message || 'No message.'}</p></div>`;
                 }).join('');
                 let recommendationsHtml = summary.recommendations.map(rec => `<div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3"><i class="fas fa-lightbulb mt-1"></i><p class="font-medium flex-1">${rec.message || 'No message.'}</p></div>`).join('');
-                
+
                 if (summary.kpis.length === 0) kpisHtml = `<p class="text-gray-700 col-span-1 md:col-span-3">No KPIs available.</p>`;
                 if (summary.anomalies.length === 0) anomaliesHtml = `<div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i><p class="text-sm text-green-700">No critical anomalies detected.</p></div>`;
                 if (summary.recommendations.length === 0) recommendationsHtml = `<div class="bg-gray-50 p-4 rounded-lg"><p class="text-sm text-gray-600">No specific recommendations.</p></div>`;
@@ -395,8 +438,7 @@
                     const diff = expiryDate - new Date();
                     if (diff <= 0) {
                         clearInterval(countdownInterval);
-                        timerEl.textContent = 'Expired. Refreshing...';
-                        getInitialSummary();
+                        timerEl.textContent = 'Expired. Refresh to update.';
                         return;
                     }
                     const minutes = Math.floor((diff / 1000 / 60) % 60);
@@ -404,9 +446,11 @@
                     timerEl.textContent = `Request resets in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 }, 1000);
             }
-            
-            function showLoadingState() {
-                summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI Summary...</span></div>`;
+
+            function showLoadingState(isChartAnalysisOnly = false) {
+                 if (!isChartAnalysisOnly) {
+                    summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI Summary...</span></div>`;
+                 }
                 chartAnalysisContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-md font-semibold ml-2">Analyzing Chart Data...</span></div>`;
                 aiModelNameSpan.textContent = '';
                 speakAnalysisBtn.classList.add('hidden');
@@ -424,11 +468,13 @@
             async function getCombinedAnalysis() {
                 if (window.isFetchingAi) return;
                 window.isFetchingAi = true;
-                
+
                 showLoadingState();
                 const selectedAiModel = aiModelSelect.value;
+                const summaryFilters = getSummaryFilterParams(); // Get the new filter values
                 const chartsToAnalyze = {};
                 document.querySelectorAll('.chart-container').forEach(container => {
+                    // Only include visible charts in the analysis
                     if (container.style.display !== 'none') {
                         const chartId = container.dataset.chartId;
                         const chartInstance = chartInstances[`${chartId}Chart`];
@@ -450,11 +496,12 @@
                         body: JSON.stringify({
                             request_type: 'combined_analysis',
                             ai_model: selectedAiModel,
-                            chart_data: chartsToAnalyze
+                            chart_data: chartsToAnalyze,
+                            summary_filters: summaryFilters // Pass filters to backend
                         })
                     });
                     if (!response.ok) { throw new Error( (await response.json()).error || 'Failed to fetch from server.'); }
-                    
+
                     const result = await response.json();
                     renderSummary(result.summary_data.summary);
                     startCountdown(result.summary_data.expires_at);
@@ -466,26 +513,24 @@
                     window.isFetchingAi = false;
                 }
             }
-            
-            async function getInitialSummary() {
-                 try {
-                     const response = await fetch("{{ route('admin.ai.handler') }}", {
-                         method: "POST",
-                         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-                         body: JSON.stringify({ request_type: 'executive_summary_only', ai_model: aiModelSelect.value })
-                     });
-                     if (!response.ok) { throw new Error((await response.json()).error || 'Failed to fetch initial summary.'); }
-                     
-                     const result = await response.json();
-                     executiveSummaryData = result.summary_data;
-                     renderSummary(executiveSummaryData.summary);
-                     startCountdown(executiveSummaryData.expires_at);
-                 } catch (error) {
-                     handleError(error);
-                 }
-            }
 
+            // --- Event Listeners ---
             refreshAiBtn.addEventListener('click', getCombinedAnalysis);
+            applySummaryFilterBtn.addEventListener('click', getCombinedAnalysis); // FIXED: This now calls the combined analysis.
+
+            summaryPeriodSelect.addEventListener('change', () => {
+                if (summaryPeriodSelect.value === 'custom') {
+                    customRangeContainer.classList.remove('hidden');
+                    // Set default dates for better UX
+                    endDateInput.value = new Date().toISOString().split('T')[0];
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // inclusive
+                    startDateInput.value = sevenDaysAgo.toISOString().split('T')[0];
+                } else {
+                    customRangeContainer.classList.add('hidden');
+                }
+            });
+
             speakAnalysisBtn.addEventListener('click', () => {
                 const analysisText = chartAnalysisContentEl.querySelector('p')?.textContent;
                 if (analysisText) {
@@ -495,21 +540,75 @@
                 }
             });
 
-            if (executiveSummaryData && new Date(executiveSummaryData.expires_at) > new Date()) {
-                renderSummary(executiveSummaryData.summary);
-                startCountdown(executiveSummaryData.expires_at);
-                if (executiveSummaryData.summary._model_used) {
-                    aiModelSelect.value = executiveSummaryData.summary._model_used;
-                }
-            } else {
-                getInitialSummary();
-            }
+            // Initial page load with combined analysis
+            getCombinedAnalysis();
         }
 
         // --- CHARTING LOGIC ---
         const chartsContainer = document.getElementById('chartsContainer');
         const leftCharts = document.getElementById('leftCharts');
         const rightCharts = document.getElementById('rightCharts');
+
+        // --- NEW: Chart Display Options & Filtering Logic ---
+        const chartFilterSelect = document.getElementById('chartFilter');
+        const customChartSelectionDiv = document.getElementById('customChartSelection');
+        const applyCustomChartsBtn = document.getElementById('applyCustomCharts');
+        const allChartContainers = document.querySelectorAll('#chartsContainer .chart-container');
+
+        function resizeAllCharts() {
+            // This function is critical to prevent charts from rendering incorrectly
+            // after their containers have been hidden and shown.
+            Object.values(chartInstances).forEach(chart => {
+                if (chart && typeof chart.resize === 'function') {
+                    chart.resize();
+                }
+            });
+        }
+
+        function applyChartFilter() {
+            const filterValue = chartFilterSelect.value;
+
+            // Show/hide the custom selection UI
+            customChartSelectionDiv.classList.toggle('hidden', filterValue !== 'custom');
+
+            if (filterValue === 'custom') {
+                // For custom, the 'Apply' button will handle the filtering, so we do nothing here.
+                return;
+            }
+
+            allChartContainers.forEach(container => {
+                const chartId = container.dataset.chartId;
+                const shouldShow = (filterValue === 'all') || (filterValue === chartId);
+                container.style.display = shouldShow ? 'block' : 'none';
+            });
+
+            // Resize charts after layout changes to ensure proper rendering
+            setTimeout(resizeAllCharts, 10);
+        }
+
+        function applyCustomFilter() {
+            const selectedCharts = [];
+            document.querySelectorAll('input[name="customChart"]:checked').forEach(checkbox => {
+                selectedCharts.push(checkbox.value);
+            });
+
+            allChartContainers.forEach(container => {
+                const chartId = container.dataset.chartId;
+                const shouldShow = selectedCharts.includes(chartId);
+                container.style.display = shouldShow ? 'block' : 'none';
+            });
+
+            // Resize charts after layout changes
+            setTimeout(resizeAllCharts, 10);
+        }
+
+        // Add event listeners for the new functionality
+        if (chartFilterSelect) {
+            chartFilterSelect.addEventListener('change', applyChartFilter);
+        }
+        if (applyCustomChartsBtn) {
+            applyCustomChartsBtn.addEventListener('click', applyCustomFilter);
+        }
 
         function destroyChart(canvasId) {
             if (chartInstances[canvasId]) {
@@ -522,10 +621,10 @@
             destroyChart(canvasId);
             const canvasContainer = document.getElementById(canvasId + 'Container');
             if (!canvasContainer) return null;
-            
-            canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`; 
+
+            canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`;
             const ctx = document.getElementById(canvasId)?.getContext('2d');
-            
+
             if (ctx) {
                 const newChart = new Chart(ctx, options);
                 chartInstances[canvasId] = newChart;
@@ -546,14 +645,14 @@
             const year = document.getElementById('revenueYearFilter')?.value;
             const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
             const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
-            
+
             showChartLoader('revenueChartContainer', 'Loading revenue data...');
 
             try {
                 const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
                 if (!response.ok) throw new Error('Network response error');
                 const data = await response.json();
-                
+
                 createChart('revenueChart', {
                     type: 'line',
                     data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
@@ -564,7 +663,7 @@
                 document.getElementById('revenueChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load revenue data.</p>';
             }
         }
-        
+
         function updatePerformanceChart(type) {
              const performanceData = {
                  mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
@@ -578,7 +677,7 @@
                  options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
              });
         }
-        
+
         async function updateDeductedChart() {
             const year = document.getElementById('deductedYearFilter')?.value;
             const month = document.getElementById('deductedMonthFilter')?.value;
@@ -593,7 +692,7 @@
                     data: { labels: data.labels, datasets: [{ label: 'Quantity Delivered', data: data.deductedData, backgroundColor: 'rgba(54, 162, 235, 0.6)', borderWidth: 1 }] },
                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Product' } } } }
                 });
-            } catch (error) { 
+            } catch (error) {
                 console.error('Error fetching deducted quantities:', error);
                 document.getElementById('deductedQuantitiesChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load delivered products data.</p>';
             }
@@ -602,7 +701,7 @@
         async function updateInventoryChart() {
             const locationId = document.getElementById('inventoryLocationFilter')?.value;
             const url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
-            
+
             showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
             try {
                 const response = await fetch(url);
@@ -613,12 +712,12 @@
                     data: { labels: data.labels, datasets: [{ label: 'Current Stock', data: data.inventoryData, backgroundColor: 'rgba(255, 99, 132, 0.6)', borderWidth: 1 }] },
                     options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Quantity' } } } }
                 });
-            } catch (error) { 
-                console.error('Error fetching inventory data:', error); 
+            } catch (error) {
+                console.error('Error fetching inventory data:', error);
                 document.getElementById('inventoryLevelsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load inventory data.</p>';
             }
         }
-        
+
         async function fetchAndUpdateTrendData() {
             const season = document.getElementById('seasonFilter')?.value;
             const year = document.getElementById('trendYearFilter')?.value;
@@ -629,7 +728,7 @@
                  const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
                  if (!response.ok) throw new Error('Network error');
                  const data = await response.json();
-                 
+
                  createChart('seasonalTrendsChart', {
                      type: 'bar',
                      data: {
@@ -642,7 +741,7 @@
                      },
                      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
                  });
-                 
+
                  predictionContainer.innerHTML = '';
                  if(data.predicted_peaks.length === 0) {
                       predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Walang available na prediksyon para sa filter na ito.</p>';
@@ -677,7 +776,7 @@
                           }
 
                           card.classList.add(borderColor);
-                          
+
                           card.innerHTML = `
                             <h4 class="font-semibold text-gray-800 mb-1 truncate">${p.generic_name}</h4>
                             <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
@@ -691,7 +790,7 @@
                      });
                  }
 
-            } catch(error) { 
+            } catch(error) {
                 console.error('Error fetching trend data:', error);
                 document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
                 predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nagkaroon ng error sa pag-analyze ng prediksyon.</p>';
@@ -712,7 +811,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
-        
+
         // --- Layout and Initialization ---
         function initializeSortable() {
             if(leftCharts) Sortable.create(leftCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
@@ -739,7 +838,7 @@
         };
 
         initialChartRenders();
-        
+
         // Event Listeners for Chart Filters
         document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
         document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
@@ -753,5 +852,34 @@
         document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
     });
     </script>
+    <!-- Location Tracking Script -->
+    @if(auth()->guard('staff')->check())
+    <script>
+        if (navigator.geolocation) {
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        fetch("{{ route('api.update-location') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                            }),
+                        });
+                    },
+                    function (error) {
+                        console.error("Error getting location: ", error);
+                    }
+                );
+            }, 10000); // Send location every 10 seconds
+        } else {
+            console.error("Geolocation is not supported.");
+        }
+    </script>
+    @endif
 </body>
 </html>

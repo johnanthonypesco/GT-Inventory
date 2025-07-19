@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product; // 1. Import the Product model
 use Illuminate\Http\Request;
 
 class PromotionalPageController extends Controller
 {
     public function showPromotionalPage()
     {
-        return view('index');
+        // 2. Fetch all products from the database
+        $products = Product::all(); 
+
+        // 3. Pass the $products variable to the view
+        return view('index', ['products' => $products]);
     }
 }

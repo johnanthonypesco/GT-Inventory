@@ -16,7 +16,6 @@ class MobileOrderController extends Controller
     {
         \Log::info("📌 Request Data:", $request->all());
     
-        // ✅ Use authenticated user instead of relying on `user_id` in request
         $user = Auth::user();
     
         if (!$user) {
@@ -25,7 +24,6 @@ class MobileOrderController extends Controller
     
         \Log::info("✅ Authenticated User:", ['user_id' => $user->id]);
     
-        // ✅ Validate request (No need to pass `user_id` in the request)
         $validated = $request->validate([
             'orders' => 'required|array',
             'orders.*.exclusive_deal_id' => 'required|exists:exclusive_deals,id',
@@ -45,25 +43,15 @@ class MobileOrderController extends Controller
                 ], 403);
             }
     
-            // $orders[] = [
-            //     'user_id' => $user->id, // ✅ Automatically use authenticated user ID
-            //     'exclusive_deal_id' => $item['exclusive_deal_id'],
-            //     'quantity' => $item['quantity'],
-            //     // 'date' => now(),
-            //     'status' => 'pending',
-            //     'created_at' => now(),
-            //     'updated_at' => now(),
-            // ];
-
             $orders[] = [
                 'user_id' => $user->id,
                 'exclusive_deal_id' => $item['exclusive_deal_id'],
                 'quantity' => $item['quantity'],
-                'date_ordered' => date('Y-m-d'),
+                'date_ordered' => now()->toDateString(), // Keep for record-keeping if needed
+                'status' => 'pending', // Default status
                 'created_at' => now(),
                 'updated_at' => now(),
             ];    
-        
         }
     
         try {
@@ -78,9 +66,6 @@ class MobileOrderController extends Controller
             ], 500);
         }
     }
-    
-    
-    
 
     public function index()
     {
@@ -92,76 +77,75 @@ class MobileOrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. No user authenticated.',
-                'debug' => request()->headers->all(), // Show request headers
             ], 401);
         }
     
-         $deals = ExclusiveDeal::where('company_id', $user->company_id)
-        ->with(['product' => function ($query) {
-            $query->select('id', 'brand_name', 'generic_name', 'form', 'strength', 'img_file_path');
-        }])
-        ->get();
+        $deals = ExclusiveDeal::where('company_id', $user->company_id)
+            ->with(['product' => function ($query) {
+                $query->select('id', 'brand_name', 'generic_name', 'form', 'strength', 'img_file_path');
+            }])
+            ->get();
 
-    // ✅ Ensure image paths are absolute
-    foreach ($deals as $deal) {
-        if ($deal->product->img_file_path) {
-            $deal->product->img_file_path = asset('image/download.jpg');
-        } else {
-            $deal->product->img_file_path = asset('image/download.jpg'); // Default image
+        // Ensure image paths are absolute and provide a default
+        foreach ($deals as $deal) {
+            if ($deal->product && $deal->product->img_file_path) {
+                // Assuming img_file_path is a full path or a path from 'public/storage'
+                $deal->product->img_file_path = asset('storage/' . $deal->product->img_file_path);
+            } else {
+                // Provide a default image if none exists
+                $deal->product->img_file_path = asset('image/download.jpg'); 
+            }
         }
-    }
-    return response()->json($deals);
-
-
-
-}
-
-
-public function getUserOrders()
-{
-    $user = Auth::user();
-
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized. Please log in again.',
-        ], 401);
+        return response()->json($deals);
     }
 
-    \Log::info("✅ Fetching orders for user:", ['user_id' => $user->id]);
+    public function getUserOrders()
+    {
+        $user = Auth::user();
 
-    $orders = Order::where('user_id', $user->id)
-        ->whereIn('status', ['pending', 'completed', 'partial-delivery'])
-        ->with(['exclusive_deal.product']) // ✅ Corrected relationship name
-        ->orderBy('date_ordered', 'desc')
-        ->get();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Please log in again.',
+            ], 401);
+        }
 
-    // ✅ Handle potential null values
-    $formattedOrders = $orders->map(function ($order) {
-        $exclusiveDeal = $order->exclusive_deal;
-        $product = $exclusiveDeal->product ?? null; // ✅ Avoids null reference errors
+        \Log::info("✅ Fetching orders for user:", ['user_id' => $user->id]);
 
-        return [
-            'orderId' => $order->id,
-            'dateOrdered' => $order->date_ordered, // ✅ Ensure consistency
-            'totalAmount' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
-            'status' => ucfirst($order->status),
-            'items' => [
-                [
-                    'brand' => $product->brand_name ?? 'Unknown',
-                    'generic' => $product->generic_name ?? 'Unknown',
-                    'form' => $product->form ?? 'Unknown',
-                    'strength' => $product->strength ?? 'Unknown',
-                    'quantity' => $order->quantity,
-                    'total' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
+        $orders = Order::where('user_id', $user->id)
+            // ✅ BINAGO: Pinalawak ang listahan ng status para mas maraming order ang makita
+            ->whereIn('status', ['pending', 'confirmed', 'delivered', 'cancelled', 'completed', 'partial-delivery'])
+            ->with(['exclusive_deal.product'])
+            // ✅ BINAGO: Inayos ang pag-sort para base sa 'created_at' (pinakabago una)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $formattedOrders = $orders->map(function ($order) {
+            $exclusiveDeal = $order->exclusive_deal;
+            $product = $exclusiveDeal->product ?? null;
+
+            return [
+                'orderId' => $order->id,
+                // ✅ BINAGO: Idinagdag ang 'created_at' para gamitin ng frontend
+                'created_at' => $order->created_at->toIso8601String(), // ISO 8601 format for JS Date object
+                'totalAmount' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
+                'status' => ucfirst($order->status),
+                'items' => [
+                    [
+                        'brand' => $product->brand_name ?? 'Unknown',
+                        'generic' => $product->generic_name ?? 'Unknown',
+                        'form' => $product->form ?? 'Unknown',
+                        'strength' => $product->strength ?? 'Unknown',
+                        'quantity' => $order->quantity,
+                        'total' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
+                    ]
                 ]
-            ]
-        ];
-    });
+            ];
+        });
 
-    return response()->json([
-        'success' => true,
-        'orders' => $formattedOrders
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'orders' => $formattedOrders
+        ]);
+    }
 }

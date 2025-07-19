@@ -146,13 +146,13 @@
                                             @foreach ($orders as $order)
                                                 {{-- @foreach ($orders as $order) --}}
                                                     @php
-                                                        $order_calc = $order->exclusive_deal->price * $order->quantity;
+                                                        $order_calc = $order->price * $order->quantity;
                                                         $totalPrice += $order_calc;
                                                     @endphp
                                                     <tr class="text-center">
-                                                        <td>{{ $order->exclusive_deal->product->generic_name }}</td>
-                                                        <td>{{ $order->exclusive_deal->product->brand_name }}</td>
-                                                        <td>{{ $order->exclusive_deal->product->form }}</td>
+                                                        <td>{{ $order->generic_name }}</td>
+                                                        <td>{{ $order->brand_name }}</td>
+                                                        <td>{{ $order->form }}</td>
                                                         <td>{{ $order->quantity }}</td>
                                                         <td>₱ {{ number_format($order_calc) }}</td>
                                                     </tr>

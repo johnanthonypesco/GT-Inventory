@@ -25,7 +25,7 @@
             </h1>
 
             {{-- ✅ Email Field --}}
-            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border-none" value="{{ old('email') }}"/>
+            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border md:border-none" value="{{ old('email') }}"/>
             @error('email') 
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>  
             @enderror
@@ -40,7 +40,7 @@
             </div> --}}
 
             {{-- ✅ Password Field (Fix: Changed name to "password") --}}
-            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border-none">
+            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border md:border-none">
                 <x-view-password onclick="showpassword()" id="eye"/>
             </x-label-input>
             @error('password') 

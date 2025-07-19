@@ -105,6 +105,16 @@
         </div>
         {{-- Filters Location --}}
 
+        @if ($inventories->isEmpty() && $currentSearch['type'] === "stock")
+            <script> 
+                alert("Nothing in Inventory Records Found. Reloading The Page!");
+                
+                setTimeout(() => {
+                    window.location.href = '{{ route('admin.inventory') }}';                    
+                }, 1000);
+            </script>
+        @endif
+
         @foreach ($inventories as $inventory)
             @php
                 $provinceName = $inventory->first()->location->province;
@@ -112,7 +122,7 @@
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $provinceName }}
+                Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
             </h1>
 
             <div class="flex flex-wrap justify-between items-center">
@@ -161,11 +171,11 @@
     </main>
 
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ request()->is('admin/inventory/search/product') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ request()->is('admin/inventory/search/product') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
-
+            
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
                 <x-input name="search"
@@ -208,6 +218,11 @@
                                 <td class="flex items-center gap-4 justify-center">
                                     <button onclick="addstock('{{ $product->id }}', '{{ $generic_name }} - {{ $brand_name }}')" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
+                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', '{{$generic_name}}', '{{$brand_name}}', '{{$product->form}}', '{{$product->strength}}', '{{ url('/') }}/', '{{ $product->img_file_path }}')">
+                                        <i class="fa-regular fa-pen-to-square mr-2"></i>
+                                        Edit
+                                    </button>
+
                                     <x-delete-button route="admin.destroy.product" routeid="{{$product->id}}" method="DELETE" id="delete"/>
                                 </td>
                             </tr>
@@ -229,21 +244,33 @@
         $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength']);
     @endphp
 
-    <div class="w-full {{ $failedToRegister ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
+    <div class="w-full {{ $failedToRegister && old('form_type') !== "edit-product" ? '' : 'hidden' }}  h-full bg-black/70 fixed top-0 left-0 p-5 lg:p-20" id="registerproductmodal">
         <div class="modal w-full lg:w-[50%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeregisterproductmodal"/>
             {{-- Form for register new product --}}
-            <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" class="px-4">
+            <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" enctype="multipart/form-data" class="px-4">
                 @csrf
 
                 <h1 class="text-center font-bold text-4xl text-[#005382]">Register New Product</h1>
-                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('generic_name') }}" :errorChecker="$errors->first('generic_name')"/>
+                {{-- BTW FORM_TYPE IS FOR THE EDIT REGISTERED PRODUCT'S ERROR HANDLING --}}
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-5" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
 
-                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('brand_name') }}" :errorChecker="$errors->first('brand_name')"/>
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('form_type') !== 'edit-product' ? old('brand_name') : '' }}  " :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('brand_name') : null"/>
 
-                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form') }}" :errorChecker="$errors->first('form')"/>
+                <x-label-input label="Form:" name="form" type="text" id="form" for="form" placeholder="Enter Form (ex: Vials)" divclass="mt-5 relative" value="{{ old('form_type') !== 'edit-product' ? old('form') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('form') : null"/>
 
-                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative" value="{{ old('strength') }}" :errorChecker="$errors->first('strength')"/>
+                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" placeholder="Enter Strength (ex: 10mg/ml)" divclass="mt-5 relative" value="{{ old('form_type') !== 'edit-product' ? old('strength') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('strength') : null"/>
+
+                <div class="mt-5 relative">
+                    <label for="img_file_path" class="text-black/80 font-semibold text-md tracking-wide">
+                        Product Picture (Optional):
+                    </label>
+                    <input type="file" accept=".jpeg,.jpg,.png" name="img_file_path" id="img-file-path" class="mt-1 block w-full rounded-lg border border-[#005382] bg-white px-4 py-3 text-gray-700 placeholder-gray-400 focus:border-[#005382] focus:ring focus:ring-[#005382]/50 focus:outline-none transition duration-150 ease-in-out">
+                    
+                    @error('img_file_path')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <x-submit-button id="addproductBtn"/>
             </form>
@@ -442,6 +469,59 @@
             </form>
         </div>
     </div>
+
+
+    {{-- EDIT REGISTERED PRODUCTS MODAL --}}
+    @php
+        $errorPresentInEdit = old('form_type') === 'edit-product';
+    @endphp
+    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[1000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-registered">        
+        <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose click="editRegisteredProduct" />
+
+            <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                <div class="flex justify-between">
+                    <div class="flex-col gap-5">
+                        <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> Updating Product ID: {{ $errorPresentInEdit ? old("id")  : '' }} </h1>
+                        <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                            <img src="{{asset('image/image 51.png')}}"/>
+                            Save Changes 
+                        </button>
+                    </div>
+
+                    <img src="/" class="w-[128px] h-[128px] bg-black/60 object-scale-down self rounded-sm border-2 border-[#005382]" alt="product image" id="prod-img">
+                </div>
+
+                <input type="hidden" name="id" id="edit-prod-id" value="{{ $errorPresentInEdit ? old('id') : '' }}">
+                <input type="hidden" name="form_type" value="edit-product">
+                
+
+                <x-label-input label="Generic Name:" inputid="edit-prod-generic" name="generic_name" type="text" for="generic_name" divclass="mt-2" placeholder="Enter Generic Name" value="{{ old('generic_name') }}"  :errorChecker="$errorPresentInEdit ? $errors->first('generic_name') : null " />
+                    
+                <x-label-input label="Brand Name:" inputid="edit-prod-brand" name="brand_name" type="text" for="brand_name" divclass="mt-5" placeholder="Enter Brand Name" value="{{ old('brand_name')}}" :errorChecker="$errorPresentInEdit ? $errors->first('brand_name') : null" />
+
+                <x-label-input label="Form:" inputid="edit-prod-form" name="form" type="text" for="form" divclass="mt-5" placeholder="Enter Form" value="{{  old('form') }}" :errorChecker="$errorPresentInEdit ? $errors->first('form') : null" />
+
+                <x-label-input label="Strength:" inputid="edit-prod-strength" name="strength" type="text" for="strength" divclass="mt-5" placeholder="Enter strength" value="{{ old('strength') }}" :errorChecker="$errorPresentInEdit ? $errors->first('strength') : null" />
+
+                <div class="mt-5 relative">
+                    <label for="img_file_path" class="text-black/80 font-semibold text-md tracking-wide">
+                        Product Picture (Optional):
+                    </label>
+                    <input type="file" accept=".jpeg,.jpg,.png" name="img_file_path" id="edit-prod-img" class="mt-1 block w-full rounded-lg border border-[#005382] bg-white px-4 py-3 text-gray-700 placeholder-gray-400 focus:border-[#005382] focus:ring focus:ring-[#005382]/50 focus:outline-none transition duration-150 ease-in-out">
+                    
+                    @error('img_file_path')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </form>
+        </div>
+    </div>
+    {{-- EDIT REGISTERED PRODUCTS MODAL --}}
+
 
    {{-- Transfer Inventory Modal --}}
 <div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 ">

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('brand_name')->nullable();
             $table->string('form');
             $table->string('strength');
-            $table->string('img_file_path')->nullable();
+            $table->string('img_file_path')->nullable()->default('image/default-product-pic.png');
             $table->timestamps();
         });
     }

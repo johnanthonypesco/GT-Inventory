@@ -3,22 +3,17 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Staff extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<string>
-     */
     protected $fillable = [
-        'staff_username', // Standardized field name
+        'staff_username',
         'email',
         'password',
         'admin_id',
@@ -27,70 +22,70 @@ class Staff extends Authenticatable
         'is_staff',
         'archived_at',
         'contact_number',
-        'two_factor_code',
-    'two_factor_expires_at',
+        'two_factor_code',        // <-- Idinagdag
+        'two_factor_expires_at',  // <-- Idinagdag
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<string>
-     */
     protected $hidden = [
-        'password', // Laravel standard for password column
+        'password',
         'remember_token',
+        'two_factor_code',        // <-- Idinagdag
+        'two_factor_expires_at',  // <-- Idinagdag
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * ✅ ANG PINAKA-MAHALAGANG PAGBABAGO
      */
     protected $casts = [
         'password' => 'hashed',
-        'archived_at' => 'datetime', // Laravel auto-hashes passwords
+        'archived_at' => 'datetime',
+        'two_factor_expires_at' => 'datetime',
+        'two_factor_code' => 'string', // 👈 Tinitiyak na string ang code
     ];
 
     /**
-     * Define the relationship with the Admin model.
+     * ✅ Binago para mag-generate ng string
      */
+    public function generateTwoFactorCode()
+    {
+        $this->two_factor_code = (string) rand(100000, 999999);
+        $this->two_factor_expires_at = now('Asia/Manila')->addMinutes(10);
+        $this->save();
+    }
+
+    // Relationships and other methods...
     public function admin()
     {
         return $this->belongsTo(Admin::class, 'admin_id');
     }
 
-    /**
-     * Define the relationship with the Location model.
-     */
     public function location()
     {
         return $this->belongsTo(Location::class, 'location_id');
     }
+
+    public function stafflocation()
+    {
+        return $this->hasOne(StaffLocation::class, 'staff_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->whereNull('archived_at');
     }
 
-    // ✅ Scope to filter archived users
     public function scopeArchived($query)
     {
         return $query->whereNotNull('archived_at');
     }
 
-    // ✅ Archive the user
     public function archive()
     {
         return $this->update(['archived_at' => Carbon::now()]);
     }
 
-    // ✅ Restore the user
     public function restore()
     {
         return $this->update(['archived_at' => null]);
-    }
-
-       public function stafflocation()
-    {
-        return $this->hasOne(StaffLocation::class, 'staff_id');
     }
 }

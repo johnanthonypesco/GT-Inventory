@@ -1,3 +1,4 @@
+{{-- view/index.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
             <a href="#home" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Home</a>
             <a href="#about" class="lg:mr-12 font-semibold hover:text-[#0097D3]">About Us</a>
             <a href="#products" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Products</a>
-            <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Inquire Now</a>
+            <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</a>
         </nav>
 
         <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>
@@ -36,7 +37,7 @@
                     at your fingertips, no matter where you are.
                 </p>
                 <div class="flex gap-5">
-                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Inquire Now</a>
+                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</a>
                     <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold">About Us</a>
                 </div>
             </div>
@@ -55,7 +56,7 @@
 
             <div class="flex flex-col justify-center items-center mt-10 px-5 gap-5 lg:flex-row lg:px-24 lg:gap-10">
                 <div id="content-left">
-                    <img src="{{ asset('image/About Us.png') }}" alt="About Us" class="w-[500px] h-[450px] ">
+                    <img src="{{ asset('image/About Us.png') }}" alt="About Us" class="lg:w-[500px] lg:h-[450px] w-[450px] h-[450px] ">
                 </div>
 
                 <div class="flex flex-col gap-5 lg:w-1/2" id="content-right">
@@ -82,30 +83,14 @@
                 <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
             </div>
             <div class="flex w-[90%] z-1 relative gap-5 overflow-x-auto p-5">
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftriaxone" brandname="Ceftriaxone" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Cefazoline" brandname="Cefazovit" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftazidime" brandname="Ceftazivit" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftrialisis" brandname="NA" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Dexamethasone" brandname="Dexavit" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Furosemide" brandname="Furotalis" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ketoprofen" brandname="Ketonix" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Losartan" brandname="Losil" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Neotalis" brandname="NA" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ranitidine" brandname="Ranicid`" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Pantoprazole" brandname="Pantrex" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Sodium Bicarbonate" brandname="Sodicarb" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin A" brandname="Vitaroxima" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Betamethasone" brandname="Vitasone" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Metronidazole" brandname="Vitazol" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Multivitamins" brandname="Vitral" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin K" brandname="Ambivit K" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Ampicillin" brandname="Amiphil" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Diphenhydramine" brandname="Diphenpors" form="Oral" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Gentamicin" brandname="Gentacare" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin B Complex" brandname="Neurobe" form="Injectables" />
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Omeprazole" brandname="Oprex" form="Oral" /> 
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Cephalexin" brandname="Sapharin" form="Oral" />   
-                <x-promotionalpage.product image="ceftriaxone.png" genericname="Clindamycin" brandname="Tidact" form="Oral" />   
+                {{-- Main Product Loop --}}
+                @foreach($products as $product)
+                    <x-promotionalpage.product 
+                        :image="$product->img_file_path "
+                        genericname="{{ $product->generic_name }}" 
+                        brandname="{{ $product->brand_name }}" 
+                        form="{{ $product->form }}" />
+                @endforeach
             </div>
             <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
         </section>
@@ -120,30 +105,14 @@
                     <button class="text-gray-600 font-md filter-btn" data-filter="oral">Oral</button>
                 </div>
                 <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[370px] justify-center">
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftriaxone" brandname="Ceftriaxone" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Cefazoline" brandname="Cefazovit" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftazidime" brandname="Ceftazivit" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ceftrialisis" brandname="NA" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Dexamethasone" brandname="Dexavit" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Furosemide" brandname="Furotalis" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ketoprofen" brandname="Ketonix" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Losartan" brandname="Losil" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Neotalis" brandname="NA" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ranitidine" brandname="Ranicid`" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Pantoprazole" brandname="Pantrex" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Sodium Bicarbonate" brandname="Sodicarb" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin A" brandname="Vitaroxima" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Betamethasone" brandname="Vitasone" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Metronidazole" brandname="Vitazol" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Multivitamins" brandname="Vitral" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin K" brandname="Ambivit K" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Ampicillin" brandname="Amiphil" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Diphenhydramine" brandname="Diphenpors" form="Oral" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Gentamicin" brandname="Gentacare" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Vitamin B Complex" brandname="Neurobe" form="Injectables" />
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Omeprazole" brandname="Oprex" form="Oral" /> 
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Cephalexin" brandname="Sapharin" form="Oral" />   
-                    <x-promotionalpage.product image="ceftriaxone.png" genericname="Clindamycin" brandname="Tidact" form="Oral" /> 
+                    {{-- Modal Product Loop --}}
+                    @foreach($products as $product)
+                        <x-promotionalpage.product 
+                            :image="$product->img_file_path"  {{-- 👈 Pass only the filename --}}
+                            genericname="{{ $product->generic_name }}" 
+                            brandname="{{ $product->brand_name }}" 
+                            form="{{ $product->form }}" />
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -155,45 +124,31 @@
 
         <section id="inquire" class="mt-10 flex flex-col items-center px-5 scroll-mt-12">
             <h1 class="text-xl text-[#084876] text-center font-bold mt-5">Get in Touch</h1>
-            <h1 class="text-4xl text-[#084876] text-center font-bold mt-5">Inquire Now</h1>
+            <h1 class="text-4xl text-[#084876] text-center font-bold mt-5">Reach Us</h1>
 
-            <form action="" class="border border-[#084876] p-5 rounded-lg mt-5">
-                <div class="lg:flex gap-2">
-                    <div class="lg:w-1/2">
-                        <label for="fname" class="text-[#084876] font-semibold">First Name:</label>
-                        <input type="text" name="fname" id="fname" placeholder="Enter Your First Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
-                    <div class="lg:w-1/2">
-                        <label for="lname" class="text-[#084876] font-semibold">Last Name:</label>
-                        <input type="text" name="lname" id="lname" placeholder="Enter Your Last Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
+            <div class="flex flex-col lg:flex-row gap-10 mt-10 border rounded-lg p-5 shadow-md w-full lg:w-[70%]">
+                <div class="w-full max-w-[450px] aspect-square sm:aspect-video">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6329.863448083731!2d120.5903826362913!3d15.430930184127268!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3396c7a8904c55af%3A0xcc636500bd6a58c4!2sFARMACIA%20SAN%20MIGUEL!5e1!3m2!1sen!2sph!4v1752755129585!5m2!1sen!2sph" 
+                        class="w-full h-full border-0 rounded-md"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
-                <div class="lg:flex gap-2 mt-2">
-                    <div class="lg:w-1/2">
-                        <label for="email" class="text-[#084876] font-semibold">Email:</label>
-                        <input type="email" name="email" id="email" placeholder="Enter Your Email" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
-                    <div class="lg:w-1/2">
-                        <label for="contact" class="text-[#084876] font-semibold">Contact Number:</label>
-                        <input type="number" name="contact" id="contact" min="0" max="11" placeholder="Enter Your Contact Number" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
+
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <p class="text-lg flex justify-center lg:justify-start gap-2">
+                        <i class="fa-solid fa-phone"></i>Phone: 123-456-789
+                    </p>
+                    <p class="text-lg flex justify-center lg:justify-start gap-2">
+                        <i class="fa-solid fa-message"></i>Email: rctmedpharma@gmail.com
+                    </p>
+                    <p class="text-lg flex justify-center lg:justify-start gap-2">
+                        <i class="fa-solid fa-location-dot"></i>Address: Riverside Street, Barangay San Miguel, Tarlac City, Tarlac, Philippines
+                    </p>
                 </div>
-                <div class="lg:flex gap-2 mt-2">
-                    <div class="lg:w-1/2">
-                        <label for="location" class="text-[#084876] font-semibold">Location:</label>
-                        <input type="text" name="location" id="location" placeholder="Enter Your Location" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
-                    <div class="lg:w-1/2">
-                        <label for="company" class="text-[#084876] font-semibold">Company Name:</label>
-                        <input type="text" name="company" id="company" placeholder="Enter Your Company Name" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2">
-                    </div>
-                </div>
-                <div>
-                    <label for="message" class="text-[#084876] font-semibold">Message:</label>
-                    <textarea name="message" id="message" class="border border-[#084876] bg-white w-full p-3 rounded-lg outline-none mt-2 h-36"></textarea>
-                </div>
-                <button type="submit" class="bg-[#0097D3] py-2 px-4 rounded-lg text-white mt-3">Send</button>
-            </form>
+            </div>
         </section>
     </main>
 

@@ -36,20 +36,54 @@ function showInsufficients() {
     }
 }
 
-function showChangeStatusModal(id, motherDiv) {
+function showChangeStatusModal(id, motherDiv, archivingDetails) {    
     const summaryDiv = document.getElementById("change-status-modal");
-    const statusInputId = document.getElementById("id-container");
-    const motherInput = document.getElementById("mother-id");
+    const motherInput = document.getElementById("mother-id"); 
+    const statusInputId = document.getElementById("id-container"); // the damn order ID
+
+    const province = document.getElementById("archive-province");
+    const company = document.getElementById("archive-company");
+    const employee = document.getElementById("archive-employee");
+    const date = document.getElementById("archive-date-ordered");
+    const generic = document.getElementById("archive-generic-name");
+    const brand = document.getElementById("archive-brand-name");
+    const form = document.getElementById("archive-form");
+    const quantity = document.getElementById("archive-quantity");
+    const price = document.getElementById("archive-price");
+    const subtotal = document.getElementById("archive-subtotal");
 
     if(summaryDiv.classList.contains("hidden")) {
         summaryDiv.classList.replace("hidden", "flex");
 
         statusInputId.dataset.id = id;
+        statusInputId.value = id;
         motherInput.value = motherDiv;
+
+        province.value = archivingDetails.province;
+        company.value = archivingDetails.company;
+        employee.value = archivingDetails.emp_name;
+        date.value = archivingDetails.date_ordered;
+        generic.value = archivingDetails.generic;
+        brand.value = archivingDetails.brand;
+        form.value = archivingDetails.form;
+        quantity.value = archivingDetails.quantity;
+        price.value = archivingDetails.price;
+        subtotal.value = archivingDetails.subtotal;
     } else {
         summaryDiv.classList.replace("flex", "hidden");
         statusInputId.dataset.id = 0;
-        motherInput.value = 0;    
+        motherInput.value = 0;
+
+        province.value = '';
+        company.value = '';
+        employee.value = '';
+        date.value = '';
+        generic.value = '';
+        brand.value = '';
+        form.value = '';
+        quantity.value = 0;
+        price.value = 0;
+        subtotal.value = 0;
     }
 }
 

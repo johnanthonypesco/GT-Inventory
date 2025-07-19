@@ -92,6 +92,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
 
         Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
+        Route::put('admin/inventory/product/', [InventoryController::class, 'editRegisteredProduct'])->name('admin.edit.product');
         Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
 
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
@@ -99,6 +100,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        
         // dashboard routes
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
@@ -148,6 +150,10 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
 
         Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
+
+        // Add these with your other superadmin routes
+Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 'checkEmail'])->name('superadmin.account.checkEmail');
+Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
         //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
 
 

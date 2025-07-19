@@ -12,6 +12,7 @@ use App\Models\Conversation;
 use App\Models\SuperAdmin;
 use App\Models\Admin;
 use App\Models\Staff;
+use App\Models\Product;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+         View::composer('index', function ($view) {
+            // Fetch all products from the database
+            $products = Product::all();
+            
+            // Share the $products variable with the 'index' view
+            $view->with('products', $products);
+        });
 
         // COMMENT THIS IF YOU NOT USING CLOUD FLARE TUNNEL
         // This is to force HTTPS when using Cloudflare Tunnel
