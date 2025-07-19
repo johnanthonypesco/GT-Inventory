@@ -195,6 +195,9 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
 
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
     });
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
 
@@ -298,6 +301,10 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
 /////////////////////////// << Promotional Page >> ////////////////////////////////
 
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -306,6 +313,7 @@ Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotion
 
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
@@ -423,6 +431,8 @@ Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
 
 });
+
+
 
 
 // To Keep Laravel Auth Routes
