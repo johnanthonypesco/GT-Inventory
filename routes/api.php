@@ -9,31 +9,28 @@ use App\Http\Controllers\Mobile\MobileStaffAuthController;
 use App\Http\Controllers\Mobile\MobileOrderHistoryController;
 use App\Http\Controllers\Mobile\MobileCustomerAccountController;
 use App\Http\Controllers\Auth\MobileAuthenticatedSessionController;
+use App\Http\Controllers\Mobile\MobileStaffDashboardController;
+use App\Http\Controllers\mobile\MobileStaffOrdersController;
+use App\Http\Controllers\mobile\MobileStaffQrController;
+use App\Http\Controllers\mobile\MobileStaffChatController;
+use App\Http\Controllers\mobile\MobileGroupChatController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| This file is organized into two main groups: 'customer' and 'staff',
-| to clearly separate their respective functionalities.
-|
 */
 
 Route::prefix('mobile')->group(function () {
 
     // --- Customer Routes ---
     Route::prefix('customer')->group(function () {
-        // Customer Authentication
         Route::post('/login', [MobileAuthenticatedSessionController::class, 'store']);
         Route::post('/verify-2fa', [MobileAuthenticatedSessionController::class, 'verify2FA']);
 
-        // Authenticated Customer Routes
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [MobileAuthenticatedSessionController::class, 'user']);
             Route::post('/logout', [MobileAuthenticatedSessionController::class, 'destroy']);
-            
-            // Other customer-specific routes
             Route::post('/orders', [MobileOrderController::class, 'storeOrder']);
             Route::get('/exclusive-deals', [MobileOrderController::class, 'index']);
             Route::get('/user/orders', [MobileOrderController::class, 'getUserOrders']);
@@ -50,15 +47,34 @@ Route::prefix('mobile')->group(function () {
 
     // --- Staff Routes ---
     Route::prefix('staff')->group(function () {
-        // Staff Authentication
-        Route::post('/login', [MobileStaffAuthController::class, 'login']);
-        Route::post('/verify-2fa', [MobileStaffAuthController::class, 'verifyTwoFactor']);
-
         // Authenticated Staff Routes
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [MobileStaffAuthController::class, 'user']);
             Route::post('/logout', [MobileStaffAuthController::class, 'logout']);
             Route::post('/location-update', [StaffLocationController::class, 'updateLocation']);
+            Route::get('/dashboard-stats', [MobileStaffDashboardController::class, 'getDashboardStats']);
+            Route::get('/orders', [MobileStaffOrdersController::class, 'index']);
+            
+            // This is the route for the QR Code scanner
+            Route::post('/process-scan', [MobileStaffQrController::class, 'processScannedOrder']);
+             Route::post('/order/{order}/update-status', [MobileStaffOrdersController::class, 'updateProductStatus']);
+
+              // ✅ ADD THESE NEW CHAT ROUTES FOR STAFF
+            Route::get('/chat/conversations', [MobileStaffChatController::class, 'getConversations']);
+            Route::get('/chat/messages/{id}/{type}', [MobileStaffChatController::class, 'getMessages']);
+            Route::post('/chat/send-message', [MobileStaffChatController::class, 'sendMessage']);
+
+            // ✅ ADD THESE NEW GROUP CHAT ROUTES
+            Route::get('/chat/group', [MobileGroupChatController::class, 'getGroupMessages']);
+            Route::post('/chat/group/send', [MobileGroupChatController::class, 'sendGroupMessage']);
         });
+        
+        // Staff Authentication
+        Route::post('/login', [MobileStaffAuthController::class, 'login']);
+        Route::post('/verify-2fa', [MobileStaffAuthController::class, 'verifyTwoFactor']);
+
+         // ✅ ADD THESE NEW ROUTES FOR RESENDING CODES
+        Route::post('/send-2fa-sms', [MobileStaffAuthController::class, 'sendTwoFactorSms']);
+        Route::post('/resend-2fa-email', [MobileStaffAuthController::class, 'resendTwoFactorEmail']);
     });
 });
