@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\ManageContents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SuperAdminSeeder::class);
         $this->call(AdminSeeder::class);
         $this->call(LocationSeeder::class);
+        $this->call(ManageContentsSeeder::class);
 
         // Create base products and inventory
         Product::factory()->count(24)->create();
