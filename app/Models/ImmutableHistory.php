@@ -18,10 +18,18 @@ class ImmutableHistory extends Model
         'form',
         'quantity',
         'price',
-        'subtotal'
+        'subtotal',
+        'order_id',
     ];
 
     protected $casts = [
         'date_ordered' => 'datetime',
     ];
+
+     public function scannedQrCode()
+    {
+        // This assumes your 'immutable_histories' table has an 'order_id' column
+        // that matches the 'order_id' in the 'scanned_qr_codes' table.
+        return $this->hasOne(ScannedQrCode::class, 'order_id', 'order_id');
+    }
 }

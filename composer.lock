@@ -2056,9 +2056,14 @@
         {
             "name": "khanamiryan/qrcode-detector-decoder",
             "version": "2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/khanamiryan/php-qrcode-detector-decoder.git",
+                "reference": "17c570bb39f641cc1c4c41a46177ac491393a01d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/khanamiryan/qrcode-detector-decoder/2.0.3/khanamiryan-qrcode-detector-decoder-2.0.3.zip",
+                "url": "https://api.github.com/repos/khanamiryan/php-qrcode-detector-decoder/zipball/17c570bb39f641cc1c4c41a46177ac491393a01d",
                 "reference": "17c570bb39f641cc1c4c41a46177ac491393a01d",
                 "shasum": ""
             },
@@ -2080,6 +2085,7 @@
                     "Zxing\\": "lib/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT",
                 "Apache-2.0"

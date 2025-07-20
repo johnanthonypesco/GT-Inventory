@@ -1,3 +1,15 @@
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+
+
 function viewOrder(id) {
     var viewOrderModal = document.getElementById("order-modal-" + id);
     viewOrderModal.classList.replace("hidden", "flex");
@@ -61,16 +73,17 @@ function showChangeStatusModal(id, motherDiv, archivingDetails) {
 
         province.value = archivingDetails.province;
         company.value = archivingDetails.company;
-        employee.value = archivingDetails.emp_name;
+        employee.value = archivingDetails.employee;       // ✅ FIXED
         date.value = archivingDetails.date_ordered;
-        generic.value = archivingDetails.generic;
-        brand.value = archivingDetails.brand;
+        generic.value = archivingDetails.generic_name; // ✅ FIXED
+        brand.value = archivingDetails.brand_name;     // ✅ FIXED
         form.value = archivingDetails.form;
         quantity.value = archivingDetails.quantity;
         price.value = archivingDetails.price;
         subtotal.value = archivingDetails.subtotal;
     } else {
         summaryDiv.classList.replace("flex", "hidden");
+}
         statusInputId.dataset.id = 0;
         motherInput.value = 0;
 
@@ -85,7 +98,7 @@ function showChangeStatusModal(id, motherDiv, archivingDetails) {
         price.value = 0;
         subtotal.value = 0;
     }
-}
+
 
 function changeStatus(form, statusType) {
     const idContainer = document.getElementById("id-container");
@@ -99,5 +112,18 @@ function changeStatus(form, statusType) {
     // yung separed[0] is yung http://127.0.0.1:8000/
     form.action = separated[0] + "admin/orders/" +  idContainer.dataset.id;
 
-    confirm("Change Status???") ? form.submit() : null
+    confirm("Change Status??? are you sure???") ? form.submit() : null
 }
+
+
+
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php

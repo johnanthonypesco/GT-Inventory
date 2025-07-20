@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\ImmutableHistory;
-use App\Models\Inventory;
 use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
+use App\Models\ScannedQrCode;
+use App\Models\ImmutableHistory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -165,75 +168,77 @@ class OrderController extends Controller
         ]);
     }
 
-    public function updateOrder(Request $request, Order $order) {
-        
-        $validate = $request->validate([
-            'mother_div' => 'required|string',
-            'customer_id' => 'required|string', //this is the damn order ID
+     public function updateOrder(Request $request, Order $order) 
+    {
+        DB::beginTransaction();
 
-            'province' => 'required|string',
-            'company' => 'required|string',
-            'employee' => 'required|string',
-            'date_ordered' => 'required|date',
-            'status' => 'required|string',
-            'generic_name' => 'required|string',
-            'brand_name' => 'required|string',
-            'form' => 'required|string',
-            'quantity' => 'required|string',
-            'price' => 'required|integer',
-            'subtotal' => 'required|integer',
-        ]);
-        $validate = array_map('strip_tags', $validate);
+        try {
+            $validate = $request->validate([
+                'mother_div' => 'required|string',
+                'order_id' => 'required|integer', 
+                'province' => 'required|string',
+                'company' => 'required|string',
+                'employee' => 'required|string',
+                'date_ordered' => 'required|date',
+                'status' => 'required|string',
+                'generic_name' => 'required|string',
+                'brand_name' => 'required|string',
+                'form' => 'required|string',
+                'quantity' => 'required|integer',
+                'price' => 'required|numeric',
+                'subtotal' => 'required|numeric',
+            ]);
 
-        // TO DEDUCT THE DAMN STOCKS
-        $orderDeets = Order::with(['user.company.location', 'exclusivedeal.product'])->where('id', '=', $validate['customer_id'])->first();
+            $orderId = $validate['order_id'];
+            $orderDeets = Order::with(['user.company.location', 'exclusive_deal.product'])->findOrFail($orderId);
 
-        if ($validate['status'] === 'delivered') {
-            // params for the near expiry filter
-            $today = Carbon::today();
-            $threshold = Carbon::today()->addYears(3);
-    
-            $inventory = Inventory::where('location_id',$orderDeets->user->company->location->id)
-            ->where('product_id', $orderDeets->exclusive_deal->product->id)
-            ->whereBetween('expiry_date', [$today, $threshold]) // only deduct from stocks that are going to expire in a month
-            ->where('quantity', '>', $validate['quantity']) // will only take from stocks that can supply the need
-            ->orderBy('expiry_date', 'asc')
-            ->orderBy('created_at', 'asc')
-            ->first();
-    
-            // dd($inventory);
+            if ($validate['status'] === 'delivered') {
+                $locationId = $orderDeets->user->company->location->id;
+                $productId = $orderDeets->exclusive_deal->product->id;
+                $quantity = $validate['quantity'];
 
-            if (!$inventory) { // will reject the update until stocks have been found
-                return back()->with("manualUpdateFailed", true);
+                $inventories = Inventory::where('location_id', $locationId)
+                    ->where('product_id', $productId)
+                    ->where('quantity', '>', 0)
+                    ->orderBy('expiry_date', 'asc')
+                    ->orderBy('created_at', 'asc')
+                    ->lockForUpdate()
+                    ->get();
+
+                if ($inventories->sum('quantity') < $quantity) {
+                    throw new \Exception('Not enough stock available to fulfill this order.');
+                }
+
+                $quantityToDeduct = $quantity;
+                $affectedBatches = [];
+                foreach ($inventories as $inventory) {
+                    if ($quantityToDeduct <= 0) break;
+                    $deductFromThisBatch = min($inventory->quantity, $quantityToDeduct);
+                    $inventory->quantity -= $deductFromThisBatch;
+                    $inventory->save();
+                    $quantityToDeduct -= $deductFromThisBatch;
+                    $affectedBatches[] = [
+                        'batch_number' => $inventory->batch_number,
+    'expiry_date' => \Carbon\Carbon::parse($inventory->expiry_date)->toDateString(),
+                        'deducted_quantity' => $deductFromThisBatch
+                    ];
+                }
+
+                ScannedQrCode::create([
+                    'order_id' => $orderId,
+                    'product_name' => $validate['generic_name'],
+                    'location' => $orderDeets->user->company->location->province,
+                    'quantity' => $quantity,
+                    'affected_batches' => $affectedBatches,
+                    'scanned_at' => now(),
+                    'signature' => null,
+                ]);
             }
 
-            // MIND YOU WHAT IF THE ORDER QUANTITY IS 800 BUT NO SINGULAR STOCK CAN SUPPLY THAT? THE CONDITION WILL FAIL BECAUSE IT ONLY TAKES INTO ACCOUNT ONLY ONE SINGULAR STOCK RECORD, IF THERE WAS TWO STOCK RECORDS LIKE 200 ON ONE AND THE OTHER IS 600, TECHNICALLY IT WOULD COUNT AND PASS THE IF CONDITION, BUT THE CURRENT ONE WILL FAIL BECAUSE IT ONLY DOES SINGULAR COMPARISONS. I WILL FIX THIS ONCE IT BECOMES MORE RELEVANT 
-            // 
-            // --SIGRAE GYAD DAMN IT
+            $order->update(['status' => $validate['status']]);
 
-            // KUYA HAS MADE A SOLUTION IN INVENTORYCONTROLLER
-
-            if ($inventory->quantity >= $validate['quantity']) {
-                $inventory->update([
-                    'quantity' => $inventory->quantity - $validate['quantity']
-                ], ['inventory_id' => $inventory->inventory_id]);
-
-                // dd("deducted successfully");
-            } else {
-                dd("inventory stock not enough");
-            }
-        }
-        // TO DEDUCT THE DAMN STOCKS
-
-        $order->update($validate);
-
-        $mother = $validate['mother_div']; // save our mother :)
-
-        // ADD TO THE ORDER HISTORY ARCHIVE IF DELIVERED OR CANCELLED
-        if ($validate['status'] === 'delivered' || $validate['status'] ===  "cancelled") {
-            unset($validate['mother_div']);
-
-            ImmutableHistory::createOrFirst([
+            ImmutableHistory::create([
+                'order_id' => $orderId, 
                 'province' => $validate['province'],
                 'company' => $validate['company'],
                 'employee' => $validate['employee'],
@@ -246,10 +251,14 @@ class OrderController extends Controller
                 'price' => $validate['price'],
                 'subtotal' => $validate['subtotal'],
             ]);
+
+            DB::commit();
+            return to_route('admin.order')->with("update-success", $validate['mother_div']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Manual order update failed for Order ID {$request->input('order_id', 'N/A')}: " . $e->getMessage());
+            return back()->with("manualUpdateFailed", "Update failed: " . $e->getMessage());
         }
-
-        // dd($inventory);
-
-        return to_route('admin.order')->with("update-success", $mother);
     }
 }

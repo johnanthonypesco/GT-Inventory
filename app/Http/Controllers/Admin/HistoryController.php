@@ -11,9 +11,10 @@ class HistoryController extends Controller
 {
     //  
     public function showHistory(){
-        $orders = ImmutableHistory::whereIn('status', ['delivered', 'cancelled']) // NEED TO ALSO GROUP THIS BY LOCATION
-        ->orderBy('date_ordered', 'desc')
-        ->get()    
+        $orders = ImmutableHistory::with('ScannedQrCode') 
+            ->whereIn('status', ['delivered', 'cancelled'])
+            ->orderBy('date_ordered', 'desc')
+            ->get()
         // groups orders by province
         ->groupBy(function ($orders)  { 
             return $orders->province;
