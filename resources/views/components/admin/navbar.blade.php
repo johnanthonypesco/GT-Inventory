@@ -45,6 +45,8 @@
             <a href="{{ route ('admin.historylog')}}" class="text-sm"><i class="fa-solid fa-magnifying-glass-chart text-[#005382] text-sm"></i>History Log</a>
 
             <a href="{{ route ('admin.stafflocation')}}" class="text-sm"><i class="fa-solid fa-map-location-dot text-[#005382] text-sm"></i>Staff Location</a>
+
+        <a href="{{ route('superadmin.reviews.index') }}" class="text-sm"><i class="fa-solid fa-star text-[#005382] text-sm"></i>Review Manager </a>
         @endif
 
         @if (auth('staff')->check())

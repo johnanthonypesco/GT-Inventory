@@ -15,58 +15,60 @@ use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Admin\SalesReportController;
+use App\Http\Controllers\Export\ExportController;
 
 
 // Staff Controller
-use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\ReviewManagerController;
+use App\Http\Controllers\StaffLocationController;
 use App\Http\Controllers\Admin\ChattingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
-use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\StaffLocationController;
+use App\Http\Controllers\Customer\ReviewController;
 
 // Customer Controller
-use App\Http\Controllers\Admin\HistorylogController;
+use App\Http\Controllers\CustomerAccountController;
 
 //Super Admin Login
+use App\Http\Controllers\PromotionalPageController;
+use App\Http\Controllers\Admin\HistorylogController;
+use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Customer\ChatRepsController;
 use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
+
+
 use App\Http\Controllers\Admin\ManageaccountController;
+
+
 use App\Http\Controllers\SuperAdminDashboardController;
-use App\Http\Controllers\Admin\ProductlistingController;
-
-
-
-
-use App\Http\Controllers\Customer\ManageorderController;
 
 // chat
+use App\Http\Controllers\Admin\ProductlistingController;
+use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
-use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
-use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 
 // GroupChat
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+
+
+
+
+use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
-
-
-
-
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
+
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
-
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
-use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
-use App\Http\Controllers\PromotionalPageController;
+use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
 
 //////super admin archive route
@@ -295,9 +297,8 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 //10///////////////////////// << 2FA ROUTES >> //////////////////////////////10//
 
 /////////////////////////// << Promotional Page >> ////////////////////////////////
-Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
+Route::get('/', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
 /////////////////////////// << Promotional Page >> ////////////////////////////////
-
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -305,6 +306,15 @@ Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotion
 //##~~~~~~~~~~~~~~~~~~~~~~~~~ << AUTHENTICATED USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~##//
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+
+       //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+   Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');
+
+    //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+
+
+    
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
@@ -421,6 +431,9 @@ Route::middleware('auth:staff')->group(function () {
 Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/stafflocation', [StaffLocationController::class, 'index'])->name('admin.stafflocation');
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+      Route::get('/superadmin/reviews', [ReviewManagerController::class, 'index'])->name('superadmin.reviews.index');
+    Route::post('/superadmin/reviews/{review}/approve', [ReviewManagerController::class, 'approve'])->name('superadmin.reviews.approve');
+    Route::post('/superadmin/reviews/{review}/disapprove', [ReviewManagerController::class, 'disapprove'])->name('superadmin.reviews.disapprove');
 
 });
 
