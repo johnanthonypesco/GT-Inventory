@@ -37,6 +37,7 @@ use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
+use App\Http\Controllers\Admin\ContentmanagementController;
 
 
 
@@ -156,6 +157,9 @@ Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 
 Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
         //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
 
+        //5///////////////////////// << CONTENT MANAGEMENT ROUTES >> //////////////////////////////5//
+        Route::get('admin/contentmanagement', [ContentmanagementController::class, 'showContentmanagement'])->name('admin.contentmanagement');
+
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
@@ -192,6 +196,9 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
+
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
 
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
@@ -298,6 +305,10 @@ Route::post('/two-factor/send-sms', [TwoFactorAuthController::class, 'sendViaSms
 Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
 /////////////////////////// << Promotional Page >> ////////////////////////////////
 
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotionalPage'])->name('index');
+/////////////////////////// << Promotional Page >> ////////////////////////////////
+
 
 //**~~~~~~~~~~~~~~~~~~~~~~~~~~~~ << ANYONE CAN ACCESS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~**//
 
@@ -306,6 +317,7 @@ Route::get('/promotionalpage', [PromotionalPageController::class, 'showPromotion
 
 Route::middleware(['auth', 'verified'])->group(function () {
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
@@ -423,6 +435,8 @@ Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
 
 });
+
+
 
 
 // To Keep Laravel Auth Routes
