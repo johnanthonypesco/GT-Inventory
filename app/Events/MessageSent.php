@@ -9,7 +9,10 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent implements ShouldBroadcast
+// NAGLOLOKO VS CODE KO, PAG NABALIK KA DITO IBIG SABIHIN NUN NAG LOKO CHAT NI JM
+// DAHIL SA PAG COMMENT KO NG implemts ShouldBroudcast
+// -- SIGRAE DERF
+class MessageSent //implements ShouldBroadcast
 {
     use InteractsWithSockets, SerializesModels;
 

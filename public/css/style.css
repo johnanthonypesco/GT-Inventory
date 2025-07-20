@@ -6,7 +6,9 @@ body{
     background-color: #eaeaea;
     padding: 20px;
 }
-nav{
+/* iniba ko pesco yung nav css dahil naapektuhan yung pagination buttons
+-- sigrae */
+nav#sidebar{ 
     background-color: white;
     border-radius: 20px;
     height: 96vh;

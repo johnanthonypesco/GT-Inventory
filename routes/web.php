@@ -88,7 +88,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
         
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
-        Route::get('admin/inventory/{location_filter?}', [InventoryController::class, 'showInventory'])->name('admin.inventory');
+        Route::get('admin/inventory/', [InventoryController::class, 'showInventory'])->name('admin.inventory');
         Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
 
         Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
