@@ -105,7 +105,8 @@
         </div>
         {{-- Filters Location --}}
 
-        @if ($inventories->isEmpty() && $currentSearch['type'] === "stock")
+        {{-- CHECKS IF THE SEARCH RESULTS TURNED OUT EMPTY HANDED --}}
+        {{-- @if ($inventories->isEmpty() && $currentSearch['type'] === "stock")
             <script> 
                 alert("Nothing in Inventory Records Found. Reloading The Page!");
                 
@@ -113,11 +114,19 @@
                     window.location.href = '{{ route('admin.inventory') }}';                    
                 }, 1000);
             </script>
-        @endif
+        @endif --}}
 
-        @foreach ($inventories as $inventory)
+        
+        
+        @foreach ($displayed_inventory_locations as $loc)
             @php
-                $provinceName = $inventory->first()->location->province;
+                $provinceName = $loc->province;
+
+                // Grab the paginator for this location
+                $groupedStocks = $inventories[$loc->province];
+
+                // dd($groupedStocks->items());
+
             @endphp
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
@@ -153,13 +162,18 @@
                 </div>
 
                 {{-- Table for Inventory --}}
-                <div class="overflow-auto h-[250px] mt-5">
-                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/>
+                <div class="overflow-auto h-[290px] mt-5">
+                    {{-- <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/> --}}
+                    <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$groupedStocks->items()" category="inventory"/>
                 </div>
                 {{-- Table for Inventory --}}
 
                 {{-- Pagination --}}
-                <x-pagination/>
+                {{-- <x-pagination/> --}}
+
+                <div class="mt-6">
+                    {{ $groupedStocks->links() }}
+                </div>
                 {{-- Pagination --}}
             </div>
 
@@ -171,22 +185,31 @@
     </main>
 
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ request()->is('admin/inventory/search/product') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
             
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
-                <x-input name="search"
-                placeholder="Search Product by Name"
-                classname="fa fa-magnifying-glass"
-                divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
-                id="search-product"
-                searchType="product"
-                :dataList="$products"
-                :autofill="true"
-                :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
+                
+                <div class="flex gap-2 w-[420px]">
+                    @if (session('registeredProductSearch'))
+                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                            Reset 
+                        </button>
+                    @endif
+
+                    <x-input name="search"
+                    placeholder="Search Product by Name"
+                    classname="fa fa-magnifying-glass"
+                    divclass="w-full lg:w-[100%] bg-white relative rounded-lg"
+                    id="search-product"
+                    searchType="product"
+                    :dataList="$products"
+                    :autofill="true"
+                    :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
+                </div>
             </div>
 
             {{-- Table for all products --}}
@@ -233,7 +256,9 @@
             {{-- Table for all products --}}
 
             {{-- Pagination --}}
-            <x-pagination/>
+            <div class="mt-5">
+                {{ $registeredProducts->links() }}
+            </div>
             {{-- Pagination --}}
         </div>
     </div>
@@ -312,26 +337,6 @@
     </div>
     {{-- Add stock to specific product --}}
 
-    {{--  Scan Receipt--}}
-    {{-- <div class="addmodal hidden fixed bg-black w-full h-full p-10 top-0 left-0 px-[50px]" id="addmodal">
-        <div class="modal addmodal-content relative bg-white w-full lg:w-[40%] p-5 rounded-lg mx-auto mt-20 flex flex-col md:flex-row gap-[40px]">
-            <x-modalclose class="close"/>
-            <div class="w-full lg:w-full h-full overflow-y-hidden">
-                <h1 class="text-center text-[25px] font-bold">Upload Acknowledgment Receipt</h1>
-                <p class="text-left">When the acknowledgment receipt is uploaded, the data is automatically inputted into the system.</p>
-                <div class="drop-file flex flex-col items-center justify-center border-2 border-[#005382] h-[150px] lg:h-[290px] rounded-lg shadow-lg mt-2">
-                    <img src="{{asset('image/image 49.png')}}" class="lg:w-[50px] w-[20px] mb-2">
-                    <p class="lg:text-[20px] text-[15px]">Drop & Drop your files here</p>
-                    <p class="text-[10px] lg:text-[15px] mb-2">or</p>
-                    <input type="file" name="file" id="file" class="hidden">
-                    <button onclick="window.location.href='{{ route('upload.receipt') }}'">
-                        <i class="fa-solid fa-file-alt"></i> Upload Receipt
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-    {{-- SCan Receipt --}}
 
     {{-- Add Multiple Stocks --}}
     @php
@@ -407,7 +412,7 @@
                     <x-label-input label="Quantity:" name="quantity[]" type="number" for="quantity" divclass="w-1/2" inputclass="p-3" placeholder="Enter Quantity"/>
                     <x-label-input label="Expiry Date:" name="expiry_date[]" type="date" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
                 </div>
-                <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/>
+                {{-- <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/> --}}
 
                 {{-- template for adding more forms --}}
                 <template id="stock-entry-template" data-current-clones="0">
@@ -444,7 +449,7 @@
                         <x-label-input label="Quantity:" name="quantity[]" type="text" for="quantity" divclass="w-1/2" inputclass="p-3" placeholder="Enter Quantity"/>
                         <x-label-input label="Expiry Date:" name="expiry_date[]" type="date" for="expiry_date" divclass="w-1/2" inputclass="p-3" placeholder="Enter Expiry Date"/>
                     </div>
-                    <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/>
+                    {{-- <x-label-input label="Receipt Image:" name="img_file_path[]" type="file" for="img_file_path" inputclass="p-3" placeholder="Enter Expiry Date"/> --}}
                 </template>
                 {{-- template for adding more forms --}}
 

@@ -1,4 +1,4 @@
-<nav class="md:w-[16%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
+<nav id="sidebar" class="md:w-[16%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
     <div class="p-3 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[180px] self-center">
         <hr class="mt-2">
@@ -10,8 +10,8 @@
         </a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <a href="{{ route('admin.inventory') }}" class="text-sm">
-                <i class="fa-solid fa-boxes-stacked text-[#005382] text-sm"></i>Inventory
+            <a href="{{ route('admin.inventory') }}" class="text-sm {{ request()->is('admin/inventory') ? 'active' : ''  }}">
+                <i class="fa-solid fa-boxes-stacked text-[#005382] text-sm {{ request()->is('admin/inventory') ? 'text-white' : ''  }}"></i>Inventory
             </a>
             <a href="{{ route('admin.sales') }}" class="text-sm">
                 <i class="fa-solid fa-print text-[#005382] text-sm"></i>Sales Reports
