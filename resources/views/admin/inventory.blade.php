@@ -24,7 +24,7 @@
 
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] sm:ml-[16%]">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
@@ -480,7 +480,7 @@
     @php
         $errorPresentInEdit = old('form_type') === 'edit-product';
     @endphp
-    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[1000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-registered">        
+    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-registered">        
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="editRegisteredProduct" />
 
