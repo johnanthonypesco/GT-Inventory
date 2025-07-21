@@ -36,9 +36,8 @@
             <div id="map" style="height: 500px; width: 100%;" class="rounded-lg shadow"></div>
         </div>
     </main>
-
     {{-- Google Maps API --}}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVcqHl9NVCpRwUxBy9eqsWxuXRF8mW_E&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEtcVVWN4Tzhknu9cn96CHDHLY6v4J7Aw&callback=initMap" async defer></script>
     <script>
         let map;
         let markers = [];
