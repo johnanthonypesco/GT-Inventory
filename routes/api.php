@@ -14,7 +14,7 @@ use App\Http\Controllers\mobile\MobileStaffOrdersController;
 use App\Http\Controllers\mobile\MobileStaffQrController;
 use App\Http\Controllers\mobile\MobileStaffChatController;
 use App\Http\Controllers\mobile\MobileGroupChatController;
-
+use App\Http\Controllers\mobile\MobileCustomerReview;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,6 +27,11 @@ Route::prefix('mobile')->group(function () {
     Route::prefix('customer')->group(function () {
         Route::post('/login', [MobileAuthenticatedSessionController::class, 'store']);
         Route::post('/verify-2fa', [MobileAuthenticatedSessionController::class, 'verify2FA']);
+
+        // --- ADD THESE NEW ROUTES ---
+        Route::post('/resend-email', [MobileAuthenticatedSessionController::class, 'resendEmail']);
+        Route::post('/resend-sms', [MobileAuthenticatedSessionController::class, 'resendSms']);
+
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [MobileAuthenticatedSessionController::class, 'user']);
@@ -42,6 +47,7 @@ Route::prefix('mobile')->group(function () {
             Route::get('/order-details/{orderId}', [MobileOrderHistoryController::class, 'getOrderDetails']);
             Route::get('/account', [MobileCustomerAccountController::class, 'getAccount']);
             Route::post('/account/update', [MobileCustomerAccountController::class, 'updateAccount']);
+            Route::post('/review/store', [MobileCustomerReview::class, 'store']);
         });
     });
 

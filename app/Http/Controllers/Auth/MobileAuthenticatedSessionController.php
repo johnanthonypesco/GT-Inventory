@@ -1,15 +1,14 @@
 <?php
-    
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Auth\Events\Registered;
 use App\Mail\TwoFactorCodeMail;
 use App\Models\User;
+use App\Services\SmsService; // Ensure this service exists and is configured
 
 class MobileAuthenticatedSessionController extends Controller
 {
@@ -29,28 +28,24 @@ class MobileAuthenticatedSessionController extends Controller
     
         $user = Auth::user();
     
-        // ✅ Check if email is verified
         if (!$user->hasVerifiedEmail()) {
             return response()->json(['message' => 'Email not verified.'], 403);
         }
     
-        // ✅ Generate and save 2FA code
         $twoFactorCode = (string) rand(100000, 999999);
         $user->two_factor_code = $twoFactorCode;
         $user->two_factor_expires_at = now()->addMinutes(10);
         $user->save();
     
-        // ✅ Send 2FA code via email
         try {
             Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to send 2FA email.'], 500);
         }
     
-        // ✅ Do not log out here. Instead, return the user ID along with the response.
         return response()->json([
             'message' => '2FA code sent. Please verify.',
-            'two_factor_user_id' => $user->id, // ✅ Include user ID
+            'two_factor_user_id' => $user->id,
         ]);
     }
     
@@ -78,24 +73,100 @@ class MobileAuthenticatedSessionController extends Controller
             return response()->json(['message' => 'OTP expired. Please login again.'], 401);
         }
     
-        // ✅ Clear 2FA code after successful verification
         $user->two_factor_code = null;
         $user->two_factor_expires_at = null;
         $user->save();
     
-        // ✅ Generate a Sanctum token for authenticated requests
         $token = $user->createToken('mobile-token')->plainTextToken;
     
         return response()->json([
             'message' => '2FA verified successfully.',
             'token' => $token,
             'user' => [
-                'id' => $user->id, // ✅ Include user ID
+                'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
             ],
         ]);
     }
+
+    /**
+     * Resend 2FA code via Email for mobile.
+     */
+    public function resendEmail(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer']);
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        return $this->generateAndSendCode($user, 'email');
+    }
+
+    /**
+     * Resend 2FA code via SMS for mobile.
+     */
+    public function resendSms(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer']);
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        if (empty($user->contact_number)) {
+            return response()->json(['message' => 'Contact number not available for this user.'], 400);
+        }
+
+        return $this->generateAndSendCode($user, 'sms');
+    }
+
+    /**
+     * Private helper to generate and send the 2FA code.
+     */
+    private function generateAndSendCode(User $user, string $method)
+{
+    // ✨ 1. Check if the user is in a cooldown period
+    if ($user->two_factor_last_sent_at && $user->two_factor_last_sent_at->addMinutes(2)->isFuture()) {
+        $remainingSeconds = now()->diffInSeconds($user->two_factor_last_sent_at->addMinutes(2));
+        return response()->json([
+            'message' => "Please wait {$remainingSeconds} more seconds before requesting another code."
+        ], 429); // 429 Too Many Requests
+    }
+
+    $newCode = (string) rand(100000, 999999);
+    $user->two_factor_code = $newCode;
+    $user->two_factor_expires_at = now()->addMinutes(10);
+    // ✨ 2. Update the timestamp for the last sent code
+    $user->two_factor_last_sent_at = now();
+    $user->save();
+
+    // ... rest of the sending logic for email and SMS ...
+    if ($method === 'email') {
+        try {
+            Mail::to($user->email)->send(new TwoFactorCodeMail($newCode));
+            return response()->json(['message' => 'A new OTP has been sent to your email.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to send OTP email.'], 500);
+        }
+    }
+
+    if ($method === 'sms') {
+        try {
+            $smsService = new SmsService();
+            $smsService->send($user->contact_number, "Your OTP code is: $newCode");
+            return response()->json(['message' => 'A new OTP has been sent to your phone number.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to send OTP via SMS.'], 500);
+        }
+    }
+
+    return response()->json(['message' => 'Invalid delivery method.'], 400);
+}
+    
     /**
      * Get authenticated user.
      */
