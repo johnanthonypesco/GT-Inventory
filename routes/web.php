@@ -308,10 +308,10 @@ Route::get('/', [PromotionalPageController::class, 'showPromotionalPage'])->name
 Route::middleware(['auth', 'verified'])->group(function () {
 
 
-       //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+       //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
    Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');
 
-    //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
 
 
     
@@ -319,6 +319,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
+    Route::post('customer/reorder-last', [CustomerOrderController::class, 'reorderLastPurchase'])->name('customer.order.reorderLast');
+
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
 
 
