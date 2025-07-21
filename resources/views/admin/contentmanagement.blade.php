@@ -24,7 +24,7 @@
         <x-admin.header title="Manage Content" icon="fa-solid fa-file" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="table-container p-4 bg-white shadow-md rounded-md mt-5">
-        <div>
+        <div class="overflow-x-auto">
             <table>
                 <thead>
                     <tr>
@@ -65,7 +65,7 @@
             </table>
         </div>
 
-        <div id="editmodal" class="fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto">
+        <div id="editmodal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto">
             <div class="modal bg-white w-[90%] md:w-[80%] lg:w-[60%] mx-auto mt-10 p-5 rounded-md relative">
                 <x-modalclose click="closeeditmodal"/>
                 <h1 class="text-left text-[#005382] text-2xl font-bold mb-5">Edit Content</h1>
