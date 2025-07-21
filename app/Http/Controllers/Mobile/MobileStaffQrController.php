@@ -101,7 +101,7 @@ class MobileStaffQrController extends Controller
             ScannedQrCode::create($dataToSave);
             
             DB::commit();
-            return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
+            return response()->json(['message' => 'Inventory successfully deducted!'], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();

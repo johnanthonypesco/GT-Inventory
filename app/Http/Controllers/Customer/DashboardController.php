@@ -10,6 +10,9 @@ use App\Models\ExclusiveDeal;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display the customer's dashboard with order statistics and recent orders.
+     */
     public function showDashboard()
     {
         $user = Auth::user();

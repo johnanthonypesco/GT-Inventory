@@ -80,22 +80,14 @@ class MobileOrderController extends Controller
             ], 401);
         }
     
+        // The manual 'foreach' loop is removed. 
+        // The accessor in your Product model now handles the image URL automatically.
         $deals = ExclusiveDeal::where('company_id', $user->company_id)
             ->with(['product' => function ($query) {
                 $query->select('id', 'brand_name', 'generic_name', 'form', 'strength', 'img_file_path');
             }])
             ->get();
 
-        // Ensure image paths are absolute and provide a default
-        foreach ($deals as $deal) {
-            if ($deal->product && $deal->product->img_file_path) {
-                // Assuming img_file_path is a full path or a path from 'public/storage'
-                $deal->product->img_file_path = asset('storage/' . $deal->product->img_file_path);
-            } else {
-                // Provide a default image if none exists
-                $deal->product->img_file_path = asset('image/download.jpg'); 
-            }
-        }
         return response()->json($deals);
     }
 

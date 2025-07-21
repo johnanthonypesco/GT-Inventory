@@ -37,7 +37,7 @@
     <main class="md:w-full h-full md:ml-[16%] md:p-4 p-2">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="md:h-[550px] h-[700px] mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '4' }} gap-3 items-center mt-5">
             <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
             <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
@@ -83,38 +83,16 @@
 
                 <hr class="my-4 border-gray-200">
 
-            {{-- Part 1: Executive Summary --}}
-            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
-
-            {{-- Executive Summary Filter Controls --}}
-            <div class="flex flex-col sm:flex-row gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4">
-                <label for="summaryPeriodSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
-                <select id="summaryPeriodSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                    <option value="7d" selected>Last 7 Days</option>
-                    <option value="today">Today</option>
-                    <option value="this_week">This Week</option>
-                    <option value="this_month">This Month</option>
-                    <option value="this_year">This Year</option>
-                    <option value="custom">Custom Range</option>
-                </select>
-                <div id="summaryCustomRangeContainer" class="hidden flex flex-col sm:flex-row gap-2 items-center">
-                    <input type="date" id="summaryStartDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                    <span class="text-gray-500">to</span>
-                    <input type="date" id="summaryEndDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                {{-- Part 1: Executive Summary --}}
+                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+                <div id="ai-summary-content">
+                    <div class="loader">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-lg font-semibold">Loading AI summary...</span>
+                    </div>
                 </div>
-                <button id="applySummaryFilterBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto">
-                    <i class="fas fa-filter mr-1"></i> Apply
-                </button>
-            </div>
-
-            <div id="ai-summary-content">
-                <div class="loader">
-                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span class="text-lg font-semibold">Loading AI summary...</span>
-                </div>
-            </div>
-
-            <hr class="my-6 border-gray-200">
+                
+                <hr class="my-6 border-gray-200">
 
                 {{-- Part 2: Chart Analysis --}}
                 <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
@@ -132,34 +110,34 @@
             {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
 
 
-        @if(!$currentUser instanceof \App\Models\Staff)
-            <div class="mt-5 bg-white p-4 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
-                <ul>
-                    @forelse($lowStockProducts as $product)
-                        <li class="text-red-600">{{ $product->generic_name }} - {{ $product->total_quantity }} units left</li>
-                    @empty
-                        <li class="text-green-600">No low stock products.</li>
-                    @endforelse
-                </ul>
-            </div>
-        @endif
-
-        @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
-            <div class="flex flex-col md:flex-row md:items-center gap-3">
-                <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
-                <div class="flex-1 flex flex-col gap-4">
-                    <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                        <option value="all">Show All Charts</option>
-                        <option value="revenue">Revenue Chart Only</option>
-                        <option value="deductions">Products Delivered Only</option>
-                        <option value="performance">Product Performance Only</option>
-                        <option value="inventory">Inventory Levels Only</option>
-                        <option value="trends">Product Trends & Predictions Only</option>
-                        <option value="orderStatus">Order Status Distribution Only</option>
-                        <option value="custom">Custom Selection</option>
-                    </select>
+            @if(!$currentUser instanceof \App\Models\Staff)
+                <div class="mt-5 bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
+                    <ul>
+                        @forelse($lowStockProducts as $product)
+                            <li class="text-red-600">{{ $product->generic_name }} - {{ $product->total_quantity }} units left</li>
+                        @empty
+                            <li class="text-green-600">No low stock products.</li>
+                        @endforelse
+                    </ul>
+                </div>
+            @endif
+            
+            @if(!$currentUser instanceof \App\Models\Staff)
+            <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
+                    <div class="flex-1 flex flex-col gap-4">
+                        <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            <option value="all">Show All Charts</option>
+                            <option value="revenue">Revenue Chart Only</option>
+                            <option value="deductions">Products Delivered Only</option>
+                            <option value="performance">Product Performance Only</option>
+                            <option value="inventory">Inventory Levels Only</option>
+                            <option value="trends">Product Trends & Predictions Only</option>
+                            <option value="orderStatus">Order Status Distribution Only</option>
+                            <option value="custom">Custom Selection</option>
+                        </select>
 
                         <div id="customChartSelection" class="hidden w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
                             <div class="flex flex-col gap-3">

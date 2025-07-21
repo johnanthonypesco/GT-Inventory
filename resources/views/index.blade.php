@@ -61,9 +61,13 @@
 
                 <div class="flex flex-col gap-5 lg:w-1/2" id="content-right">
                     <p class="text-lg">At <span class="text-[#084876] font-semibold">RCT Med Pharma</span>, we are dedicated to delivering precision, reliability, and excellence in pharmaceutical distribution, treating every client partnership with the utmost care and responsibility.</p>
-                    <x-promotionalpage.aboutuscontent title="Reliable Supply Chain" description="We ensure a consistent and timely delivery of high-quality pharmaceutical products, helping healthcare providers meet their patients' needs without disruption." />
-                    <x-promotionalpage.aboutuscontent title="Access to Industry Experts" description="Our team includes licensed pharmacists, logistics specialists, and compliance officers, ensuring adherence to industry regulations and best practices." />
-                    <x-promotionalpage.aboutuscontent title="Continuous Innovation" description="We embrace cutting-edge technology and automation in our inventory and ordering system (RMPOIMS) to enhance efficiency, accuracy, and customer satisfaction." />
+                   @forelse ($content as $content)
+                        <x-promotionalpage.aboutuscontent :description="$content->aboutus1" />
+                        <x-promotionalpage.aboutuscontent :description="$content->aboutus2" />
+                        <x-promotionalpage.aboutuscontent :description="$content->aboutus3" />
+                    @empty
+                        <p class="text-center text-gray-500">No about us content available.</p>
+                    @endforelse
                 </div>
             </div>
         </section>
@@ -82,7 +86,7 @@
                 <button class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
                 <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
             </div>
-            <div class="flex w-[90%] z-1 relative gap-5 overflow-x-auto p-5">
+            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5">
                 {{-- Main Product Loop --}}
                 @foreach($products as $product)
                     <x-promotionalpage.product 
@@ -95,7 +99,7 @@
             <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
         </section>
 
-        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-20 p-8 z-10" id="productsmodal">
+        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-10" id="productsmodal">
             <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5">
                 <x-modalclose id="closeproductsmodal"/>
                 <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
@@ -104,7 +108,7 @@
                     <button class="text-gray-600 font-md filter-btn" data-filter="injectables">Injectables</button>
                     <button class="text-gray-600 font-md filter-btn" data-filter="oral">Oral</button>
                 </div>
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[370px] justify-center">
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
                     {{-- Modal Product Loop --}}
                     @foreach($products as $product)
                         <x-promotionalpage.product 
@@ -138,15 +142,19 @@
                 </div>
 
                 <div class="w-full lg:w-1/2 flex flex-col gap-4">
-                    <p class="text-lg flex justify-center lg:justify-start gap-2">
-                        <i class="fa-solid fa-phone"></i>Phone: 123-456-789
-                    </p>
-                    <p class="text-lg flex justify-center lg:justify-start gap-2">
-                        <i class="fa-solid fa-message"></i>Email: rctmedpharma@gmail.com
-                    </p>
-                    <p class="text-lg flex justify-center lg:justify-start gap-2">
-                        <i class="fa-solid fa-location-dot"></i>Address: Riverside Street, Barangay San Miguel, Tarlac City, Tarlac, Philippines
-                    </p>
+                    @if ($content)
+                        <p class="text-lg flex justify-center lg:justify-start gap-2">
+                            <i class="fa-solid fa-phone"></i> Phone: {{ $content->contact_number }}
+                        </p>
+                        <p class="text-lg flex justify-center lg:justify-start gap-2">
+                            <i class="fa-solid fa-message"></i> Email: {{ $content->email }}
+                        </p>
+                        <p class="text-lg flex justify-center lg:justify-start gap-2">
+                            <i class="fa-solid fa-location-dot"></i> Address: {{ $content->address }}
+                        </p>
+                    @else
+                        <p class="text-center text-gray-500">No contact details available.</p>
+                    @endif
                 </div>
             </div>
         </section>

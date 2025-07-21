@@ -1,6 +1,6 @@
 <nav id="sidebar" class="md:w-[16%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
     <div class="p-3 flex flex-col">
-        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[180px] self-center">
+        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
     </div>
 
@@ -46,6 +46,7 @@
 
             <a href="{{ route ('admin.stafflocation')}}" class="text-sm"><i class="fa-solid fa-map-location-dot text-[#005382] text-sm"></i>Staff Location</a>
 
+        <a href="{{ route ('admin.contentmanagement')}}" class="text-sm"><i class="fa-solid fa-file text-[#005382] text-sm"></i>Manage Content</a>
         <a href="{{ route('superadmin.reviews.index') }}" class="text-sm"><i class="fa-solid fa-star text-[#005382] text-sm"></i>Review Manager </a>
         @endif
 
