@@ -5,11 +5,21 @@
     'form' => '',
 ])
 
-<div class="bg-white rounded-lg flex flex-col items-center justify-center p-5 mt-5 !w-60 product-card"
+<div class="bg-white rounded-lg flex flex-col items-center justify-start p-5 mt-5 w-[300px] h-[320px] product-card"
      style="box-shadow: 0 0 5px black;"
      data-type="{{ strtolower($form) }}">
-    <img src="{{ asset($image) }}" alt="{{$genericname}}" class="w-[120px] h-[120px]">
-    <h1 class="mt-5 font-bold text-xl text-[#084876]">{{$genericname}}</h1>
-    <p class="font-semibold text-lg text-[#084876]">{{$brandname}}</p>
-    <p class="font-semibold">{{$form}}</p>
+
+    <img src="{{ asset($image) }}" alt="{{ $genericname }}" class="w-[120px] h-[120px] object-cover mb-3">
+
+    <div class="flex flex-col items-center justify-start text-center w-full h-[100px]">
+        <h1 class="font-bold text-xl text-[#084876] leading-tight line-clamp-1 w-full truncate">
+            {{ $genericname }}
+        </h1>
+        <p class="font-semibold text-[#084876] leading-tight text-sm line-clamp-1 w-full truncate">
+            {{ $brandname }}
+        </p>
+        <p class="font-semibold text-[#084876] leading-tight text-sm line-clamp-1 w-full truncate">
+            {{ $form }}
+        </p>
+    </div>
 </div>
