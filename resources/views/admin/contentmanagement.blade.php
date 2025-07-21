@@ -47,15 +47,65 @@
                         <td class="text-left text-[10px]">{{ $content->email }}</td>
                         <td class="text-left text-[10px]">{{ $content->address }}</td>
                         <td>
-                            <button class="flex items-center justify-center text-[#005382] cursor-pointer gap-2"><i class="fa-regular fa-pen-to-square"></i>Edit</button>
+                            <button 
+                                class="edit-btn flex items-center justify-center text-[#005382] cursor-pointer gap-2"
+                                data-id="{{ $content->id }}"
+                                data-aboutus1="{{ $content->aboutus1 }}"
+                                data-aboutus2="{{ $content->aboutus2 }}"
+                                data-aboutus3="{{ $content->aboutus3 }}"
+                                data-contact_number="{{ $content->contact_number }}"
+                                data-email="{{ $content->email }}"
+                                data-address="{{ $content->address }}"
+                            >
+                            <i class="fa-regular fa-pen-to-square"></i>Edit</button>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+
+        <div id="editmodal" class="fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto">
+            <div class="modal bg-white w-[90%] md:w-[80%] lg:w-[60%] mx-auto mt-10 p-5 rounded-md relative">
+                <x-modalclose click="closeeditmodal"/>
+                <h1 class="text-left text-[#005382] text-2xl font-bold mb-5">Edit Content</h1>
+                <form id="editForm" method="POST" action="{{ route('admin.contentmanagement.edit', ['id' => $content->id]) }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="mb-4">
+                        <label for="aboutus1" class="block text-gray-700 text-sm font-bold mb-2">About Us 1:</label>
+                        <textarea id="aboutus1" name="aboutus1" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus1 }}</textarea>
+                    </div>    
+                    <div class="mb-4">
+                        <label for="aboutus2" class="block text-gray-700 text-sm font-bold mb-2">About Us 2:</label>
+                        <textarea id="aboutus2" name="aboutus2" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus2 }}</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="aboutus3" class="block text-gray-700 text-sm font-bold mb-2">About Us 3:</label>
+                        <textarea id="aboutus3" name="aboutus3" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus3 }}</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="contact_number" class="block text-gray-700 text-sm font-bold mb-2">Phone Number:</label>
+                        <input type="text" id="contact_number" name="contact_number" value="{{ $content->contact_number }}" class="w-full p-2 border border-[#005382] rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ $content->email }}" class="w-full p-2 border border-[#005382] rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Address:</label>
+                        <textarea id="address" name="address" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->address }}</textarea>
+                    </div>
+                    <button type="button" id="updateButton" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg">Update Content</button>
+                </form>
+
+            </div>
+        </div>
     </div>
     </main>
 
 </body>
+
+
 </html>
+<script src="{{ asset('js/managecontent.js') }}"></script>
