@@ -8,7 +8,7 @@ use App\Models\Historylogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Company;
 use App\Models\Product;
-
+use App\Models\ManageContents;
 class HistorylogController extends Controller
 {
     public function showHistorylog(Request $request) {
@@ -112,4 +112,15 @@ class HistorylogController extends Controller
             'created_at' => now()
         ]);
     }
+
+    // add content log
+    public static function addcontentlog($event, $description){
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+    
 }

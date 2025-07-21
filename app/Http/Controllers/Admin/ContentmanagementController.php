@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\ManageContents;
 use App\Models\Product;
 
+//history log
+use App\Http\Controllers\Admin\HistorylogController;
+
 class ContentmanagementController extends Controller
 {
     public function showContentmanagement()
@@ -54,7 +57,8 @@ class ContentmanagementController extends Controller
         $content->address = $request->input('address');
 
         $content->save();
-
+        // Log the content update
+        HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ' . auth()->user()->email);
         return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
     }
 }
