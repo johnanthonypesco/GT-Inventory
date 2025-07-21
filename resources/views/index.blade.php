@@ -86,7 +86,7 @@
                 <button class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
                 <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
             </div>
-            <div class="flex w-[90%] z-1 relative gap-5 overflow-x-auto p-5">
+            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5">
                 {{-- Main Product Loop --}}
                 @foreach($products as $product)
                     <x-promotionalpage.product 
@@ -99,7 +99,7 @@
             <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
         </section>
 
-        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-20 p-8 z-10" id="productsmodal">
+        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-10" id="productsmodal">
             <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5">
                 <x-modalclose id="closeproductsmodal"/>
                 <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
@@ -108,7 +108,7 @@
                     <button class="text-gray-600 font-md filter-btn" data-filter="injectables">Injectables</button>
                     <button class="text-gray-600 font-md filter-btn" data-filter="oral">Oral</button>
                 </div>
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[370px] justify-center">
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
                     {{-- Modal Product Loop --}}
                     @foreach($products as $product)
                         <x-promotionalpage.product 
