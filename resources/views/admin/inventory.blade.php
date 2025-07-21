@@ -66,7 +66,7 @@
         @endphp
 
 
-        <div class="h-[82vh] overflow-x-auto mt-4 px-4">
+        <div class="h-[82vh] overflow-x-auto mt-4">
                 {{-- Total Container --}}
                 <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
                     <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />

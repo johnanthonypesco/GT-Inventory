@@ -2,7 +2,7 @@ function sidebar() {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.toggle('left-0')
-    sidebar.classList.toggle('w-[300px]')
+    sidebar.classList.toggle('w-[280px]')
 }
 
 window.onclick = function(event) {

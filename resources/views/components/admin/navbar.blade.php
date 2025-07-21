@@ -1,4 +1,4 @@
-<nav id="sidebar" class="md:w-[16%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
+<nav id="sidebar" class="md:w-[15%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
     <div class="p-3 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
@@ -76,4 +76,3 @@
 </nav>
 
 <script src="{{ asset('js/navbar.js') }}"></script>
-<a href="{{ route('superadmin.account.index') }}" class="text-md whitespace-nowrap">
