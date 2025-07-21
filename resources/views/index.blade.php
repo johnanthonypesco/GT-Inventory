@@ -150,6 +150,33 @@
                 </div>
             </div>
         </section>
+
+        <section id="reviews" class="mt-20 px-5 lg:px-24">
+    <h2 class="text-xl font-bold text-center text-[#084876]">What Our Customers Say</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+        @forelse($reviews as $review)
+            <div class="bg-white p-4 border rounded shadow">
+                <div class="flex gap-1 mb-2">
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $review->rating)
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        @else
+                            <i class="fa-regular fa-star text-gray-300"></i>
+                        @endif
+                    @endfor
+                </div>
+                <p class="italic text-gray-700">"{{ $review->comment }}"</p>
+                @if ($review->allow_public_display && $review->user)
+                    <p class="text-sm text-gray-600 mt-2">– {{ $review->user->name }}</p>
+                @endif
+            </div>
+        @empty
+            <p class="text-center text-gray-500">No public reviews yet.</p>
+        @endforelse
+    </div>
+</section>
+
     </main>
 
     <footer class="bg-[#084876] text-white p-5 w-full">

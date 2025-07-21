@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product; // 1. Import the Product model
+use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class PromotionalPageController extends Controller
 {
     public function showPromotionalPage()
     {
-        // 2. Fetch all products from the database
-        $products = Product::all(); 
+            // dd('I am inside the controller!');
 
-        // 3. Pass the $products variable to the view
-        return view('index', ['products' => $products]);
+        $products = Product::all();
+
+        $reviews = Review::where('is_approved', true)
+            ->latest()
+            ->get();
+
+        return view('index', [
+            'products' => $products,
+            'reviews' => $reviews,
+        ]);
     }
 }
