@@ -2,7 +2,7 @@
     <i class="fa-solid fa-bars text-3xl hover:cursor-pointer" onclick="sidebar()"></i>
 </div>
 
-<div class="sidebar fixed top-0 -left-20 w-0 h-full flex flex-col bg-white z-20 gap-5 p-10 transition-all duration-500 overflow-hidden">
+<div class="sidebar fixed top-0 -left-20 w-0 h-full flex flex-col bg-white z-20 gap-1 p-10 transition-all duration-500 overflow-hidden">
     <a href="{{ route ('admin.dashboard')}}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard</a>
 
     @if (auth('superadmin')->check())
@@ -30,6 +30,8 @@
         <a href="{{ route('superadmin.reviews.index') }}" class="text-sm"><i class="fa-solid fa-star text-[#005382] text-sm"></i>Review Manager </a>
 
         <a href="{{ route ('admin.contentmanagement')}}" class="text-sm"><i class="fa-solid fa-file text-[#005382] text-sm"></i>Manage Content</a>
+        <a href="{{ route('superadmin.reviews.index') }}" class="text-sm"><i class="fa-solid fa-star text-[#005382] text-sm"></i>Review Manager </a>
+
 
 
     @endif

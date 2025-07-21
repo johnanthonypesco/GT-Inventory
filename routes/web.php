@@ -166,6 +166,8 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         //5///////////////////////// << CONTENT MANAGEMENT ROUTES >> //////////////////////////////5//
         Route::get('admin/contentmanagement', [ContentmanagementController::class, 'showContentmanagement'])->name('admin.contentmanagement');
         Route::put('/admin/contentmanagement/edit/{id}', [ContentmanagementController::class, 'editContent'])->name('admin.contentmanagement.edit');
+        Route::put('/admin/product/{id}/enabledisable', [ContentmanagementController::class, 'enabledisable'])->name('admin.product.enabledisable');
+
 
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//

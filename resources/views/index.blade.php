@@ -86,15 +86,18 @@
                 <button class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
                 <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
             </div>
-            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5">
+            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center">
                 {{-- Main Product Loop --}}
-                @foreach($products as $product)
+                @forelse($enabledProducts as $product)
                     <x-promotionalpage.product 
-                        :image="$product->img_file_path "
-                        genericname="{{ $product->generic_name }}" 
-                        brandname="{{ $product->brand_name }}" 
-                        form="{{ $product->form }}" />
-                @endforeach
+                        :image="$product->img_file_path"
+                        genericname="{{ $product->generic_name }}"
+                        brandname="{{ $product->brand_name }}"
+                        form="{{ $product->form }}"
+                    />
+                @empty
+                    <p class="text-center text-gray-500">No products available.</p>
+                @endforelse
             </div>
             <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
         </section>
@@ -110,13 +113,16 @@
                 </div>
                 <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
                     {{-- Modal Product Loop --}}
-                    @foreach($products as $product)
+                    @forelse($enabledProducts as $product)
                         <x-promotionalpage.product 
-                            :image="$product->img_file_path"  {{-- 👈 Pass only the filename --}}
-                            genericname="{{ $product->generic_name }}" 
-                            brandname="{{ $product->brand_name }}" 
-                            form="{{ $product->form }}" />
-                    @endforeach
+                            :image="$product->img_file_path"
+                            genericname="{{ $product->generic_name }}"
+                            brandname="{{ $product->brand_name }}"
+                            form="{{ $product->form }}"
+                        />
+                    @empty
+                        <p class="text-center text-gray-500">No products available.</p>
+                    @endforelse
                 </div>
             </div>
         </div>

@@ -184,7 +184,7 @@
                 $brand = $deal->product->brand_name ?? 'No Brand Name';
             @endphp
 
-            <div class="w-full -mt-[1000px] transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
+            <div class="w-full -mt-[4000px] transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
                 <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
                     <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
                     {{-- Form --}}
