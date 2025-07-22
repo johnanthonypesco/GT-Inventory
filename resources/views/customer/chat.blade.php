@@ -16,7 +16,7 @@
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
 
-    <main class="md:w-full h-full md:ml-[18%] ml-0">
+    <main class="md:w-full h-full lg:ml-[18%] ml-0">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
 
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>

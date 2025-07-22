@@ -21,9 +21,8 @@
                 </span>
             @endif
         </a>
-                            <a href="#" id="openReviewModal" class="text-md"><i class="fa-solid fa-star"></i>Leave a Review</a>
-
         <a href="{{ route('customer.manageaccount') }}" class="text-md"><i class="fa-solid fa-gear"></i>Manage Account</a>
+        <a href="#" id="openReviewModal" class="text-md"><i class="fa-solid fa-star"></i>Leave a Review</a>
     </ul>
 
     <form action="{{ route('logout') }}" method="POST">
@@ -32,12 +31,9 @@
             <i class="fa-solid fa-right-from-bracket"></i> Logout
         </button>
     </form>
-
-   
-
 </nav>
 
- <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+ <div id="reviewModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
         <h2 class="text-2xl font-bold mb-4">Leave a Review</h2>
         <form id="reviewForm">
@@ -102,13 +98,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ----- Review Modal -----
-    const modal = document.getElementById('reviewModal');
-    const openBtn = document.getElementById('openReviewModal');
-    const closeBtn = document.getElementById('closeReviewModal');
-    const reviewForm = document.getElementById('reviewForm');
-    const stars = document.querySelectorAll('#star-rating .fa-star');
-    const ratingValue = document.getElementById('ratingValue');
-    const successMessage = document.getElementById('form-success');
+    let modal = document.getElementById('reviewModal');
+    let openBtn = document.getElementById('openReviewModal');
+    let closeBtn = document.getElementById('closeReviewModal');
+    let reviewForm = document.getElementById('reviewForm');
+    let stars = document.querySelectorAll('#star-rating .fa-star');
+    let ratingValue = document.getElementById('ratingValue');
+    let successMessage = document.getElementById('form-success');
 
     if (!openBtn || !modal) {
         console.warn('Review modal elements not found in DOM.');
