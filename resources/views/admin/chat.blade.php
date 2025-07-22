@@ -14,7 +14,7 @@
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
     <x-admin.navbar />
 
-    <main class="md:w-full h-full md:ml-[16%] ml-0">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0">
         <x-admin.header title="Chat" icon="fa-solid fa-message"/>
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
 

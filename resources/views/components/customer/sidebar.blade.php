@@ -3,6 +3,10 @@
 
 <!-- Sidebar -->
 <div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-20 bg-white z-20 p-5 list-none transition-all duration-500 overflow-hidden" id="sidebar">
+    <div class="p-3 flex flex-col">
+        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
+        <hr class="mt-2">
+    </div>
     <ul class="flex-1 flex flex-col gap-5 pt-5">
         <li><a href="{{ route('customer.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
         <li><a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i> Make an Order</a></li>

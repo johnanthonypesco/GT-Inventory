@@ -33,10 +33,10 @@
         }
     </style>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col lg:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
 
         {{-- Filter & Add Account --}}
@@ -280,8 +280,9 @@
                 </form>
             </div>
         </div>
+
         <div id="editAccountModal" class="fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
-            <div class="modal w-full md:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
+            <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
                 <form method="POST" id="editaccountform">
                     @csrf

@@ -19,13 +19,13 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col md:flex-row justify-between items-center mb-5">
-                <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
+                <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
                 <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>        
             </div>
             {{-- Customer List Search Function --}}
@@ -72,16 +72,16 @@
                 </script>
             @endif
 
-            <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
-                <div class="flex flex-col md:flex-row md:justify-between items-center">
+                <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
                             $companyName
                         }}
                     </h1>
                     {{-- Button for Search --}}
-                    <div class="w-full md:w-[35%] relative">
+                    <div class="w-full lg:w-[35%] relative">
                         <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
                         <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>
@@ -136,7 +136,7 @@
 
     {{-- Modal for Add Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
-        <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
+        <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
             <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">

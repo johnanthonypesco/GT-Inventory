@@ -20,7 +20,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Manage Content" icon="fa-solid fa-file" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="table-container p-4 bg-white shadow-md rounded-md mt-5">
