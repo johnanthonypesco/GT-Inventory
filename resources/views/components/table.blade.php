@@ -1,4 +1,4 @@
-@props(['headings'=> [], 'variable' => null, 'secondaryVariable' => null,  'category' =>'none' ])
+@props(['headings'=> [], 'variable' => null, 'secondaryVariable' => null,  'category' =>'none', 'dealSearchCompany' => null ])
 @php
     use Carbon\Carbon;
 @endphp
@@ -56,7 +56,9 @@
                         <td>{{ $company->id }}</td>
                         <td> {{ $company->name }} </td>
                         <td> 
-                            {{ array_key_exists($company->name, $secondaryVariable->toArray()) ? count($secondaryVariable[$company->name])  : "No " }} Personalized Products 
+                            {{ isset($secondaryVariable[$company->name]) ? 
+                            $secondaryVariable[$company->name]->total() 
+                            : 'No' }} {{ $dealSearchCompany === $company->name ? "Searched" : "" }} Personalized Products
                         </td>
 
                         {{-- button for view and add --}}

@@ -17,8 +17,8 @@
                 <i class="fa-solid fa-print text-[#005382] text-sm"></i>Sales Reports
             </a>
             
-            <a href="{{ route('admin.productlisting') }}" class="text-sm">
-                <i class="fa-solid fa-list-check text-[#005382] text-sm"></i>Product Deals
+            <a href="{{ route('admin.productlisting') }}" class="text-sm {{ request()->is('admin/productlisting') ? 'active' : ''  }}">
+                <i class="fa-solid fa-list-check text-[#005382] text-sm {{ request()->is('admin/productlisting') ? 'text-white' : ''  }}"></i>Product Deals
             </a>
             <a href="{{ route('admin.chat.index') }}" id="chatNav" class="text-sm relative">
                 <i class="fa-brands fa-rocketchat text-[#005382]"></i>Chat

@@ -24,9 +24,11 @@
                     @php
                         $generic_name = $data->generic_name ? $data->generic_name : 'No Generic Name';
                         $brand_name = $data->brand_name ? $data->brand_name : 'No Brand Name';
+                        $form = $data->form ? $data->form : 'No Form';
+                        $strength = $data->strength ? $data->strength : 'No Strength';
                     @endphp
         
-                    <option value="{{ $generic_name }} - {{ $brand_name }}"></option>            
+                    <option value="{{ $generic_name }} - {{ $brand_name }} - {{ $form }} - {{ $strength }}"></option>            
                 @endforeach
             </datalist>
         @else
@@ -35,9 +37,11 @@
                     @php
                         $generic_name = $data->generic_name ? $data->generic_name : 'No Generic Name';
                         $brand_name = $data->brand_name ? $data->brand_name : 'No Brand Name';
+                        $form = $data->form ? $data->form : 'No Form';
+                        $strength = $data->strength ? $data->strength : 'No Strength';
                     @endphp
         
-                    <option value="{{ $generic_name }} - {{ $brand_name }}"></option>            
+                    <option value="{{ $generic_name }} - {{ $brand_name }} - {{ $form }} - {{ $strength }}"></option>            
                 @endforeach
             </datalist>
         @endif
@@ -49,14 +53,14 @@
         placeholder="{{ $placeholder }}" 
         id="{{ $id }}" 
         class="w-full p-2 border border-[#005382] rounded-lg outline-[#005382]"
-        autocomplete="{{$autofill ? 'on' : 'off'}}"
+        autocomplete="off"
 
         @if ($searchType === 'stock')
             list="search-options-{{$id}}-{{$location_filter}}"
         @else
             list="search-options-product"            
         @endif
-        value="{{ $currentSearch ? $currentSearch[0] . " - " . $currentSearch[1] : '' }}"
+        value="{{ $currentSearch ? $currentSearch[0] . " - " . $currentSearch[1] . " - " . $currentSearch[2] . " - " . $currentSearch[3] : '' }}"
         onkeydown="if(event.key === 'Enter') {event.preventDefault()}"
         >
         @if ($classname)

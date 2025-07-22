@@ -35,6 +35,8 @@ class InventoryController extends Controller
         if ($search_type === "product") {
             $form_data = Product::where('generic_name', '=', $searched_name[0])
             ->where('brand_name', '=', $searched_name[1])
+            ->where('form', '=', $searched_name[2])
+            ->where('strength', '=', $searched_name[3])
             ->paginate(10, ['*'], "registered_product_page")
             ->appends($request->except("registered_product_page")); // keep other filters/search params sa URL;
 
@@ -75,7 +77,9 @@ class InventoryController extends Controller
             if ($searched_name !== null && $search_type === "stock") {
                 $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]->whereHas('product', function ($query) use ($searched_name) {
                     $query->where('generic_name', '=', $searched_name[0])
-                    ->where('brand_name', '=', $searched_name[1]);
+                    ->where('brand_name', '=', $searched_name[1])
+                    ->where('form', '=', $searched_name[2])
+                    ->where('strength', '=', $searched_name[3]);
                 });
             }
             
