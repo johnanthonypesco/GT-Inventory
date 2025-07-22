@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -54,26 +55,41 @@ class CustomerAccountController extends Controller
             if ($request->hasFile('profile_image')) {
                 if ($user->company) {
                     // ✅ Define upload directory (inside 'public/uploads/')
-                    $uploadPath = 'uploads/profile_images/';
-            
-                    // ✅ Ensure the directory exists
-                    if (!file_exists(public_path($uploadPath))) {
-                        mkdir(public_path($uploadPath), 0775, true);
-                    }
-            
-                    // ✅ Delete old profile image if exists
-                    if (!empty($user->company->profile_image) && file_exists(public_path($uploadPath . basename($user->company->profile_image)))) {
-                        unlink(public_path($uploadPath . basename($user->company->profile_image)));
-                    }
-            
-                    // ✅ Store new image
-                    $file = $request->file('profile_image');
-                    $fileName = time() . '_' . $file->getClientOriginalName(); // Unique file name
-                    $file->move(public_path($uploadPath), $fileName);
-            
-                    // ✅ Save path relative to 'uploads/' folder
-                    $user->company->profile_image = $uploadPath . $fileName;
-                    $user->company->save();
+                 $uploadSubfolder = 'uploads/profile_images';
+
+if (App::environment('local')) {
+    // Localhost
+    $targetDir = public_path($uploadSubfolder);
+} else {
+    // Hostinger production
+    $targetDir = base_path('../public_html/' . $uploadSubfolder);
+}
+
+// ✅ Ensure the directory exists
+if (!file_exists($targetDir)) {
+    mkdir($targetDir, 0775, true);
+}
+
+// ✅ Delete old profile image if exists
+$oldImage = $user->company->profile_image ?? null;
+if (!empty($oldImage)) {
+    $oldImagePath = App::environment('local')
+        ? public_path($oldImage)
+        : base_path('../public_html/' . $oldImage);
+
+    if (file_exists($oldImagePath)) {
+        unlink($oldImagePath);
+    }
+}
+
+// ✅ Store new image
+$file = $request->file('profile_image');
+$fileName = time() . '_' . $file->getClientOriginalName(); // Unique file name
+$file->move($targetDir, $fileName);
+
+// ✅ Save path relative to 'uploads/' folder
+$user->company->profile_image = $uploadSubfolder . '/' . $fileName;
+$user->company->save();
                 } else {
                     return response()->json([
                         'success' => false,

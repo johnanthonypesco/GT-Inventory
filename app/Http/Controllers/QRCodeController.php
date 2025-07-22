@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\ErrorCorrectionLevel\High; 
+use Illuminate\Support\Facades\App;
+
 
 class QrCodeController extends Controller
 {
@@ -78,17 +80,25 @@ class QrCodeController extends Controller
         $result = $writer->write($qrCode);
         $pngData = $result->getString();
 
-         $directory = public_path('qrcodes');
-            $filePath = $directory . "/order_{$order->id}.png";
-            
-            // Ensure the directory exists
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
-            
-            // Save the QR code file
-            file_put_contents($filePath, $pngData);
-            
+       $subfolder = 'qrcodes';
+
+if (App::environment('local')) {
+    // Localhost (e.g., Laragon/XAMPP)
+    $directory = public_path($subfolder);
+    $filePath = $directory . "/order_{$order->id}.png";
+} else {
+    // Production (e.g., Hostinger)
+    $directory = base_path('../public_html/' . $subfolder);
+    $filePath = $directory . "/order_{$order->id}.png";
+}
+
+// ✅ Ensure the directory exists
+if (!file_exists($directory)) {
+    mkdir($directory, 0777, true);
+}
+
+// ✅ Save the QR code file
+file_put_contents($filePath, $pngData);
             
             Order::updateOrCreate(
                 ['id' => $order->id],

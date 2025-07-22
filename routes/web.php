@@ -322,10 +322,10 @@ Route::get('/', [PromotionalPageController::class, 'showPromotionalPage'])->name
 Route::middleware(['auth', 'verified'])->group(function () {
 
 
-       //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+       //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
    Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');
 
-    //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
+    //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
 
 
     
@@ -334,6 +334,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/dashboard', [CustomerDashboardController::class, 'showDashboard'])->name('customer.dashboard');
     Route::get('customer/order', [CustomerOrderController::class, 'showOrder'])->name('customer.order');
     Route::post('customer/order', [CustomerOrderController::class, 'storeOrder'])->name('customer.order.store');
+    Route::post('customer/reorder-last', [CustomerOrderController::class, 'reorderLastPurchase'])->name('customer.order.reorderLast');
+
     //11///////////////////////// << CUSTOMER ORDER ROUTES >> //////////////////////////////11//
 
 
@@ -446,6 +448,9 @@ Route::middleware('auth:staff')->group(function () {
 Route::middleware('auth:admin,superadmin')->group(function () {
     Route::get('/stafflocation', [StaffLocationController::class, 'index'])->name('admin.stafflocation');
     Route::get('/staff-locations', [StaffLocationController::class, 'getLocations'])->name('api.staff-locations');
+      Route::get('/superadmin/reviews', [ReviewManagerController::class, 'index'])->name('superadmin.reviews.index');
+    Route::post('/superadmin/reviews/{review}/approve', [ReviewManagerController::class, 'approve'])->name('superadmin.reviews.approve');
+    Route::post('/superadmin/reviews/{review}/disapprove', [ReviewManagerController::class, 'disapprove'])->name('superadmin.reviews.disapprove');
       Route::get('/superadmin/reviews', [ReviewManagerController::class, 'index'])->name('superadmin.reviews.index');
     Route::post('/superadmin/reviews/{review}/approve', [ReviewManagerController::class, 'approve'])->name('superadmin.reviews.approve');
     Route::post('/superadmin/reviews/{review}/disapprove', [ReviewManagerController::class, 'disapprove'])->name('superadmin.reviews.disapprove');

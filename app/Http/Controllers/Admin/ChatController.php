@@ -11,6 +11,8 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 
 class ChatController extends Controller
 {
@@ -156,56 +158,67 @@ class ChatController extends Controller
      * Show the chat conversation between the logged-in user and a recipient.
      */
     public function chatWithUser($id, $type)
-{
-    if (!in_array($type, ['super_admin', 'admin', 'staff', 'customer'])) {
-        abort(403, 'Invalid chat recipient.');
-    }
+    {
+        if (!in_array($type, ['super_admin', 'admin', 'staff', 'customer'])) {
+            abort(403, 'Invalid chat recipient.');
+        }
 
-    $user = match ($type) {
-        'super_admin' => SuperAdmin::findOrFail($id),
-        'admin' => Admin::findOrFail($id),
-        'staff' => Staff::findOrFail($id),
-        'customer' => User::findOrFail($id),
-        default => abort(404),
-    };
+        $user = match ($type) {
+            'super_admin' => SuperAdmin::findOrFail($id),
+            'admin' => Admin::findOrFail($id),
+            'staff' => Staff::findOrFail($id),
+            'customer' => User::findOrFail($id),
+            default => abort(404),
+        };
 
-    $authUser = Auth::user();
-    if (!$authUser) {
-        return redirect()->back()->with('error', 'Unauthorized');
-    }
+        $authUser = Auth::user();
+        if (!$authUser) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
 
-    $senderType = match (get_class($authUser)) {
-        'App\Models\SuperAdmin' => 'super_admin',
-        'App\Models\Admin' => 'admin',
-        'App\Models\Staff' => 'staff',
-        'App\Models\User' => 'customer',
-        default => abort(403, 'Invalid user type.'),
-    };
+        $senderType = match (get_class($authUser)) {
+            'App\Models\SuperAdmin' => 'super_admin',
+            'App\Models\Admin' => 'admin',
+            'App\Models\Staff' => 'staff',
+            'App\Models\User' => 'customer',
+            default => abort(403, 'Invalid user type.'),
+        };
 
-    // Mark messages as read when the chat is opened
-    Conversation::where('sender_id', $id)
-        ->where('sender_type', $type)
-        ->where('receiver_id', $authUser->id)
-        ->where('receiver_type', $senderType)
-        ->where('is_read', false)
-        ->update(['is_read' => true]);
-
-    // Fetch all conversations between the logged-in user and the recipient
-    $conversations = Conversation::where(function ($query) use ($id, $type, $authUser, $senderType) {
-        $query->where('sender_id', $authUser->id)
-            ->where('sender_type', $senderType)
-            ->where('receiver_id', $id)
-            ->where('receiver_type', $type);
-    })->orWhere(function ($query) use ($id, $type, $authUser, $senderType) {
-        $query->where('sender_id', $id)
+        // Mark messages as read when the chat is opened
+        Conversation::where('sender_id', $id)
             ->where('sender_type', $type)
             ->where('receiver_id', $authUser->id)
-            ->where('receiver_type', $senderType);
-    })->orderBy('created_at', 'asc')->get();
+            ->where('receiver_type', $senderType)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
-    return view('admin.chatting', compact('user', 'conversations'))
-        ->with('receiverType', $type);
-}
+        // Fetch all conversations
+        $conversations = Conversation::where(function ($query) use ($id, $type, $authUser, $senderType) {
+            $query->where('sender_id', $authUser->id)
+                ->where('sender_type', $senderType)
+                ->where('receiver_id', $id)
+                ->where('receiver_type', $type);
+        })->orWhere(function ($query) use ($id, $type, $authUser, $senderType) {
+            $query->where('sender_id', $id)
+                ->where('sender_type', $type)
+                ->where('receiver_id', $authUser->id)
+                ->where('receiver_type', $senderType);
+        })->orderBy('created_at', 'asc')->get();
+
+        // ✅ Transform file_path from relative path to full URL for the view
+        $conversations->transform(function ($conversation) {
+            if ($conversation->file_path) {
+                // Check if it's not already a full URL before applying url()
+                if (!filter_var($conversation->file_path, FILTER_VALIDATE_URL)) {
+                     $conversation->file_path = url($conversation->file_path);
+                }
+            }
+            return $conversation;
+        });
+
+        return view('admin.chatting', compact('user', 'conversations'))
+            ->with('receiverType', $type);
+    }
 
     /**
      * Store a chat message.
@@ -240,13 +253,27 @@ class ChatController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName(); // Ensure unique filename
-            
-            // ✅ Move file to the public/uploads directory
-            $file->move(public_path('uploads/chat_files'), $fileName);
-            
-            // ✅ Get the public URL of the file
-            $filePath = asset("uploads/chat_files/{$fileName}");
+            // ✅ Use hashName for a unique, safe filename
+            $fileName = $file->hashName();
+            $subfolder = 'uploads/chat_files';
+
+            // ✅ Determine target directory based on environment
+            if (App::environment('local')) {
+                $targetDir = public_path($subfolder);
+            } else {
+                $targetDir = base_path('../public_html/' . $subfolder);
+            }
+
+            // Create directory if it doesn't exist
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true, true);
+            }
+
+            // Move the file to the target directory
+            $file->move($targetDir, $fileName);
+
+            // ✅ Store the relative path in the database
+            $filePath = $subfolder . '/' . $fileName;
         }
 
         if (!$request->message && !$filePath) {

@@ -7,10 +7,11 @@ use App\Models\Admin;
 use App\Models\Order;
 use App\Models\Inventory;
 use App\Models\SuperAdmin;
-use App\Mail\OrderNotificationMail;
 use Illuminate\Http\Request;
 use App\Models\ExclusiveDeal;
+use App\Mail\OrderNotificationMail;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -114,5 +115,94 @@ class OrderController extends Controller
         } else {
             abort(403, 'DO NOT MODIFY THE ORDER DATA REQUEST. YOU HAVE BEEN WARNED HACKER >:(');
         }
+    }
+
+     public function reorderLastPurchase()
+    {
+        $user = Auth::user();
+
+        // 1. Find the timestamp of the user's most recent completed purchase.
+        $lastOrderDate = Order::where('user_id', $user->id)
+                          ->where('status', 'delivered') // <-- Change this line
+                          ->latest('created_at')
+                          ->value('created_at');
+        // 2. If no completed order exists, redirect back.
+        if (!$lastOrderDate) {
+            return redirect()->back()->with('error', 'No prevous completed order found to re-order.');
+        }
+
+        // 3. Get all items that were part of that last purchase.
+        $lastOrderItems = Order::where('user_id', $user->id)
+                               ->where('created_at', $lastOrderDate)
+                               ->get();
+
+        $newOrdersPayload = [];
+        $orderDetailsForEmail = [];
+        $inventoryIssues = [];
+
+        // 4. Loop through each item from the last order to check inventory, just like in storeOrder().
+        foreach ($lastOrderItems as $item) {
+            $deal = ExclusiveDeal::with('product')->find($item->exclusive_deal_id);
+            if (!$deal) continue; // Skip if the deal no longer exists
+
+            $availableQty = Inventory::where('location_id', $user->company->location_id)
+                                     ->where('product_id', $deal->product_id)
+                                     ->sum('quantity');
+
+            // Check if there is enough stock
+            if ($availableQty < $item->quantity) {
+                $inventoryIssues[] = $deal->product->generic_name;
+                continue; // Skip this item but check the others
+            }
+            
+            // If stock is available, prepare the new order line item for insertion
+            $newOrdersPayload[] = [
+                'user_id' => $user->id,
+                'exclusive_deal_id' => $item->exclusive_deal_id,
+                'quantity' => $item->quantity,
+                'status' => 'Pending', // All re-orders start as Pending
+                'date_ordered' => now()->toDateString(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Prepare details for the notification email
+            $orderDetailsForEmail[] = [
+                'user' => $user->name,
+                'product' => $deal->product->generic_name,
+                'quantity_requested' => $item->quantity,
+                'available' => true,
+                'available_quantity' => $availableQty,
+                'location' => $user->company->location->province . ', ' . $user->company->location->city,
+            ];
+        }
+
+        // // 5. Check for any inventory issues.
+        // if (!empty($inventoryIssues)) {
+        //     $products = implode(', ', $inventoryIssues);
+        //     return redirect()->back()->with('error', "Could not re-order. The following products are out of stock: $products.");
+        // }
+        
+        // If there are no items to re-order (e.g., all deals were deleted), stop.
+        // if (empty($newOrdersPayload)) {
+        //     return redirect()->back()->with('error', 'The items from your last order are no longer available.');
+        // }
+
+        // 6. Insert the new order records into the database.
+        Order::insert($newOrdersPayload);
+
+        // 7. Send email notifications to admins, just like in storeOrder().
+        $admins = Admin::all();
+        $superadmins = SuperAdmin::all();
+
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        }
+        foreach ($superadmins as $superadmin) {
+            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        }
+
+        // 8. Redirect with a success message.
+        return redirect()->route('customer.manageorder')->with('success', 'Successfully re-ordered your last purchase. The new order is now pending.');
     }
 }

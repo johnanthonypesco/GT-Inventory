@@ -143,3 +143,7 @@ Route::middleware('auth')->group(function () {
        
         
 });
+Route::middleware('guest')->group(function () {
+    Route::get('/beta-register', [\App\Http\Controllers\BetaRegistrationController::class, 'showForm'])->name('beta.register');
+    Route::post('/beta-register', [\App\Http\Controllers\BetaRegistrationController::class, 'store'])->name('beta.register.store');
+});
