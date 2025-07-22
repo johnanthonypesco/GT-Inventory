@@ -7,6 +7,7 @@
     <title>Streamline Inventory with OCR | PharmaStock Pro</title>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
