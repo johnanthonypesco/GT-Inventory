@@ -33,11 +33,11 @@ function closeaddproductlisting() {
 function editProductListing(id) {
     const editproductlisting = document.getElementById("edit-listing-" + id);
     
-    editproductlisting.classList.replace("-mt-[1000px]", "block");
+    editproductlisting.classList.replace("-mt-[4000px]", "block");
 }
 function closeEditProductListing(id) {
     const editproductlisting = document.getElementById("edit-listing-" + id);
-    editproductlisting.classList.replace("block", "-mt-[1000px]");
+    editproductlisting.classList.replace("block", "-mt-[4000px]");
 }
 
 // checks to see if the search is in the suggestions

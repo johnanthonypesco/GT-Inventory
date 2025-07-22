@@ -18,7 +18,7 @@
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full md:ml-[17%]">
+    <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Dashboard" icon="fa-solid fa-gauge"/>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-5">

@@ -55,7 +55,7 @@ function editRegisteredProduct(prod_id, prod_generic, prod_brand, prod_form, pro
     const img = document.getElementById("edit-prod-img"); // the input
 
     if (modal.classList.contains('-mt-[0px]')) {
-        modal.classList.replace('-mt-[0px]', '-mt-[1000px]');
+        modal.classList.replace('-mt-[0px]', '-mt-[4000px]');
 
         console.log("CLOSING UPDATE MODAL")
         actual_form.reset();
@@ -66,7 +66,7 @@ function editRegisteredProduct(prod_id, prod_generic, prod_brand, prod_form, pro
     } 
 
     // console.log("SHOWING UPDATE MODAL");
-    modal.classList.replace('-mt-[1000px]', '-mt-[0px]');
+    modal.classList.replace('-mt-[4000px]', '-mt-[0px]');
     h1.innerHTML = `Updating Product ID: ${prod_id}`;
     id.value = prod_id;
     generic.value = prod_generic;

@@ -5,15 +5,35 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ManageContents;
+use App\Models\Product;
+
+//history log
+use App\Http\Controllers\Admin\HistorylogController;
 
 class ContentmanagementController extends Controller
 {
     public function showContentmanagement()
     {
-        // Fetch the content from the ManageContents model
         $content = ManageContents::all();
-        return view('admin.contentmanagement', ['content' => $content]);
+        $product = Product::all();
+        $enabledProducts = Product::where('is_displayed', 1)->get(); 
+
+        return view('admin.contentmanagement', [
+            'content' => $content,
+            'product' => $product,
+            'products' => $enabledProducts
+        ]);
     }
+
+    public function enabledisable($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->is_displayed = !$product->is_displayed;
+        $product->save();
+
+        return redirect()->back()->with('status', 'Product status updated!');
+    }
+
 
     public function editContent(Request $request, $id)
     {
@@ -37,7 +57,8 @@ class ContentmanagementController extends Controller
         $content->address = $request->input('address');
 
         $content->save();
-
+        // Log the content update
+        HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ' . auth()->user()->email);
         return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
     }
 }
