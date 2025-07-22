@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Admin\HistorylogController;
-
+use Illuminate\Support\Facades\App;
 
 class InventoryController extends Controller
 {
@@ -225,7 +225,15 @@ class InventoryController extends Controller
             
             // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $targetDir = public_path('/products'); 
+            
+            // PARA COMPATIBLE PAG NAG REDOPLY SA DOMAIN
+            if (App::environment('local')) {
+                // Localhost
+                $targetDir = public_path('/products');
+            } else {
+                // Production
+                $targetDir = base_path('../public_html/products');
+            }
 
             if (!is_dir($targetDir)) { // pag wala pang folder sa public
                 mkdir($targetDir, 0755, true);
@@ -268,7 +276,15 @@ class InventoryController extends Controller
 
             // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $targetDir = public_path('/products'); 
+            
+            // PARA COMPATIBLE PAG NAG REDOPLY SA DOMAIN
+            if (App::environment('local')) {
+                // Localhost
+                $targetDir = public_path('/products');
+            } else {
+                // Production
+                $targetDir = base_path('../public_html/products');
+            }
 
             if (!is_dir($targetDir)) { // pag wala pang folder sa public
                 mkdir($targetDir, 0755, true);

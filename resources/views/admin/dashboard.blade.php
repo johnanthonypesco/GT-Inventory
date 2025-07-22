@@ -85,6 +85,28 @@
 
                 {{-- Part 1: Executive Summary --}}
                 <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
+
+                {{-- Executive Summary Filter Controls --}}
+                <div class="flex flex-col sm:flex-row gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4">
+                    <label for="summaryPeriodSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
+                    <select id="summaryPeriodSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                        <option value="7d" selected>Last 7 Days</option>
+                        <option value="today">Today</option>
+                        <option value="this_week">This Week</option>
+                        <option value="this_month">This Month</option>
+                        <option value="this_year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <div id="summaryCustomRangeContainer" class="hidden flex flex-col sm:flex-row gap-2 items-center">
+                        <input type="date" id="summaryStartDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                        <span class="text-gray-500">to</span>
+                        <input type="date" id="summaryEndDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <button id="applySummaryFilterBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto">
+                        <i class="fas fa-filter mr-1"></i> Apply
+                    </button>
+                </div>
+
                 <div id="ai-summary-content">
                     <div class="loader">
                         <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
