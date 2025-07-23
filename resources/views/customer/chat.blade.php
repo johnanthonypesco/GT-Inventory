@@ -9,7 +9,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Chat</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> </head>
 

@@ -8,24 +8,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Product Listing</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col md:flex-row justify-between items-center mb-5">
-                <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
+                <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
                 {{-- <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>       --}}
 
                 <div class="w-full lg:w-[40%] bg-white flex gap-3 relative rounded-lg">
@@ -41,13 +40,13 @@
                         </button>
                     @endif
 
-                    <form action="{{ route('admin.productlisting') }}" method="GET" id="company-search-form">
+                    <form action="{{ route('admin.productlisting') }}" method="GET" id="company-search-form" class="relative">
                         <input type="hidden" name="search_type" value="company">
                         
                         <input type="search" name="current_search" 
                         id="company-search"
                         placeholder="Search Companies by Name" 
-                        class="{{ $current_search && $current_search['type'] === "company" ? "w-[340px]" : "w-[510px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+                        class="{{ $current_search && $current_search['type'] === "company" ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
     
                         list="company-search-suggestions"
                         autocomplete="off"
@@ -96,9 +95,9 @@
         {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
         <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
             
-            <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
-                <div class="flex flex-col md:flex-row md:justify-between items-center">
+                <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
                             $companyName
@@ -197,7 +196,7 @@
 
     {{-- Modal for Add Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
-        <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
+        <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
             <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">
@@ -245,8 +244,8 @@
                 $brand = $deal->product->brand_name ?? 'No Brand Name';
             @endphp
 
-            <div class="w-full -mt-[4000px] transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
-                <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+            <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
+                <div class="modal w-full lg:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
                     <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
                     {{-- Form --}}
                     <form method="post" action="{{ route('admin.productlisting.update', ['aidee' => $deal->id]) }}" id="editproductlistingform">

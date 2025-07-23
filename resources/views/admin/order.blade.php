@@ -10,7 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
@@ -21,7 +21,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
@@ -346,7 +346,7 @@
 
         {{-- Upload qr code modal --}}
         <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
-            <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
+            <div class="modal bg-white w-full lg:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="uploadqrmodalclose" click="closeuploadqrmodal"/>
                 <!-- Title -->
                 <h1 class="text-xl font-semibold text-gray-800 mb-4">Upload QR Code</h1>

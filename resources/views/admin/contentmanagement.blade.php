@@ -11,7 +11,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Manage Content" icon="fa-solid fa-file" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="table-container p-4 bg-white shadow-md rounded-md mt-5">
@@ -128,7 +128,7 @@
                                         @csrf
                                         @method('PUT')
                                         <button 
-                                            type="submit" class="{{ $product->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $product->is_displayed ? 'Enable' : 'Disabled' }}
+                                            type="submit" class="{{ $product->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $product->is_displayed ? 'Enabled' : 'Disabled' }}
                                         </button>
                                     </form>
                                 </td>

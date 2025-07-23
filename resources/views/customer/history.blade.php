@@ -13,7 +13,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{asset ('css/customer/history.css')}}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
 
     <title>History</title>
 </head>
