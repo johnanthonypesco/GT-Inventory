@@ -11,56 +11,84 @@ use App\Models\ImmutableHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
-    public function showOrder()
+    public function showOrder(Request $request)
     {
-        $orders = Order::with(['user.company.location', 'exclusive_deal.product']) 
-        ->whereNotIn('status', ['delivered', 'cancelled'])
-        ->orderBy('date_ordered', 'desc')
-        ->get()    
-        // groups orders by province
-        ->groupBy(function ($orders)  { 
-            return $orders->user->company->location->province;
-        })
-        // groups the province orders by company name
-        ->map(function ($provinces) { 
-            return $provinces->groupBy(function ($orders) {
-                return $orders->user->company->name;
-            });
-        })
-        // groups the company name orders by employee name & order date
-        ->map(function ($provinces) { 
-            return $provinces->map(function ($companies) {
-                return $companies->groupBy(function ($orders) {
-                    return $orders->user->name . '|' . $orders->date_ordered;
-                });
-            });
-        })
-        //  groups the employee name & order date orders by status
-        ->map(function ($provinces) {
-            return $provinces->map(function ($companies) {
-                return $companies->map(function ($employees) {
-                    return $employees->groupBy(function ($orders) {
-                        return $orders->status;
+        $employeeSearch = $request->input('employee_search', null);
+        
+        $orders = Order::with([
+            'user.company.location',
+            'exclusive_deal.product',
+        ]);
+        
+        // If may search then add another gyad damn condition
+        if ($employeeSearch !== null) {
+            $employeeSearch = explode(' - ', $employeeSearch);
+
+            $orders = $orders->whereHas('user', function ($query) use ($employeeSearch) {
+                $query->where('name', $employeeSearch[0])
+                    ->whereHas('company', function ($q) use ($employeeSearch) {
+                        $q->where('name', $employeeSearch[1]);
                     });
-                });
             });
+        }
+
+        $orders = $orders->whereNotIn('status', ['delivered','cancelled'])
+        ->orderBy('date_ordered','desc')
+        ->get();
+
+        // Explanation ng Hierchy: Province>Company>(we’ll slice per-company here)>employee+date>status>order
+        $provinces = $orders
+        // group muna mga orders into provinces
+        ->groupBy(fn($o) => $o->user->company->location->province)
+        // nilagay ko yung $request para ma kuha current URL params para hindi mwala yung current page states
+        // ng bawat table
+        ->map(function($provinceOrders) use ($request) {
+            $perPage = 10;
+
+            // Dito na ngayon mag grogroup ng fucking paginated companies
+            return $provinceOrders->groupBy(fn($o) => $o->user->company->name)
+                ->mapWithKeys(function($companyOrders, $companyName) use ($request, $perPage) {
+                    $slug = Str::slug($companyName, '_');
+                    $pageParam = "page_{$slug}";
+                    $current = $request->input($pageParam, 1);
+
+                    $slice = $companyOrders->forPage($current, $perPage);
+
+                    // nag manual paginate nalang ako, masyado limited built-in ni Laravel na paginate().
+                    // Now panong gumagana bawat part neto? Ewan, siguradong makakalimutan koto 
+                    // in a few weeks kaya i-ChatGPT mo nalang explanation.
+                    // -- by: MOTHER FUCKIN' SIGRAE
+                    $paginator = new LengthAwarePaginator(
+                        $slice->values(), 
+                        $companyOrders->count(),
+                        $perPage,
+                        $current,
+                        [
+                            'pageName' => $pageParam,
+                            'path'     => LengthAwarePaginator::resolveCurrentPath(),
+                            'query'    => Arr::except($request->query(), $pageParam),
+                        ]
+                    );
+
+                    // dito na ginogroup yung companies by employee+date & grouped by statuses
+                    $grouped = $slice
+                        ->groupBy(fn($o) => $o->user->name.'|'.$o->date_ordered)
+                        ->map(fn($empOrders) => $empOrders->groupBy(fn($o) => $o->status));
+
+                    $grouped->paginator = $paginator;
+
+                    return [$companyName => $grouped];
+                });
         });
 
-        // To get the current summary of total stocks ng bawat product na hindi pa expired
-        // $currentStocks = Inventory::with("product")
-        // // ->where('quantity', '>', 0) nicomment ko para masama ung stock na zero ung quantity..
-        // ->whereDate('expiry_date', '>=', Carbon::today())->get()
-        // ->groupBy(function ($stocks) {
-        //     return $stocks->product->generic_name . "|" . $stocks->product->brand_name;
-        // })
-        // ->map(function ($products) {
-        //     $total = $products->sum("quantity");
-        //     return $total;
-        // });
 
     $currentStocks = Inventory::with("product")
     ->get()
@@ -76,7 +104,6 @@ class OrderController extends Controller
 
         return $nonExpired->sum('quantity');
     });
-        // dd($currentStocks->toArray());
         
         // To get only the orders grouped by name
         $orderArray = Order::with(['user.company', 'exclusive_deal.product']) 
@@ -154,7 +181,7 @@ class OrderController extends Controller
         });
 
         return view('admin.order', [
-            'provinces' => $orders,
+            'provinces' => $provinces,
             'stocksAvailable' => $currentStocks->toArray(),
             'insufficients' => $insufficients,
 
@@ -163,6 +190,11 @@ class OrderController extends Controller
             'insufficientproducts' => $currentInsufficientsproducts,
             'insufficientOrders' => $currentInsufficientsorders,
             'insufficientSummary' => $currentInsufficientSummary,
+
+            'customersSearchSuggestions' => User::with('company')->get(),
+            'current_search' => [
+                'query' => $employeeSearch,
+            ],
 
             'authGuard' => Auth::guard('staff')->check(),
         ]);

@@ -43,9 +43,9 @@ class DatabaseSeeder extends Seeder
         $this->call(SeasonalDataSeeder::class);
 
         // Create additional orders
-        Order::factory()->count(12)->create();
-        for ($i=0; $i < 10; $i++) { 
-            $this->call(OrderSeeder::class);
+        Order::factory()->count(120)->create(); // number of random orders
+        for ($i=0; $i < 30; $i++) { // number of yahoo baby orders
+            $this->call(OrderSeeder::class); 
         }
 
         // Create messages

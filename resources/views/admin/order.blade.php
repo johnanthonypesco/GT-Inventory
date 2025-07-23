@@ -38,45 +38,89 @@
 
 
         <div class="h-[60vh] overflow-auto mt-8">
+            <div class="table-button flex justify-between gap-4 p-1 float-end w-full">
+                {{-- Search --}}
+                <div class="w-fit">
+                    <datalist id="employee-search-suggestions">
+                        @foreach ($customersSearchSuggestions as $customer)
+                            <option value="{{ $customer->name }} - {{ $customer->company->name }}">
+                        @endforeach
+                    </datalist> 
+
+                    {{-- @if ($current_search["query"] !== null && $current_search["type"] === "company")
+                        <button onclick="window.location.href = '{{route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                                Reset Search
+                        </button>
+                    @endif --}}
+
+                    <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex gap-3">
+                        {{-- <input type="hidden" name="search_type" value="company"> --}}
+                        
+                        <input type="search" name="employee_search" 
+                        id="employee_search"
+                        placeholder="Search Employee by Name & Company" 
+                        class="{{ $current_search  ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+    
+                        list="employee-search-suggestions"
+                        autocomplete="off"
+
+                        value="{{ $current_search['query'] ? $current_search['query'][0] . " - " . $current_search['query'][1] : '' }}"
+                        
+                        onkeydown="if(event.key === 'Enter') {
+                            isInSuggestionEmployee() ? 
+                            document.getElementById('employee-search-form').submit() : 
+                            event.preventDefault()
+                        }"
+                        >
+
+                        <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+                </div>
+                {{-- Search --}}
+                
+                {{-- Table Button --}}
+                <div class="flex gap-4 p-1">
+                    @if (!$authGuard) 
+                        <button class="bg-white" onclick="uploadqr()">
+                            <i class="fa-solid fa-upload"></i> Upload QR Code
+                        </button>
+                    @endif
+                
+                    <button class="bg-white" onclick="window.location.href='{{ route('orders.scan') }}'">
+                        <i class="fa-solid fa-qrcode"></i> Scan
+                    </button>
+                </div>
+            </div>
+
             @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
-            <h1 class="text-[20px] sm:text-[30px] font-regular font-bold">
+            <h1 class="text-[20px] sm:text-[30px] font-regular font-bold mb-3">
                 <span class="text-[#005382] text-[30px] font-bold mr-2">
                     Orders In:
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container bg-white p-5 rounded-lg">
+            <div class="table-container bg-white p-5 rounded-lg mb-5">
                 <div class="flex flex-wrap justify-between items-center">
-                    {{-- Search --}}
-                    <x-input name="searchconvo"
-                            placeholder="Search Customer by Name"
-                            classname="fa fa-magnifying-glass"
-                            divclass=" w-full lg:w-[40%] bg-white relative rounded-lg"/>
-                    {{-- Table Button --}}
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                        @if (!$authGuard) 
-                        <button onclick="uploadqr()">
-                            <i class="fa-solid fa-upload"></i> Upload QR Code
-                        </button>
-                    @endif
-                    
-                            <button onclick="window.location.href='{{ route('orders.scan') }}'">
-                        <i class="fa-solid fa-qrcode"></i> Scan
-                        </button>
-                        <button>
-                            <i class="fa-solid fa-download"></i>
-                            Export
-                        </button>
+                        <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
+                            @csrf
+
+                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export All</button>
+                        </form>
                     </div>
                     {{-- Table Button --}}
                 </div>
-                <select name="company" class="rounded-lg px-4 py-2 outline-none mt-5" style="box-shadow: 0 0 5px #00528288;">
+                {{-- I WILL RE-ADD THIS AS A UPGRADE IF THE CLIENT REQUESTS IT --}}
+                {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none mt-5" style="box-shadow: 0 0 5px #00528288;">
                     <option value="company">All Company</option>
                     @foreach ($companies as $companyName => $employees)
                         <option value="{{ $companyName }}">{{ $companyName }}</option>
                     @endforeach
-                </select>
+                </select> --}}
+                {{-- I WILL RE-ADD THIS AS A UPGRADE IF THE CLIENT REQUESTS IT --}}
 
                 @foreach ($companies as $companyName => $employees)
 
@@ -96,8 +140,15 @@
                         />
                         {{-- Table --}}
                     </div>
-                    @endforeach
-                    <x-pagination/>
+
+                    
+                    @if (isset($employees->paginator))
+                        <div class="mt-4">
+                            {{ $employees->paginator->links() }}
+                        </div>
+                    @endif
+                @endforeach
+                    {{-- <x-pagination/> --}}
             </div>
             {{-- Table for Order --}}
         @endforeach
@@ -135,8 +186,7 @@
                                         {{
                                             match ($statusName) {
                                                 'pending' => 'text-orange-600',
-                                                'completed' => 'text-blue-600',
-                                                'partial-delivery' => 'text-purple-700',
+                                                'packed' => 'text-purple-700',
                                                 default => 'text-black'
                                             }
                                         }}
@@ -191,18 +241,18 @@
                                                         @else
                                                             <div class="flex gap-1 items-center justify-center">
                                                                 <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
-    'order-modal-{{ $employeeNameAndDate }}', {
-    province: '{{$provinceName}}',
-    company: '{{$companyName}}',
-    employee: '{{$separatedInModal[0]}}',         // ✅ FIXED
-    date_ordered: '{{$separatedInModal[1]}}',
-    generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
-    brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
-    form: '{{$productInfo->form}}',
-    quantity: {{$order->quantity}},
-    price: {{$order->exclusive_deal->price}},
-    subtotal: {{$order_calc}},
-})">
+                                                                'order-modal-{{ $employeeNameAndDate }}', {
+                                                                province: '{{$provinceName}}',
+                                                                company: '{{$companyName}}',
+                                                                employee: '{{$separatedInModal[0]}}',         // ✅ FIXED
+                                                                date_ordered: '{{$separatedInModal[1]}}',
+                                                                generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
+                                                                brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
+                                                                form: '{{$productInfo->form}}',
+                                                                quantity: {{$order->quantity}},
+                                                                price: {{$order->exclusive_deal->price}},
+                                                                subtotal: {{$order_calc}},
+                                                            })">
                                                                     Change Status
                                                                 </button>
 
@@ -291,7 +341,7 @@
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
                 <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
                 
-              -->
+              
 
 <form id="change-status-form" action="{{ route("admin.order.update", 0) }}" method="POST" class="overflow-y-auto h-fit max-h-[400px] flex flex-col gap-4 mt-5">
     @csrf
@@ -315,8 +365,8 @@
     <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
         PENDING
     </button>
-    <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'completed')" type="button">
-        COMPLETED
+    <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'packed')" type="button">
+        PACKED
     </button>
     <button class="bg-blue-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'delivered')" type="button">
         DELIVERED
@@ -373,46 +423,46 @@
             </h1>
 
            <div class="h-[70vh] overflow-auto">
-                @foreach ($insufficients as $orderName => $orders)
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date Ordered</th>
-                            <th>Company</th>
-                            <th>Employee</th>
+               <table>
+                   <thead>
+                       <tr>
+                           <th>Date Ordered</th>
+                           <th>Company</th>
+                           <th>Employee</th>
                             <th>Generic Name</th>
                             <th>Brand Name</th>
                             <th>Current Supply</th>
                             <th>Demanded Quantity</th>
                         </tr>
                     </thead>
-
-                    <tbody>
-                        @foreach ($orders as $order)
-                            @php
-                                $explodedName = explode("|", $order["currentInfo"]["name"]);
-                                $available = $order["currentInfo"]["total"];
-                                $isExpired = $available === 'expired';
-                            @endphp
                     
-                            <tr>
-                                <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
-                                <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
-                                <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
-                                <td> {{ $explodedName[0] }} </td>
-                                <td> {{ $explodedName[1] }} </td>
-                                <td>
-                                    {{ $isExpired ? 'Expired' : number_format($available) }}
-                                </td>
-                                <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
-                            </tr>
+                    <tbody>
+                        @foreach ($insufficients as $orderName => $orders)
+                            @foreach ($orders as $order)
+                                @php
+                                    $explodedName = explode("|", $order["currentInfo"]["name"]);
+                                    $available = $order["currentInfo"]["total"];
+                                    $isExpired = $available === 'expired';
+                                @endphp
+                        
+                                <tr>
+                                    <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
+                                    <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
+                                    <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
+                                    <td> {{ $explodedName[0] }} </td>
+                                    <td> {{ $explodedName[1] }} </td>
+                                    <td>
+                                        {{ $isExpired ? 'Expired' : number_format($available) }}
+                                    </td>
+                                    <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
+                                </tr>
+                            @endforeach
                         @endforeach
                     </tbody>
                     
                 </table>
-            @endforeach
            </div>
-           <x-pagination/>
+           {{-- <x-pagination/> --}}
         </div>
     </div>
 
@@ -428,15 +478,21 @@
                 <table>
                 <thead>
                     <tr>
-                        <th>Product Name</th>
+                        <th>Generic Name</th>
+                        <th>Brand Name</th>
                         <th>Available Stock</th>
                         <th>Total Ordered</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($insufficientSummary as $item)
+                        @php
+                            $explosionBaby = explode("|", $item['product']);
+                        @endphp    
+
                         <tr>
-                            <td>{{ $item['product'] }}</td>
+                            <td>{{ $explosionBaby[0] }}</td>
+                            <td>{{ $explosionBaby[1] }}</td>
                             <td>{{ $item['available'] }}</td>
                             <td>{{ $item['ordered'] }}</td>
                         </tr>
@@ -614,5 +670,19 @@ function changeStatus(form, statusType) {
     }
 }
 
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+function isInSuggestionEmployee () {
+    const input = document.getElementById('employee_search');
+    const dataList = document.getElementById('employee-search-suggestions');
+    const options = Array.from(dataList.options).map(option => option.value);
 
+    if (!options.includes(input.value)) {
+        alert("Please Choose a Employee & Company From The Search Suggestions.");
+        
+        return false;
+    } else {
+        return true;
+    }
+}
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
 </script>
