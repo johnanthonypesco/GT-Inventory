@@ -284,9 +284,9 @@
                                 <p class="text-right text-[18px] sm:text-[20px] font-bold">
                                     Grand Total: ₱ {{ number_format($total) }}
                                 </p>
-                                <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
+                                {{-- <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
                                     <i class="fa-solid fa-qrcode"></i>Qr Code
-                                </button>
+                                </button> --}}
                                 {{-- Example: if the last order in the group is "completed" --}}
                                 {{-- @if ($groupedOrdersByCompanyName->last()->status === "completed")
                                     <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
