@@ -7,9 +7,11 @@ use App\Models\Admin;
 use App\Models\Staff;
 use App\Models\Company;
 use App\Models\Location;
+use App\Mail\NewAccountMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\HistorylogController;
 
 class SuperAdminAccountController extends Controller
@@ -147,6 +149,18 @@ class SuperAdminAccountController extends Controller
 
             $validated = array_map("strip_tags", $validated);
 
+            // ✅ 1. Capture the plain-text password from the request.
+        // This is the password the admin entered in the form.
+        $plainPassword = $validated['password'];
+
+        // Handle Company Creation logic (no changes needed here)
+        if ($validated['role'] === 'customer') {
+           // ... your company creation logic
+        }
+
+        $user = null;
+        $loginUrl = '';
+
 
          // Handle Company Creation for Customers
          if ($validated['role'] === 'customer') {
@@ -168,54 +182,61 @@ class SuperAdminAccountController extends Controller
         
 
             // dd($validated);
-        match ($validated['role']) {
-            'admin' => Admin::create([
+       $user = match ($validated['role']) {
+            'admin' => tap(Admin::create([
                 'username' => $validated['username'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'super_admin_id' => auth()->id(),
                 'contact_number' => $validated['contact_number'] ?? null,
-                'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
-            ]),
-            'staff' => Staff::create([
+                'is_admin' => 1,
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/admin/login');
+            }),
+
+            'staff' => tap(Staff::create([
                 'staff_username' => $validated['username'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
                 'location_id' => $validated['location_id'],
                 'contact_number' => $validated['contact_number'] ?? null,
                 'job_title' => $validated['job_title'],
                 'is_staff' => 1,
-            ]),
-            'customer' => User::create([
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/staff/login');
+            }),
+
+            'customer' => tap(User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'contact_number' => $validated['contact_number'],
-                'company_id' => $validated['company_id'] ?? null, // Assign Company ID
-                'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
-                'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
-            ]),
+                'company_id' => $validated['company_id'] ?? null,
+                'is_admin' => 0,
+                'email_verified_at' => null,
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/login');
+            }),
         };
 
+        if ($user) {
+            Mail::to($user->email)->send(new NewAccountMail($user, $plainPassword, $loginUrl));
+        }
+
+        // Your existing history log
         HistorylogController::addaccountlog(
             "Add",
             ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
         );
-        
 
-        // dd($validated);
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
+
     } catch (\Illuminate\Validation\ValidationException $e) {
-        // Redirect back with validation errors
         return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
     }
     catch (\Exception $e) {
-        // Log error message
-
-    dd($e);
         Log::error('Error creating account', ['message' => $e->getMessage()]);
-
         return back()->with('error', 'Failed to create account. Please check logs.');
     }
 }

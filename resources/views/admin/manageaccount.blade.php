@@ -37,7 +37,12 @@
 
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
-
+ @if (session('success'))
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6" role="alert">
+                        <p class="font-bold">Success!</p>
+                        <p>{{ session('success') }}</p>
+                    </div>
+                @endif
         {{-- Filter & Add Account --}}
         <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
             <select id="accountFilter" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none">

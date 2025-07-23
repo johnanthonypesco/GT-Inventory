@@ -13,7 +13,7 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Order</title>
 </head>
-<body class="bg-[#BBBCBE] flex p-5 gap-5">
+<body class="bg-[#F3F4F6] flex p-5 gap-5">
     <x-customer.navbar />
 
     <main class="w-full lg:ml-[17%]">
