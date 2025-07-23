@@ -307,6 +307,8 @@ class InventoryController extends Controller
 
         $prod->update($validated);
 
+        HistorylogController::addproductlog('Edit', 'Product ' . $prod->generic_name . ' ' . $prod->brand_name . ' has been updated by ');
+
         // dd("updated");
         return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }

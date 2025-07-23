@@ -10,132 +10,102 @@ use App\Models\Staff;
 use App\Models\SuperAdmin;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 
 class ChatRepsController extends Controller
 {
     public function index()
-{
-    $authUserId = Auth::id();
-    $customer = User::find($authUserId); // Retrieve the logged-in customer
+    {
+        $authUserId = Auth::id();
+        $customer = User::find($authUserId);
 
-    // Ensure the customer has a company and get the company_id
-    if (!$customer->company) {
-        abort(403, 'Customer does not belong to a company.');
-    }
-    $customerCompanyId = $customer->company->id; // Assuming the company has an `id` field
+        if (!$customer || !$customer->company) {
+            abort(403, 'Customer does not belong to a company.');
+        }
+        $customerCompanyId = $customer->company->id;
 
-    // Fetch Super Admins and Admins (no filtering needed for them)
-    $superAdmins = SuperAdmin::all();
-    $admins = Admin::all();
+        $superAdmins = SuperAdmin::all();
+        $admins = Admin::all();
+        $staff = Staff::whereHas('location', function ($query) use ($customerCompanyId) {
+            $query->where('id', $customerCompanyId);
+        })->get();
 
-    // Fetch Staff members with the same location_id as the customer's company_id
-    $staff = Staff::whereHas('location', function ($query) use ($customerCompanyId) {
-        $query->where('id', $customerCompanyId); // Assuming location_id in staff matches company_id in customer
-    })->get();
+        $getLastMessage = function ($id, $type) use ($authUserId) {
+            return Conversation::where(function ($query) use ($id, $type, $authUserId) {
+                $query->where('sender_id', $authUserId)->where('sender_type', 'customer')
+                      ->where('receiver_id', $id)->where('receiver_type', $type);
+            })->orWhere(function ($query) use ($id, $type, $authUserId) {
+                $query->where('sender_id', $id)->where('sender_type', $type)
+                      ->where('receiver_id', $authUserId)->where('receiver_type', 'customer');
+            })->latest('created_at')->first();
+        };
 
-    // Function to get the last message
-    $getLastMessage = function ($id, $type) use ($authUserId) {
-        return Conversation::where(function ($query) use ($id, $type, $authUserId) {
-            $query->where('sender_id', $authUserId)
-                  ->where('sender_type', 'customer')
-                  ->where('receiver_id', $id)
-                  ->where('receiver_type', $type);
-        })->orWhere(function ($query) use ($id, $type, $authUserId) {
-            $query->where('sender_id', $id)
-                  ->where('sender_type', $type)
-                  ->where('receiver_id', $authUserId)
-                  ->where('receiver_type', 'customer');
-        })->latest('created_at')->first();
-    };
+        $countUnreadMessages = function ($id, $type) use ($authUserId) {
+            return Conversation::where('sender_id', $id)->where('sender_type', $type)
+                ->where('receiver_id', $authUserId)->where('receiver_type', 'customer')
+                ->where('is_read', 0)->count();
+        };
 
-    // Function to count unread messages
-    $countUnreadMessages = function ($id, $type) use ($authUserId) {
-        return Conversation::where('sender_id', $id)
-            ->where('sender_type', $type)
-            ->where('receiver_id', $authUserId)
-            ->where('receiver_type', 'customer')
-            ->where('is_read', 0)
-            ->count();
-    };
+        $superAdmins = $superAdmins->filter(fn($superadmin) => Conversation::where('sender_id', $superadmin->id)->where('sender_type', 'super_admin')->where('receiver_id', $authUserId)->where('receiver_type', 'customer')->exists());
+        $admins = $admins->filter(fn($admin) => Conversation::where('sender_id', $admin->id)->where('sender_type', 'admin')->where('receiver_id', $authUserId)->where('receiver_type', 'customer')->exists());
 
-    // Filter Super Admins who have sent at least one message
-    $superAdmins = $superAdmins->filter(function ($superadmin) use ($authUserId) {
-        return Conversation::where('sender_id', $superadmin->id)
-            ->where('sender_type', 'super_admin')
-            ->where('receiver_id', $authUserId)
-            ->where('receiver_type', 'customer')
-            ->exists();
-    });
+        foreach ($superAdmins as $superadmin) {
+            $superadmin->lastMessage = $getLastMessage($superadmin->id, 'super_admin');
+            $superadmin->unreadCount = $countUnreadMessages($superadmin->id, 'super_admin');
+        }
 
-    // Filter Admins who have sent at least one message
-    $admins = $admins->filter(function ($admin) use ($authUserId) {
-        return Conversation::where('sender_id', $admin->id)
-            ->where('sender_type', 'admin')
-            ->where('receiver_id', $authUserId)
-            ->where('receiver_type', 'customer')
-            ->exists();
-    });
+        foreach ($admins as $admin) {
+            $admin->lastMessage = $getLastMessage($admin->id, 'admin');
+            $admin->unreadCount = $countUnreadMessages($admin->id, 'admin');
+        }
 
-    // Attach last message and unread count to filtered Super Admins
-    foreach ($superAdmins as $superadmin) {
-        $superadmin->lastMessage = $getLastMessage($superadmin->id, 'super_admin');
-        $superadmin->unreadCount = $countUnreadMessages($superadmin->id, 'super_admin');
+        foreach ($staff as $staffMember) {
+            $staffMember->lastMessage = $getLastMessage($staffMember->id, 'staff');
+            $staffMember->unreadCount = $countUnreadMessages($staffMember->id, 'staff');
+        }
+
+        $totalUnreadMessages = Conversation::where('receiver_id', $authUserId)
+            ->where('receiver_type', 'customer')->where('is_read', 0)->count();
+
+        return view('customer.chat', compact('superAdmins', 'admins', 'staff', 'totalUnreadMessages'));
     }
 
-    // Attach last message and unread count to filtered Admins
-    foreach ($admins as $admin) {
-        $admin->lastMessage = $getLastMessage($admin->id, 'admin');
-        $admin->unreadCount = $countUnreadMessages($admin->id, 'admin');
+    public function show($id, $type)
+    {
+        if (!in_array($type, ['super_admin', 'admin', 'staff'])) {
+            abort(403, 'Invalid chat recipient.');
+        }
+
+        $user = match ($type) {
+            'super_admin' => SuperAdmin::findOrFail($id),
+            'admin' => Admin::findOrFail($id),
+            'staff' => Staff::findOrFail($id),
+        };
+
+        Conversation::where('sender_id', $id)->where('sender_type', $type)
+            ->where('receiver_id', Auth::id())->where('receiver_type', 'customer')
+            ->update(['is_read' => true]);
+
+        $conversations = Conversation::where(function ($query) use ($id, $type) {
+            $query->where('sender_id', Auth::id())->where('sender_type', 'customer')
+                  ->where('receiver_id', $id)->where('receiver_type', $type);
+        })->orWhere(function ($query) use ($id, $type) {
+            $query->where('sender_id', $id)->where('sender_type', $type)
+                  ->where('receiver_id', Auth::id())->where('receiver_type', 'customer');
+        })->orderBy('created_at', 'asc')->get();
+
+        // ✅ Transform the file_path to a full URL before sending to the view
+        $conversations->transform(function ($conversation) {
+            if ($conversation->file_path && !filter_var($conversation->file_path, FILTER_VALIDATE_URL)) {
+                $conversation->file_path = url($conversation->file_path);
+            }
+            return $conversation;
+        });
+
+        return view('customer.chatting', compact('user', 'conversations', 'type'))
+            ->with('receiverType', $type);
     }
-
-    // Attach last message and unread count to Staff
-    foreach ($staff as $staffMember) {
-        $staffMember->lastMessage = $getLastMessage($staffMember->id, 'staff');
-        $staffMember->unreadCount = $countUnreadMessages($staffMember->id, 'staff');
-    }
-
-    $totalUnreadMessages = Conversation::where('receiver_id', $authUserId)
-        ->where('receiver_type', 'customer')
-        ->where('is_read', 0)
-        ->count();
-
-    return view('customer.chat', compact('superAdmins', 'admins', 'staff', 'totalUnreadMessages'));
-}
-
-public function show($id, $type)
-{
-    if (!in_array($type, ['super_admin', 'admin', 'staff'])) {
-        abort(403, 'Invalid chat recipient.');
-    }
-
-    // Fetch the user based on the type
-    $user = match ($type) {
-        'super_admin' => SuperAdmin::findOrFail($id),
-        'admin' => Admin::findOrFail($id),
-        'staff' => Staff::findOrFail($id),
-        default => abort(404),
-    };
-
-    // Mark messages as read
-    Conversation::markAsRead($id, $type, Auth::id(), 'customer');
-
-    // Fetch conversations
-    $conversations = Conversation::where(function ($query) use ($id, $type) {
-        $query->where('sender_id', Auth::id())
-              ->where('sender_type', 'customer')
-              ->where('receiver_id', $id)
-              ->where('receiver_type', $type);
-    })->orWhere(function ($query) use ($id, $type) {
-        $query->where('sender_id', $id)
-              ->where('sender_type', $type)
-              ->where('receiver_id', Auth::id())
-              ->where('receiver_type', 'customer');
-    })->orderBy('created_at', 'asc')->get();
-
-    // Pass the receiver type and username to the view
-    return view('customer.chatting', compact('user', 'conversations', 'type'))
-        ->with('receiverType', $type);
-}
 
     public function store(Request $request)
     {
@@ -156,20 +126,24 @@ public function show($id, $type)
         }
 
         $filePath = null;
-        
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName(); // Ensure unique filename
-            
-            // ✅ Move file to the public/uploads directory
-            $file->move(public_path('uploads/chat_files'), $fileName);
-            
-            // ✅ Get the public URL of the file
-            $filePath = asset("uploads/chat_files/{$fileName}");
-        }
+            $fileName = $file->hashName(); // Use hashName for unique, safe filenames
+            $subfolder = 'uploads/chat_files';
 
-        if (!$request->message && !$filePath) {
-            return redirect()->back()->with('error', 'Message or file is required.');
+            // ✅ Determine target directory based on environment
+            $targetDir = App::environment('local')
+                ? public_path($subfolder)
+                : base_path('../public_html/' . $subfolder);
+
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true, true);
+            }
+
+            $file->move($targetDir, $fileName);
+
+            // ✅ Store the relative path in the database
+            $filePath = $subfolder . '/' . $fileName;
         }
 
         Conversation::create([
@@ -192,11 +166,9 @@ public function show($id, $type)
             'sender_type' => 'required|string',
         ]);
 
-        $customerId = Auth::id();
-
         Conversation::where('sender_id', $request->sender_id)
             ->where('sender_type', $request->sender_type)
-            ->where('receiver_id', $customerId)
+            ->where('receiver_id', Auth::id())
             ->where('receiver_type', 'customer')
             ->where('is_read', false)
             ->update(['is_read' => true]);

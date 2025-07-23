@@ -1,54 +1,44 @@
 <?php
 
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GroupChat;
+use App\Models\Admin;
+use App\Models\Staff;
+use App\Models\SuperAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\App; // Add this
-use Illuminate\Support\Facades\File; // Add this
+use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 
 class GroupChatController extends Controller
 {
+    /**
+     * Display the chat view with initial messages.
+     */
     public function index()
     {
-        $conversations = GroupChat::with('sender')->get();
-
-        foreach ($conversations as $conversation) {
-            // Decrypt message if it exists
-            if ($conversation->message) {
-                try {
-                    $conversation->message = Crypt::decryptString($conversation->message);
-                } catch (\Exception $e) {
-                    $conversation->message = '[Could not decrypt message]';
-                }
-            }
-
-            // ✅ Convert file_path from relative path to full URL for the view
-            if ($conversation->file_path) {
-                // Check if it's not already a full URL
-                if (!filter_var($conversation->file_path, FILTER_VALIDATE_URL)) {
-                    $conversation->file_path = url($conversation->file_path);
-                }
-            }
-        }
-
-        return view('admin.GroupChat', compact('conversations'));
+        return view('admin.GroupChat');
     }
 
+    /**
+     * Store a new chat message.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'message' => 'nullable|string',
-            'file' => 'nullable|file|mimes:jpg,png,pdf,docx|max:2048',
+            'message' => 'nullable|string|max:2000',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,xlsx|max:5120', // 5MB max
         ]);
 
         $filePath = null;
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            // ✅ Use hashName for a unique, safe filename
+            // Use hashName for a unique, safe filename
             $fileName = $file->hashName();
             $subfolder = 'group_chats';
 
@@ -56,6 +46,8 @@ class GroupChatController extends Controller
             if (App::environment('local')) {
                 $targetDir = public_path($subfolder);
             } else {
+                // This assumes your Laravel project is one level inside the root,
+                // and public_html is the public directory at the root.
                 $targetDir = base_path('../public_html/' . $subfolder);
             }
 
@@ -67,17 +59,68 @@ class GroupChatController extends Controller
             // Move the file to the target directory
             $file->move($targetDir, $fileName);
 
-            // ✅ Store the relative path in the database
+            // Store the relative path in the database
             $filePath = $subfolder . '/' . $fileName;
         }
 
-        GroupChat::create([
-            'sender_id' => auth()->id(),
+        if (!$request->message && !$filePath) {
+            return response()->json(['error' => 'A message or file is required.'], 422);
+        }
+
+        $chat = GroupChat::create([
+            'sender_id'   => auth()->id(),
             'sender_type' => get_class(auth()->user()),
-            'message' => $request->message ? Crypt::encryptString($request->message) : null, // 🔒 Encrypt message
-            'file_path' => $filePath,
+            'message'     => $request->message ? Crypt::encryptString($request->message) : null,
+            'file_path'   => $filePath,
         ]);
 
-        return back();
+        return response()->json($this->formatMessageForResponse($chat));
+    }
+
+    /**
+     * Fetch messages for the chatbox.
+     */
+    public function fetchMessages(Request $request)
+    {
+        $lastId = $request->query('last_id', 0);
+
+        $messages = GroupChat::with('sender')
+            ->where('id', '>', $lastId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $formattedMessages = $messages->map(fn($message) => $this->formatMessageForResponse($message));
+
+        return response()->json($formattedMessages);
+    }
+
+    /**
+     * Helper function to format a message for a consistent JSON response.
+     */
+    private function formatMessageForResponse(GroupChat $chat)
+    {
+        $user = auth()->user();
+        $isCurrentUser = $user->id === $chat->sender_id && get_class($user) === $chat->sender_type;
+
+        if ($isCurrentUser) {
+            $senderName = "You";
+        } else {
+            $senderName = match ($chat->sender_type) {
+                Staff::class      => 'Staff',
+                Admin::class      => 'Admin',
+                SuperAdmin::class => 'Super Admin',
+                default           => $chat->sender->name ?? 'Unknown',
+            };
+        }
+
+        return [
+            'id'              => $chat->id,
+            'sender_name'     => $senderName,
+            'message'         => $chat->message ? Crypt::decryptString($chat->message) : null,
+            // ✅ Use the url() helper to generate the correct public URL
+            'file_url'        => $chat->file_path ? url($chat->file_path) : null,
+            'is_current_user' => $isCurrentUser,
+            'timestamp'       => Carbon::parse($chat->created_at)->format('M d, Y, h:i A'),
+        ];
     }
 }

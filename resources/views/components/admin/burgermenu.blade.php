@@ -4,10 +4,15 @@
 
 
 
-<div class="sidebar fixed top-0 -left-20 w-0 h-full flex flex-col bg-white z-20 gap-1 p-10 transition-all duration-500 overflow-hidden">
-    <div class="p-3 flex flex-col">
+
+
+<div class="sidebar fixed top-0 -left-32 w-0 h-full flex flex-col bg-white z-20 gap-1 p-10 transition-all duration-500" id="sidebar">
+    <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
+        <div onclick="closeSidebar()" class="w-10 h-10 bg-white shadow-md z-40 flex items-center justify-center absolute -top-10 -right-16 rounded-md hover:cursor-pointer">
+            <span class="text-3xl text-red-500 font-bold">&times;</span>
+        </div>
     </div>
     <a href="{{ route ('admin.dashboard')}}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md"></i>Dashboard</a>
 

@@ -9,11 +9,12 @@ use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Exports\InventoryExport;
+use App\Models\Order;
 use Str;
 
 class ExportController extends Controller
 {
-    public function export(Request $request, $exportType = 'all')
+    public function export(Request $request, $exportType = 'all', $exportSpecification = null)
     {
         $validated = $request->validate([
             'array' => 'nullable'
@@ -82,6 +83,24 @@ class ExportController extends Controller
                 $fileName = 'expired-stocks-[' . date('Y-m-d') . '].xlsx';                
                 break;
 
+            case 'order-export':
+                $orders = Order::with([
+                    'user.company.location',
+                    'exclusive_deal.product'
+                ])
+                ->whereNotIn('status', ['delivered', 'cancelled'])
+                ->whereHas('user.company.location', function ($query) use ($exportSpecification) {
+                    $query->where('province', $exportSpecification);
+                })
+                ->orderByDesc('date_ordered')
+                ->get()
+                ->groupBy('status');
+
+                // dd($orders->toArray());
+
+                $fileName = $exportSpecification . '-orders-[' . date('Y-m-d') . '].xlsx';  
+                break;
+
             default:
                 return response()->json(['error' => 'Invalid export type'], 400);
         }
@@ -93,6 +112,10 @@ class ExportController extends Controller
         
         else if(in_array(Str::lower($exportType), ['in-summary', 'low-summary', 'out-summary'])) {
             $export = new InventoryExport($inventory, "grouped", $exportType);
+        } 
+
+        else if ($exportType === "order-export" && $exportSpecification !== null) {
+            $export = new InventoryExport($orders, "orders", $exportType);
         }
 
         // dd($exportType);

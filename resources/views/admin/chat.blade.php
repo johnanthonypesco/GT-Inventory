@@ -16,7 +16,7 @@
 
     <main class="md:w-full h-full lg:ml-[16%] ml-0">
         <x-admin.header title="Chat" icon="fa-solid fa-message"/>
-        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
+        {{-- <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/> --}}
 
         <div class="flex flex-col bg-white mt-5 p-5 rounded-lg">
             <!-- Chat List -->

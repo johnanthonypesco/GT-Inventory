@@ -128,7 +128,7 @@
                                         @csrf
                                         @method('PUT')
                                         <button 
-                                            type="submit" class="{{ $product->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $product->is_displayed ? 'Enable' : 'Disabled' }}
+                                            type="submit" class="{{ $product->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $product->is_displayed ? 'Enabled' : 'Disabled' }}
                                         </button>
                                     </form>
                                 </td>

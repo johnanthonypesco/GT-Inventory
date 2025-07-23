@@ -105,8 +105,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('admin/inventory/{addType}', [InventoryController::class, 'addStock'])->name('admin.inventory.store');
         Route::post('admin/inventory/search/{type}', [InventoryController::class, 'searchInventory'])->name('admin.inventory.search');
 
-        Route::get('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
-        Route::post('admin/inventory/export/{exportType}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        Route::get('admin/inventory/export/{exportType}/{exportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
+        Route::post('admin/inventory/export/{exportType}/{exportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
         
         // dashboard routes
          // API routes for dashboard charts
@@ -281,6 +281,8 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
     // Group Chat
     Route::get('/admin/group-chat', [GroupChatController::class, 'index'])->name('admin.group.chat');
     Route::post('/admin/group-chat/store', [GroupChatController::class, 'store'])->name('admin.group.chat.store');
+    // ✅ ADD THIS NEW ROUTE FOR FETCHING MESSAGES
+    Route::get('/admin/group-chat/messages', [GroupChatController::class, 'fetchMessages'])->name('admin.group.chat.fetch');
     // Route::get('/admin/chat/{user}', [ChatController::class, 'index'])->name('admin.chat.index');
     Route::post('/admin/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
 

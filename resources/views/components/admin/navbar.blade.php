@@ -41,8 +41,8 @@
 
             </a>
             
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping {{ request()->is('admin/order') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
 
             </a>
@@ -64,8 +64,8 @@
         @endif
 
         @if (auth('staff')->check())
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-sm {{ request()->is('staff/order') ? 'text-white' : 'text-[#005382]'  }}"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
             </a>
 

@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+        <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Super Admin Login</title>
 </head>

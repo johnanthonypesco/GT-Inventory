@@ -5,6 +5,13 @@ function sidebar() {
     sidebar.classList.toggle('w-[280px]')
 }
 
+function closeSidebar() {
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.remove('left-0')
+    sidebar.classList.remove('w-[280px]')
+}
+
 window.onclick = function(event) {
     if (event.target.matches('.sidebar')) {
         sidebar()
@@ -26,10 +33,17 @@ navicons.forEach(function(icon) {
     }
 });
 
-window.addEventListener('resize', () => {
+window.addEventListener('scroll', () => {
+    event.preventDefault();
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.remove('left-0')
-    sidebar.classList.remove('w-[300px]')
+    sidebar.classList.remove('w-[280px]')
+})
+window.addEventListener('resize', () => {
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.remove('left-0')
+    sidebar.classList.remove('w-[280px]')
 })
 
 // add auto reload for realtime
