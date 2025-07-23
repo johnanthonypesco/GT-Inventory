@@ -20,7 +20,7 @@
         <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">
-            <!-- Available Products -->
+           <!-- Available Products -->
             <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl">
                 <h1 class="font-semibold text-2xl">Available Products</h1>
                 <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>

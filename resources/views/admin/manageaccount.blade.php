@@ -62,77 +62,85 @@
         </div>
         {{-- End Filter & Add Account --}}
 
-        {{-- Table for Account List --}}
-        <div class="w-full bg-white h-[490px] mt-3 rounded-lg p-5">
-            <div class="flex justify-between items-center flex-col md:flex-row gap-2">
-                <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
-                <div class="w-full md:w-[35%] relative">
-                    <input type="search" id="accountSearch" placeholder="Search Account Name" class="w-full p-2 rounded-lg border border-[#005382]">
-                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container mt-5 overflow-auto md:h-[80%]">
-                <div class="h-[360px] overflow-auto">
-                    <table class="min-w-full bg-white border border-gray-300">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b">Account Id</th>
-                                <th class="py-2 px-4 border-b">Name/Username</th>
-                                <th class="py-2 px-4 border-b">Email Address</th>
-                                <th class="py-2 px-4 border-b">Role</th>
-                                <th class="py-2 px-4 border-b">Company</th>
-                                <th class="py-2 px-4 border-b">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="accountsTableBody">
-                            @php
-                                $isSuperAdmin = auth()->guard('superadmin')->check();
-                                $isAdmin = auth()->guard('admin')->check();
-                            @endphp
-                            
-                            @foreach ($accounts as $account)
-                                @if($isSuperAdmin || ($isAdmin && in_array($account['role'], ['staff', 'customer'])))
-                                <tr 
-                                    data-id="{{ $account['id'] }}" 
-                                    data-name="{{ $account['name'] }}" 
-                                    data-username="{{ $account['username'] ?? $account['staff_username'] ?? '' }}"
-                                    data-email="{{ $account['email'] }}"
-                                    data-role="{{ $account['role'] }}"
-                                    data-location="{{ $account['location_id'] ?? '' }}"
-                                    data-jobtitle="{{ $account['job_title'] ?? '' }}"
-                                    data-adminid="{{ $account['admin_id'] ?? '' }}"
-                                    data-contactnumber="{{ $account['contact_number'] ?? 'N/A' }}" >
-                                    
-                                    <td class="py-2 px-4 border-b">{{ $account['id'] }}</td>
-                                    <td class="py-2 px-4 border-b">{{ $account['name'] ?? $account['username'] ?? $account['staff_username'] ?? 'N/A' }}</td>
-                                    <td class="py-2 px-4 border-b">{{ $account['email'] }}</td>
-                                    <td class="py-2 px-4 border-b">{{ ucfirst($account['role']) }}</td>
-                                    <td class="py-2 px-4 border-b">{{ $account['company'] ?? 'RCT Med Pharma' }}</td>
-                                    <td class="py-2 px-4 border-b flex justify-center items-center gap-4">
-                                        <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
-                                            <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
-                                        </button>
-                                        <form id="deleteaccountform-{{ $account['id'] }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account['role'], 'id' => $account['id']]) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer" 
-                                            data-account-id="{{ $account['id'] }}" 
-                                            onclick="confirmDelete(this)">
-                                            <i class="fa-solid fa-trash mr-2"></i> Delete
-                                        </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endif
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+     {{-- Table for Account List --}}
+<div class="w-full bg-white mt-3 rounded-lg p-5">
+    
+    {{-- Account List Header --}}
+    <div class="flex justify-between items-center flex-col md:flex-row gap-2">
+        <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
+        <div class="w-full md:w-[35%] relative">
+            <input type="search" id="accountSearch" placeholder="Search Account Name" class="w-full p-2 rounded-lg border border-[#005382]">
+            <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
         </div>
+    </div>
+
+    {{-- Table Container --}}
+    <div class="table-container mt-5 overflow-auto">
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Account Id</th>
+                    <th class="py-2 px-4 border-b">Name/Username</th>
+                    <th class="py-2 px-4 border-b">Email Address</th>
+                    <th class="py-2 px-4 border-b">Role</th>
+                    <th class="py-2 px-4 border-b">Company</th>
+                    <th class="py-2 px-4 border-b">Action</th>
+                </tr>
+            </thead>
+            <tbody id="accountsTableBody">
+                @php
+                    $isSuperAdmin = auth()->guard('superadmin')->check();
+                    $isAdmin = auth()->guard('admin')->check();
+                @endphp
+    
+                @foreach ($accounts as $account)
+                    @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
+                    <tr 
+                        data-id="{{ $account->id }}" 
+                        data-name="{{ $account->name }}" 
+                        data-username="{{ $account->username ?? $account->staff_username ?? '' }}"
+                        data-email="{{ $account->email }}"
+                        data-role="{{ $account->role }}"
+                        data-location="{{ $account->location_id ?? '' }}"
+                        data-jobtitle="{{ $account->job_title ?? '' }}"
+                        data-adminid="{{ $account->admin_id ?? '' }}"
+                        data-contactnumber="{{ $account->contact_number ?? 'N/A' }}" >
+                        
+                        <td class="py-2 px-4 border-b">{{ $account->id }}</td>
+                        <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username ?? $account->staff_username ?? 'N/A' }}</td>
+                        <td class="py-2 px-4 border-b">{{ $account->email }}</td>
+                        <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
+                        <td class="py-2 px-4 border-b">{{ $account->company ?? 'RCT Med Pharma' }}</td>
+                        <td class="py-2 px-4 border-b flex justify-center items-center gap-4">
+                            <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
+                                <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
+                            </button>
+                            <form id="deleteaccountform-{{ $account->id }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account->role, 'id' => $account->id]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer" 
+                                data-account-id="{{ $account->id }}" 
+                                onclick="confirmDelete(this)">
+                                <i class="fa-solid fa-trash mr-2"></i> Delete
+                            </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    {{-- ✨ PAGINATION LINKS MOVED HERE ✨ --}}
+    <div class="mt-4">
+        {{ $accounts->links() }}
+    </div>
+
+</div>
+{{-- --}}
         
         {{-- Modals --}}
 
