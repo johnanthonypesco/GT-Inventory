@@ -227,6 +227,9 @@ class OcrInventoryController extends Controller
                         'quantity' => $data['quantity'],
                         'location_id' => $location->id
                     ]);
+
+                    //add history log
+                    HistorylogController::ocrscannedlog('Scanned', "Product {$product->generic_name} (Batch: {$data['batch_number']}) created at {$location->province}");
                     
                     $results['inventory_created'][] = "{$product->generic_name} (Batch: {$data['batch_number']}) at {$location->province}";
 
@@ -242,6 +245,7 @@ class OcrInventoryController extends Controller
                 'message' => 'Inventory processing complete.',
                 'results' => $results
             ];
+            
 
             return response()->json($response);
 
@@ -250,6 +254,7 @@ class OcrInventoryController extends Controller
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'A critical error occurred: ' . $e->getMessage()], 500);
         }
+        
     }
     
     public function getLocations()

@@ -2,10 +2,13 @@
 
 
 <!-- Sidebar -->
-<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-20 bg-white z-20 p-5 list-none transition-all duration-500 overflow-hidden" id="sidebar">
-    <div class="p-3 flex flex-col">
+<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-20 p-5 list-none transition-all duration-500" id="sidebar">
+    <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
+        <div onclick="closeSidebar()" class="w-10 h-10 bg-white shadow-md flex items-center justify-center absolute -top-5 -right-10 rounded-md hover:cursor-pointer">
+            <span class="text-3xl text-red-500 font-bold">&times;</span>
+        </div>
     </div>
     <ul class="flex-1 flex flex-col gap-5 pt-5">
         <li><a href="{{ route('customer.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
@@ -89,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.querySelector('#sidebar');
         sidebar.classList.remove('left-0', 'w-[300px]');
     });
+
 
     // Chat refresh
     setInterval(() => {

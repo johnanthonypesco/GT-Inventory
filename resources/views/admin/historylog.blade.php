@@ -51,7 +51,11 @@
                                     <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
                                     <td class="flex justify-center">
                                         <p class="py-1 px-3 text-white rounded-md w-20 text-center text-[12px]
-                                            {{ $log->event == 'Add' ? 'bg-blue-500/70' : ($log->event == 'Edit' ? 'bg-green-500/70' : ($log->event == 'Archive' ? 'bg-red-600/70' : 'bg-red-500/50')) }}">
+                                            {{ $log->event == 'Add' ? 'bg-blue-500/70' : 
+                                            ($log->event == 'Edit' ? 'bg-green-500/70' : 
+                                            ($log->event == 'Archive' ? 'bg-red-600/70' : 
+                                            ($log->event == 'Disapprove' ? 'bg-red-600/70' :
+                                            ($log->event == 'Approve' ? 'bg-green-600/70' : 'bg-gray-500/70 text-black')))) }}">
                                             {{ $log->event }}
                                         </p>
                                     </td>

@@ -38,7 +38,7 @@
 
 
         <div class="h-[60vh] overflow-auto mt-8">
-            <div class="table-button flex justify-between gap-4 p-1 float-end w-full">
+            <div class="table-button flex flex-col lg:flex-row justify-between gap-4 p-1 float-end w-full">
                 {{-- Search --}}
                 <div class="w-fit">
                     <datalist id="employee-search-suggestions">
@@ -53,7 +53,7 @@
                         </button>
                     @endif --}}
 
-                    <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex gap-3">
+                    <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex">
                         {{-- <input type="hidden" name="search_type" value="company"> --}}
                         
                         <input type="search" name="employee_search" 
@@ -81,7 +81,7 @@
                 {{-- Search --}}
                 
                 {{-- Table Button --}}
-                <div class="flex gap-4 p-1">
+                <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
                         <button class="bg-white" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code

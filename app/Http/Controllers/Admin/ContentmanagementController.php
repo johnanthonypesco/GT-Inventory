@@ -58,7 +58,7 @@ class ContentmanagementController extends Controller
 
         $content->save();
         // Log the content update
-        HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ' . auth()->user()->email);
+        HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ');
         return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
     }
 }
