@@ -29,6 +29,8 @@ use App\Http\Controllers\Customer\ReviewController;
 
 // Customer Controller
 use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\Customer\TrackingController;
+
 
 //Super Admin Login
 use App\Http\Controllers\PromotionalPageController;
@@ -85,6 +87,8 @@ Route::post('/superadmin/accounts/{role}/{id}/restore', [SuperAdminAccountContro
 
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+// In your ADMIN routes file
+Route::get('/admin/orders/{order}/available-staff', [OrderController::class, 'getAvailableStaff'])->name('admin.order.available_staff');
 
 });
 // ADMIN ROUTES
@@ -323,6 +327,10 @@ Route::get('/', [PromotionalPageController::class, 'showPromotionalPage'])->name
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+/////order tracking////
+ Route::get('/track-order/{order}/location', [TrackingController::class, 'getStaffLocationForOrder'])->name('track.location');
+ 
+/////order tracking///
 
        //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
    Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');

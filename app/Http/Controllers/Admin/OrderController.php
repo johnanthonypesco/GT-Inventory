@@ -16,6 +16,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Models\Staff; 
 
 class OrderController extends Controller
 {
@@ -219,10 +220,16 @@ class OrderController extends Controller
                 'quantity' => 'required|integer',
                 'price' => 'required|numeric',
                 'subtotal' => 'required|numeric',
+                'staff_id' => 'nullable|integer|exists:staff,id'
+
             ]);
 
             $orderId = $validate['order_id'];
             $orderDeets = Order::with(['user.company.location', 'exclusive_deal.product'])->findOrFail($orderId);
+
+              if ($validate['status'] === 'out for delivery' && !empty($validate['staff_id'])) {
+            $order->staff_id = $validate['staff_id'];
+        }
 
             if ($validate['status'] === 'delivered') {
                 $locationId = $orderDeets->user->company->location->id;
@@ -293,4 +300,15 @@ class OrderController extends Controller
             return back()->with("manualUpdateFailed", "Update failed: " . $e->getMessage());
         }
     }
+    public function getAvailableStaff(Order $order)
+{
+    $customerLocationId = $order->user->company->location_id;
+
+    $staff = Staff::where('location_id', $customerLocationId)
+                  ->whereNull('archived_at') // Optional: only active staff
+                  ->get(['id', 'staff_username', 'email']);
+
+    return response()->json($staff);
+}
+
 }
