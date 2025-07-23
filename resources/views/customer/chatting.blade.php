@@ -9,7 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
+<body class="flex flex-col min-h-screen justify-center items-center p-5">
     <!-- Preloader -->
     <div id="preloader" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
