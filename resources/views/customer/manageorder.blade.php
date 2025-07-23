@@ -14,13 +14,13 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/manageorder.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Manage Order</title>
 </head>
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full md:ml-[17%]">
+    <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
 
         <div class="bg-white mt-5 p-5 rounded-lg ">

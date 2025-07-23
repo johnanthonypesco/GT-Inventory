@@ -6,6 +6,7 @@
 /public/qrcodes/
 /public/uploads/
 /public/products/
+/public/group_chats/
 /storage/*.key
 /storage/pail
 /vendor

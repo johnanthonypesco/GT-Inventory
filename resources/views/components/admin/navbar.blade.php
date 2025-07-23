@@ -1,4 +1,4 @@
-<nav id="sidebar" class="md:w-[15%] w-full hidden md:flex flex-col p-3 fixed top-4 left-4">
+<nav id="sidebar" class="md:w-[15%] w-full hidden lg:flex flex-col p-3 fixed top-4 left-4">
     <div class="p-3 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
@@ -21,10 +21,9 @@
 
             </a>
             
-            <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-list-check text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/productlisting') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-list-check text-[#005382] text-sm {{ request()->is('admin/productlisting') ? 'text-white' : ''  }}"></i>
                 <span class="sm:hidden lg:inline-block">Product Deals</span>
-
             </a>
             <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
                 <i class="fa-brands fa-rocketchat text-[#005382]"></i>
@@ -42,8 +41,8 @@
 
             </a>
             
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping {{ request()->is('admin/order') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
 
             </a>
@@ -65,8 +64,8 @@
         @endif
 
         @if (auth('staff')->check())
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-sm {{ request()->is('staff/order') ? 'text-white' : 'text-[#005382]'  }}"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
             </a>
 

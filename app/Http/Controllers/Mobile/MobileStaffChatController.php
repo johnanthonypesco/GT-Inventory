@@ -8,19 +8,19 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;  // Add this
+use Illuminate\Support\Facades\File; // Add this
 
 class MobileStaffChatController extends Controller
 {
     /**
      * Get the list of conversations for the logged-in staff member.
-     * For staff, this will primarily be customers from their assigned location.
      */
     public function getConversations(Request $request)
     {
-        $staffUser = $request->user(); // Authenticated staff user
+        $staffUser = $request->user();
         $conversations = collect();
 
-        // Staff can only see Customers from their assigned location
         if ($staffUser->location_id) {
             $customers = User::where('company_id', $staffUser->location_id)->get();
             $conversations = $this->formatContactList($customers, $staffUser, 'staff');
@@ -45,7 +45,7 @@ class MobileStaffChatController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        // Fetch all conversations between the two users
+        // Fetch all conversations
         $messages = Conversation::where(function ($query) use ($id, $type, $authUser, $authType) {
             $query->where('sender_id', $authUser->id)
                   ->where('sender_type', $authType)
@@ -63,9 +63,9 @@ class MobileStaffChatController extends Controller
             return [
                 'id' => $message->id,
                 'message' => $message->message,
-                'file_path' => $message->file_path,
+                // ✅ Use the url() helper to generate the correct full URL
+                'file_path' => $message->file_path ? url($message->file_path) : null,
                 'created_at' => $message->created_at,
-                // Add a flag to easily identify if the message is from the logged-in user
                 'is_sender' => $message->sender_id == $authUser->id && $message->sender_type == 'staff',
             ];
         });
@@ -80,7 +80,7 @@ class MobileStaffChatController extends Controller
     {
         $request->validate([
             'receiver_id' => 'required|integer',
-            'receiver_type' => 'required|string|in:customer,admin,super_admin', // Staff can message these roles
+            'receiver_type' => 'required|string|in:customer,admin,super_admin',
             'message' => 'required_without:file|nullable|string',
             'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx,mp4,mov,avi|max:30000',
         ]);
@@ -90,9 +90,24 @@ class MobileStaffChatController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/chat_files'), $fileName);
-            $filePath = asset("uploads/chat_files/{$fileName}");
+            // ✅ Use hashName for a unique, safe filename
+            $fileName = $file->hashName();
+            $subfolder = 'uploads/chat_files';
+
+            // ✅ Determine target directory based on environment
+            $targetDir = App::environment('local')
+                ? public_path($subfolder)
+                : base_path('../public_html/' . $subfolder);
+
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true, true);
+            }
+
+            // Move the file to the target directory
+            $file->move($targetDir, $fileName);
+
+            // ✅ Store the relative path in the database
+            $filePath = $subfolder . '/' . $fileName;
         }
 
         $conversation = Conversation::create([
@@ -104,25 +119,25 @@ class MobileStaffChatController extends Controller
             'file_path' => $filePath,
         ]);
 
-        // Return the newly created message so the frontend can display it instantly
         return response()->json([
             'id' => $conversation->id,
             'message' => $conversation->message,
-            'file_path' => $conversation->file_path,
+            // ✅ Use url() to return the full path to the frontend
+            'file_path' => $conversation->file_path ? url($conversation->file_path) : null,
             'created_at' => $conversation->created_at,
             'is_sender' => true,
         ], 201);
     }
 
     /**
-     * Helper to format the list of contacts with last message and unread count.
+     * Helper to format the list of contacts.
      */
     private function formatContactList($users, $authUser, $authType)
     {
-        return $users->map(function ($user) use ($authUser, $authType) {
-            $userType = 'customer'; // In this controller, staff only message customers
+        // This collection will hold contacts with their message data
+        $contacts = $users->map(function ($user) use ($authUser, $authType) {
+            $userType = 'customer';
 
-            // Get last message
             $lastMessage = Conversation::where(function ($query) use ($user, $userType, $authUser, $authType) {
                 $query->where('sender_id', $authUser->id)->where('sender_type', $authType)
                       ->where('receiver_id', $user->id)->where('receiver_type', $userType);
@@ -131,20 +146,27 @@ class MobileStaffChatController extends Controller
                       ->where('receiver_id', $authUser->id)->where('receiver_type', $authType);
             })->orderBy('created_at', 'desc')->first();
 
-            // Get unread count
             $unreadCount = Conversation::where('sender_id', $user->id)->where('sender_type', $userType)
                 ->where('receiver_id', $authUser->id)->where('receiver_type', $authType)
                 ->where('is_read', false)
                 ->count();
-            
-            return [
+
+            return (object)[ // Return as an object for easier property access
                 'id' => $user->id,
-                'name' => $user->name, // Customer name
+                'name' => $user->name,
                 'type' => $userType,
-                'last_message' => $lastMessage ? $lastMessage->message : 'No messages yet.',
-                'last_message_time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
+                // ✅ Better display text for last message
+                'last_message_text' => $lastMessage ? ($lastMessage->file_path ? 'Sent a file' : $lastMessage->message) : 'No messages yet.',
+                'last_message_time' => $lastMessage ? $lastMessage->created_at : null,
                 'unread_count' => $unreadCount,
             ];
-        })->sortByDesc('last_message_time');
+        });
+
+        // ✅ Sort reliably by the actual timestamp and then format the time for display
+        return $contacts->sortByDesc('last_message_time')
+            ->map(function ($contact) {
+                $contact->last_message_time = $contact->last_message_time ? $contact->last_message_time->diffForHumans() : '';
+                return (array)$contact; // Convert back to array for JSON response
+            })->values();
     }
 }

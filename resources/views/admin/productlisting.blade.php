@@ -8,82 +8,139 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/productlisting.css')}}">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Product Listing</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col md:flex-row justify-between items-center mb-5">
-                <h1 class="font-bold text-2xl text-[#005382]">Company List</h1>
-                <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>        
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
+                <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
+                {{-- <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>       --}}
+
+                <div class="w-full lg:w-[40%] bg-white flex gap-3 relative rounded-lg">
+                    <datalist id="company-search-suggestions">
+                        @foreach ($companySearchSuggestions as $company)
+                            <option value="{{ $company->name }}">
+                        @endforeach
+                    </datalist> 
+
+                    @if ($current_search["query"] !== null && $current_search["type"] === "company")
+                        <button onclick="window.location.href = '{{route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                                Reset Search
+                        </button>
+                    @endif
+
+                    <form action="{{ route('admin.productlisting') }}" method="GET" id="company-search-form" class="relative">
+                        <input type="hidden" name="search_type" value="company">
+                        
+                        <input type="search" name="current_search" 
+                        id="company-search"
+                        placeholder="Search Companies by Name" 
+                        class="{{ $current_search && $current_search['type'] === "company" ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+    
+                        list="company-search-suggestions"
+                        autocomplete="off"
+
+                        value="{{ $current_search['query'] && $current_search['type'] === "company" ? $current_search['query'] : '' }}"
+                        {{-- onkeydown="if(event.key === 'Enter') {event.preventDefault()}" --}}
+                        >
+    
+                        <button class="absolute bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
             {{-- Customer List Search Function --}}
 
 
             @foreach ($locations as $locationName => $companies)
+                @php
+                    $hasSearchedADeal = $current_search['deal_company'];
+                @endphp
+
                 {{-- Table for customer List --}}
                 <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
                 <div class="table-container mb-8 overflow-auto h-fit h-max-[190px]">
                     <x-table
                     :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB"
+                    :dealSearchCompany="$hasSearchedADeal"
                     category="productdeals"/>
                 </div>
                 {{-- Table for customer List --}}
             @endforeach
             {{-- pagination --}}
-            <x-pagination/>
+            {{-- <x-pagination/> --}}
             {{-- pagination --}}
         </div>
     </main>
 
-    {{-- @php
-        dd($dealsDB['yahoo baby!']->first()->company->name);
-    @endphp --}}
+    <datalist id="deal-search-suggestions">
+        @foreach ($products as $product)
+            <option value="{{ $product->generic_name }} - {{ $product->brand_name }} - {{ $product->form }} - {{ $product->strength }}">
+        @endforeach
+    </datalist>
 
-
-    {{-- View Product Listing --}}
-    {{-- @if (session('edit-success'))
-        @php
-            dd('with works');
-        @endphp
-    @endif --}}
     @foreach ($dealsDB as $companyName => $deals)
-        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
-            @if (session("reSummon"))
-                <script>
-                    addEventListener("DOMContentLoaded", () => {
-                        const modalLoaded = document.getElementById("view-listings-{{ session('reSummon') }}");
-
-                        if(modalLoaded) {
-                            modalLoaded.classList.replace('hidden', 'block');
-                        }
-                    });
-                </script>
-            @endif
-
-            <div class="modal w-full md:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+        {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
+            
+            <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
-                <div class="flex flex-col md:flex-row md:justify-between items-center">
+                <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
                             $companyName
                         }}
                     </h1>
                     {{-- Button for Search --}}
-                    <div class="w-full md:w-[35%] relative">
-                        <input type="search" placeholder="Search Product Name" class="w-full p-2 rounded-lg outline-none border border-[#005382]">
-                        <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <div class="w-full {{ $current_search && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? "lg:w-[50%]" : "lg:w-[40%]" }} bg-white flex justify-center gap-3 relative rounded-lg">
+
+                        @if ($current_search["query"] !== null && $current_search["type"] === "deal" && $current_search['deal_company'] === $companyName)
+                            
+                            <button onclick="window.location.href = '{{ route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                                    Reset Search
+                            </button>
+                        @endif
+                        
+                        @php
+                            $formID = "deal-search-form-" . str($companyName)->slug();
+                            $inputID = "deal-search-" . str($companyName)->slug();
+                        @endphp
+
+                        <form action="{{ route('admin.productlisting') }}" method="GET" id="{{$formID}}">
+                            <input type="hidden" name="search_type" value="deal">
+                            <input type="hidden" name="specific_company_deal" value="{{$companyName}}">
+                            
+                            <input type="search" name="current_search" 
+                            id="{{ $inputID }}"
+                            placeholder="Search Product Deal" 
+                            {{-- liliit yung input pag nag search ka --}}
+                            class="{{ $current_search && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? "w-[390px]" : "w-[420px]" }} p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+        
+                            list="deal-search-suggestions"
+                            autocomplete="off"
+
+                            value="{{ $current_search['query'] && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? $current_search['query'] : '' }}"
+                            onkeydown="if(event.key === 'Enter') {
+                                isInSuggestionDeal('{{$formID}}', '{{$inputID}}') ? this.submit() : event.preventDefault()
+                                }"
+                            >
+        
+                            <button class="absolute bg-white right-5 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal('{{$formID}}', '{{$inputID}}') ? document.getElementById('{{$formID}}').submit() : event.preventDefault()">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </form>
                     </div>
                     {{-- Button for Search --}}
                 </div>
@@ -102,7 +159,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($deals as $deal)
+                            @foreach ($deals->items() as $deal)
                             <tr class="text-center">
                                 <td>{{ $deal->product->generic_name }}</td>
                                 <td>{{ $deal->product->brand_name }}</td>
@@ -127,7 +184,10 @@
                 </div>
                 {{-- Table for all products --}}
                 {{-- Pagination --}}
-                <x-pagination/>
+                {{-- <x-pagination/> --}}
+                <div class="mt-5">
+                    {{ $deals->links() }}
+                </div>
                 {{-- Pagination --}}
             </div>
         </div>
@@ -136,13 +196,13 @@
 
     {{-- Modal for Add Product Listing --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
-        <div class="modal w-full md:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
+        <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
             <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">
                 @csrf
 
-                <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product</h1>
+                <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product Deal</h1>
 
                 <div class="h-full overflow-auto">
                     <input type="hidden" name="company_id" id="company-id">
@@ -150,7 +210,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 relative" id="addmoreproductlist">
                         <div>
                             <label for="product_id" class="text-md font-semibold">Select Product</label>
-                            <select name="product_id" id="product_id" class="w-full p-[9.5px] outline-none border border-[#005382] rounded-lg">
+                            <select name="product_id[]" id="product_id" class="w-full p-[9.5px] outline-none border border-[#005382] rounded-lg">
                                 @foreach ($products as $product)
                                     <option value="{{ $product->id }}">
                                         {{$product->generic_name}} - {{ $product->brand_name }}
@@ -159,7 +219,7 @@
                             </select>
                         </div>
                         <div>
-                            <x-label-input label="Product's Price" name="price" type="number" for="price" placeholder="Enter Exclusive Price"/>
+                            <x-label-input label="Product's Price" name="price[]" type="number" for="price" placeholder="Enter Exclusive Price"/>
                         </div>
                     </div>
 
@@ -184,8 +244,8 @@
                 $brand = $deal->product->brand_name ?? 'No Brand Name';
             @endphp
 
-            <div class="w-full -mt-[4000px] transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
-                <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+            <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
+                <div class="modal w-full lg:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
                     <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
                     {{-- Form --}}
                     <form method="post" action="{{ route('admin.productlisting.update', ['aidee' => $deal->id]) }}" id="editproductlistingform">

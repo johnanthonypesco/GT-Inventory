@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Admin\HistorylogController;
-
+use Illuminate\Support\Facades\App;
 
 class InventoryController extends Controller
 {
@@ -35,6 +35,8 @@ class InventoryController extends Controller
         if ($search_type === "product") {
             $form_data = Product::where('generic_name', '=', $searched_name[0])
             ->where('brand_name', '=', $searched_name[1])
+            ->where('form', '=', $searched_name[2])
+            ->where('strength', '=', $searched_name[3])
             ->paginate(10, ['*'], "registered_product_page")
             ->appends($request->except("registered_product_page")); // keep other filters/search params sa URL;
 
@@ -75,7 +77,9 @@ class InventoryController extends Controller
             if ($searched_name !== null && $search_type === "stock") {
                 $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]->whereHas('product', function ($query) use ($searched_name) {
                     $query->where('generic_name', '=', $searched_name[0])
-                    ->where('brand_name', '=', $searched_name[1]);
+                    ->where('brand_name', '=', $searched_name[1])
+                    ->where('form', '=', $searched_name[2])
+                    ->where('strength', '=', $searched_name[3]);
                 });
             }
             
@@ -225,7 +229,15 @@ class InventoryController extends Controller
             
             // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $targetDir = public_path('/products'); 
+            
+            // PARA COMPATIBLE PAG NAG REDOPLY SA DOMAIN
+            if (App::environment('local')) {
+                // Localhost
+                $targetDir = public_path('/products');
+            } else {
+                // Production
+                $targetDir = base_path('../public_html/products');
+            }
 
             if (!is_dir($targetDir)) { // pag wala pang folder sa public
                 mkdir($targetDir, 0755, true);
@@ -268,7 +280,15 @@ class InventoryController extends Controller
 
             // turn the file name into this kind of format maderpaker >:( = "159357_image.jpg"
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $targetDir = public_path('/products'); 
+            
+            // PARA COMPATIBLE PAG NAG REDOPLY SA DOMAIN
+            if (App::environment('local')) {
+                // Localhost
+                $targetDir = public_path('/products');
+            } else {
+                // Production
+                $targetDir = base_path('../public_html/products');
+            }
 
             if (!is_dir($targetDir)) { // pag wala pang folder sa public
                 mkdir($targetDir, 0755, true);

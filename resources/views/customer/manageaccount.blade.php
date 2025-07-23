@@ -21,14 +21,14 @@
 
     {{-- CSRF Token --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
 
     <title>Manage Account</title>
 </head>
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full md:ml-[17%]">
+    <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Manage Account" icon="fa-solid fa-bars-progress"/>
         
         <div class="mt-5 h-[80vh] overflow-auto">

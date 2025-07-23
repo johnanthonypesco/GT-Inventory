@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Chat</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
     <x-admin.navbar />
 
-    <main class="md:w-full h-full md:ml-[16%] ml-0">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0">
         <x-admin.header title="Chat" icon="fa-solid fa-message"/>
-        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
+        {{-- <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/> --}}
 
         <div class="flex flex-col bg-white mt-5 p-5 rounded-lg">
             <!-- Chat List -->

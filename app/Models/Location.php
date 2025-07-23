@@ -39,4 +39,9 @@ class Location extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
 }

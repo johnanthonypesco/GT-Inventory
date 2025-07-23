@@ -6,6 +6,7 @@ namespace App\Http\Controllers\mobile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order; // Make sure the Order model is imported
+use Illuminate\Support\Facades\Auth;
 
 class MobileStaffDashboardController extends Controller
 {

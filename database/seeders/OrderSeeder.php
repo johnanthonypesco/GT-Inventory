@@ -20,7 +20,7 @@ class OrderSeeder extends Seeder
             'date_ordered' => fake()->dateTimeBetween('-1 day', 'now'),
             'status' => fake()->randomElement([
                 'pending',
-                'completed',
+                'packed',
                 'cancelled',
                 'delivered',
             ]),

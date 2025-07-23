@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Order</title>
 </head>
 <body class="bg-[#BBBCBE] flex p-5 gap-5">
     <x-customer.navbar />
 
-    <main class="w-full md:ml-[17%]">
+    <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">

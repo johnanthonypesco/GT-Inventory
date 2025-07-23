@@ -33,9 +33,43 @@ function closeaddproductlisting() {
 function editProductListing(id) {
     const editproductlisting = document.getElementById("edit-listing-" + id);
     
-    editproductlisting.classList.replace("-mt-[1000px]", "block");
+    editproductlisting.classList.replace("-mt-[4000px]", "block");
 }
 function closeEditProductListing(id) {
     const editproductlisting = document.getElementById("edit-listing-" + id);
-    editproductlisting.classList.replace("block", "-mt-[1000px]");
+    editproductlisting.classList.replace("block", "-mt-[4000px]");
+}
+
+// checks to see if the search is in the suggestions
+document.addEventListener('DOMContentLoaded', function () {
+    const companyForm = document.getElementById('company-search-form');
+    if (companyForm) {
+        companyForm.addEventListener('submit', isInSuggestionCompany);
+    }
+});
+
+function isInSuggestionCompany (e) {
+    const input = document.getElementById('company-search');
+    const dataList = document.getElementById('company-search-suggestions');
+    const options = Array.from(dataList.options).map(option => option.value);
+
+    if (!options.includes(input.value)) {
+        e.preventDefault();
+        alert("Please Choose a Company From The Search Suggestions.");
+    }
+}
+
+function isInSuggestionDeal (form_id, input_id) {
+    const form = document.getElementById(form_id);
+    const input = document.getElementById(input_id);
+    const dataList = document.getElementById('deal-search-suggestions');
+    const options = Array.from(dataList.options).map(option => option.value);
+
+    if (!options.includes(input.value)) {
+        console.log(input.value);
+        alert("Please Choose a Product Deal From The Search Suggestions.");
+        return false;
+    } else {
+        return true;
+    }
 }

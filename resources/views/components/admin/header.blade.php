@@ -28,7 +28,7 @@
 
     <div class="flex items-center gap-4">
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
-        <div class="hidden md:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-md">
+        <div class="hidden lg:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-md">
             <i class="fa-solid fa-user text-2xl bg-[#005382] text-white p-2 rounded-full"></i>
             <div>
                 <p class="font-semibold text-sm">{{ $name }}</p>

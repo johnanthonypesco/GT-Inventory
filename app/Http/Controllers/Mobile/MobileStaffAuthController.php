@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException; // Import for better error handling
+use App\Models\StaffLocation;
+use Illuminate\Support\Facades\Auth;
 
 class MobileStaffAuthController extends Controller
 {
@@ -144,4 +146,44 @@ class MobileStaffAuthController extends Controller
 
         return response()->json(['message' => 'A new 2FA code has been sent to your email.']);
     }
+    public function updateLocation(Request $request)
+{
+    try {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        $staff = Auth::user(); 
+
+        if (!$staff) {
+            return response()->json(['error' => 'User is not authenticated.'], 401);
+        }
+
+        // Step 1: Hanapin ang location record o gumawa ng bagong instance sa memory (hindi pa naka-save).
+        $location = StaffLocation::firstOrNew(['staff_id' => $staff->id]);
+
+        // Step 2: I-check kung bago ang record O kung may nagbago sa latitude o longitude.
+        if (!$location->exists || 
+            $location->latitude != $request->latitude || 
+            $location->longitude != $request->longitude) 
+        {
+            // Step 3: Kung may pagbabago, i-set ang bagong values.
+            $location->latitude = $request->latitude;
+            $location->longitude = $request->longitude;
+            
+            // Step 4: I-save ang bago o na-update na record. Ito lang ang mag-a-update sa `updated_at`.
+            $location->save();
+
+            return response()->json(['message' => 'Location updated successfully']);
+        }
+
+        // Kung walang pagbabago, walang gagawin at magre-return lang ng success message.
+        return response()->json(['message' => 'Location is already up-to-date.']);
+
+    } catch (\Exception $e) {
+        Log::error('Location Update Failed: ' . $e->getMessage());
+        return response()->json(['error' => 'An internal server error occurred.'], 500);
+    }
+}
 }

@@ -12,13 +12,13 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/history.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Dashboard</title>
 </head>
 <body class="bg-[#F3F4F6] flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full md:ml-[17%]">
+    <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Dashboard" icon="fa-solid fa-gauge"/>
 
         <!-- Modernized Order Cards -->

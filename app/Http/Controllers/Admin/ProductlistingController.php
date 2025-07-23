@@ -9,50 +9,155 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\HistorylogController;
+use App\Models\Location;
+use Illuminate\Support\Str;
 
 class ProductlistingController extends Controller
 {    
-    public function showProductListingPage(){
-        $companies = Company::with('location')->get()
-        ->groupBy(function ($companies) {
-            return $companies->location->province;
+    public function showProductListingPage(Request $request){        
+        $search_type = $request->input('search_type', null);
+        $current_search = $request->input('current_search', null);
+        $specificCompany = $request->input('specific_company_deal', null);
+
+        $perPage = 10;
+        $locations = [];
+        $dealsDB = collect(); 
+
+        Location::with(['companies'])->orderBy('province')->get()
+        // if a var has & in it, it's referencing the variable id, 
+        // without it its just getting the value from the OG
+        ->each(function ($loc) use (
+            &$locations,
+            &$dealsDB, 
+            $request, 
+            $perPage, 
+            $current_search, 
+            $search_type,
+            $specificCompany,
+            ) {
+
+            // Gagawa ito ng bago collection sa array for the current province in the $locations array
+            $locations[$loc->province] = collect();
+
+            // Kukunin lahat ng companies sa location nayun yung foreach nato
+            foreach ($loc->companies as $company) {
+                // Need unique with no spaces ito para ma differentiate yung pages sa URL query (paginating paking shit)
+                $pageKey = 'pg_in_' . Str::slug($loc->province) . '_' . Str::slug($company->name);
+
+                $deals = ExclusiveDeal::where('company_id', $company->id);
+
+                // may nag saearch ng product deal add another query condition
+                if ($current_search !== null && $search_type === "deal" && $specificCompany === $company->name) {
+
+                    $validatedSearch = explode(' - ',$current_search);
+
+                    $deals = $deals->whereHas('product', 
+                        function ($query) use ($validatedSearch) {
+                        $query->where('generic_name', '=', $validatedSearch[0])
+                        ->where('brand_name', '=', $validatedSearch[1])
+                        ->where('form', $validatedSearch[2])
+                        ->where('strength', $validatedSearch[3]);
+                    });
+                }
+
+                $deals = $deals->paginate($perPage, ['*'], $pageKey)
+                ->appends(array_merge(
+                    $request->except($pageKey), // Keep existing query params
+                    ['reSummon' => $company->name] // Force company modal to re-open
+                ));
+                
+
+                // Add current company to province's collection in $locations
+                $locations[$loc->province]->push($company);
+
+                $dealsDB[$company->name] = $deals;
+            }
         });
-        $products = Product::all();
+
+        // IF MAY SEARCH FILTER THE UNWANTED BUGGERS
+        if ($current_search !== null & $search_type === "company") {
+            foreach ($locations as $province => $companies) {
+                $filteredCompanies = $companies->filter(function ($company) use ($current_search) {
+                    return stripos($company->name, $current_search) !== false;
+                });
+
+                // If no companies left after filter, remove province entirely
+                if ($filteredCompanies->isEmpty()) {
+                    unset($locations[$province]);
+                } else {
+                    $locations[$province] = $filteredCompanies;
+                }
+            }
+
+            // filter $dealsDB to only keep those matching
+            $dealsDB = $dealsDB->filter(function ($_, $companyName) use ($current_search) {
+                return stripos($companyName, $current_search) !== false;
+            });
+        }
+
+        // dd($dealsDB->toArray());
 
         return view('admin.productlisting', [
-            "locations" => $companies,
-            "products" => $products,
+            'locations' => $locations,
+            'dealsDB'   => $dealsDB,
+            
+            'products'  => Product::all(),
+            'companySearchSuggestions' => Company::get("name"),
 
-            "dealsDB" => ExclusiveDeal::with("company")->get()
-            ->groupBy(function ($deal) {
-                return $deal->company->name;
-            })->sortKeys(),
+            'current_search' => [
+                'query' => $current_search,
+                'deal_company' => $specificCompany,
+                'type' => $search_type
+            ],
         ]);
     }
 
     public function createExclusiveDeal(Request $request) {
+        // this shit will accept singular and multpile creations
         $validated = $request->validate([
-            "company_id" => 'required|integer',
-            "product_id" => 'required|integer',
-            "deal_type" => 'string|nullable',
-            "price" => 'numeric|required|max:50000',
+            "company_id"    => 'required|integer',
+            "product_id"    => 'required',
+            "product_id.*"  => 'integer',
+            "price"         => 'required',
+            "price.*"       => 'numeric|max:100000',
         ]);
-    
-        $validated = array_map("strip_tags", $validated);
-    
+
+        // turn it all into arrays so singular and multiple are equals
+        foreach (['product_id', 'price'] as $key) {
+            if (!is_array($validated[$key])) {
+                $validated[$key] = [$validated[$key]];
+            }
+        }
+
+        // Sanitize all
+        array_walk_recursive($validated, function (&$val) {
+            $val = strip_tags($val);
+        });
+
+        // Loop through and create deals
         $company = Company::findOrFail($validated['company_id']);
-        $product = Product::findOrFail($validated['product_id']);
+
+        for ($i = 0; $i < count($validated['product_id']); $i++) {
+                $product = Product::findOrFail($validated['product_id'][$i]);
+
+                ExclusiveDeal::create([
+                    'company_id' => $company->id,
+                    'product_id' => $product->id,
+                    'price'      => $validated['price'][$i],
+                ]);
+            
+
+            HistorylogController::adddealslog(
+                "Add",
+                "Add deals " . $company->name,
+                $company->id,
+                $product->id
+            );
+        }
     
-        ExclusiveDeal::create($validated);
     
-        HistorylogController::adddealslog(
-            "Add",
-            "Add deals " . $company->name,
-            $company->id,
-            $product->id
-        );
-    
-        return to_route('admin.productlisting');
+        // redirecting to previous will keep the damn pagination url params
+        return redirect()->to(url()->previous());
     }
 
     public function updateExclusiveDeal(Request $request, $aidee = 0) {
@@ -65,7 +170,9 @@ class ProductlistingController extends Controller
 
         ExclusiveDeal::findOrFail($aidee)->update($validated);
 
-        return to_route('admin.productlisting')->with([
+        // redirecting to previous will keep the damn pagination url params
+        return redirect()->to(url()->previous())
+        ->with([
             'edit-success' => true,
             'company-success' => $validated['company'],
         ]);
@@ -93,7 +200,7 @@ class ProductlistingController extends Controller
         );
         // gawa ni pesco
     
-        return to_route('admin.productlisting')->with('reSummon', $company->id);
+        return redirect()->to(url()->previous())->with('reSummon', $company->name);
     }
     
 }

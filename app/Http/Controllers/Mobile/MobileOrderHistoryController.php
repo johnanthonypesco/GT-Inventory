@@ -20,7 +20,7 @@ class MobileOrderHistoryController extends Controller
         $orders = Order::where('user_id', $user->id)
             ->whereIn('status', ['cancelled', 'delivered'])
             ->with('exclusive_deal.product')
-            ->orderBy('created_at', 'desc') // <-- CHANGE 1: Sorting by creation date
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($order) {
                 // Safely get product details
@@ -28,19 +28,22 @@ class MobileOrderHistoryController extends Controller
 
                 return [
                     'id' => $order->id,
-                    'date_ordered' => $order->created_at, // <-- CHANGE 2: Use created_at value
-                    'status' => $order->status,
+                    'date_ordered' => $order->created_at,
+                    'status' => ucfirst($order->status),
                     'quantity' => $order->quantity,
                     'total' => $order->quantity * optional($order->exclusive_deal)->price,
+                    // The product data is now included directly for the list view if needed,
+                    // but more importantly, it's structured for the details view.
                     'exclusive_deal' => $order->exclusive_deal ? [
                         'id' => $order->exclusive_deal->id,
                         'price' => $order->exclusive_deal->price,
                         'product' => [
                             'brand_name' => $product->brand_name,
-                            'generic_name' => $product->generic_name, // Added for modal
+                            'generic_name' => $product->generic_name,
                             'form' => $product->form,
                             'strength' => $product->strength,
-                            'img_file_path' => $product->img_file_path, // Added for modal image
+                            // ✅ Use the 'image_url' from the Product model's accessor
+                            'image_url' => $product->image_url, 
                         ]
                     ] : null,
                 ];
@@ -76,8 +79,8 @@ class MobileOrderHistoryController extends Controller
             'success' => true,
             'order' => [
                 'id' => $order->id,
-                'date_ordered' => $order->created_at, // <-- CHANGE 3: Use created_at value
-                'status' => $order->status,
+                'date_ordered' => $order->created_at,
+                'status' => ucfirst($order->status),
                 'quantity' => $order->quantity,
                 'total' => $order->quantity * optional($order->exclusive_deal)->price,
                 'exclusive_deal' => $order->exclusive_deal ? [
@@ -85,10 +88,11 @@ class MobileOrderHistoryController extends Controller
                     'price' => $order->exclusive_deal->price,
                     'product' => [
                         'brand_name' => $product->brand_name,
-                        'generic_name' => $product->generic_name, // Added for modal
+                        'generic_name' => $product->generic_name,
                         'form' => $product->form,
                         'strength' => $product->strength,
-                        'img_file_path' => $product->img_file_path, // Added for modal image
+                        // ✅ Use the 'image_url' from the Product model's accessor
+                        'image_url' => $product->image_url,
                     ]
                 ] : null,
             ]

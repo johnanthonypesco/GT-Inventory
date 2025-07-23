@@ -41,14 +41,14 @@
         </h1>
         @break
     @case('expired-summary')
-        {{-- @php
-                dd(Str::lower($subType));
-            
-        @endphp --}}
-
-
         <h1>
             All Products Currently Expired in All Delivery Locations
+        </h1>
+        @break
+    
+    @case('order-export')
+        <h1>
+            All Current Active Orders:
         </h1>
         @break
     @default
@@ -154,4 +154,67 @@
             </tbody>
         </table>
     @endif
+@endif
+
+@if ($type === "orders")
+    @foreach ($inventory as $statusName => $pendings)
+        <h1> All in {{ ucfirst($statusName) }} Status:</h1>
+        <table>
+            <thead>
+                <tr>
+                    {{-- WAG AALISIN YUNG BLANK <td> IT IS VERY IMPORTANT --}}
+                    <td>DATE</td>
+                    <td></td> 
+                    <td>COMPANY</td>
+                    <td></td>
+                    <td>EMPLOYEE NAME</td>
+                    <td></td>
+                    <td>GENERIC NAME</td>
+                    <td></td>
+                    <td>BRAND NAME</td>
+                    <td></td>
+                    <td>FORM</td>
+                    <td></td>
+                    <td>STRENGTH</td>
+                    <td></td>
+                    <td>QUANTITY</td>
+                    <td></td>
+                    <td>BASE PRICE</td>
+                    <td></td>
+                    <td>TOTAL PRICE</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach ($pendings as $pending)
+                    @php
+                        $product = $pending->exclusive_deal->product;
+                        $readableDate = Carbon::parse($pending->date_ordered)->format('F j, Y');
+                    @endphp
+
+                    <tr>
+                        <td>{{$readableDate }}</td>
+                        <td></td>
+                        <td>{{ $pending->user->company->name }}</td>
+                        <td></td>
+                        <td>{{ $pending->user->name }}</td>
+                        <td></td>
+                        <td>{{ $product->generic_name }}</td>
+                        <td></td>
+                        <td>{{ $product->brand_name }}</td>
+                        <td></td>
+                        <td>{{ $product->form }}</td>
+                        <td></td>
+                        <td>{{ $product->strength }}</td>
+                        <td></td>
+                        <td>{{ number_format($pending->quantity) }}</td>
+                        <td></td>
+                        <td>₱ {{ number_format($pending->exclusive_deal->price) }}</td>
+                        <td></td>
+                        <td>₱ {{ number_format($pending->exclusive_deal->price * $pending->quantity) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endforeach
 @endif

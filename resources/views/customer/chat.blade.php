@@ -9,14 +9,14 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
-    <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Chat</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> </head>
 
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
 
-    <main class="md:w-full h-full md:ml-[18%] ml-0">
+    <main class="md:w-full h-full lg:ml-[18%] ml-0">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
 
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>

@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\GroupChat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\App; // Add this
+use Illuminate\Support\Facades\File; // Add this
 
 class MobileGroupChatController extends Controller
 {
@@ -37,7 +38,8 @@ class MobileGroupChatController extends Controller
             return [
                 'id' => $message->id,
                 'message' => $decryptedMessage,
-                'file_path' => $message->file_path ? Storage::url($message->file_path) : null,
+                // ✅ Use the url() helper for correct path generation
+                'file_path' => $message->file_path ? url($message->file_path) : null,
                 'created_at' => $message->created_at,
                 'is_sender' => $message->sender_id == $authUser->id && get_class($message->sender) == get_class($authUser),
                 'sender_name' => $senderName,
@@ -54,14 +56,36 @@ class MobileGroupChatController extends Controller
     {
         $request->validate([
             'message' => 'required_without:file|nullable|string',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx|max:20480',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf,doc,docx|max:20480', // max 20MB
         ]);
 
         $sender = $request->user();
         $filePath = null;
 
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('group_chats', 'public');
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->hashName(); // Use hashName for unique, safe filenames
+            $subfolder = 'group_chats';
+
+            // ✅ Determine target directory based on environment
+            if (App::environment('local')) {
+                // Localhost: use public_path() which points to the 'public' folder
+                $targetDir = public_path($subfolder);
+            } else {
+                // Production (Hostinger): construct path to 'public_html'
+                $targetDir = base_path('../public_html/' . $subfolder);
+            }
+
+            // Create directory if it doesn't exist
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true);
+            }
+
+            // Move the file to the target directory
+            $file->move($targetDir, $fileName);
+
+            // Path to be saved in the database (relative public path)
+            $filePath = $subfolder . '/' . $fileName;
         }
 
         $message = GroupChat::create([
@@ -75,7 +99,8 @@ class MobileGroupChatController extends Controller
         return response()->json([
             'id' => $message->id,
             'message' => $request->message, // Return plain text, no need to re-decrypt
-            'file_path' => $filePath ? Storage::url($filePath) : null,
+             // ✅ Use the url() helper for correct path generation
+            'file_path' => $filePath ? url($filePath) : null,
             'created_at' => $message->created_at,
             'is_sender' => true,
             'sender_name' => $sender->staff_username ?? $sender->name,

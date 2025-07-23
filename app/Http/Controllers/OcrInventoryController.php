@@ -318,33 +318,213 @@ class OcrInventoryController extends Controller
     {
         $form = strtolower(trim($form));
         $map = [
-            'Tablets' => ['tablet', 'tablets', 'pill', 'pills', 'cap', 'caps', 'tab', 'tabs', 'table', 'tblt', 'tbl', 'tabl'],
-            'Injectables' => ['inj','inject','injection', 'injections', 'injectable', 'injectables', 'inject', 'iv', 'vial', 'vials', 'ampule', 'ampules', 'ampoule', 'ampoules', 'injec', 'injction', 'im', 'sc', 'subcut', 'intramuscular'],
-            'Syrup' => ['syrup', 'syrups', 'suspension', 'suspensions', 'liquid', 'liquids', 'syr', 'syrupn', 'elixir', 'elixirs', 'mixture', 'mixtures', 'liq', 'lqd'],
-            'Ointment' => ['ointment', 'ointments', 'cream', 'creams', 'gel', 'gels', 'oint', 'topical', 'top', 'creme', 'cremes', 'ung', 'salve', 'balm'],
-            'Drops' => ['drops', 'gtts', 'droplets', 'eye drops', 'ear drops', 'nasal drops', 'opthalmic drops', 'otic drops', 'gt', 'drop'],
-            'Solution' => ['solution', 'solutions', 'soln', 'sol', 'solutn', 'soltn', 'solns', 'solut', 'solvent'],
-            'Powder' => ['powder', 'powders', 'pwd', 'pdr', 'granules', 'granule', 'grs', 'grnls'],
-            'Aerosol' => ['aerosol', 'aerosols', 'inhaler', 'inhalers', 'puffer', 'puffers', 'mdpi', 'dpi', 'nebulizer', 'nebulizers'],
-            'Suppository' => ['suppository', 'suppositories', 'supp', 'suppos', 'rectal', 'vaginal', 'pessary', 'pessaries'],
-            'Patch' => ['patch', 'patches', 'transdermal', 'tds', 'td'],
-            'Spray' => ['spray', 'sprays', 'mist', 'mists', 'nasal spray', 'oral spray'],
-            'Oral' => ['o', 'or', 'orl', 'oral', 'po', 'by mouth', 'p.o.', 'per os'],
-            'Film' => ['film', 'films', 'oral film', 'dissolving film', 'strip', 'strips'],
-            'Lozenge' => ['lozenge', 'lozenges', 'troche', 'troches', 'pastille', 'pastilles'],
-            'Gum' => ['gum', 'gums', 'chewing gum', 'medicated gum'],
-            'Implant' => ['implant', 'implants', 'insert', 'inserts', 'pellet', 'pellets'],
-            'Enema' => ['enema', 'enemas', 'rectal enema', 'fleetenema'],
-            'Lotion' => ['lotion', 'lotions', 'liniment', 'liniments'],
-            'Shampoo' => ['shampoo', 'shampoos', 'medicated shampoo'],
-            'Foam' => ['foam', 'foams', 'medicated foam'],
-            'Paste' => ['paste', 'pastes', 'dental paste'],
-            'Gas' => ['gas', 'gasses', 'inhalation gas', 'medical gas'],
-            'Disk' => ['disk', 'disks', 'disc', 'discs', 'diskette', 'diskettes'],
-            'Wafer' => ['wafer', 'wafers', 'oral wafer'],
-            'Powder for Injection' => ['powder for injection', 'lyophilized', 'lyo', 'lyophilizate'],
-            'Emulsion' => ['emulsion', 'emulsions', 'emul', 'emulsn'],
-            'Tincture' => ['tincture', 'tinctures', 'tinc', 'tinct'],
+            'Tablets' => [
+                'tablet', 'tablets', 'pill', 'pills', 'cap', 'caps', 'tab', 'tabs', 
+                'table', 'tblt', 'tbl', 'tabl', 'tb', 'tblet', 'tablt', 'tabblet',
+                'tabllet', 'tabet', 'tablt', 'tblt', 'tblet', 'tabs', 'tabs.', 'tab.',
+                'capsule', 'capsules', 'cpsl', 'cap.', 'caps.', 'cp', 'cps', 'kaps',
+                'kapsul', 'kapsule', 'kapsules', 'pil', 'pils', 'píl', 'píls'
+            ],
+            'Injectables' => [
+                'inj', 'inject', 'injection', 'injections', 'injectable', 'injectables',
+                'inject', 'iv', 'vial', 'vials', 'ampule', 'ampules', 'ampoule', 'ampoules',
+                'injec', 'injction', 'im', 'sc', 'subcut', 'intramuscular', 'injek',
+                'injekts', 'injektable', 'injektion', 'injekshun', 'injek.', 'injeks',
+                'injekcija', 'injekcije', 'iv.', 'i.v.', 'intraven', 'intraven.', 'intrav.',
+                'intram.', 'intramus.', 'intramusc.', 'subq', 'sub-q', 'subcutan',
+                'subcutane', 'subkutan', 'subkut.', 'subkutane', 'ampul', 'ampul.',
+                'ampoule', 'ampoules', 'ampul.', 'ampulla', 'ampullae', 'vial.', 'vials.',
+                'viall', 'vialle', 'vialls', 'viall.', 'vialle.', 'vialls.'
+            ],
+            'Syrup' => [
+                'syrup', 'syrups', 'suspension', 'suspensions', 'liquid', 'liquids',
+                'syr', 'syrupn', 'elixir', 'elixirs', 'mixture', 'mixtures', 'liq', 'lqd',
+                'sirup', 'sirups', 'sir.', 'syrp', 'syrps', 'syrp.', 'syrps.', 'sirup.',
+                'sirups.', 'susp', 'susp.', 'susps', 'susps.', 'suspens', 'suspens.',
+                'suspense', 'suspense.', 'suspn', 'suspn.', 'suspns', 'suspns.', 'liq.',
+                'lqd.', 'liquid.', 'liquids.', 'liqs', 'liqs.', 'lq', 'lq.', 'lqs', 'lqs.',
+                'elix.', 'elixs', 'elixs.', 'elixir.', 'elixirs.', 'elx', 'elx.', 'elxs',
+                'elxs.', 'mixt', 'mixt.', 'mixts', 'mixts.', 'mixtur', 'mixtur.', 'mixturs',
+                'mixturs.'
+            ],
+            'Ointment' => [
+                'ointment', 'ointments', 'cream', 'creams', 'gel', 'gels', 'oint', 'topical',
+                'top', 'creme', 'cremes', 'ung', 'salve', 'balm', 'oint.', 'ointments.',
+                'ointmnt', 'ointmnt.', 'ointmnts', 'ointmnts.', 'ointmen', 'ointmen.',
+                'ointmens', 'ointmens.', 'ointm.', 'ointm.', 'ointms', 'ointms.', 'cream.',
+                'creams.', 'crem', 'crem.', 'crems', 'crems.', 'creme.', 'cremes.', 'crème',
+                'crèmes', 'crème.', 'crèmes.', 'gel.', 'gels.', 'jel', 'jel.', 'jels', 'jels.',
+                'topical.', 'topicals', 'topicals.', 'top.', 'tops', 'tops.', 'topik', 'topik.',
+                'topiks', 'topiks.', 'ung.', 'unguent', 'unguent.', 'unguents', 'unguents.',
+                'salve.', 'salves', 'salves.', 'balm.', 'balms', 'balms.'
+            ],
+            'Drops' => [
+                'drops', 'gtts', 'droplets', 'eye drops', 'ear drops', 'nasal drops',
+                'opthalmic drops', 'otic drops', 'gt', 'drop', 'drps', 'drps.', 'drp',
+                'drp.', 'gtt', 'gtt.', 'gtts.', 'gttss', 'gttss.', 'eyedrops', 'eyedrop',
+                'eyedrops.', 'eyedrop.', 'eardrops', 'eardrop', 'eardrops.', 'eardrop.',
+                'nasaldrops', 'nasaldrop', 'nasaldrops.', 'nasaldrop.', 'opthalmicdrops',
+                'opthalmicdrop', 'opthalmicdrops.', 'opthalmicdrop.', 'oticdrops', 'oticdrop',
+                'oticdrops.', 'oticdrop.', 'ophthalmic drops', 'ophthalmic drop',
+                'ophthalmicdrops', 'ophthalmicdrop', 'ophthalmicdrops.', 'ophthalmicdrop.'
+            ],
+            'Solution' => [
+                'solution', 'solutions', 'soln', 'sol', 'solutn', 'soltn', 'solns', 'solut',
+                'solvent', 'sol.', 'sols', 'sols.', 'soln.', 'solns.', 'solut.', 'soluts',
+                'soluts.', 'solutn.', 'solutns', 'solutns.', 'soltn.', 'soltns', 'soltns.',
+                'solv', 'solv.', 'solvs', 'solvs.', 'solvent.', 'solvents', 'solvents.',
+                'solutio', 'solutio.', 'solutiones', 'solutiones.', 'soluc', 'soluc.',
+                'solucion', 'solucion.', 'solucions', 'solucions.'
+            ],
+            'Powder' => [
+                'powder', 'powders', 'pwd', 'pdr', 'granules', 'granule', 'grs', 'grnls',
+                'powd', 'powd.', 'powds', 'powds.', 'pdr.', 'pdrs', 'pdrs.', 'pwd.', 'pwds',
+                'pwds.', 'gran.', 'gran.', 'grans', 'grans.', 'granul', 'granul.', 'granuls',
+                'granuls.', 'grs.', 'grnls.', 'grn', 'grn.', 'grns', 'grns.', 'poudre',
+                'poudres', 'poudre.', 'poudres.', 'pulv', 'pulv.', 'pulvs', 'pulvs.',
+                'pulver', 'pulver.', 'pulvers', 'pulvers.'
+            ],
+            'Aerosol' => [
+                'aerosol', 'aerosols', 'inhaler', 'inhalers', 'puffer', 'puffers', 'mdpi',
+                'dpi', 'nebulizer', 'nebulizers', 'aero.', 'aeros.', 'aerosol.', 'aerosols.',
+                'aerosoles', 'aerosoles.', 'inhal.', 'inhal.', 'inhals', 'inhals.', 'inh.',
+                'inh.', 'inhs', 'inhs.', 'puff.', 'puffs', 'puffs.', 'pfr', 'pfr.', 'pfrs',
+                'pfrs.', 'mdpi.', 'dpi.', 'neb', 'neb.', 'nebs', 'nebs.', 'nebul.', 'nebul.',
+                'nebuls', 'nebuls.', 'nebuliz', 'nebuliz.', 'nebulizer.', 'nebulizers.',
+                'nebuliz.', 'nebulizs', 'nebulizs.'
+            ],
+            'Suppository' => [
+                'suppository', 'suppositories', 'supp', 'suppos', 'rectal', 'vaginal',
+                'pessary', 'pessaries', 'suppos.', 'suppos.', 'supps', 'supps.', 'suppositor',
+                'suppositor.', 'suppositors', 'suppositors.', 'rect.', 'rect.', 'rects',
+                'rects.', 'vag.', 'vag.', 'vags', 'vags.', 'pess.', 'pess.', 'pesses',
+                'pesses.', 'pessar', 'pessar.', 'pessars', 'pessars.', 'suppositorium',
+                'suppositoria', 'suppositorium.', 'suppositoria.'
+            ],
+            'Patch' => [
+                'patch', 'patches', 'transdermal', 'tds', 'td', 'patch.', 'patches.',
+                'patchs', 'patchs.', 'ptch', 'ptch.', 'ptchs', 'ptchs.', 'transderm.',
+                'transderm.', 'transderms', 'transderms.', 'td.', 'tds.', 'transdermal.',
+                'transdermals', 'transdermals.', 'plaster', 'plasters', 'plaster.',
+                'plasters.', 'pflaster', 'pflasters', 'pflaster.', 'pflasters.'
+            ],
+            'Spray' => [
+                'spray', 'sprays', 'mist', 'mists', 'nasal spray', 'oral spray', 'spray.',
+                'sprays.', 'spr', 'spr.', 'sprs', 'sprs.', 'mist.', 'mists.', 'mst',
+                'mst.', 'msts', 'msts.', 'nasalspray', 'nasalspray.', 'oralspray',
+                'oralspray.', 'nasspray', 'nasspray.', 'mundspray', 'mundspray.',
+                'sprayflasche', 'sprayflaschen', 'sprayflasche.', 'sprayflaschen.'
+            ],
+            'Oral' => [
+                'o', 'or', 'orl', 'oral', 'po', 'by mouth', 'p.o.', 'per os', 'oral.',
+                'orals', 'orals.', 'or.', 'orl.', 'po.', 'p.o', 'p.o..', 'peros',
+                'peros.', 'peroral', 'peroral.', 'perorals', 'perorals.', 'mouth',
+                'mouth.', 'mouths', 'mouths.', 'oralis', 'oralis.', 'orale', 'orale.',
+                'orales', 'orales.'
+            ],
+            'Film' => [
+                'film', 'films', 'oral film', 'dissolving film', 'strip', 'strips',
+                'film.', 'films.', 'flm', 'flm.', 'flms', 'flms.', 'oralfilm',
+                'oralfilm.', 'dissolvingfilm', 'dissolvingfilm.', 'strip.', 'strips.',
+                'stripp', 'stripp.', 'stripps', 'stripps.', 'folie', 'folien', 'folie.',
+                'folien.', 'filmbasierte', 'filmbasierte.', 'filmbasierter', 'filmbasierter.'
+            ],
+            'Lozenge' => [
+                'lozenge', 'lozenges', 'troche', 'troches', 'pastille', 'pastilles',
+                'lozenge.', 'lozenges.', 'loz', 'loz.', 'lozs', 'lozs.', 'troche.',
+                'troches.', 'trch', 'trch.', 'trchs', 'trchs.', 'pastille.', 'pastilles.',
+                'past.', 'past.', 'pasts', 'pasts.', 'pastill', 'pastill.', 'pastills',
+                'pastills.', 'lutschtablette', 'lutschtabletten', 'lutscher', 'lutschers'
+            ],
+            'Gum' => [
+                'gum', 'gums', 'chewing gum', 'medicated gum', 'gum.', 'gums.', 'gummi',
+                'gummis', 'gummi.', 'gummis.', 'chewinggum', 'chewinggum.', 'medicatedgum',
+                'medicatedgum.', 'kaugummi', 'kaugummis', 'kaugummi.', 'kaugummis.',
+                'kaufgummi', 'kaufgummis', 'kaufgummi.', 'kaufgummis.'
+            ],
+            'Implant' => [
+                'implant', 'implants', 'insert', 'inserts', 'pellet', 'pellets',
+                'implant.', 'implants.', 'impl', 'impl.', 'impls', 'impls.', 'insert.',
+                'inserts.', 'ins', 'ins.', 'inss', 'inss.', 'pellet.', 'pellets.',
+                'pell', 'pell.', 'pells', 'pells.', 'pel', 'pel.', 'pels', 'pels.',
+                'implanon', 'implanons', 'implanon.', 'implanons.'
+            ],
+            'Enema' => [
+                'enema', 'enemas', 'rectal enema', 'fleetenema', 'enema.', 'enemas.',
+                'enem', 'enem.', 'enems', 'enems.', 'rectalenema', 'rectalenema.',
+                'fleetenema.', 'klistier', 'klistiere', 'klistier.', 'klistiere.',
+                'einlauf', 'einläufe', 'einlauf.', 'einläufe.'
+            ],
+            'Lotion' => [
+                'lotion', 'lotions', 'liniment', 'liniments', 'lotion.', 'lotions.',
+                'lot', 'lot.', 'lots', 'lots.', 'liniment.', 'liniments.', 'linim',
+                'linim.', 'linims', 'linims.', 'loción', 'lociones', 'loción.',
+                'lociones.', 'lotionen', 'lotionen.'
+            ],
+            'Shampoo' => [
+                'shampoo', 'shampoos', 'medicated shampoo', 'shampoo.', 'shampoos.',
+                'shamp', 'shamp.', 'shamps', 'shamps.', 'medicatedshampoo',
+                'medicatedshampoo.', 'shampoing', 'shampoings', 'shampoing.',
+                'shampoings.', 'champú', 'champús', 'champú.', 'champús.'
+            ],
+            'Foam' => [
+                'foam', 'foams', 'medicated foam', 'foam.', 'foams.', 'fom', 'fom.',
+                'foms', 'foms.', 'medicatedfoam', 'medicatedfoam.', 'schaum', 'schäume',
+                'schaum.', 'schäume.', 'mousse', 'mousses', 'mousse.', 'mousses.'
+            ],
+            'Paste' => [
+                'paste', 'pastes', 'dental paste', 'paste.', 'pastes.', 'pst', 'pst.',
+                'psts', 'psts.', 'dentalpaste', 'dentalpaste.', 'pasta', 'pastae',
+                'pasta.', 'pastae.', 'zahnpasta', 'zahnpasten', 'zahnpasta.',
+                'zahnpasten.'
+            ],
+            'Gas' => [
+                'gas', 'gasses', 'inhalation gas', 'medical gas', 'gas.', 'gasses.',
+                'gs', 'gs.', 'gss', 'gss.', 'inhalationgas', 'inhalationgas.',
+                'medicalgas', 'medicalgas.', 'gáz', 'gázok', 'gáz.', 'gázok.',
+                'gasinhalat', 'gasinhalate', 'gasinhalat.', 'gasinhalate.'
+            ],
+            'Disk' => [
+                'disk', 'disks', 'disc', 'discs', 'diskette', 'diskettes', 'disk.',
+                'disks.', 'dsk', 'dsk.', 'dsks', 'dsks.', 'disc.', 'discs.', 'dsc',
+                'dsc.', 'dscs', 'dscs.', 'diskette.', 'diskettes.', 'disket',
+                'disket.', 'diskets', 'diskets.', 'scheibe', 'scheiben', 'scheibe.',
+                'scheiben.'
+            ],
+            'Wafer' => [
+                'wafer', 'wafers', 'oral wafer', 'wafer.', 'wafers.', 'wfr', 'wfr.',
+                'wfrs', 'wfrs.', 'oralwafer', 'oralwafer.', 'oblea', 'obleas',
+                'oblea.', 'obleas.', 'hostie', 'hosties', 'hostie.', 'hosties.'
+            ],
+            'Powder for Injection' => [
+                'powder for injection', 'lyophilized', 'lyo', 'lyophilizate',
+                'powderforinjection', 'powderforinjection.', 'lyophilized.',
+                'lyophilizate.', 'lyo.', 'lyophil.', 'lyophil.', 'lyophilisat',
+                'lyophilisate', 'lyophilisat.', 'lyophilisate.', 'pulver zur injektion',
+                'pulver zur injektion.', 'poudre pour injection', 'poudre pour injection.'
+            ],
+            'Emulsion' => [
+                'emulsion', 'emulsions', 'emul', 'emulsn', 'emulsion.', 'emulsions.',
+                'emuls.', 'emulsn.', 'emulsns', 'emulsns.', 'emulsio', 'emulsio.',
+                'emulsionen', 'emulsionen.', 'emulgat', 'emulgate', 'emulgat.',
+                'emulgate.', 'emulgator', 'emulgatoren', 'emulgator.', 'emulgatoren.'
+            ],
+            'Tincture' => [
+                'tincture', 'tinctures', 'tinc', 'tinct', 'tincture.', 'tinctures.',
+                'tinct.', 'tincts', 'tincts.', 'tinktur', 'tinkturen', 'tinktur.',
+                'tinkturen.', 'tintura', 'tinturae', 'tintura.', 'tinturae.',
+                'tint.', 'tint.', 'tints', 'tints.'
+            ],
+            'Sachet' => [
+                'sachet', 'sachets', 'sach', 'sach.', 'sachs', 'sachs.', 'beutel',
+                'beuteln', 'beutel.', 'beuteln.', 'pouch', 'pouches', 'pouch.',
+                'pouches.', 'sobe', 'sobes', 'sobe.', 'sobes.'
+            ],
+            'Granules' => [
+                'granules', 'granule', 'gran.', 'gran.', 'grans', 'grans.', 'granul',
+                'granul.', 'granuls', 'granuls.', 'granulat', 'granulate', 'granulat.',
+                'granulate.', 'granulés', 'granulé', 'granulés.', 'granulé.'
+            ]
         ];
 
         foreach ($map as $standard => $variations) {
@@ -353,7 +533,7 @@ class OcrInventoryController extends Controller
             }
         }
         
-        return 'N/A'; 
+        return 'N/A';
     }
 
     private function normalizeDate(string $date): string
