@@ -281,6 +281,8 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
     // Group Chat
     Route::get('/admin/group-chat', [GroupChatController::class, 'index'])->name('admin.group.chat');
     Route::post('/admin/group-chat/store', [GroupChatController::class, 'store'])->name('admin.group.chat.store');
+    // ✅ ADD THIS NEW ROUTE FOR FETCHING MESSAGES
+    Route::get('/admin/group-chat/messages', [GroupChatController::class, 'fetchMessages'])->name('admin.group.chat.fetch');
     // Route::get('/admin/chat/{user}', [ChatController::class, 'index'])->name('admin.chat.index');
     Route::post('/admin/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
 
