@@ -7,6 +7,7 @@
 /public/uploads/
 /public/products/
 /public/group_chats/
+/public/profile_images/
 /storage/*.key
 /storage/pail
 /vendor

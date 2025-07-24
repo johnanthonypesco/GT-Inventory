@@ -25,7 +25,7 @@
 
     <title>Manage Account</title>
 </head>
-<body class="bg-[#BBBCBE] flex p-5 gap-5">
+<body class="flex p-5 gap-5">
     <x-customer.navbar/>
 
     <main class="w-full lg:ml-[17%]">

@@ -64,7 +64,7 @@
 
      {{-- Table for Account List --}}
 <div class="w-full bg-white mt-3 rounded-lg p-5">
-    
+
     {{-- Account List Header --}}
     <div class="flex justify-between items-center flex-col md:flex-row gap-2">
         <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
@@ -94,12 +94,12 @@
                     $isSuperAdmin = auth()->guard('superadmin')->check();
                     $isAdmin = auth()->guard('admin')->check();
                 @endphp
-    
+
                 @foreach ($accounts as $account)
                     @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
-                    <tr 
-                        data-id="{{ $account->id }}" 
-                        data-name="{{ $account->name }}" 
+                    <tr
+                        data-id="{{ $account->id }}"
+                        data-name="{{ $account->name }}"
                         data-username="{{ $account->username ?? $account->staff_username ?? '' }}"
                         data-email="{{ $account->email }}"
                         data-role="{{ $account->role }}"
@@ -107,7 +107,7 @@
                         data-jobtitle="{{ $account->job_title ?? '' }}"
                         data-adminid="{{ $account->admin_id ?? '' }}"
                         data-contactnumber="{{ $account->contact_number ?? 'N/A' }}" >
-                        
+
                         <td class="py-2 px-4 border-b">{{ $account->id }}</td>
                         <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username ?? $account->staff_username ?? 'N/A' }}</td>
                         <td class="py-2 px-4 border-b">{{ $account->email }}</td>
@@ -120,8 +120,8 @@
                             <form id="deleteaccountform-{{ $account->id }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account->role, 'id' => $account->id]) }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer" 
-                                data-account-id="{{ $account->id }}" 
+                                <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer"
+                                data-account-id="{{ $account->id }}"
                                 onclick="confirmDelete(this)">
                                 <i class="fa-solid fa-trash mr-2"></i> Delete
                             </button>
@@ -141,7 +141,7 @@
 
 </div>
 {{-- --}}
-        
+
         {{-- Modals --}}
 
         <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
@@ -179,7 +179,7 @@
                         <span id="contact_number-ajax-error" class="text-red-500 text-xs italic"></span>
                         @error('contact_number', 'addAccount')<p class="text-red-500 text-xs italic">{{ $message }}</p>@enderror
                     </div>
-                    
+
                     <div id="companySection" class="hidden space-y-2">
                         <div id="companySelectionField">
                             <label for="company_id">Select a Company</label>
@@ -393,7 +393,7 @@
                                 $isSuperAdmin = auth()->guard('superadmin')->check();
                                 $isAdmin = auth()->guard('admin')->check();
                             @endphp
-                        
+
                             @forelse ($archivedAccounts as $account)
                                 @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
                                 <tr>
@@ -427,15 +427,15 @@ document.addEventListener("DOMContentLoaded", function() {
     window.togglePasswordVisibility = (fieldId, iconId) => {
         const field = document.getElementById(fieldId);
         const icon = document.getElementById(iconId);
-        if (field.type === "password") { field.type = "text"; icon.classList.replace("fa-eye", "fa-eye-slash"); } 
+        if (field.type === "password") { field.type = "text"; icon.classList.replace("fa-eye", "fa-eye-slash"); }
         else { field.type = "password"; icon.classList.replace("fa-eye-slash", "fa-eye"); }
     };
     window.openAddAccountModal = () => document.getElementById("addAccountModal").classList.replace("hidden", "flex");
     window.closeAddAccountModal = () => document.getElementById("addAccountModal").classList.replace("flex", "hidden");
-    
+
     window.openArchivedModal = () => document.getElementById('archivedModal').classList.replace('hidden', 'flex');
     window.closeArchivedModal = () => document.getElementById('archivedModal').classList.replace('flex', 'hidden');
-    
+
     window.openEditAccountModal = (button) => {
         const editModal = document.getElementById("editAccountModal");
         editModal.classList.replace("hidden", "flex");
@@ -461,10 +461,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         let editRoleSelect = document.getElementById("editRole");
         for (let option of editRoleSelect.options) { option.selected = option.value === role; }
-        
+
         let locationSelect = document.getElementById("editLocation");
         if (locationSelect) { for (let option of locationSelect.options) { option.selected = option.value === location; } }
-        
+
         let adminSelect = document.getElementById("editAdmin");
         if (adminSelect) { for (let option of adminSelect.options) { option.selected = option.value === adminId; } }
 
@@ -589,20 +589,20 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             validateAndVisualize();
         };
-        
+
         emailInput.addEventListener('blur', () => {
              if (emailInput.value.trim()) checkUniqueness('email', emailInput.value, '{{ route("superadmin.account.checkEmail") }}', emailAjaxError);
         });
         contactInput.addEventListener('blur', () => {
             if (contactInput.value.trim().length === 11) checkUniqueness('contact_number', contactInput.value, '{{ route("superadmin.account.checkContact") }}', contactAjaxError);
         });
-        
+
         // Central validation function
         const isInputValid = (input) => {
             if (!input.required || input.offsetParent === null) return true;
             const value = input.value.trim();
             if (value === '') return false;
-            
+
             switch (input.name) {
                 case 'contact_number': return value.length === 11;
                 case 'password': return value.length >= 8;
@@ -665,7 +665,7 @@ document.addEventListener("DOMContentLoaded", function() {
             hideNewCompanyFields(false);
             validateAndVisualize();
         };
-        
+
         window.showNewCompanyFields = () => {
             document.getElementById("createCompanyFields").classList.remove("hidden");
             document.getElementById("companySelectionField").classList.add("hidden");
@@ -692,7 +692,7 @@ document.addEventListener("DOMContentLoaded", function() {
         addForm.addEventListener('change', validateAndVisualize);
         toggleFields();
     }
-    
+
     // --- SweetAlert Confirmation Logic for Forms ---
     const addAccountForm = document.getElementById('addaccountform');
     const editAccountForm = document.getElementById('editaccountform');
