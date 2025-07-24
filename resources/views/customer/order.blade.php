@@ -13,14 +13,14 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Order</title>
 </head>
-<body class="bg-[#BBBCBE] flex p-5 gap-5">
+<body class="bg-[#F3F4F6] flex p-5 gap-5">
     <x-customer.navbar />
 
     <main class="w-full lg:ml-[17%]">
         <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
         <div class="flex flex-col lg:flex-row gap-5 mt-5">
-            <!-- Available Products -->
+           <!-- Available Products -->
             <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl">
                 <h1 class="font-semibold text-2xl">Available Products</h1>
                 <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>

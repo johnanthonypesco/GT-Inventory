@@ -3,101 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner with Signature</title>
-    
+    <title>QR Code Scanner with Signature | RMPOIMS</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none !important; }
+
         #signature-pad {
-            border: 2px solid #ccc;
+            border: 2px solid #e2e8f0;
             width: 100%;
-            height: 150px;
+            height: 200px;
             background-color: white;
-        }
-        /* Style to make the scanner fit the container */
-        #reader {
-            border: 2px solid #4a5568; /* border-gray-700 */
-            border-radius: 0.5rem; /* rounded-lg */
-            overflow: hidden;
-        }
-        /* Style for the camera selection dropdown */
-        #html5-qrcode-select-camera {
-            width: 100%;
-            padding: 0.5rem;
+            border-radius: 0.5rem;
             margin-top: 0.5rem;
-            border-radius: 0.375rem; /* rounded-md */
-            background-color: #4a5568; /* bg-gray-700 */
-            color: white;
+            touch-action: none;
+        }
+
+        #reader {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+        }
+        #html5-qrcode-button-camera-permission {
+            background-color: #2563eb !important;
+            color: white !important;
+            font-weight: 500 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.75rem 1rem !important;
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
 
-    <div class="bg-gray-800 shadow-lg rounded-xl p-6 w-full max-w-md text-center relative">
-        <h1 class="text-2xl font-semibold mb-4">📷 Scan QR Code</h1>
+    <div class="bg-white shadow-xl rounded-xl w-full max-w-md border border-gray-200">
+        <div class="p-4 flex items-center border-b border-gray-200">
+            <a href="javascript:history.back()" class="text-gray-500 hover:text-gray-800 transition-colors">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </a>
+            <div class="flex-grow text-center">
+                <h1 id="headerTitle" class="text-lg font-bold text-gray-800">Step 1: Customer Signature</h1>
+            </div>
+             <div class="w-8"></div> </div>
+        
+        <div class="p-6">
+            <div id="signatureSection">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full mb-3">
+                        <i class="fas fa-signature text-blue-600 text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">Customer Signature</h2>
+                    <p class="text-sm text-gray-500 mt-1">Please sign below to confirm receipt.</p>
+                </div>
+                <canvas id="signature-pad"></canvas>
+                <div class="flex justify-between mt-3">
+                    <button id="clearBtn" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition">
+                        <i class="fas fa-eraser mr-2"></i> Clear
+                    </button>
+                    <button id="nextBtn" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
 
-        <div id="reader" class="w-full"></div>
-
-        <div class="mt-4">
-            <p class="text-sm text-gray-300">Customer Signature (Required):</p>
-            <canvas id="signature-pad"></canvas>
-            <button onclick="clearSignature()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">
-                Clear Signature
-            </button>
+            <div id="scannerSection" class="hidden">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="bg-green-100 p-3 rounded-full mb-3">
+                        <i class="fas fa-qrcode text-green-600 text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">Scan QR Code</h2>
+                    <p class="text-sm text-gray-500 mt-1">Position the order QR code inside the frame.</p>
+                </div>
+                <div id="reader" class="w-full"></div>
+            </div>
         </div>
-
-        <p id="statusMessage" class="mt-4 text-sm text-gray-400">Position the QR code inside the camera view.</p>
-
-        <i class="fa-solid fa-arrow-left text-3xl absolute top-5 left-4 cursor-pointer" 
-           onclick="window.location.href = '{{ route('admin.order') }}'"></i>
     </div>
 
     <script>
-        const signaturePad = new SignaturePad(document.getElementById("signature-pad"));
-        const statusMessage = document.getElementById("statusMessage");
-        let isProcessing = false; // Flag to prevent multiple scans at once
+    document.addEventListener('DOMContentLoaded', () => {
+        const signatureSection = document.getElementById('signatureSection');
+        const scannerSection = document.getElementById('scannerSection');
+        const headerTitle = document.getElementById('headerTitle');
+        const clearBtn = document.getElementById('clearBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        const canvas = document.getElementById("signature-pad");
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: '#1e40af',
+        });
 
-        // This function is called when a QR code is successfully scanned
-        async function onScanSuccess(decodedText, decodedResult) {
-            // Prevent the scanner from processing multiple times for a single scan
-            if (isProcessing) {
-                return;
-            }
-            isProcessing = true;
-            statusMessage.textContent = "✅ QR Code Detected. Processing...";
-            console.log(`Scanned QR Code: ${decodedText}`);
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 } 
+        }, false);
 
-            // Ensure signature is provided before processing
+        let isProcessing = false;
+        let signatureDataURL = null;
+
+        const resizeCanvas = () => {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
+        };
+        
+        const goToScannerStep = () => {
             if (signaturePad.isEmpty()) {
-                alert("❌ Signature is required before scanning.");
-                statusMessage.textContent = "Signature required. Please sign and rescan.";
-                isProcessing = false; // Reset flag
+                Swal.fire({ icon: 'error', title: 'Signature Required', text: 'Please provide a signature first.' });
                 return;
             }
+            signatureDataURL = signaturePad.toDataURL("image/png");
+            
+            signatureSection.classList.add('hidden');
+            scannerSection.classList.remove('hidden');
+            headerTitle.textContent = 'Step 2: Scan QR Code';
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        };
+        
+        async function onScanSuccess(decodedText) {
+            if (isProcessing) return;
+            isProcessing = true;
+            html5QrcodeScanner.pause();
+            
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Validating QR code and signature.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
 
             let qrData;
             try {
                 qrData = JSON.parse(decodedText);
             } catch (e) {
-                alert("Invalid QR Code format. Please scan a valid QR code.");
-                statusMessage.textContent = "Invalid QR code. Ready to scan.";
-                isProcessing = false; // Reset flag
+                Swal.fire({ icon: 'error', title: 'Invalid QR Code', text: 'The scanned code is not in the correct format.' });
+                isProcessing = false;
+                html5QrcodeScanner.resume();
                 return;
             }
 
-            // Convert Signature to a file (Blob)
-            const signatureDataURL = signaturePad.toDataURL("image/png");
             const signatureBlob = await fetch(signatureDataURL).then(res => res.blob());
-
-            // Create FormData to send to your Laravel backend
             const formData = new FormData();
             formData.append("order_id", qrData.order_id);
             formData.append("product_name", qrData.product_name);
@@ -107,7 +161,6 @@
             formData.append("quantity", qrData.quantity);
             formData.append("signature", signatureBlob, `signature_${qrData.order_id}.png`);
 
-            // Send the data to your server
             try {
                 const response = await fetch("/deduct-inventory", {
                     method: "POST",
@@ -117,51 +170,36 @@
                     },
                     body: formData,
                 });
-
                 const data = await response.json();
-                console.log("Server Response:", data);
-                alert(data.message);
+                
+                if (!response.ok) throw new Error(data.message || 'An unknown error occurred.');
 
-                if (response.ok) {
-                    // Optional: Redirect on success
-                    // window.location.href = '{{ route('admin.order') }}';
-                }
+                await Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Success!', 
+                    text: data.message,
+                    timer: 2000, // Show success message for 2 seconds
+                    showConfirmButton: false
+                });
+
+                // ✅ AUTOMATICALLY GO BACK TO THE PREVIOUS PAGE
+                window.history.back();
 
             } catch (error) {
-                console.error("Error:", error);
-                alert("❌ Failed to process the QR code scan. Please try again.");
-            } finally {
-                // Reset the flag after a delay to allow the user to see the message
-                setTimeout(() => {
-                    statusMessage.textContent = "Ready to scan another code.";
-                    isProcessing = false;
-                }, 2000);
+                Swal.fire({ icon: 'error', title: 'Processing Failed', text: error.message });
+                html5QrcodeScanner.resume();
+                isProcessing = false;
             }
         }
 
-        function onScanFailure(error) {
-            // This function is called when no QR code is found. We can ignore it for a smoother UI.
-            // console.warn(`Code scan error = ${error}`);
-        }
+        function onScanFailure(error) { /* Ignore failures */ }
 
-        // Initialize the QR Code scanner
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", // The ID of the div element
-            { 
-                fps: 10, // Frames per second to scan
-                qrbox: { width: 250, height: 250 }, // The size of the scanning box
-                rememberLastUsedCamera: true // Good for user experience
-            },
-            /* verbose= */ false
-        );
-
-        // Render the scanner
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-
-        function clearSignature() {
-            signaturePad.clear();
-        }
+        window.addEventListener('resize', resizeCanvas);
+        clearBtn.addEventListener('click', () => signaturePad.clear());
+        nextBtn.addEventListener('click', goToScannerStep);
+        
+        resizeCanvas();
+    });
     </script>
-
 </body>
 </html>

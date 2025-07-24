@@ -31,7 +31,9 @@
                 <table class="w-full table-auto text-left border border-gray-200">
                     <thead class="bg-[#005382] text-white">
                         <tr>
-                            <th class="p-2">User ID</th>
+                            <th class="p-2">Customer Name</th>
+                            <th class="p-2">Company Name</th>
+
                             <th class="p-2">Rating</th>
                             <th class="p-2">Comment</th>
                             <th class="p-2">Public</th>
@@ -42,7 +44,9 @@
                     <tbody>
                         @forelse($reviews as $review)
                         <tr class="border-t">
-                            <td class="p-2">{{ $review->user_id }}</td>
+                            <td class="p-2">{{ $review->user->name }}</td>
+                            <td class="p-2">{{ $review->user->company->name }}</td>
+
                             <td class="p-2">{{ $review->rating }}</td>
                             <td class="p-2">{{ $review->comment }}</td>
                             <td class="p-2">{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>

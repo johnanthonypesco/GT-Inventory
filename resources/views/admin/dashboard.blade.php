@@ -37,26 +37,116 @@
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ $currentUser instanceof \App\Models\Staff ? '4' : '4' }} gap-3 items-center mt-5">
-            <x-admin.dashboardcard title="Total Delivered" image="complete.png" count="{{ $totalOrders }}"/>
-            <x-admin.dashboardcard title="Pending Orders" image="pending.png" count="{{ $pendingOrders }}"/>
-            <x-admin.dashboardcard title="Cancelled Orders" image="cancel.png" count="{{ $cancelledOrders }}"/>
-            @if(!$currentUser instanceof \App\Models\Staff)
-                <x-admin.dashboardcard 
-                    title="Total Revenue" 
-                    image="pera.png" 
-                    count="₱{{ number_format($totalRevenue, 0) }}"/>
-            @endif
+       {{-- Start of the cards container --}}
+<div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
 
-            @if($currentUser instanceof \App\Models\SuperAdmin)
-                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesSuperAdmin ?? 0 }}"/>
-            @elseif($currentUser instanceof \App\Models\Admin)
-                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesAdmin ?? 0 }}"/>
-            @elseif($currentUser instanceof \App\Models\Staff)
-                <x-admin.dashboardcard title="Unread Messages" image="messages.png" count="{{ $unreadMessagesStaff ?? 0 }}"/>
-            @endif
+    {{-- DYNAMIC CARD COUNT LOGIC --}}
+    @php
+        // Start with the base number of cards everyone sees
+        $cardCount = 3; // Total Delivered, Pending, Cancelled
+        
+        // Add 1 if the user is not a Staff (for Total Revenue)
+        if (!$currentUser instanceof \App\Models\Staff) {
+            $cardCount++;
+        }
+        
+        // Add 1 for the Unread Messages card (everyone sees this)
+        $cardCount++;
+    @endphp
+
+    {{-- UPDATED GRID WITH DYNAMIC COLUMNS & BETTER ALIGNMENT --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-{{ $cardCount }} gap-4 items-stretch">
+
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+        <div class="flex-1 min-w-0">
+            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                Total Delivered
+            </h3>
+            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                {{ $totalOrders }}
+            </p>
         </div>
+        <div class="ml-4">
+            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                <img src="{{ asset('image/complete.png') }}" alt="Total Delivered" class="h-6 w-6 md:h-7 md:h-7">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+        <div class="flex-1 min-w-0">
+            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                Pending Orders
+            </h3>
+            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                {{ $pendingOrders }}
+            </p>
+        </div>
+        <div class="ml-4">
+            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                <img src="{{ asset('image/pending.png') }}" alt="Pending Orders" class="h-6 w-6 md:h-7 md:h-7">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+        <div class="flex-1 min-w-0">
+            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                Cancelled Orders
+            </h3>
+            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                {{ $cancelledOrders }}
+            </p>
+        </div>
+        <div class="ml-4">
+            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                <img src="{{ asset('image/cancel.png') }}" alt="Cancelled Orders" class="h-6 w-6 md:h-7 ">
+            </div>
+        </div>
+    </div>
+    
+    @if(!$currentUser instanceof \App\Models\Staff)
+        <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+            <div class="flex-1 min-w-0">
+                <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                    Total Revenue
+                </h3>
+                <p class="text-gray-800 text-2xl md:text-2xl sm:text-lg font-bold mt-1 break-all">
+                    ₱{{ number_format($totalRevenue, 0) }}
+                </p>
+            </div>
+            <div class="ml-4">
+                <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                    <img src="{{ asset('image/pera.png') }}" alt="Total Revenue" class="h-6 w-6 md:h-7">
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+        <div class="flex-1 min-w-0">
+            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                Unread Messages
+            </h3>
+            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                @if($currentUser instanceof \App\Models\SuperAdmin)
+                    {{ $unreadMessagesSuperAdmin ?? 0 }}
+                @elseif($currentUser instanceof \App\Models\Admin)
+                    {{ $unreadMessagesAdmin ?? 0 }}
+                @elseif($currentUser instanceof \App\Models\Staff)
+                    {{ $unreadMessagesStaff ?? 0 }}
+                @endif
+            </p>
+        </div>
+        <div class="ml-4">
+            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                <img src="{{ asset('image/messages.png') }}" alt="Unread Messages" class="h-6 w-6 md:h-7">
+            </div>
+        </div>
+    </div>
+
+</div>
+    {{-- The rest of your dashboard code (AI Analysis, etc.) follows --}}
                 {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
             @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
             <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">

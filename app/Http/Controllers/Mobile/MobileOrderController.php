@@ -105,8 +105,8 @@ class MobileOrderController extends Controller
         \Log::info("✅ Fetching orders for user:", ['user_id' => $user->id]);
 
         $orders = Order::where('user_id', $user->id)
-            // ✅ BINAGO: Pinalawak ang listahan ng status para mas maraming order ang makita
-            ->whereIn('status', ['pending', 'confirmed', 'delivered', 'cancelled', 'completed', 'partial-delivery'])
+            // ✅ BINAGO: Sinapala ang listahan para ipakita lang ang 'pending' at 'packed' na orders.
+            ->whereIn('status', ['pending', 'packed']) 
             ->with(['exclusive_deal.product'])
             // ✅ BINAGO: Inayos ang pag-sort para base sa 'created_at' (pinakabago una)
             ->orderBy('created_at', 'desc')
@@ -118,7 +118,6 @@ class MobileOrderController extends Controller
 
             return [
                 'orderId' => $order->id,
-                // ✅ BINAGO: Idinagdag ang 'created_at' para gamitin ng frontend
                 'created_at' => $order->created_at->toIso8601String(), // ISO 8601 format for JS Date object
                 'totalAmount' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
                 'status' => ucfirst($order->status),

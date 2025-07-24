@@ -7,101 +7,97 @@ use App\Models\Admin;
 use App\Models\Staff;
 use App\Models\Company;
 use App\Models\Location;
+use App\Mail\NewAccountMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\HistorylogController;
 
 class SuperAdminAccountController extends Controller
 {
-    /**
-     * Display all accounts (Admins, Staff, Customers).
-     */
-    public function index()
-    { 
+    
+   
+    public function index(Request $request)
+    {
         $isSuperAdmin = auth()->guard('superadmin')->check();
-    $isAdmin = auth()->guard('admin')->check();
+        $isAdmin = auth()->guard('admin')->check();
 
-        $admins = Admin::whereNull('archived_at')->get();
-        $staff = Staff::whereNull('archived_at')->get();
-        $users = User::whereNull('archived_at')->get();
-                $locations = Location::all(); // ✅ Fetch locations
+        // 1. Build the Admin Query (DO NOT use ->get())
+        $adminsQuery = Admin::whereNull('archived_at')
+            ->select(
+                'id',
+                'email',
+                'contact_number',
+                'username',
+                DB::raw("NULL as staff_username"),
+                DB::raw("NULL as name"),
+                DB::raw("'admin' as role")
+            );
+
+        // 2. Build the Staff Query (DO NOT use ->get())
+        $staffQuery = Staff::whereNull('archived_at')
+            ->select(
+                'id',
+                'email',
+                'contact_number',
+                DB::raw("NULL as username"),
+                'staff_username',
+                DB::raw("NULL as name"),
+                DB::raw("'staff' as role")
+            );
+
+        // 3. Build the User/Customer Query and UNION the others to it
+        // This keeps everything as a single Query Builder instance
+        $accountsQuery = User::whereNull('archived_at')
+            ->select(
+                'id',
+                'email',
+                'contact_number',
+                DB::raw("NULL as username"),
+                DB::raw("NULL as staff_username"),
+                'name',
+                DB::raw("'customer' as role")
+            )
+            ->unionAll($adminsQuery)
+            ->unionAll($staffQuery);
+
+        // 4. Paginate the final combined query
+        // We use DB::query() to properly handle pagination on a complex union
+        $accounts = DB::query()
+            ->fromSub($accountsQuery, 'accounts')
+            ->paginate(10);
+
+        // --- The rest of the data fetching remains the same ---
+        $allAdmins = Admin::whereNull('archived_at')->get();
+        $locations = Location::all();
         $companies = Company::all();
-        $accounts = collect()
-        ->merge($admins->map(fn($a) => [
-            'id' => $a->id,
-            'name' => null, // Admins do not use `name`
-            'username' => $a->username, // ✅ Store in `username`
-            'staff_username' => null, // Admins do not use `staff_username`
-            'email' => $a->email,
-            'role' => 'admin',
-            'company' => optional($a->company)->name ?? 'RCT Med Pharma',
-            'contact_number' => $a->contact_number ?? '',
-        ]))
-        ->merge($staff->map(fn($s) => [
-            'id' => $s->id,
-            'name' => null, // Staff do not use `name`
-            'username' => null, // Staff do not use `username`
-            'staff_username' => $s->staff_username, // ✅ Store in `staff_username`
-            'email' => $s->email,
-            'role' => 'staff',
-            'company' => optional($s->company)->name ?? 'RCT Med Pharma',
-            'contact_number' => $s->contact_number ?? '',
-
-        ]))
-        ->merge($users->map(fn($u) => [
-            'id' => $u->id,
-            'name' => $u->name, // ✅ Customers use `name`
-            'username' => null, // Customers do not use `username`
-            'staff_username' => null, // Customers do not use `staff_username`
-            'email' => $u->email,
-            'role' => 'customer',
-            'company' => optional($u->company)->name ?? 'RCT Med Pharma',
-            'contact_number' => $u->contact_number ?? '',
-
-        ]));
+        $allStaff = Staff::whereNull('archived_at')->get();
 
         $archivedAdmins = Admin::whereNotNull('archived_at')->get();
         $archivedStaff = Staff::whereNotNull('archived_at')->get();
         $archivedUsers = User::whereNotNull('archived_at')->get();
 
         $archivedAccounts = collect()
-        ->merge($archivedAdmins->map(fn($a) => (object) [
-            'id' => $a->id,
-            'name' => null, 
-            'username' => $a->username, 
-            'email' => $a->email,
-            'role' => 'admin',
-        ]))
-        ->merge($archivedStaff->map(fn($s) => (object) [
-            'id' => $s->id,
-            'name' => null, 
-            'username' => $s->staff_username, 
-            'email' => $s->email,
-            'role' => 'staff',
-        ]))
-        ->merge($archivedUsers->map(fn($u) => (object) [
-            'id' => $u->id,
-            'name' => $u->name, 
-            'username' => null, 
-            'email' => $u->email,
-            'role' => 'customer',
-        ]));
+            ->merge($archivedAdmins->map(fn ($a) => (object) ['id' => $a->id, 'name' => $a->username, 'email' => $a->email, 'role' => 'admin']))
+            ->merge($archivedStaff->map(fn ($s) => (object) ['id' => $s->id, 'name' => $s->staff_username, 'email' => $s->email, 'role' => 'staff']))
+            ->merge($archivedUsers->map(fn ($u) => (object) ['id' => $u->id, 'name' => $u->name, 'email' => $u->email, 'role' => 'customer']));
 
-    // ✅ Return view with archived accounts
-    // return view('admin.manageaccount', [
-    //     'archivedAccounts' => $archivedAccounts,
-    // ]);
-
-        $locations = Location::all();
-        // return view('admin.manageaccount', compact('accounts', 'locations', 'admins', 'companies'));
-        return view('admin.manageaccount', ['accounts' => $accounts, 'locations' => $locations, 'admins' => $admins, 'companies' => $companies,  'archivedAccounts' => $archivedAccounts, 'isSuperAdmin' => $isSuperAdmin,
-        'isAdmin' => $isAdmin, 'staffs' => $staff,]);
+        return view('admin.manageaccount', [
+            'accounts' => $accounts,
+            'locations' => $locations,
+            'admins' => $allAdmins,
+            'companies' => $companies,
+            'archivedAccounts' => $archivedAccounts,
+            'isSuperAdmin' => $isSuperAdmin,
+            'isAdmin' => $isAdmin,
+            'staffs' => $allStaff,
+        ]);
     }
 
-    /**
-     * Store a newly created account dynamically.
-     */
+    // ... The rest of your controller methods
+
     public function store(Request $request)
     {
         try {
@@ -147,6 +143,18 @@ class SuperAdminAccountController extends Controller
 
             $validated = array_map("strip_tags", $validated);
 
+            // ✅ 1. Capture the plain-text password from the request.
+        // This is the password the admin entered in the form.
+        $plainPassword = $validated['password'];
+
+        // Handle Company Creation logic (no changes needed here)
+        if ($validated['role'] === 'customer') {
+           // ... your company creation logic
+        }
+
+        $user = null;
+        $loginUrl = '';
+
 
          // Handle Company Creation for Customers
          if ($validated['role'] === 'customer') {
@@ -168,54 +176,61 @@ class SuperAdminAccountController extends Controller
         
 
             // dd($validated);
-        match ($validated['role']) {
-            'admin' => Admin::create([
+       $user = match ($validated['role']) {
+            'admin' => tap(Admin::create([
                 'username' => $validated['username'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'super_admin_id' => auth()->id(),
                 'contact_number' => $validated['contact_number'] ?? null,
-                'is_admin' => 1, // ✅ Ensure is_admin = 1 for Admin
-            ]),
-            'staff' => Staff::create([
+                'is_admin' => 1,
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/admin/login');
+            }),
+
+            'staff' => tap(Staff::create([
                 'staff_username' => $validated['username'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
                 'location_id' => $validated['location_id'],
                 'contact_number' => $validated['contact_number'] ?? null,
                 'job_title' => $validated['job_title'],
                 'is_staff' => 1,
-            ]),
-            'customer' => User::create([
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/staff/login');
+            }),
+
+            'customer' => tap(User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($plainPassword), // Hashing the password for the DB
                 'contact_number' => $validated['contact_number'],
-                'company_id' => $validated['company_id'] ?? null, // Assign Company ID
-                'is_admin' => 0, // ✅ Ensure is_admin = 0 for Customers
-                'email_verified_at' => null, // ✅ Ensure it's explicitly set to null
-            ]),
+                'company_id' => $validated['company_id'] ?? null,
+                'is_admin' => 0,
+                'email_verified_at' => null,
+            ]), function() use (&$loginUrl) {
+                $loginUrl = url('/login');
+            }),
         };
 
+        if ($user) {
+            Mail::to($user->email)->send(new NewAccountMail($user, $plainPassword, $loginUrl));
+        }
+
+        // Your existing history log
         HistorylogController::addaccountlog(
             "Add",
             ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
         );
-        
 
-        // dd($validated);
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
+
     } catch (\Illuminate\Validation\ValidationException $e) {
-        // Redirect back with validation errors
         return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
     }
     catch (\Exception $e) {
-        // Log error message
-
-    dd($e);
         Log::error('Error creating account', ['message' => $e->getMessage()]);
-
         return back()->with('error', 'Failed to create account. Please check logs.');
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Staff;
+
 
 class Order extends Model
 {
@@ -43,4 +45,12 @@ protected $casts = [
     'date_ordered' => 'datetime',
 ];
 
+public function staff()
+{
+    return $this->belongsTo(Staff::class);
 }
+
+
+}
+
+
