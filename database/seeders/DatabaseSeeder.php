@@ -12,6 +12,7 @@ use App\Models\Product;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\ManageContents;
+use App\Models\ImmutableHistory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -47,6 +48,9 @@ class DatabaseSeeder extends Seeder
         for ($i=0; $i < 30; $i++) { // number of yahoo baby orders
             $this->call(OrderSeeder::class); 
         }
+
+        // Create order records to order history page
+        ImmutableHistory::factory()->count(50)->create(); // number of random orders
 
         // Create messages
         Message::factory()->count(6)->create();
