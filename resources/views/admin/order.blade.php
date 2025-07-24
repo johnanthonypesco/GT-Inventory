@@ -47,12 +47,6 @@
                         @endforeach
                     </datalist> 
 
-                    {{-- @if ($current_search["query"] !== null && $current_search["type"] === "company")
-                        <button onclick="window.location.href = '{{route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                                Reset Search
-                        </button>
-                    @endif --}}
-
                     <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex">
                         {{-- <input type="hidden" name="search_type" value="company"> --}}
                         
@@ -77,6 +71,12 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
+
+                    @if ($current_search["query"] !== null)
+                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                                Reset Search
+                        </button>
+                    @endif
                 </div>
                 {{-- Search --}}
                 
