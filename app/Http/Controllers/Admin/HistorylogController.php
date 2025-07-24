@@ -34,6 +34,16 @@ class HistorylogController extends Controller
         ]);
     }
 
+    // edit Product log
+    public static function editproductlog($event, $description){
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
     // add Stock log
     public static function addstocklog($event, $description){
         Historylogs::create([
@@ -43,6 +53,26 @@ class HistorylogController extends Controller
             'created_at' => now()
         ]);
     }
+
+    //ocr scanned log
+    // public static function ocrscannedlog($event, $description){
+    //     Historylogs::create([
+    //         'event' => $event,
+    //         'description' => $description,
+    //         'user_email'=> auth()->user()->email,
+    //         'created_at' => now()
+    //     ]);
+    // }
+
+    // // transfer log
+    // public static function transferlog($event, $description){
+    //     Historylogs::create([
+    //         'event' => $event,
+    //         'description' => $description,
+    //         'user_email'=> auth()->user()->email,
+    //         'created_at' => now()
+    //     ]);
+    // }
 
     // delete Product log
     public static function deleteproductlog($event, $description){
@@ -115,6 +145,26 @@ class HistorylogController extends Controller
 
     // add content log
     public static function addcontentlog($event, $description){
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
+    //review manager log
+    public static function reviewmanagerlog($event, $description){
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,            
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
+    //disapprove review log
+    public static function disapprovereviewlog($event, $description){
         Historylogs::create([
             'event' => $event,
             'description' => $description,

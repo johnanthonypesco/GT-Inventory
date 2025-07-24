@@ -1,10 +1,18 @@
 <div class="block lg:hidden">
     <i class="fa-solid fa-bars text-3xl hover:cursor-pointer" onclick="sidebar()"></i>
 </div>
-<div class="sidebar fixed top-0 -left-full w-0 h-full flex flex-col bg-white z-20 gap-3 transition-all duration-500 overflow-y-auto p-6 pt-8">
-    <i class="fa-solid fa-xmark absolute top-8 right-8 text-4xl text-gray-700 hover:cursor-pointer" onclick="sidebar()"></i>
-    <div class="flex flex-col items-center border-b pb-4">
-        <img src="{{ asset('image/Logowname.png') }}" alt="Logo" class="w-[150px]">
+
+
+
+
+
+<div class="sidebar fixed top-0 -left-32 w-0 h-full flex flex-col bg-white z-20 gap-1 p-10 transition-all duration-500" id="sidebar">
+    <div class="p-3 flex flex-col relative">
+        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
+        <hr class="mt-2">
+        <div onclick="closeSidebar()" class="w-10 h-10 bg-white shadow-md z-40 flex items-center justify-center absolute -top-10 -right-16 rounded-md hover:cursor-pointer">
+            <span class="text-3xl text-red-500 font-bold">&times;</span>
+        </div>
     </div>
     <a href="{{ route('admin.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md w-6"></i>Dashboard</a>
 
@@ -49,3 +57,5 @@
      onclick="sidebar()">
 </div>
 <script src="{{ asset('js/burgermenu.js') }}"></script>
+
+<script src="{{asset('js/burgermenu.js')}}"></script>

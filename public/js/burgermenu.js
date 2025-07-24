@@ -1,12 +1,15 @@
 function sidebar() {
-    // Note: I removed event.preventDefault() as it's not needed for a div/icon click
-    // and can cause issues if you reuse this function on an actual link.
-    const sidebar = document.querySelector('.sidebar');
-    // It's better to toggle from -left-full for a full slide-in effect
-    sidebar.classList.toggle('-left-full');
-    sidebar.classList.toggle('left-0');
-    // This ensures width is applied only when opening
-    sidebar.classList.toggle('w-[280px]');
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.toggle('left-0')
+    sidebar.classList.toggle('w-[280px]')
+}
+
+function closeSidebar() {
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.remove('left-0')
+    sidebar.classList.remove('w-[280px]')
 }
 
 // Close sidebar if user clicks outside of it (on the semi-transparent background)
@@ -30,17 +33,18 @@ navLinks.forEach(function(link) {
     }
 });
 
-// ETO YUNG BINAGO PARA SA AUTO-CLOSE
+window.addEventListener('scroll', () => {
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.remove('left-0')
+    sidebar.classList.remove('w-[280px]')
+})
 window.addEventListener('resize', () => {
-    // lg breakpoint in Tailwind is 1024px. If window is larger, hide mobile sidebar.
-    if (window.innerWidth >= 1024) {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.remove('left-0');
-        sidebar.classList.add('-left-full');
-        sidebar.classList.remove('w-[280px]');
-    }
-});
-
+    event.preventDefault();
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.classList.remove('left-0')
+    sidebar.classList.remove('w-[280px]')
+})
 
 // add auto reload for realtime
 document.addEventListener('DOMContentLoaded', function() {

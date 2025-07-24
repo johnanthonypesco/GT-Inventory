@@ -71,8 +71,17 @@ if(auth('web')->check()) {
         sidebar.classList.toggle('left-0');
         sidebar.classList.toggle('w-[300px]');
     }
+
+    function closeSidebar() {
+        var sidebar = document.querySelector('#sidebar');
+        sidebar.classList.remove('left-0', 'w-[300px]');
+    }
+    window.addEventListener('scroll', () => {
+        const sidebar = document.querySelector('#sidebar');
+        sidebar.classList.remove('left-0', 'w-[300px]');
+    });
     // add auto reload for realtime
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     let contactsRefreshInterval;
 
     // Start contacts refresh interval
