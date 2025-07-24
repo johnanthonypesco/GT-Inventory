@@ -1,15 +1,27 @@
 function sidebar() {
     event.preventDefault();
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.classList.toggle('left-0')
-    sidebar.classList.toggle('w-[280px]')
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay'); // Get the overlay
+
+    // Toggle sidebar visibility
+    sidebar.classList.toggle('left-0');
+    sidebar.classList.toggle('w-[280px]');
+    
+    // Toggle overlay visibility
+    overlay.classList.toggle('hidden'); 
 }
 
 function closeSidebar() {
     event.preventDefault();
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.classList.remove('left-0')
-    sidebar.classList.remove('w-[280px]')
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay'); // Get the overlay
+
+    // Hide the sidebar
+    sidebar.classList.remove('left-0');
+    sidebar.classList.remove('w-[280px]');
+
+    // Hide the overlay
+    overlay.classList.add('hidden'); 
 }
 
 // Close sidebar if user clicks outside of it (on the semi-transparent background)
@@ -38,12 +50,16 @@ window.addEventListener('scroll', () => {
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.remove('left-0')
     sidebar.classList.remove('w-[280px]')
+        closeSidebar();
+
 })
 window.addEventListener('resize', () => {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.remove('left-0')
     sidebar.classList.remove('w-[280px]')
+        closeSidebar();
+
 })
 
 // add auto reload for realtime

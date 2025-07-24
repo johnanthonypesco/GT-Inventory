@@ -205,7 +205,7 @@ function initializeMap(orderId) {
 // Function to fetch the latest location and move the marker
 async function updateMarkerLocation(orderId) {
     try {
-        const response = await fetch(`/customer/track-order/${orderId}/location`);
+        const response = await fetch(`/track-order/${orderId}/location`);
         if (!response.ok) {
              // Stop polling if the order is no longer trackable (e.g., delivered)
              if(response.status === 404) clearInterval(trackingInterval);

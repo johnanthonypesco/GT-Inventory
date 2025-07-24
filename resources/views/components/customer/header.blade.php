@@ -58,7 +58,7 @@ if(auth('web')->check()) {
     </div>
 </div>
 <div class="lg:hidden">
-    <i class="fa-solid fa-bars text-2xl hover:cursor-pointer" onclick="sidebar()"></i>
+        <i class="fa-solid fa-bars text-2xl hover:cursor-pointer" onclick="openSidebar()"></i>
 </div>
 </header>
 
@@ -66,20 +66,20 @@ if(auth('web')->check()) {
 <x-customer.sidebar/>
 
 <script>
-    function sidebar() {
-        var sidebar = document.querySelector('#sidebar');
-        sidebar.classList.toggle('left-0');
-        sidebar.classList.toggle('w-[300px]');
-    }
+    // function sidebar() {
+    //     var sidebar = document.querySelector('#sidebar');
+    //     sidebar.classList.toggle('left-0');
+    //     sidebar.classList.toggle('w-[300px]');
+    // }
 
-    function closeSidebar() {
-        var sidebar = document.querySelector('#sidebar');
-        sidebar.classList.remove('left-0', 'w-[300px]');
-    }
-    window.addEventListener('scroll', () => {
-        const sidebar = document.querySelector('#sidebar');
-        sidebar.classList.remove('left-0', 'w-[300px]');
-    });
+    // function closeSidebar() {
+    //     var sidebar = document.querySelector('#sidebar');
+    //     sidebar.classList.remove('left-0', 'w-[300px]');
+    // }
+    // window.addEventListener('scroll', () => {
+    //     const sidebar = document.querySelector('#sidebar');
+    //     sidebar.classList.remove('left-0', 'w-[300px]');
+    // });
     // add auto reload for realtime
     document.addEventListener('DOMContentLoaded', function() {
     let contactsRefreshInterval;
