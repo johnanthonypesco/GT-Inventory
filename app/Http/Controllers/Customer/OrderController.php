@@ -16,18 +16,39 @@ use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
-    public function showOrder(){
-        // onlu show the company's assigned deal
-        $deals = ExclusiveDeal::where('company_id', auth('web')->user()->company_id)
-        ->with(['product'])
-        ->get();
+    public function showOrder(Request $request){
+        $searchFilter = $request->input('search_filter', null);
+        $searchFilter = str_replace(['₱', ','], '', $searchFilter);
+        $searchFilter = $searchFilter ? explode(' - ', $searchFilter) : null;
 
-        // dd($deals->toArray());
+        // onlu show the company's assigned deal
+        $deals = ExclusiveDeal::where('company_id', auth('web')->user()->company_id)->with('product');
+
+        if ($searchFilter && count($searchFilter) === 5) {
+            $deals = $deals->whereHas('product', function ($query) use ($searchFilter) {
+                $query->where('generic_name', $searchFilter[0])
+                ->where('brand_name', $searchFilter[1])
+                ->where('form', $searchFilter[2])
+                ->where('strength', $searchFilter[3]);
+            });
+            
+
+            $deals = $deals->where('price', $searchFilter[4]);
+        } else {
+            $deals = $deals->with('product');
+        }
+        
+        $deals = $deals->get();
 
         return view('customer.order', [
             'listedDeals' => $deals,
+
+            'current_filters' => [
+                'search' => $searchFilter,
+            ],
         ]);
     }
+
     public function storeOrder(Request $request){
         $validated = $request->validate([
             'user_id.*' => 'required|numeric',
