@@ -68,7 +68,7 @@
 
         <div class="h-[82vh] overflow-x-auto mt-4">
                 {{-- Total Container --}}
-                <div class="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5">
+                <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
                     <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
                     <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
                     <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
@@ -279,6 +279,7 @@
 
             <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-4">Register New Product</h1>
 
+            {{-- BTW FORM_TYPE IS FOR THE EDIT REGISTERED PRODUCT'S ERROR HANDLING --}}
             <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-4" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
 
             <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-4" placeholder="Enter Brand Name" value="{{ old('form_type') !== 'edit-product' ? old('brand_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('brand_name') : null"/>

@@ -70,12 +70,12 @@
                                     <td class="p-3 text-gray-700">{{ $order->created_at->format('M d, Y') }}</td>
                                     <td class="p-3">
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                            @if($order->status == 'Pending') bg-yellow-100 text-yellow-800
-                                            @elseif($order->status == 'Confirmed') bg-blue-100 text-blue-800
-                                            @elseif($order->status == 'Out for Delivery') bg-indigo-100 text-indigo-800
-                                            @elseif($order->status == 'Completed') bg-green-100 text-green-800
+                                            @if($order->status == 'Pending') bg-[#005382] text-white
+                                            @elseif($order->status == 'delivered') bg-gray-100 text-gray-800
+                                            {{-- @elseif($order->status == 'Out for Delivery') bg-indigo-100 text-indigo-800 --}}
+                                            @elseif($order->status == 'Packed') bg-green-100 text-green-800
                                             @elseif($order->status == 'Cancelled') bg-red-100 text-red-800 @endif">
-                                            {{ $order->status }}
+                                            {{ ucfirst($order->status) }}
                                         </span>
                                     </td>
                                 </tr>
@@ -145,7 +145,7 @@
                     <p class="text-xs text-gray-500">{{'Price: ' . $deal->price ?? 'Discounted price' }}</p>
                 </div>
                 <a href="{{ route('customer.order', ['deal_id' => $deal->id]) }}"
-                   class="text-xs font-semibold text-white bg-blue-600 px-3 py-1.5 rounded hover:bg-blue-700 transition whitespace-nowrap">
+                   class="text-xs font-semibold text-white bg-[#005382] px-3 py-1.5 rounded hover:bg-blue-700 transition whitespace-nowrap">
                    VIEW DEAL →
                 </a>
             </div>

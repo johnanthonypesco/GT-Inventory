@@ -11,7 +11,7 @@ class ManageorderController extends Controller
     //
     public function showManageOrder(){
         $orders = Order::where('user_id', '=', auth('web')->id())
-        ->whereIn('status', ['pending', 'completed', 'partial-delivery'])
+        ->whereIn('status', ['pending', 'packed', 'out for delivery'])
         ->with('exclusive_deal.product')
         ->orderBy('date_ordered', 'desc')->get()
         ->groupBy(function ($orders) {

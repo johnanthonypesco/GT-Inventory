@@ -1,35 +1,45 @@
 function sidebar() {
     event.preventDefault();
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.classList.toggle('left-0')
-    sidebar.classList.toggle('w-[280px]')
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay'); 
+
+    // Toggle sidebar visibility
+    sidebar.classList.toggle('left-0');
+    sidebar.classList.toggle('w-[280px]');
+    
+    // Toggle overlay visibility
+    overlay.classList.toggle('hidden'); 
 }
 
 function closeSidebar() {
     event.preventDefault();
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.classList.remove('left-0')
-    sidebar.classList.remove('w-[280px]')
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    sidebar.classList.remove('left-0');
+    sidebar.classList.remove('w-[280px]');
+
+    overlay.classList.add('hidden'); 
 }
 
+// Close sidebar if user clicks outside of it (on the semi-transparent background)
 window.onclick = function(event) {
     if (event.target.matches('.sidebar')) {
-        sidebar()
+        sidebar();
     }
 }
 
+// Highlight the active link in the sidebar
 var currentLocation = window.location.href;
 var navLinks = document.querySelectorAll('.sidebar a');
-var navicons = document.querySelectorAll('.sidebar a i');
 navLinks.forEach(function(link) {
     if (link.href === currentLocation) {
         link.classList.add('active');
-    }
-});
-
-navicons.forEach(function(icon) {
-    if (icon.parentElement.href === currentLocation) {
-        icon.classList.add('text-white');
+        // also add the white text to the icon inside the active link
+        const icon = link.querySelector('i');
+        if (icon) {
+            icon.classList.add('text-white');
+        }
     }
 });
 
@@ -38,29 +48,30 @@ window.addEventListener('scroll', () => {
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.remove('left-0')
     sidebar.classList.remove('w-[280px]')
+        closeSidebar();
+
 })
 window.addEventListener('resize', () => {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar')
     sidebar.classList.remove('left-0')
     sidebar.classList.remove('w-[280px]')
+        closeSidebar();
+
 })
 
 // add auto reload for realtime
 document.addEventListener('DOMContentLoaded', function() {
     let contactsRefreshInterval;
 
-    // Start contacts refresh interval
     function startContactsRefresh() {
-        contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 6 seconds
+        contactsRefreshInterval = setInterval(refreshContacts, 7000);
     }
 
-    // Stop contacts refresh interval
     function stopContactsRefresh() {
         clearInterval(contactsRefreshInterval);
     }
 
-    // Function to refresh contacts list
     function refreshContacts() {
         fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(response => response.text())
@@ -70,12 +81,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newContactsList = doc.getElementById('headerCounter');
                 if (newContactsList) {
                     const currentContactsList = document.getElementById('headerCounter');
-                    currentContactsList.innerHTML = newContactsList.innerHTML;
+                    if (currentContactsList) {
+                       currentContactsList.innerHTML = newContactsList.innerHTML;
+                    }
                 }
             })
             .catch(error => console.error('Error refreshing contacts:', error));
     }
 
-    // Start the refresh interval when the page loads
     startContactsRefresh();
 });

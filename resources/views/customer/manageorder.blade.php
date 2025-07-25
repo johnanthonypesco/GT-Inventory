@@ -10,6 +10,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEtcVVWN4Tzhknu9cn96CHDHLY6v4J7Aw"></script>
+
 
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
@@ -78,7 +80,7 @@
                         {{
                             match ($currentStatus) {
                                 'pending' => 'text-orange-600',
-                                'completed' => 'text-blue-600',
+                                'packed' => 'text-blue-600',
                                 'partial-delivery' => 'text-purple-700',
                                 default => 'text-black'
                             }
@@ -95,6 +97,7 @@
                                     <th>Strength</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
+                                    <th>Tracking</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -110,6 +113,13 @@
                                         <td>{{ $item->exclusive_deal->product->strength }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td> ₱ {{ number_format($calc) }}</td>
+                                        <td> 
+                              @if($item->status == 'out for delivery' && $item->staff_id)
+                    <button onclick="openTrackingModal({{ $item->id }})" class="bg-blue-500 text-white px-3 py-1 rounded-md text-md hover:bg-green-600">
+                        Track
+                    </button>
+                @endif
+            </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -125,6 +135,96 @@
         </div>
     @endforeach
 
+    {{-- Real-Time Tracking Modal --}}
+<div id="tracking-modal" class="hidden fixed bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
+    <div class="modal w-full lg:w-[60%] h-[80vh] m-auto rounded-lg bg-white p-5 relative flex flex-col">
+        <span onclick="closeTrackingModal()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+        <h1 class="text-xl font-semibold text-[#005382] mb-4">
+            Live Order Tracking
+        </h1>
+
+        {{-- Map Container --}}
+        <div id="map" class="w-full flex-1 rounded-lg border">
+            </div>
+        
+        <p class="text-sm text-center text-gray-500 mt-2">
+            Location updates every 30 seconds.
+        </p>
+    </div>
+</div>
 </body>
 </html>
 <script src="{{ asset('js/manageorder.js') }}"></script>
+
+<script>
+
+let map;
+let deliveryMarker;
+let trackingInterval; // To hold the interval ID
+
+// Function to open the tracking modal
+function openTrackingModal(orderId) {
+    document.getElementById('tracking-modal').classList.replace('hidden', 'flex');
+    initializeMap(orderId);
+}
+
+// Function to close the tracking modal and stop fetching location
+function closeTrackingModal() {
+    document.getElementById('tracking-modal').classList.replace('flex', 'hidden');
+    // IMPORTANT: Stop the interval when the modal is closed to prevent unnecessary requests
+    if (trackingInterval) {
+        clearInterval(trackingInterval);
+    }
+}
+
+// Function to initialize the Google Map
+function initializeMap(orderId) {
+    const initialPosition = { lat: 15.4846, lng: 120.9724 }; // Default to Cabanatuan City
+
+    if (!map) { // Only create a new map instance if it doesn't exist
+         map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 15,
+            center: initialPosition,
+        });
+    }
+
+    if (!deliveryMarker) {
+         deliveryMarker = new google.maps.Marker({
+            position: initialPosition,
+            map: map,
+            title: "Your Delivery",
+            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' // Simple icon
+        });
+    }
+
+    // Fetch the location immediately, then start polling
+    updateMarkerLocation(orderId);
+    trackingInterval = setInterval(() => updateMarkerLocation(orderId), 30000); // Update every 30 seconds
+}
+
+// Function to fetch the latest location and move the marker
+async function updateMarkerLocation(orderId) {
+    try {
+        const response = await fetch(`/track-order/${orderId}/location`);
+        if (!response.ok) {
+             // Stop polling if the order is no longer trackable (e.g., delivered)
+             if(response.status === 404) clearInterval(trackingInterval);
+             return;
+        }
+
+        const location = await response.json();
+        const newPosition = {
+            lat: parseFloat(location.latitude),
+            lng: parseFloat(location.longitude)
+        };
+
+        // Move the marker and center the map on it
+        if(deliveryMarker) deliveryMarker.setPosition(newPosition);
+        if(map) map.panTo(newPosition);
+
+    } catch (error) {
+        console.error("Could not fetch location:", error);
+    }
+}   
+
+</script>

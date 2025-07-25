@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order; // Make sure the Order model is imported
 use Illuminate\Support\Facades\Auth;
+use App\Models\Conversation;
+use Illuminate\Support\Facades\Cache;
 
 class MobileStaffDashboardController extends Controller
 {
@@ -18,16 +20,41 @@ class MobileStaffDashboardController extends Controller
      */
     public function getDashboardStats(Request $request)
     {
-        // Count orders for each status
-        $deliveredCount = Order::where('status', 'delivered')->count();
-        $pendingCount = Order::where('status', 'pending')->count(); // Assuming 'pending' is a status you use
-        $cancelledCount = Order::where('status', 'cancelled')->count(); // Assuming 'cancelled' is a status you use
+        // [FIX] Get the authenticated staff and their location_id
+        $staff = Auth::user();
+        if (!$staff || !$staff->location_id) {
+            return response()->json(['message' => 'Staff user not found or has no assigned location.'], 403);
+        }
+        $staffLocationId = $staff->location_id;
 
-        // You would likely get the message count from a different model/table
-        // For now, we will hardcode it as it is in your example.
-        $messagesCount = 0;
+        // [FIX] Add 'whereHas' to filter orders by the staff's location
+        $deliveredCount = Order::where('status', 'delivered')
+            ->whereHas('user.company', function ($query) use ($staffLocationId) {
+                $query->where('location_id', $staffLocationId);
+            })
+            ->count();
 
-        // Return the data as a JSON response
+        $pendingCount = Order::where('status', 'pending')
+            ->whereHas('user.company', function ($query) use ($staffLocationId) {
+                $query->where('location_id', $staffLocationId);
+            })
+            ->count();
+
+        $cancelledCount = Order::where('status', 'cancelled')
+            ->whereHas('user.company', function ($query) use ($staffLocationId) {
+                $query->where('location_id', $staffLocationId);
+            })
+            ->count();
+
+        // [FIX] Replicate the unread message logic from your View Composer
+        $messagesCount = Cache::remember('unread_messages_staff_' . $staff->id, 10, function () use ($staff) {
+            return Conversation::where('is_read', false)
+                ->where('receiver_type', 'staff')
+                ->where('receiver_id', $staff->id)
+                ->count();
+        });
+
+        // [FIX] Use the correctly calculated variables in the response
         return response()->json([
             'totalDelivered' => $deliveredCount,
             'pendingOrders' => $pendingCount,

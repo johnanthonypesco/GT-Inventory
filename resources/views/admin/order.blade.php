@@ -187,6 +187,7 @@
                                             match ($statusName) {
                                                 'pending' => 'text-orange-600',
                                                 'packed' => 'text-purple-700',
+                                                'out for delivery' => 'text-blue-600',
                                                 default => 'text-black'
                                             }
                                         }}
@@ -368,14 +369,52 @@
     <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'packed')" type="button">
         PACKED
     </button>
+
+      <button class="bg-green-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'out for delivery')" type="button">
+        
+        OUT FOR DELIVERY
+    </button>
     <button class="bg-blue-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'delivered')" type="button">
         DELIVERED
     </button>
     <button class="bg-red-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'cancelled')" type="button">
+
         CANCELLED
     </button>
+
+   
 </form>
             </div>
+
+            {{-- Assign Staff Modal --}}
+<div id="assign-staff-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+    <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
+        <x-modalclose click="closeAssignStaffModal()"/>
+        <h1 class="text-[28px] text-center text-[#005382] font-bold">Assign Staff for Delivery</h1>
+        
+        <p class="text-center text-gray-600 mt-2">
+            Select a staff member to handle the delivery for Order #<span id="assign-staff-order-id" class="font-bold"></span>.
+        </p>
+
+        <form id="assign-staff-form" action="" method="POST" class="flex flex-col gap-4 mt-5">
+            @csrf
+            @method("PUT")
+
+            {{-- This is a hidden copy of the original status change form --}}
+            <div id="original-form-data-container" class="hidden"></div>
+            
+            <label for="staff_id" class="font-semibold">Available Staff:</label>
+            <select name="staff_id" id="staff-select" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                {{-- Options will be populated by JavaScript --}}
+                <option value="">Loading staff...</option>
+            </select>
+
+            <button type="submit" class="bg-green-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer mt-4">
+                Confirm & Set to Out for Delivery
+            </button>
+        </form>
+    </div>
+</div>
 
             @if (session('update-success'))
 <script>
@@ -648,8 +687,30 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
 
 
 
-function changeStatus(form, statusType) {
+// function changeStatus(form, statusType) {
 
+//     const orderIdInput = document.getElementById('id-container');
+//     const statusInput  = document.getElementById('status-id');
+//     const orderId      = Number(orderIdInput.value);
+
+//     if (!orderId) {
+//         alert('Order ID is missing or invalid.');
+//         return;
+//     }
+
+//     statusInput.value = statusType.toLowerCase();
+
+//     /* Build action URL:  /admin/orders/{id} */
+//     const baseUrl = "{{ url('admin/orders') }}";
+//     form.action   = `${baseUrl}/${orderId}`;
+
+//     if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
+//         form.submit();
+//     }
+// }
+
+// Replace your existing changeStatus function with this one
+async function changeStatus(form, statusType) {
     const orderIdInput = document.getElementById('id-container');
     const statusInput  = document.getElementById('status-id');
     const orderId      = Number(orderIdInput.value);
@@ -661,12 +722,67 @@ function changeStatus(form, statusType) {
 
     statusInput.value = statusType.toLowerCase();
 
-    /* Build action URL:  /admin/orders/{id} */
-    const baseUrl = "{{ url('admin/orders') }}";
-    form.action   = `${baseUrl}/${orderId}`;
+    // --- NEW LOGIC ---
+    // If the status is "out for delivery", show the staff assignment modal instead of submitting.
+    if (statusType.toLowerCase() === 'out for delivery') {
+        if (confirm(`Change order status to “OUT FOR DELIVERY”?`)) {
+            // Fetch staff and show the modal
+            await showAssignStaffModal(orderId);
+        }
+    } else {
+        // For all other statuses, submit the form as usual
+        const baseUrl = "{{ url('admin/orders') }}";
+        form.action   = `${baseUrl}/${orderId}`;
+        if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
+            form.submit();
+        }
+    }
+}
 
-    if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
-        form.submit();
+async function showAssignStaffModal(orderId) {
+    const modal = document.getElementById('assign-staff-modal');
+    const staffSelect = document.getElementById('staff-select');
+    const orderIdSpan = document.getElementById('assign-staff-order-id');
+    const assignForm = document.getElementById('assign-staff-form');
+
+    // Show loading state
+    orderIdSpan.textContent = orderId;
+    staffSelect.innerHTML = '<option value="">Loading staff...</option>';
+    modal.classList.replace('hidden', 'flex');
+
+    try {
+        // Fetch available staff for the order's location
+        const response = await fetch(`/admin/orders/${orderId}/available-staff`);
+        if (!response.ok) throw new Error('Failed to fetch staff.');
+
+        const staffList = await response.json();
+
+        // Populate the dropdown
+        staffSelect.innerHTML = ''; // Clear loading option
+        if (staffList.length > 0) {
+            staffList.forEach(staff => {
+                const option = new Option(`${staff.staff_username} (${staff.email})`, staff.id);
+                staffSelect.add(option);
+            });
+        } else {
+            staffSelect.innerHTML = '<option value="">No staff found for this location</option>';
+        }
+
+        // Set the form action
+        const baseUrl = "{{ url('admin/orders') }}";
+        assignForm.action = `${baseUrl}/${orderId}`;
+
+        // Clone and copy hidden inputs from the original form
+        const originalForm = document.getElementById('change-status-form');
+        const dataContainer = document.getElementById('original-form-data-container');
+        dataContainer.innerHTML = ''; // Clear previous data
+        originalForm.querySelectorAll('input[type="hidden"]').forEach(input => {
+            dataContainer.appendChild(input.cloneNode(true));
+        });
+
+    } catch (error) {
+        console.error(error);
+        staffSelect.innerHTML = `<option value="">Error: ${error.message}</option>`;
     }
 }
 
@@ -683,6 +799,9 @@ function isInSuggestionEmployee () {
     } else {
         return true;
     }
+}
+function closeAssignStaffModal() {
+    document.getElementById('assign-staff-modal').classList.replace('flex', 'hidden');
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
 </script>

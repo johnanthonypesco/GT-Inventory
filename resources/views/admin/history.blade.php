@@ -67,8 +67,14 @@
                         <div class="overflow-auto max-h-[200px] h-fit mt-5">
                             <x-table :headings="['Employee Name', 'Date', 'Total Amount', 'Action']" :variable="$employees" category="history" />
                         </div>
+
+                        @if (isset($employees->paginator))
+                            <div class="mt-4">
+                                {{ $employees->paginator->links() }}
+                            </div>
+                        @endif
                     @endforeach
-                    <x-pagination/>
+                    {{-- <x-pagination/> --}}
                 </div>
             @endforeach
         </div>

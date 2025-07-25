@@ -70,18 +70,20 @@ Route::prefix('mobile')->group(function () {
             Route::get('/dashboard-stats', [MobileStaffDashboardController::class, 'getDashboardStats']);
             Route::get('/orders', [MobileStaffOrdersController::class, 'index']);
             Route::post('/process-scan', [MobileStaffQrController::class, 'processScannedOrder']);
-            Route::post('/order/{order}/update-status', [MobileStaffOrdersController::class, 'updateProductStatus']);
-            
+            // Route::post('/order/{order}/update-status', [MobileStaffOrdersController::class, 'updateProductStatus']);
+            Route::post('/orders/{order}/update-status', [MobileStaffOrdersController::class, 'updateStatus']);
+            Route::get('/orders/{order}/available-staff', [MobileStaffOrdersController::class, 'getAvailableStaff']);
+
             // Chat Routes
             Route::get('/chat/conversations', [MobileStaffChatController::class, 'getConversations']);
             Route::get('/chat/messages/{id}/{type}', [MobileStaffChatController::class, 'getMessages']);
             Route::post('/chat/send-message', [MobileStaffChatController::class, 'sendMessage']);
-            
+
             // Group Chat Routes
             Route::get('/chat/group', [MobileGroupChatController::class, 'getGroupMessages']);
             Route::post('/chat/group/send', [MobileGroupChatController::class, 'sendGroupMessage']);
         });
-        
+
         // Staff Authentication
         Route::post('/login', [MobileStaffAuthController::class, 'login']);
         Route::post('/verify-2fa', [MobileStaffAuthController::class, 'verifyTwoFactor']);
