@@ -7,10 +7,10 @@
 
 <div onclick="showStockModals('{{$buttonType}}')" id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
     <div class="flex items-center justify-between">
-        <p class="text-3xl">0{{$count}}</p>
-        <img src="{{asset ('image/'. $image)}}" alt="">
+        <p class="text-lg font-semibold text-gray-800">{{$title}}</p>
+        <img src="{{asset ('image/'. $image)}}" alt="" class="w-14 h-14 p-2 rounded-full bg-gray-200">
     </div>
-    <p class="text-xl font-semibold">{{$title}}</p>
+    <p class="text-2xl font-semibold">0{{$count}}</p>
 </div>
 
 <style>

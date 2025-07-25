@@ -1,7 +1,7 @@
 function sidebar() {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebar-overlay'); // Get the overlay
+    const overlay = document.getElementById('sidebar-overlay'); 
 
     // Toggle sidebar visibility
     sidebar.classList.toggle('left-0');
@@ -14,13 +14,11 @@ function sidebar() {
 function closeSidebar() {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebar-overlay'); // Get the overlay
+    const overlay = document.getElementById('sidebar-overlay');
 
-    // Hide the sidebar
     sidebar.classList.remove('left-0');
     sidebar.classList.remove('w-[280px]');
 
-    // Hide the overlay
     overlay.classList.add('hidden'); 
 }
 
