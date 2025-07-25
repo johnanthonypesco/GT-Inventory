@@ -64,7 +64,7 @@
                         >
 
                         <button type="button" 
-                            class="absolute right-1 top-1/2 -translate-y-1/2 border border-l-[#005382] p-1 px-2 cursor-pointer text-lg rounded-lg"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-2 py-1 cursor-pointer"
                             onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>

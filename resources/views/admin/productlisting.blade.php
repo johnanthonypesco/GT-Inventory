@@ -27,39 +27,44 @@
                 <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
                 {{-- <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>       --}}
 
-                <div class="w-full lg:w-[40%] bg-white flex gap-3 relative rounded-lg">
-                    <datalist id="company-search-suggestions">
-                        @foreach ($companySearchSuggestions as $company)
-                            <option value="{{ $company->name }}">
-                        @endforeach
-                    </datalist> 
+                <div class="w-full lg:w-[50%] bg-white flex flex-col lg:flex-row gap-3 items-center rounded-lg p-2">
 
-                    @if ($current_search["query"] !== null && $current_search["type"] === "company")
-                        <button onclick="window.location.href = '{{route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                                Reset Search
-                        </button>
-                    @endif
+                {{-- Datalist --}}
+                <datalist id="company-search-suggestions">
+                    @foreach ($companySearchSuggestions as $company)
+                        <option value="{{ $company->name }}">
+                    @endforeach
+                </datalist>
 
-                    <form action="{{ route('admin.productlisting') }}" method="GET" id="company-search-form" class="relative">
-                        <input type="hidden" name="search_type" value="company">
-                        
-                        <input type="search" name="current_search" 
+                {{-- Reset Button --}}
+                @if ($current_search["query"] !== null && $current_search["type"] === "company")
+                    <button 
+                        onclick="window.location.href = '{{ route('admin.productlisting') }}'" 
+                        class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full text-sm sm:w-[200px]">
+                        <i class="fa-solid fa-xmark"></i> Reset Search
+                    </button>
+                @endif
+
+                {{-- Search Form --}}
+                <form action="{{ route('admin.productlisting') }}" method="GET" id="company-search-form" class="relative w-full">
+                    <input type="hidden" name="search_type" value="company">
+
+                    <input type="search" name="current_search" 
                         id="company-search"
-                        placeholder="Search Companies by Name" 
-                        class="{{ $current_search && $current_search['type'] === "company" ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
-    
+                        placeholder="Search Companies by Name"
                         list="company-search-suggestions"
                         autocomplete="off"
+                        value="{{ $current_search['query'] && $current_search['type'] === 'company' ? $current_search['query'] : '' }}"
+                        class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                    >
 
-                        value="{{ $current_search['query'] && $current_search['type'] === "company" ? $current_search['query'] : '' }}"
-                        {{-- onkeydown="if(event.key === 'Enter') {event.preventDefault()}" --}}
-                        >
-    
-                        <button class="absolute bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="submit">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-2 py-1 cursor-pointer">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
             </div>
             {{-- Customer List Search Function --}}
 
@@ -103,45 +108,52 @@
                             $companyName
                         }}
                     </h1>
-                    {{-- Button for Search --}}
-                    <div class="w-full {{ $current_search && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? "lg:w-[50%]" : "lg:w-[40%]" }} bg-white flex justify-center gap-3 relative rounded-lg">
+                    {{-- Deal Search --}}
+                    <div class="w-full lg:w-[40%] bg-white flex flex-col lg:flex-row items-center gap-3 p-2 rounded-lg">
 
+                        {{-- Reset Button (only when applicable) --}}
                         @if ($current_search["query"] !== null && $current_search["type"] === "deal" && $current_search['deal_company'] === $companyName)
-                            
-                            <button onclick="window.location.href = '{{ route('admin.productlisting')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                                    Reset Search
+                            <button 
+                                onclick="window.location.href = '{{ route('admin.productlisting') }}'"
+                                class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-[250px] text-sm">
+                                <i class="fa-solid fa-xmark"></i> Reset Search
                             </button>
                         @endif
-                        
+
                         @php
-                            $formID = "deal-search-form-" . str($companyName)->slug();
-                            $inputID = "deal-search-" . str($companyName)->slug();
+                            $formID = 'deal-search-form-' . str($companyName)->slug();
+                            $inputID = 'deal-search-' . str($companyName)->slug();
                         @endphp
 
-                        <form action="{{ route('admin.productlisting') }}" method="GET" id="{{$formID}}">
+                        {{-- Search Form --}}
+                        <form action="{{ route('admin.productlisting') }}" method="GET" id="{{ $formID }}" class="relative w-full">
                             <input type="hidden" name="search_type" value="deal">
-                            <input type="hidden" name="specific_company_deal" value="{{$companyName}}">
-                            
-                            <input type="search" name="current_search" 
-                            id="{{ $inputID }}"
-                            placeholder="Search Product Deal" 
-                            {{-- liliit yung input pag nag search ka --}}
-                            class="{{ $current_search && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? "w-[390px]" : "w-[420px]" }} p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
-        
-                            list="deal-search-suggestions"
-                            autocomplete="off"
+                            <input type="hidden" name="specific_company_deal" value="{{ $companyName }}">
 
-                            value="{{ $current_search['query'] && $current_search['type'] === "deal" && $current_search['deal_company'] === $companyName ? $current_search['query'] : '' }}"
-                            onkeydown="if(event.key === 'Enter') {
-                                isInSuggestionDeal('{{$formID}}', '{{$inputID}}') ? this.submit() : event.preventDefault()
+                            <input type="search" name="current_search" 
+                                id="{{ $inputID }}"
+                                placeholder="Search Product Deal"
+                                list="deal-search-suggestions"
+                                autocomplete="off"
+                                value="{{ $current_search['query'] && $current_search['type'] === 'deal' && $current_search['deal_company'] === $companyName ? $current_search['query'] : '' }}"
+                                class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                onkeydown="if(event.key === 'Enter') {
+                                    isInSuggestionDeal('{{ $formID }}', '{{ $inputID }}') 
+                                        ? this.form.submit() 
+                                        : event.preventDefault();
                                 }"
                             >
-        
-                            <button class="absolute bg-white right-5 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal('{{$formID}}', '{{$inputID}}') ? document.getElementById('{{$formID}}').submit() : event.preventDefault()">
+
+                            <button type="button"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-1 py-1 cursor-pointer"
+                                onclick="isInSuggestionDeal('{{ $formID }}', '{{ $inputID }}') 
+                                    ? document.getElementById('{{ $formID }}').submit() 
+                                    : event.preventDefault();">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </form>
                     </div>
+
                     {{-- Button for Search --}}
                 </div>
 
