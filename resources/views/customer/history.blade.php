@@ -32,7 +32,7 @@
                 $isStatusPresent = request()->query('status_filter');
             @endphp
             
-            <div class="flex flex-col lg:flex-row justify-between w-full lg:items-center">
+            <div class="flex flex-col">
                 {{-- Search --}}
                 <div class="w-fit mt-2">
                     <datalist id="deal-search-suggestions">
