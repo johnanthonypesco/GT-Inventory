@@ -39,7 +39,7 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
                         <p class="pname font-bold uppercase text-[#005382]">${orderData[1]}</p>
                     </div>
 
-                    <input name="quantity[]" type="number" class="quantity w-[100px] px-2 border border-[#005382] rounded-xl" 
+                    <input name="quantity[]" readonly type="number" class="quantity w-[100px] px-2 border border-[#005382] rounded-xl" 
                     value="${orderData[0]}" min="1">
                 </div>
                 <div class="flex gap-2 items-center">
@@ -132,3 +132,47 @@ checkoutBtn.addEventListener("click", (event) => {
         }
     });
 });
+
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+function isInSuggestionDeal () {
+    const input = document.getElementById('deal_search');
+    const dataList = document.getElementById('deal-search-suggestions');
+    const options = Array.from(dataList.options).map(option => option.value);
+
+    if (!options.includes(input.value)) {
+        alert("Please Choose a Product Deal From The Search Suggestions.");
+        
+        return false;
+    } else {
+        return true;
+    }
+}
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+
+// SIGRAE SEARCH FILTER SHIT
+// Panong gumagana to? You might ask... Hindi ko rin alam kaya ko rin tinatanong :)
+// By: SigraeGPT
+
+const searchInput = document.getElementById('deal_search');
+const products = Array.from(document.querySelectorAll('.product-form'));
+
+searchInput.addEventListener('input', () => {
+  const filter = searchInput.value.toLowerCase().trim();
+
+  products.forEach(productEl => {
+    const generic = productEl.querySelector('.product-name')?.textContent.toLowerCase() || '';
+    const brand   = productEl.querySelector('p.font-bold.uppercase')?.textContent.toLowerCase() || '';
+    const form    = productEl.querySelector('.flex > p')?.textContent.toLowerCase() || '';
+    const strength= productEl.querySelector('p.flex.items-center:nth-child(2)')?.textContent.toLowerCase() || '';
+    const price   = productEl.querySelector('.product-price')?.textContent.toLowerCase() || '';
+
+    const haystack = [generic, brand, form, strength, price].join(' - ');
+
+    if (haystack.includes(filter)) {
+        productEl.style.display = '';
+    } else {
+        productEl.style.display = 'none';
+    }
+    });
+});
+// SIGRAE SEARCH FILTER SHIT

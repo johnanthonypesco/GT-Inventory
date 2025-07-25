@@ -14,7 +14,7 @@ use Str;
 
 class ExportController extends Controller
 {
-    public function export(Request $request, $exportType = 'all', $exportSpecification = null)
+    public function export(Request $request, $exportType = 'all', $exportSpecification = null, $secondaryExportSpecification = null)
     {
         $validated = $request->validate([
             'array' => 'nullable'
@@ -87,18 +87,24 @@ class ExportController extends Controller
                 $orders = Order::with([
                     'user.company.location',
                     'exclusive_deal.product'
-                ])
-                ->whereNotIn('status', ['delivered', 'cancelled'])
-                ->whereHas('user.company.location', function ($query) use ($exportSpecification) {
+                ]);
+
+                if ($secondaryExportSpecification === 'past-tense') {
+                    $orders = $orders->whereIn('status', ['delivered', 'cancelled']);
+
+                } else {
+                    $orders = $orders->whereNotIn('status', ['delivered', 'cancelled']);
+                }
+
+                $orders = $orders->whereHas('user.company.location', function ($query) use ($exportSpecification) {
                     $query->where('province', $exportSpecification);
                 })
                 ->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 
-                // dd($orders->toArray());
-
-                $fileName = $exportSpecification . '-orders-[' . date('Y-m-d') . '].xlsx';  
+                $word = $secondaryExportSpecification === 'past-tense' ? '[DELIVERED & CANCELLED]' : '[PENDING & PACKED & OUT FOR DELIVERY]';
+                $fileName = $exportSpecification . '-orders-[' . date('Y-m-d') . ' - ' . $word . '.xlsx';  
                 break;
 
             default:

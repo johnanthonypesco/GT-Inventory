@@ -24,38 +24,157 @@
         <x-admin.header title="Order History" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter Section --}}
-        <div class="mt-10 flex flex-col md:flex-row justify-between">
+        @php
+            // these variables are used to control the saving of filters in url query
+            $isSearchPresent = request()->query('employee_search');
+            $isProvincePresent = request()->query('province_filter');
+            $isStatusPresent = request()->query('status_filter');
+        @endphp
+
+        <div class="mt-10 flex flex-row items-center md:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
-                <button class="text-[#005382] text-xl border-b-2 border-[#005382] font-semibold">All Orders</button>
-                <button class="text-gray-500 text-xl font-semibold">Completed</button>
-                <button class="text-gray-500 text-xl font-semibold">Cancelled</button>
+                @php
+                    $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
+                    $inactiveCSS = "text-gray-500";
+                @endphp
+
+                {{-- STATUS FILTER --}}
+                <form action="{{ route('admin.history') }}" method="GET">                  
+                    <input type="hidden" name="status_filter" value="all">
+                    @if ($isSearchPresent)
+                        <input type="hidden" name="employee_search" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
+                    @endif
+                    @if ($isProvincePresent)
+                        <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    @endif
+
+                    <button type="submit" class="text-xl font-semibold {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
+                </form>
+
+                <form action="{{ route('admin.history') }}" method="GET">
+                    <input type="hidden" name="status_filter" value="delivered">
+                    @if ($isSearchPresent)
+                        <input type="hidden" name="employee_search" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
+                    @endif
+                    @if ($isProvincePresent)
+                        <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    @endif
+
+                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
+                </form>
+
+                <form action="{{ route('admin.history') }}" method="GET">
+                    <input type="hidden" name="status_filter" value="cancelled">
+                    @if ($isSearchPresent)
+                        <input type="hidden" name="employee_search" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
+                    @endif
+                    @if ($isProvincePresent)
+                        <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    @endif
+
+                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
+                </form>
             </div>
-            <select name="location" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
-                <option value="location">All Location</option>
-                <option value="location">Tarlac</option>
-                <option value="location">Cabanatuan</option>
-            </select>
+            {{-- STATUS FILTER --}}
+
+            {{-- PROVINCE FILTER --}}
+            <form action="{{ route('admin.history') }}" method="GET" id="province-form">
+                 @if ($isSearchPresent)
+                    <input type="hidden" name="employee_search" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
+                @endif
+                @if ($isStatusPresent)
+                    <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
+                @endif
+                
+                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                    <option value="all">All Location</option>
+    
+                    @foreach ($dropdownLocationOptions as $location)
+                        <option @selected($isProvincePresent === $location) value="{{ $location }}">{{ $location }}</option>
+                    @endforeach
+                </select>
+            </form>
+            {{-- PROVINCE FILTER --}}
+
         </div>
+        {{-- Filter Section --}}
+
+        {{-- Search --}}
+        <div class="w-full lg:w-[50%] flex flex-col lg:flex-row gap-1 items-center rounded-lg p-2">
+
+        {{-- Datalist for suggestions --}}
+            <datalist id="employee-search-suggestions">
+                @foreach ($customersSearchSuggestions as $customer)
+                    <option value="{{ $customer->name }} - {{ $customer->company->name }}">
+                @endforeach
+            </datalist>
+
+            {{-- Search Form --}}
+            <form action="{{ route('admin.history') }}" method="GET" id="employee-search-form" class="relative w-full">
+                {{-- Filters (hidden inputs) --}}
+                @if ($isStatusPresent)
+                    <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ?? '' }}">
+                @endif
+                @if ($isProvincePresent)
+                    <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ?? '' }}">
+                @endif
+
+                <input type="search" name="employee_search"
+                    id="employee_search"
+                    placeholder="Search Employee by Name & Company"
+                    list="employee-search-suggestions"
+                    autocomplete="off"
+                    value="{{ $current_filters['search'] ? $current_filters['search'][0] . ' - ' . $current_filters['search'][1] : '' }}"
+                    class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                    onkeydown="if(event.key === 'Enter') {
+                        isInSuggestionEmployee() ? 
+                        document.getElementById('employee-search-form').submit() : 
+                        event.preventDefault()
+                    }"
+                >
+
+                <button type="button"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-2 py-1 cursor-pointer"
+                    onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+
+            {{-- Reset Button --}}
+            @if ($current_filters['search'] !== null)
+                <button onclick="window.location.href = '{{ route('admin.history') }}'"
+                    class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-[200px] text-sm">
+                    <i class="fa-solid fa-xmark"></i> Reset Search
+                </button>
+            @endif
+        </div>
+        {{-- Search --}}
 
         {{-- Main Content Area --}}
         <div class="h-[70vh] mt-5 overflow-auto">
             @foreach ($provinces as $provinceName => $companies)
-                <h1 class="font-bold">
+                <h1 class="font-bold mt-4">
                     <span class="text-[#005382] text-2xl font-bold mr-2">
                         Ordered In: {{ $provinceName }}
                     </span>
                 </h1>
                 <div class="table-container mt-2 bg-white p-5 rounded-lg">
                     <div class="flex flex-wrap justify-between items-center">
-                        <x-input name="search" placeholder="Search Employee by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
-                            <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
+                            {{-- i will add this feature once client starts paying --}}
+                            {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
                                 <option value="company">All Company</option>
                                 @foreach ($companies as $companyName => $employees)
                                     <option value="{{ $companyName }}">{{ $companyName }}</option>
                                 @endforeach
-                            </select>
-                            <button><i class="fa-solid fa-download"></i>Export</button>
+                            </select> --}}
+                            {{-- i will add this feature once client starts paying --}}
+
+                            <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
+                            @csrf
+
+                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export All</button>
+                        </form>
                         </div>
                     </div>
 

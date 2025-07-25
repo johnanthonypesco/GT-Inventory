@@ -9,9 +9,13 @@
 
     <ul class="flex flex-col gap-5 flex-1 pt-5">
         <a href="{{ route('customer.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge"></i>Dashboard</a>
-        <a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i>Make an Order</a>
-        <a href="{{ route('customer.manageorder') }}" class="text-md"><i class="fa-solid fa-list-check"></i>Manage Order</a>
-        <a href="{{ route('customer.history') }}" class="text-md"><i class="fa-regular fa-clock"></i>Order History</a>
+
+        <a href="{{ route('customer.order') }}" class="text-md {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
+        
+        <a href="{{ route('customer.manageorder') }}" class="text-md {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
+
+        <a href="{{ route('customer.history') }}" class="text-md {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
+
         <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-md relative">
             <i class="fa-brands fa-rocketchat"></i>Chat
 

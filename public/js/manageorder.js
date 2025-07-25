@@ -13,3 +13,19 @@ window.onclick = function (event) {
         modal.classList.toggle('hidden');
     }
 }
+
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+function isInSuggestionDeal () {
+    const input = document.getElementById('deal_search');
+    const dataList = document.getElementById('deal-search-suggestions');
+    const options = Array.from(dataList.options).map(option => option.value);
+
+    if (!options.includes(input.value)) {
+        alert("Please Choose a Product Deal From The Search Suggestions.");
+        
+        return false;
+    } else {
+        return true;
+    }
+}
+// SIGRAE EMPLOYEE SEARCH SUGGESTION CODES

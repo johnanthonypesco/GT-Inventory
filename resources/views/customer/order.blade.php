@@ -23,7 +23,31 @@
            <!-- Available Products -->
             <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl">
                 <h1 class="font-semibold text-2xl">Available Products</h1>
-                <x-input name="searchproduct" placeholder="Search Product by Entering Product Name" classname="fa fa-magnifying-glass" divclass="w-full bg-white relative mt-5 rounded-lg"/>
+                
+
+                {{-- Search --}}
+                <div class="w-fit mt-2">
+                    <form action="{{ route('customer.order') }}" method="GET" id="deal-search-form" class="relative w-full flex">                        
+                        <input type="search" name="search_filter" 
+                        id="deal_search"
+                        placeholder="Search Product By Name" 
+                        class="w-[480px] p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+
+                        list="deal-search-suggestions"
+                        autocomplete="off">
+
+                        <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+
+                    @if ($current_filters["search"] !== null)
+                        <button onclick="window.location.href = '{{route('customer.order')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                                Reset Search
+                        </button>
+                    @endif
+                </div>
+                {{-- Search --}}
 
 
                 <div class="h-fit lg:h-[60vh] overflow-y-auto mt-5 px-5">

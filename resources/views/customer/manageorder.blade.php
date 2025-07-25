@@ -26,7 +26,70 @@
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
 
         <div class="bg-white mt-5 p-5 rounded-lg ">
-            <x-input name="search" placeholder="Search Order by Order ID" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg"/>
+            @php
+                // these variables are used to control the saving of filters in url query
+                $isSearchPresent = request()->query('search_filter');
+                $isStatusPresent = request()->query('status_filter');
+            @endphp
+            
+            {{-- Search --}}
+            <div class="w-fit mt-2">
+                <datalist id="deal-search-suggestions">
+                    @foreach ($listedDeals as $deal)
+                        <option value="{{ $deal->product->generic_name }} - {{ $deal->product->brand_name }} - {{ $deal->product->form }} - {{ $deal->product->strength }} - ₱{{ number_format($deal->price) }}">
+                    @endforeach
+                </datalist> 
+
+                <form action="{{ route('customer.manageorder') }}" method="GET" id="deal-search-form" class="relative w-full flex">                        
+                    <input type="search" name="search_filter" 
+                    id="deal_search"
+                    placeholder="Search Product By Name" 
+                    class="{{ $current_filters  ? "w-[540px]" : "w-[680px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+
+                    list="deal-search-suggestions"
+                    autocomplete="off"
+
+                    value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] . ' - ' . $current_filters['search'][2] . ' - ' . $current_filters['search'][3] . ' - ' . $current_filters['search'][4] : '' }}"
+                    
+                    onkeydown="if(event.key === 'Enter') {
+                        isInSuggestionDeal() ? 
+                        document.getElementById('deal-search-form').submit() : 
+                        event.preventDefault()
+                    }"
+                    >
+
+                    @if ($isStatusPresent)
+                        <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
+                    @endif
+
+                    <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+
+                @if ($current_filters["search"] !== null)
+                    <button onclick="window.location.href = '{{route('customer.manageorder')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                            Reset Search
+                    </button>
+                @endif
+            </div>
+            {{-- Search --}}
+
+            {{-- STATUS FILTER --}}
+            <form action="{{ route('customer.manageorder') }}" method="GET" id="status-form">
+                @if ($isSearchPresent)
+                    <input type="hidden" name="search_filter" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] . ' - ' . $current_filters['search'][2] . ' - ' . $current_filters['search'][3] . ' - ' . $current_filters['search'][4] : '' }}">
+                @endif
+                
+                <select onchange="document.getElementById('status-form').submit()" name="status_filter" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                    <option @selected($isStatusPresent === 'all') value="all">All Orders Statuses</option>
+                    <option @selected($isStatusPresent === 'pending') value="pending">All Pending Orders</option>
+                    <option @selected($isStatusPresent === 'packed') value="packed">All Packed Orders</option>
+                    <option @selected($isStatusPresent === 'out for delivery') value="out for delivery">All Orders Out For Delivery</option>
+                </select>
+            </form>
+            {{-- STATUS FILTER --}}
+            
             <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[52vh]">
                 <table>
                     <thead>
@@ -55,7 +118,9 @@
                         </tbody>
                     </table>
                 </div>
-            <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/>
+                {{-- <div class="mt-5"> --}}
+                    {{ $groupedOrdersByDate->links() }}
+                {{-- </div> --}}
         </div>
     </main>
 
@@ -81,6 +146,7 @@
                             match ($currentStatus) {
                                 'pending' => 'text-orange-600',
                                 'packed' => 'text-blue-600',
+                                'out for delivery' => 'text-green-600',
                                 'partial-delivery' => 'text-purple-700',
                                 default => 'text-black'
                             }
@@ -97,6 +163,7 @@
                                     <th>Strength</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
+                                    <th>Subtotal</th>
                                     <th>Tracking</th>
                                 </tr>
                             </thead>
@@ -112,6 +179,7 @@
                                         <td>{{ $item->exclusive_deal->product->form }}</td>
                                         <td>{{ $item->exclusive_deal->product->strength }}</td>
                                         <td>{{ $item->quantity }}</td>
+                                        <td>₱ {{number_format($item->exclusive_deal->price)}}</td>
                                         <td> ₱ {{ number_format($calc) }}</td>
                                         <td> 
                               @if($item->status == 'out for delivery' && $item->staff_id)

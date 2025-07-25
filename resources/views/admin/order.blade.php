@@ -40,7 +40,7 @@
         <div class="h-[60vh] overflow-auto mt-8">
             <div class="table-button flex flex-col lg:flex-row justify-between gap-4 p-1 float-end w-full">
                 {{-- Search --}}
-                <div class="flex flex-wrap justify-between items-center w-full lg:w-[40%] relative rounded-lg">
+                <div class="flex flex-col lg:flex-row gap-1 justify-between items-center w-full lg:w-[40%] relative rounded-lg">
 
                     <datalist id="employee-search-suggestions">
                         @foreach ($customersSearchSuggestions as $customer)
@@ -69,6 +69,12 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
+
+                    @if ($current_search["query"] !== null)
+                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer w-full sm:w-[200px] text-sm">                         
+                                Reset Search
+                        </button>
+                    @endif
                 </div>
 
                 {{-- Search --}}

@@ -47,8 +47,8 @@
 
             </a>
 
-            <a href="{{ route('admin.history') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-clock-rotate-left text-[#005382] text-sm"></i>
+            <a href="{{ route('admin.history') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/history') ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-clock-rotate-left {{ request()->is('admin/history') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
                 <span class="sm:hidden lg:inline-block">Order History</span>
 
             </a>

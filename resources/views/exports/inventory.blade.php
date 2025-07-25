@@ -48,7 +48,7 @@
     
     @case('order-export')
         <h1>
-            All Current Active Orders:
+            All Orders:
         </h1>
         @break
     @default
