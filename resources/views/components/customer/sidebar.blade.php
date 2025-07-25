@@ -2,12 +2,12 @@
 
 
 <!-- Sidebar -->
-<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-20 p-5 list-none transition-all duration-500" id="sidebar">
+<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-50 p-5 list-none transition-all duration-500" id="sidebar">
     <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-2">
-        <div onclick="closeSidebar()" class="w-10 h-10 bg-white shadow-md flex items-center justify-center absolute -top-5 -right-10 rounded-md hover:cursor-pointer">
-            <span class="text-3xl text-red-500 font-bold">&times;</span>
+        <div onclick="closeSidebar()" class="w-10 h-10 bg-[#005382] shadow-md flex items-center justify-center absolute -top-5 -right-10 rounded-md hover:cursor-pointer">
+            <span class="text-6xl text-white font-bold">&times;</span>
         </div>
     </div>
     <ul class="flex-1 flex flex-col gap-5 pt-5">
@@ -37,6 +37,7 @@
         </li>
     </ul>
 </div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden" onclick="closeSidebar()"></div>
 
 <!-- Review Modal -->
 <div id="reviewModalsidebar" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
@@ -78,8 +79,11 @@
 
 <!-- JavaScript -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Sidebar active link
+
+ 
+    document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
     const currentLocation = window.location.href;
     document.querySelectorAll('#sidebar a').forEach(link => {
         if (link.href === currentLocation) {
@@ -87,10 +91,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Sidebar resize auto-close
-    window.addEventListener('resize', () => {
-        const sidebar = document.querySelector('#sidebar');
+    // This function is now called by your header's burger menu
+    window.openSidebar = function() {
+        sidebar.classList.add('left-0', 'w-[300px]');
+        overlay.classList.remove('hidden');
+    }
+
+    // This function is called by the close button and the overlay
+    window.closeSidebar = function() {
         sidebar.classList.remove('left-0', 'w-[300px]');
+        overlay.classList.add('hidden');
+    }
+
+    // Handles closing when the window is resized
+    window.addEventListener('resize', () => {
+        window.closeSidebar();
     });
 
 
