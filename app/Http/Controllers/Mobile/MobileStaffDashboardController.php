@@ -1,65 +1,101 @@
 <?php
-// app/Http/Controllers/mobile/MobileStaffDashboardController.php
 
-namespace App\Http\Controllers\mobile;
+namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Order; // Make sure the Order model is imported
 use Illuminate\Support\Facades\Auth;
-use App\Models\Conversation;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
+use App\Models\Order;
+use App\Models\ImmutableHistory;
+use App\Models\Company;
+use App\Models\Conversation;
 
 class MobileStaffDashboardController extends Controller
 {
     /**
-     * Get statistics for the staff dashboard.
+     * Get statistics for the staff dashboard from multiple tables.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDashboardStats(Request $request)
     {
-        // [FIX] Get the authenticated staff and their location_id
         $staff = Auth::user();
+
         if (!$staff || !$staff->location_id) {
-            return response()->json(['message' => 'Staff user not found or has no assigned location.'], 403);
+            return response()->json(['message' => 'Unauthorized: Staff user not found or has no assigned location.'], 403);
         }
-        $staffLocationId = $staff->location_id;
 
-        // [FIX] Add 'whereHas' to filter orders by the staff's location
-        $deliveredCount = Order::where('status', 'delivered')
-            ->whereHas('user.company', function ($query) use ($staffLocationId) {
-                $query->where('location_id', $staffLocationId);
-            })
-            ->count();
+        // --- Get counts from the Order table ---
+        // For pending, packed, and out for delivery orders
+        $pendingCount = Order::where('status', 'pending')->count();
+        $packedCount = Order::where('status', 'packed')->count();
+        $outForDeliveryCount = Order::where('status', 'out for delivery')->count();
 
-        $pendingCount = Order::where('status', 'pending')
-            ->whereHas('user.company', function ($query) use ($staffLocationId) {
-                $query->where('location_id', $staffLocationId);
-            })
-            ->count();
+        // --- Get counts from the ImmutableHistory table ---
+        // For delivered and cancelled orders
+        $deliveredCount = ImmutableHistory::where('status', 'delivered')->count();
+        $cancelledCount = ImmutableHistory::where('status', 'cancelled')->count();
 
-        $cancelledCount = Order::where('status', 'cancelled')
-            ->whereHas('user.company', function ($query) use ($staffLocationId) {
-                $query->where('location_id', $staffLocationId);
-            })
-            ->count();
-
-        // [FIX] Replicate the unread message logic from your View Composer
-        $messagesCount = Cache::remember('unread_messages_staff_' . $staff->id, 10, function () use ($staff) {
-            return Conversation::where('is_read', false)
+        // Get unread message count
+        $messagesCount = Cache::remember('unread_messages_staff_' . $staff->id, now()->addMinutes(5), function () use ($staff) {
+            return Conversation::where('receiver_id', $staff->id)
                 ->where('receiver_type', 'staff')
-                ->where('receiver_id', $staff->id)
+                ->where('is_read', false)
                 ->count();
         });
 
-        // [FIX] Use the correctly calculated variables in the response
+        // Return the compiled statistics
         return response()->json([
-            'totalDelivered' => $deliveredCount,
+            'deliveredOrders' => $deliveredCount,
             'pendingOrders' => $pendingCount,
-            'cancelled' => $cancelledCount,
+            'packedOrders' => $packedCount,
+            'outForDeliveryOrders' => $outForDeliveryCount,
+            'cancelledOrders' => $cancelledCount,
             'messages' => $messagesCount,
         ]);
+    }
+
+    /**
+     * Get a paginated list of orders/history filtered by a specific status.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $status
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getOrdersByStatus(Request $request, $status)
+    {
+        // Validate the incoming status parameter
+        $request->merge(['status' => $status]);
+        $request->validate([
+            'status' => ['required', Rule::in(['delivered', 'pending', 'packed', 'out for delivery', 'cancelled'])],
+        ]);
+
+        $staff = Auth::user();
+
+        if (!$staff || !$staff->location_id) {
+            return response()->json(['message' => 'Unauthorized: Staff user not found or has no assigned location.'], 403);
+        }
+
+        $results = null;
+
+        // Conditionally query based on the status
+        if (in_array($status, ['pending', 'packed', 'out for delivery'])) {
+            // For order statuses, get ALL orders regardless of location
+            $results = Order::with(['user:id,name'])
+                ->where('status', $status)
+                ->latest()
+                ->paginate(15);
+        } elseif (in_array($status, ['delivered', 'cancelled'])) {
+            // For history statuses, get ALL from immutable_histories
+            $results = ImmutableHistory::where('status', $status)
+                ->latest('date_ordered')
+                ->select('id', 'order_id', 'employee', 'date_ordered', 'status', 'brand_name') 
+                ->paginate(15);
+        }
+
+        return response()->json($results);
     }
 }

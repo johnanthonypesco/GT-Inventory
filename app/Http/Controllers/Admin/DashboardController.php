@@ -86,52 +86,35 @@ class DashboardController extends Controller
             $adminsidebar_counter = $unreadMessagesStaff;
         }
         
-        // --- START NG MGA PAGBABAGO ---
+        // Direct database queries without caching
+        $totalOrders = Order::where('status', 'delivered')->count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $cancelledOrders = Order::where('status', 'cancelled')->count();
+        $totalRevenue = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->where('orders.status', 'delivered')->sum(DB::raw('orders.quantity * exclusive_deals.price'));
 
-        // I-cache ang mga mabibigat na query. Mag-e-expire ito sa loob ng isang oras,
-        // o kapag may bagong order (dahil sa Observer na gagawin natin sa Step 2).
-        $cacheDuration = now()->addHour();
+        $mostSoldProducts = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')
+            ->groupBy('products.generic_name')->orderBy('total_quantity', 'DESC')->limit(6)->get();
 
-        $totalOrders = Cache::remember('dashboard.total_orders', $cacheDuration, fn() => Order::where('status', 'delivered')->count());
-        $pendingOrders = Cache::remember('dashboard.pending_orders', $cacheDuration, fn() => Order::where('status', 'pending')->count());
-        $cancelledOrders = Cache::remember('dashboard.cancelled_orders', $cacheDuration, fn() => Order::where('status', 'cancelled')->count());
-        $totalRevenue = Cache::remember('dashboard.total_revenue', $cacheDuration, fn() => 
-            Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->where('orders.status', 'delivered')->sum(DB::raw('orders.quantity * exclusive_deals.price'))
-        );
+        $lowSoldProductsQuery = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '<=', 10)
+            ->orderBy('total_quantity', 'ASC')->limit(6)->get();
 
-        $mostSoldProducts = Cache::remember('dashboard.most_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')
-                ->groupBy('products.generic_name')->orderBy('total_quantity', 'DESC')->limit(6)->get();
-        });
-
-        $lowSoldProductsQuery = Cache::remember('dashboard.low_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '<=', 10)
-                ->orderBy('total_quantity', 'ASC')->limit(6)->get();
-        });
-
-        $moderateSoldProducts = Cache::remember('dashboard.moderate_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '>', 10)
-                ->having('total_quantity', '<=', 50)->orderBy('total_quantity', 'DESC')->limit(6)->get();
-        });
+        $moderateSoldProducts = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
+            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
+            ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '>', 10)
+            ->having('total_quantity', '<=', 50)->orderBy('total_quantity', 'DESC')->limit(6)->get();
         
-        $lowStockProductsList = Cache::remember('dashboard.low_stock_products', $cacheDuration, function () {
-             return Inventory::join('products', 'inventories.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
-                ->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->get();
-        });
+        $lowStockProductsList = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
+            ->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->get();
         
-        // --- END NG MGA PAGBABAGO ---
-
         $labels = $mostSoldProducts->pluck('generic_name')->toArray();
         $data = $mostSoldProducts->pluck('total_quantity')->toArray();
 

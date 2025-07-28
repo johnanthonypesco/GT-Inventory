@@ -15,6 +15,7 @@ use App\Http\Controllers\Mobile\MobileStaffChatController;
 use App\Http\Controllers\Mobile\MobileGroupChatController;
 use App\Http\Controllers\Mobile\MobileCustomerReview;
 use App\Http\Controllers\Mobile\MobileDashboardController;
+use App\Http\Controllers\Customer\TrackingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,20 +58,20 @@ Route::prefix('mobile')->group(function () {
             Route::get('/account', [MobileCustomerAccountController::class, 'getAccount']);
             Route::post('/account/update', [MobileCustomerAccountController::class, 'updateAccount']);
             Route::post('/review/store', [MobileCustomerReview::class, 'store']);
+            Route::get('/track-order/{order}/location', [TrackingController::class, 'getStaffLocationForOrder']);
         });
     });
 
     // --- Staff Routes ---
     Route::prefix('staff')->group(function () {
         // Authenticated Staff Routes (This part is correct)
-        Route::middleware('auth:sanctum')->group(function () {
+       Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [MobileStaffAuthController::class, 'user']);
             Route::post('/logout', [MobileStaffAuthController::class, 'logout']);
             Route::post('/location-update', [MobileStaffAuthController::class, 'updateLocation']);
             Route::get('/dashboard-stats', [MobileStaffDashboardController::class, 'getDashboardStats']);
             Route::get('/orders', [MobileStaffOrdersController::class, 'index']);
             Route::post('/process-scan', [MobileStaffQrController::class, 'processScannedOrder']);
-            // Route::post('/order/{order}/update-status', [MobileStaffOrdersController::class, 'updateProductStatus']);
             Route::post('/orders/{order}/update-status', [MobileStaffOrdersController::class, 'updateStatus']);
             Route::get('/orders/{order}/available-staff', [MobileStaffOrdersController::class, 'getAvailableStaff']);
 
@@ -82,7 +83,11 @@ Route::prefix('mobile')->group(function () {
             // Group Chat Routes
             Route::get('/chat/group', [MobileGroupChatController::class, 'getGroupMessages']);
             Route::post('/chat/group/send', [MobileGroupChatController::class, 'sendGroupMessage']);
+            
+            // This wildcard route is correctly placed after more specific '/orders/...' routes.
+            Route::get('/orders/{status}', [MobileStaffDashboardController::class, 'getOrdersByStatus']);
         });
+
 
         // Staff Authentication
         Route::post('/login', [MobileStaffAuthController::class, 'login']);
