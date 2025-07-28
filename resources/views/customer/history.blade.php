@@ -25,56 +25,64 @@
 
         {{-- Table for Order --}}
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
-            <div class="flex flex-wrap justify-between items-center">
+            <div class="flex flex-col lg:flex-row">
                 @php
                 // these variables are used to control the saving of filters in url query
                 $isSearchPresent = request()->query('search_filter');
                 $isStatusPresent = request()->query('status_filter');
             @endphp
             
-            <div class="flex justify-between gap-5 w-max">
+            <div class="flex flex-col">
                 {{-- Search --}}
                 <div class="w-fit mt-2">
                     <datalist id="deal-search-suggestions">
                         @foreach ($listedDeals as $deal)
                             <option value="{{ $deal->product->generic_name }} - {{ $deal->product->brand_name }} - {{ $deal->product->form }} - {{ $deal->product->strength }} - ₱{{ number_format($deal->price) }}">
                         @endforeach
-                    </datalist> 
-    
-                    <form action="{{ route('customer.history') }}" method="GET" id="deal-search-form" class="relative w-full flex">                        
-                        <input type="search" name="search_filter" 
-                        id="deal_search"
-                        placeholder="Search Product By Name" 
-                        class="{{ $current_filters  ? "w-[540px]" : "w-[680px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
-    
-                        list="deal-search-suggestions"
-                        autocomplete="off"
-    
-                        value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] . ' - ' . $current_filters['search'][2] . ' - ' . $current_filters['search'][3] . ' - ' . $current_filters['search'][4] : '' }}"
-                        
-                        onkeydown="if(event.key === 'Enter') {
-                            isInSuggestionDeal() ? 
-                            document.getElementById('deal-search-form').submit() : 
-                            event.preventDefault()
-                        }"
+                    </datalist>
+
+                    <form action="{{ route('customer.history') }}" method="GET" id="deal-search-form" class="relative w-full max-w-[680px]">
+                        <input 
+                            type="search" 
+                            name="search_filter"
+                            id="deal_search"
+                            placeholder="Search Product By Name"
+                            class="w-full md:w-[540px] p-2 pr-10 border border-[#005382] rounded-lg focus:outline-[3px] outline-[#005382]"
+                            list="deal-search-suggestions"
+                            autocomplete="off"
+                            value="{{ $current_filters['search'] ? $current_filters['search'][0] . ' - ' . $current_filters['search'][1] . ' - ' . $current_filters['search'][2] . ' - ' . $current_filters['search'][3] . ' - ' . $current_filters['search'][4] : '' }}"
+                            onkeydown="if(event.key === 'Enter') {
+                                isInSuggestionDeal() ? 
+                                document.getElementById('deal-search-form').submit() : 
+                                event.preventDefault()
+                            }"
                         >
-    
+
                         @if ($isStatusPresent)
                             <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                         @endif
-    
-                        <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
+
+                        {{-- Search Icon --}}
+                        <button 
+                            type="button" 
+                            onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()"
+                            class="absolute top-1/2 -translate-y-1/2 right-3 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-1 text-lg"
+                        >
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
-    
-                    @if ($current_filters["search"] !== null)
-                        <button onclick="window.location.href = '{{route('customer.history')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                                Reset Search
+
+                    @if ($current_filters['search'] !== null)
+                        <button 
+                            onclick="window.location.href = '{{ route('customer.history') }}'" 
+                            class="bg-red-500/80 mt-2 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"
+                        >
+                            Reset Search
                         </button>
                     @endif
                 </div>
                 {{-- Search --}}
+
     
                 {{-- STATUS FILTER --}}
                 <form action="{{ route('customer.history') }}" method="GET" id="status-form">

@@ -26,24 +26,26 @@
                 
 
                 {{-- Search --}}
-                <div class="w-fit mt-2">
-                    <form action="{{ route('customer.order') }}" method="GET" id="deal-search-form" class="relative w-full flex">                        
+                <div class="w-full mt-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                    <form action="{{ route('customer.order') }}" method="GET" id="deal-search-form" class="relative flex w-full max-w-2xl">
                         <input type="search" name="search_filter" 
-                        id="deal_search"
-                        placeholder="Search Product By Name" 
-                        class="w-[480px] p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
+                            id="deal_search"
+                            placeholder="Search Product By Name" 
+                            class="w-full p-2 pr-12 border border-[#005382] rounded-lg focus:outline-none outline-[#005382]"
+                            list="deal-search-suggestions"
+                            autocomplete="off">
 
-                        list="deal-search-suggestions"
-                        autocomplete="off">
-
-                        <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
+                        <button type="button"
+                            class="absolute right-3 top-2 text-xl text-[#005382] border-l-2 border-b-0 border-r-0 border-t-0 border-[#005382] px-1"
+                            onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
 
                     @if ($current_filters["search"] !== null)
-                        <button onclick="window.location.href = '{{route('customer.order')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                                Reset Search
+                        <button onclick="window.location.href = '{{ route('customer.order') }}'"
+                            class="bg-red-500/80 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2">
+                            Reset Search
                         </button>
                     @endif
                 </div>

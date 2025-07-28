@@ -1,20 +1,20 @@
-.table-button button{
+/* .table-button button{
     padding: 8px 18px;
     box-shadow: 0 0 6px #005282a2;
     border-radius: 10px;
     display: flex;
     align-items: center; 
     gap: 5px;
-}
+} */
 .order-modal{
     background-color: rgba(0, 0, 0, 0.523);
 }
-.print-button button{
+/* .print-button button{
     padding: 8px 18px;
     box-shadow: 0 0 6px #005282a2;
     border-radius: 10px;
     position: relative;
-}
+} */
 button{
     cursor: pointer;
 }

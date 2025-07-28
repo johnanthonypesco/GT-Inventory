@@ -193,7 +193,7 @@
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
                 
-                <div class="flex gap-2 w-[420px]">
+                <div class="flex gap-2 w-full lg:w-[420px]">
                     @if (session('registeredProductSearch'))
                         <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
                             Reset 

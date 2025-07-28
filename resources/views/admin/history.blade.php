@@ -31,7 +31,7 @@
             $isStatusPresent = request()->query('status_filter');
         @endphp
 
-        <div class="mt-10 flex flex-row md:flex-row justify-between">
+        <div class="mt-10 flex flex-row items-center md:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
@@ -100,33 +100,18 @@
         {{-- Filter Section --}}
 
         {{-- Search --}}
-        <div class="w-fit mt-2">
+        <div class="w-full lg:w-[50%] flex flex-col lg:flex-row gap-1 items-center rounded-lg p-2">
+
+        {{-- Datalist for suggestions --}}
             <datalist id="employee-search-suggestions">
                 @foreach ($customersSearchSuggestions as $customer)
                     <option value="{{ $customer->name }} - {{ $customer->company->name }}">
                 @endforeach
-            </datalist> 
+            </datalist>
 
-            <form action="{{ route('admin.history') }}" method="GET" id="employee-search-form" class="relative w-full flex">
-                {{-- <input type="hidden" name="search_type" value="company"> --}}
-                
-                <input type="search" name="employee_search" 
-                id="employee_search"
-                placeholder="Search Employee by Name & Company" 
-                class="{{ $current_filters  ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
-
-                list="employee-search-suggestions"
-                autocomplete="off"
-
-                value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}"
-                
-                onkeydown="if(event.key === 'Enter') {
-                    isInSuggestionEmployee() ? 
-                    document.getElementById('employee-search-form').submit() : 
-                    event.preventDefault()
-                }"
-                >
-
+            {{-- Search Form --}}
+            <form action="{{ route('admin.history') }}" method="GET" id="employee-search-form" class="relative w-full">
+                {{-- Filters (hidden inputs) --}}
                 @if ($isStatusPresent)
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
@@ -134,14 +119,32 @@
                     <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                 @endif
 
-                <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
+                <input type="search" name="employee_search"
+                    id="employee_search"
+                    placeholder="Search Employee by Name & Company"
+                    list="employee-search-suggestions"
+                    autocomplete="off"
+                    value="{{ $current_filters['search'] ? $current_filters['search'][0] . ' - ' . $current_filters['search'][1] : '' }}"
+                    class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                    onkeydown="if(event.key === 'Enter') {
+                        isInSuggestionEmployee() ? 
+                        document.getElementById('employee-search-form').submit() : 
+                        event.preventDefault()
+                    }"
+                >
+
+                <button type="button"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-2 py-1 cursor-pointer"
+                    onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </form>
 
-            @if ($current_filters["search"] !== null)
-                <button onclick="window.location.href = '{{route('admin.history')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                        Reset Search
+            {{-- Reset Button --}}
+            @if ($current_filters['search'] !== null)
+                <button onclick="window.location.href = '{{ route('admin.history') }}'"
+                    class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-[200px] text-sm">
+                    <i class="fa-solid fa-xmark"></i> Reset Search
                 </button>
             @endif
         </div>

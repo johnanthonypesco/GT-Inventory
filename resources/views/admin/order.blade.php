@@ -40,55 +40,54 @@
         <div class="h-[60vh] overflow-auto mt-8">
             <div class="table-button flex flex-col lg:flex-row justify-between gap-4 p-1 float-end w-full">
                 {{-- Search --}}
-                <div class="w-fit">
+                <div class="flex flex-col lg:flex-row gap-1 justify-between items-center w-full lg:w-[40%] relative rounded-lg">
+
                     <datalist id="employee-search-suggestions">
                         @foreach ($customersSearchSuggestions as $customer)
                             <option value="{{ $customer->name }} - {{ $customer->company->name }}">
                         @endforeach
-                    </datalist> 
+                    </datalist>
 
-                    <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex">
-                        {{-- <input type="hidden" name="search_type" value="company"> --}}
-                        
+                    <form action="{{ route('admin.order') }}" method="GET" id="employee-search-form" class="relative w-full flex items-center">
                         <input type="search" name="employee_search" 
-                        id="employee_search"
-                        placeholder="Search Employee by Name & Company" 
-                        class="{{ $current_search  ? "w-[340px]" : "w-[480px]" }}  p-2 border focus:outline-[3px] border-[#005382] rounded-lg outline-[#005382]"
-    
-                        list="employee-search-suggestions"
-                        autocomplete="off"
-
-                        value="{{ $current_search['query'] ? $current_search['query'][0] . " - " . $current_search['query'][1] : '' }}"
-                        
-                        onkeydown="if(event.key === 'Enter') {
-                            isInSuggestionEmployee() ? 
-                            document.getElementById('employee-search-form').submit() : 
-                            event.preventDefault()
-                        }"
+                            id="employee_search"
+                            placeholder="Search Employee by Name & Company" 
+                            class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382] bg-white"
+                            list="employee-search-suggestions"
+                            autocomplete="off"
+                            value="{{ $current_search['query'] ? $current_search['query'][0] . ' - ' . $current_search['query'][1] : '' }}"
+                            onkeydown="if(event.key === 'Enter') {
+                                isInSuggestionEmployee() ? 
+                                document.getElementById('employee-search-form').submit() : 
+                                event.preventDefault();
+                            }"
                         >
 
-                        <button class=" bg-white right-7 top-2 border-l-1 border-[#005382] px-3 cursor-pointer text-xl" type="button" onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
+                        <button type="button" 
+                            class="absolute right-1 top-1/2 -translate-y-1/2 border-l-2 border-r-0 border-t-0 border-b-0 border-[#005382] px-2 py-1 cursor-pointer"
+                            onclick="isInSuggestionEmployee() ? document.getElementById('employee-search-form').submit() : event.preventDefault()">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
 
                     @if ($current_search["query"] !== null)
-                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer w-full sm:w-[200px] text-sm">                         
                                 Reset Search
                         </button>
                     @endif
                 </div>
+
                 {{-- Search --}}
                 
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -108,7 +107,7 @@
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}
