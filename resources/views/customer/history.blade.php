@@ -59,7 +59,7 @@
                         >
 
                         @if ($isStatusPresent)
-                            <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
+                        <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                         @endif
 
                         {{-- Search Icon --}}
@@ -114,7 +114,7 @@
                                     $total = 0;
                                     foreach ($statuses as $orders) {
                                         foreach ($orders as $item) {
-                                            $total += ($item->quantity * $item->exclusive_deal->price);
+                                            $total += ($item->quantity * $item->price);
                                         }
                                     }
                                 @endphp
@@ -180,16 +180,16 @@
                                 <tbody>
                                     @foreach ($orders as $item)
                                         @php
-                                            $calc = $item->quantity * $item->exclusive_deal->price;
+                                            $calc = $item->quantity * $item->price;
                                             $totes += $calc;
                                         @endphp
                                         <tr class="text-center">
-                                            <td>{{ $item->exclusive_deal->product->generic_name }}</td>
-                                            <td>{{ $item->exclusive_deal->product->brand_name }}</td>
-                                            <td>{{ $item->exclusive_deal->product->form }}</td>
-                                            <td>{{ $item->exclusive_deal->product->strength }}</td>
+                                            <td>{{ $item->generic_name }}</td>
+                                            <td>{{ $item->brand_name }}</td>
+                                            <td>{{ $item->form }}</td>
+                                            <td>{{ $item->strength }}</td>
                                             <td>{{ $item->quantity }}</td>
-                                            <td> ₱ {{ number_format($item->exclusive_deal->price) }}</td>
+                                            <td> ₱ {{ number_format($item->price) }}</td>
                                             <td> ₱ {{ number_format($calc) }} </td>
                                         </tr>
                                     @endforeach

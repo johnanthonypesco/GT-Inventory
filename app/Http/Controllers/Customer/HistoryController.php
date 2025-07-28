@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExclusiveDeal;
+use App\Models\ImmutableHistory;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -19,33 +20,33 @@ class HistoryController extends Controller
 
         $pageNum = 10;
         
-        $orders = Order::where('user_id', auth('web')->id());
+        $user = auth('web')->user();
 
+        $orders = ImmutableHistory::where('employee', $user->name);
+
+        // Apply search filters if present and valid
         if ($searchFilter && count($searchFilter) === 5) {
-            $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($searchFilter) {
-                $query->where('generic_name', $searchFilter[0])
-                ->where('brand_name', $searchFilter[1])
-                ->where('form', $searchFilter[2])
-                ->where('strength', $searchFilter[3]);
-            });
-
-            $orders = $orders->whereHas('exclusive_deal', function ($query) use ($searchFilter) {
-                $query->where('price', $searchFilter[4]);
-            });
+            $orders = $orders->where('generic_name', $searchFilter[0])
+            ->where('brand_name', $searchFilter[1])
+            ->where('form', $searchFilter[2])
+            ->where('strength', $searchFilter[3])
+            ->where('price', $searchFilter[4]);
         }
 
+        // Apply status filtering if valid
         if (in_array($statusFilter, ['cancelled', 'delivered'])) {
             $orders = $orders->where('status', $statusFilter);
         }
 
+        // Para siguradong we're only paginating valid statuses
         $orders = $orders->whereIn('status', ['cancelled', 'delivered'])
-        ->with('exclusive_deal.product')
-        ->orderBy('date_ordered', 'desc')
+        ->orderByDesc('date_ordered')
         ->paginate($pageNum);
 
+        // Group by date, and then by status
         $grouped = $orders->getCollection()
-            ->groupBy(fn($o) => $o->date_ordered)
-            ->map(fn($d) => $d->groupBy('status'));
+        ->groupBy(fn($o) => $o->date_ordered)
+        ->map(fn($d) => $d->groupBy('status'));
 
         $orders->setCollection(collect($grouped));
 

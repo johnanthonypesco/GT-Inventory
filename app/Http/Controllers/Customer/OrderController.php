@@ -149,7 +149,7 @@ class OrderController extends Controller
                           ->value('created_at');
         // 2. If no completed order exists, redirect back.
         if (!$lastOrderDate) {
-            return redirect()->back()->with('error', 'No prevous completed order found to re-order.');
+            return redirect()->back()->with('error', 'No previous completed order found to re-order.');
         }
 
         // 3. Get all items that were part of that last purchase.
@@ -181,7 +181,7 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'exclusive_deal_id' => $item->exclusive_deal_id,
                 'quantity' => $item->quantity,
-                'status' => 'Pending', // All re-orders start as Pending
+                'status' => 'pending', // All re-orders start as Pending
                 'date_ordered' => now()->toDateString(),
                 'created_at' => now(),
                 'updated_at' => now(),

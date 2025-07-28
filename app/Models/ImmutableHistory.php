@@ -18,6 +18,7 @@ class ImmutableHistory extends Model
         'generic_name',
         'brand_name',
         'form',
+        'strength',
         'quantity',
         'price',
         'subtotal',

@@ -90,8 +90,13 @@
         </div>
     </main>
 
+    @php
+        $uniqueProducts = $products->unique(function ($product) {
+            return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;
+        });
+    @endphp
     <datalist id="deal-search-suggestions">
-        @foreach ($products as $product)
+        @foreach ($uniqueProducts as $product)
             <option value="{{ $product->generic_name }} - {{ $product->brand_name }} - {{ $product->form }} - {{ $product->strength }}">
         @endforeach
     </datalist>
@@ -223,9 +228,9 @@
                         <div>
                             <label for="product_id" class="text-md font-semibold">Select Product</label>
                             <select name="product_id[]" id="product_id" class="w-full p-[9.5px] outline-none border border-[#005382] rounded-lg">
-                                @foreach ($products as $product)
+                                @foreach ($uniqueProducts as $product)
                                     <option value="{{ $product->id }}">
-                                        {{$product->generic_name}} - {{ $product->brand_name }}
+                                        {{$product->generic_name}} - {{ $product->brand_name }} - {{ $product->form }} - {{ $product->strength }}
                                     </option>
                                 @endforeach
                             </select>

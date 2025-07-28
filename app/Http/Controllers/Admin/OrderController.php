@@ -159,10 +159,18 @@ class OrderController extends Controller
         })->forget('rejecteds');
 
         // For the Count Card Components
-        $ordersThisWeek = Order::whereBetween('date_ordered', [
+        $normalOrdersThisWeek = Order::whereIn('status', ['pending', 'packed', 'out for delivery'])
+        ->whereBetween('date_ordered', [
             Carbon::now()->startOfWeek(),
             Carbon::now()->endOfWeek(),
         ])->count();
+        $archivedOrdersThisWeek = ImmutableHistory::whereIn('status', ['cancelled', 'delivered'])
+        ->whereBetween('date_ordered', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek(),
+        ])->count();
+        $ordersThisWeek = $archivedOrdersThisWeek + $normalOrdersThisWeek;
+
         $currentPendings = Order::where('status', 'pending')->get()->count();
         $currentInsufficientsproducts = $insufficients->count(); 
         $currentInsufficientsorders = $insufficients->flatten(1)->count();
@@ -217,6 +225,7 @@ class OrderController extends Controller
                 'generic_name' => 'required|string',
                 'brand_name' => 'required|string',
                 'form' => 'required|string',
+                'strength' => 'required|string',
                 'quantity' => 'required|integer',
                 'price' => 'required|numeric',
                 'subtotal' => 'required|numeric',
@@ -231,7 +240,7 @@ class OrderController extends Controller
             $order->staff_id = $validate['staff_id'];
         }
 
-            if ($validate['status'] === 'delivered') {
+            if (in_array($validate['status'], ['delivered', 'cancelled'])) {
                 $locationId = $orderDeets->user->company->location->id;
                 $productId = $orderDeets->exclusive_deal->product->id;
                 $quantity = $validate['quantity'];
@@ -272,24 +281,27 @@ class OrderController extends Controller
                     'scanned_at' => now(),
                     'signature' => null,
                 ]);
+                
+                ImmutableHistory::create([
+                    'order_id' => $orderId, 
+                    'province' => $validate['province'],
+                    'company' => $validate['company'],
+                    'employee' => $validate['employee'],
+                    'date_ordered' => $validate['date_ordered'],
+                    'status' => $validate['status'],
+                    'generic_name' => $validate['generic_name'],
+                    'brand_name' => $validate['brand_name'],
+                    'form' => $validate['form'],
+                    'strength' => $validate['strength'],
+                    'quantity' => $validate['quantity'],
+                    'price' => $validate['price'],
+                    'subtotal' => $validate['subtotal'],
+                ]);
             }
 
             $order->update(['status' => $validate['status']]);
 
-            ImmutableHistory::create([
-                'order_id' => $orderId, 
-                'province' => $validate['province'],
-                'company' => $validate['company'],
-                'employee' => $validate['employee'],
-                'date_ordered' => $validate['date_ordered'],
-                'status' => $validate['status'],
-                'generic_name' => $validate['generic_name'],
-                'brand_name' => $validate['brand_name'],
-                'form' => $validate['form'],
-                'quantity' => $validate['quantity'],
-                'price' => $validate['price'],
-                'subtotal' => $validate['subtotal'],
-            ]);
+            // dd($validate['strength']);
 
             DB::commit();
             return to_route('admin.order')->with("update-success", $validate['mother_div']);

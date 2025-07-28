@@ -186,7 +186,7 @@
                                             match ($statusName) {
                                                 'pending' => 'text-orange-600',
                                                 'packed' => 'text-purple-700',
-                                                'out for delivery' => 'text-blue-600',
+                                                'out for delivery' => 'text-green-600',
                                                 default => 'text-black'
                                             }
                                         }}
@@ -199,6 +199,7 @@
                                                 <th>Generic Name</th>
                                                 <th>Brand Name</th>
                                                 <th>Form</th>
+                                                <th>Strength</th>
                                                 <th>Available</th>
                                                 <th>Quantity</th>
                                                 <th>Price</th>
@@ -230,6 +231,7 @@
                                                     <td>{{ $productInfo->generic_name }}</td>
                                                     <td>{{ $productInfo->brand_name }}</td>
                                                     <td>{{ $productInfo->form }}</td>
+                                                    <td>{{ $productInfo->strength }}</td>
                                                     <td>{{ $currentStock }}</td>
                                                     <td>{{ $order->quantity }}</td>
                                                     <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
@@ -249,6 +251,7 @@
                                                                 generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
                                                                 brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
                                                                 form: '{{$productInfo->form}}',
+                                                                strength: '{{$productInfo->strength}}',
                                                                 quantity: {{$order->quantity}},
                                                                 price: {{$order->exclusive_deal->price}},
                                                                 subtotal: {{$order_calc}},
@@ -355,6 +358,7 @@
     <input type="hidden" id="archive-generic-name" name="generic_name">
     <input type="hidden" id="archive-brand-name" name="brand_name">
     <input type="hidden" id="archive-form" name="form">
+    <input type="hidden" id="archive-strength" name="strength">
     <input type="hidden" id="archive-quantity" name="quantity">
     <input type="hidden" id="archive-price" name="price">
     <input type="hidden" id="archive-subtotal" name="subtotal">
@@ -647,6 +651,7 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
         generic_name : document.getElementById('archive-generic-name'),
         brand_name   : document.getElementById('archive-brand-name'),
         form         : document.getElementById('archive-form'),
+        strength         : document.getElementById('archive-strength'),
         quantity     : document.getElementById('archive-quantity'),
         price        : document.getElementById('archive-price'),
         subtotal     : document.getElementById('archive-subtotal')

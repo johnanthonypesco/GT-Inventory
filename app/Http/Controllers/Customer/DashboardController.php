@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImmutableHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
@@ -17,14 +18,18 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $allUserOrders = Order::where('user_id', $user->id)->get();
+        $allImmutableOrders = ImmutableHistory::where('employee', $user->name)->get();
 
         // --- Statistics ---
-        $totalorder = $allUserOrders->count();
-        $pendingorder = $allUserOrders->where('status', 'Pending')->count();
-        $confirmedorder = $allUserOrders->where('status', 'Confirmed')->count();
-        $outfordelivery = $allUserOrders->where('status', 'Out for Delivery')->count();
-        $completedorder = $allUserOrders->where('status', 'Completed')->count();
-        $cancelledorder = $allUserOrders->where('status', 'Cancelled')->count();
+        $fromNormalOrders = $allUserOrders->count();
+        $fromArchivedOrders = $allImmutableOrders->count();
+
+        $totalorder = $fromArchivedOrders + $fromNormalOrders;
+        $pendingorder = $allUserOrders->where('status', 'pending')->count();
+        $packedOrder = $allUserOrders->where('status', 'packed')->count();
+        $outfordelivery = $allUserOrders->where('status', 'out for delivery')->count();
+        $deliveredOrder = $allImmutableOrders->where('status', 'delivered')->count();
+        $cancelledorder = $allImmutableOrders->where('status', 'cancelled')->count();
         
         // --- Data for Dashboard Widgets ---
         $recentOrders = Order::where('user_id', $user->id)
@@ -57,10 +62,11 @@ $lastDeliveredOrderItems = Order::with('exclusive_deal.product')
         return view('customer.dashboard', [
             'totalorder' => $totalorder,
             'pendingorder' => $pendingorder,
-            'confirmedorder' => $confirmedorder,
             'outfordelivery' => $outfordelivery,
-            'completedorder' => $completedorder,
+            'packedOrder' => $packedOrder,
             'cancelledorder' => $cancelledorder,
+            'deliveredOrder' => $deliveredOrder,
+
             'recentOrders' => $recentOrders,
             'exclusiveDeals' => $exclusiveDeals,
             'lastDeliveredOrder' => $lastDeliveredOrder,

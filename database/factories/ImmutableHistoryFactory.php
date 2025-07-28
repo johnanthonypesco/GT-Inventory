@@ -39,6 +39,7 @@ class ImmutableHistoryFactory extends Factory
         $generic = $product->generic_name;
         $brand = $product->brand_name;
         $form = $product->form;
+        $strength = $product->strength;
         $quantity = $usableOrder->id;
         $price = $usableDeal->price;
         $subtotal = $usableDeal->price * $quantity;
@@ -58,6 +59,7 @@ class ImmutableHistoryFactory extends Factory
             'generic_name' => $generic,
             'brand_name' => $brand,
             'form' => $form,
+            'strength' => $strength,
             'quantity' => $quantity,
             'price' => $price,
             'subtotal' => $subtotal,

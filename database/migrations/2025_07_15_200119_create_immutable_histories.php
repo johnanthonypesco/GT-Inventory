@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('generic_name');
             $table->string('brand_name');
             $table->string('form');
+            $table->string('strength');
             $table->integer('quantity');
             $table->integer('price');
             $table->integer('subtotal');

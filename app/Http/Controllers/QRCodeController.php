@@ -49,6 +49,7 @@ class QrCodeController extends Controller
                     'product_name'  => $product->generic_name,
                     'brand_name'    => $product->brand_name,
                     'form'          => $product->form,
+                    'strength'          => $product->strength,
                     'batch_number'  => $inventory->batch_number,
                     'expiry_date'   => $inventory->expiry_date,
                     'date_acquired' => $inventory->created_at->format('Y-m-d'),

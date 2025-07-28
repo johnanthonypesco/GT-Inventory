@@ -251,6 +251,8 @@
                                                 <tr class="text-left">
                                                     <th class="p-2">Generic Name</th>
                                                     <th class="p-2">Brand Name</th>
+                                                    <th class="p-2">Form</th>
+                                                    <th class="p-2">Strength</th>
                                                     <th class="p-2">Quantity</th>
                                                     <th class="p-2">Price</th>
                                                     <th class="p-2">Subtotal</th>
@@ -261,6 +263,8 @@
                                                     <tr class="border-b">
                                                         <td class="p-2">{{ $item->generic_name }}</td>
                                                         <td class="p-2">{{ $item->brand_name }}</td>
+                                                        <td class="p-2">{{ $item->form }}</td>
+                                                        <td class="p-2">{{ $item->strength }}</td>
                                                         <td class="p-2">{{ $item->quantity }}</td>
                                                         <td class="p-2">₱{{ number_format($item->price, 2) }}</td>
                                                         <td class="p-2">₱{{ number_format($item->price * $item->quantity, 2) }}</td>
