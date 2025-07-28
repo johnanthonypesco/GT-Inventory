@@ -247,7 +247,7 @@
                             <option value="performance">Product Performance Only</option>
                             <option value="inventory">Inventory Levels Only</option>
                             <option value="trends">Product Trends & Predictions Only</option>
-                            <option value="orderStatus">Order Status Distribution Only</option>
+                            {{-- <option value="orderStatus">Order Status Distribution Only</option> --}}
                             <option value="custom">Custom Selection</option>
                         </select>
 
@@ -275,10 +275,10 @@
                                         <input type="checkbox" name="customChart" value="trends" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                         <span class="text-gray-700">Product Trends & Predictions</span>
                                     </label>
-                                    <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                                    {{-- <label class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
                                         <input type="checkbox" name="customChart" value="orderStatus" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                         <span class="text-gray-700">Order Status</span>
-                                    </label>
+                                    </label> --}}
                                 </div>
                                 <button id="applyCustomCharts" class="self-end mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                     Apply Selection
@@ -366,7 +366,7 @@
                                 <select id="deductedLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">All Locations</option>
                                     @foreach($locations as $location)
-                                        <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
+                                        <option value="{{ $location->province }}">{{ $location->city }}, {{ $location->province }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -415,13 +415,13 @@
                         </div>
 
                         <div class="h-64 chart-canvas" id="seasonalTrendsChartContainer"></div>
+                            {{-- SAVE POINT --}}
 
                         <div class="mt-6">
                             <h3 class="text-lg font-semibold mb-3">Next Month's Predicted Top Products</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
                         </div>
                     </div>
-
                     <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance</h3>
                         <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
@@ -432,10 +432,10 @@
                         <div class="h-72 sm:h-80 md:h-96 chart-canvas" id="productPerformanceChartContainer"></div>
                     </div>
 
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
+                    {{-- <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 orderStatus-chart" data-chart-id="orderStatus">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Order Status Distribution</h3>
                         <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas flex items-center justify-center" id="orderStatusChartContainer"></div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             @endif
@@ -808,6 +808,8 @@
             }
         }
 
+        // ETO JM HINDI KO ALAM AYUSIN TRENDS & DATA NETO CHART
+        // - Seagray
         async function fetchAndUpdateTrendData() {
             const season = document.getElementById('seasonFilter')?.value;
             const year = document.getElementById('trendYearFilter')?.value;
@@ -886,6 +888,8 @@
                 predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nagkaroon ng error sa pag-analyze ng prediksyon.</p>';
             }
         }
+        // ETO JM HINDI KO ALAM AYUSIN YUNG TRENDS & DATA NETO CHART
+        // - Seagray
 
         function createOrderStatusChart() {
             createChart('orderStatusChart', {

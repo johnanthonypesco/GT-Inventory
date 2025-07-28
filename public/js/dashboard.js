@@ -446,6 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateInventoryChart();
         }
 
+        
         // --- Seasonal Trends Chart ---
         const trendsChartCtx = document.getElementById('seasonalTrendsChart');
         if(trendsChartCtx) {
@@ -454,6 +455,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: { labels: [], datasets: [ { label: 'Current Sales', data: [], backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }, { label: 'Next Month Predicted', data: [], backgroundColor: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1 }, { label: 'Historical Average', data: [], backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1, type: 'line', tension: 0.3 } ] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Sales Quantity' } }, x: { title: { display: true, text: 'Products' } } }, plugins: { tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${Math.round(c.raw)}` } }, legend: { position: 'top' } } }
             });
+
+            // ETO JM HINDI KO ALAM AYUSIN TRENDS & DATA NETO CHART
+            // - Seagray
             async function fetchAndUpdateTrendData() {
                 const season = document.getElementById('seasonFilter')?.value;
                 const year = document.getElementById('trendYearFilter')?.value;
@@ -492,6 +496,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
             fetchAndUpdateTrendData();
         }
+        // ETO JM HINDI KO ALAM AYUSIN TRENDS & DATA NETO CHART
+        // - Seagray
 
         // --- Order Status Distribution Chart ---
         const statusChartCtx = document.getElementById('orderStatusChart');

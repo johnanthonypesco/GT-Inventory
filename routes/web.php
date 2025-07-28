@@ -115,7 +115,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // dashboard routes
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
-        Route::get('admin/filtered-deducted-quantities/{year}/{month}/{locationId?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
+        Route::get('admin/filtered-deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
         // Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/inventory-levels/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);

@@ -21,8 +21,8 @@ class OrderSeeder extends Seeder
             'status' => fake()->randomElement([
                 'pending',
                 'packed',
-                'cancelled',
-                'delivered',
+                // 'cancelled',
+                // 'delivered',
             ]),
             'quantity' => fake()->numberBetween(1, 150),
         ]);
