@@ -15,15 +15,7 @@
         @switch($category)
             {{-- inventory --}}
             @case($category === 'inventory')
-                {{-- @php
-                    dd($variable['data']);
-                @endphp     --}}
-
-
                 @foreach ($variable as $inv)
-                    {{-- @php
-                        dd($variable->toArray());
-                    @endphp --}}
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
                         <td>{{ $inv->product->generic_name }}</td>
@@ -32,9 +24,32 @@
                         <td>{{ $inv->product->strength }}</td>
                         <td>{{ $inv->quantity }}</td>
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
-                        <td>
+                        <td class="flex justify-center gap-2">
+                            {{-- <button class="cursor-pointer bg-blue-600 text-white px-3 rounded-xl flex justify-center items-center">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button> --}}
+
+                            <div class="relative group inline-block">
+                                <button class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl flex justify-center items-center" onclick="openStockEditModal({ 
+                                    id: '{{$inv->inventory_id}}',
+                                    batch_number: '{{$inv->batch_number}}',
+                                    generic_name: '{{$inv->product->generic_name}}',
+                                    brand_name: '{{$inv->product->brand_name}}',
+                                    quantity: '{{$inv->quantity}}',
+                                    expiry_date: '{{$inv->expiry_date}}',
+                                })">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                                
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block group-hover:animate-bounce
+                                            bg-gray-800 text-white text-lg px-2 py-1 rounded-md whitespace-nowrap z-10">
+                                    Edit the Stock Info
+                                </div>
+                            </div>
+
                           <button 
-                            class="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                            class="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
                             onclick="openTransferModal(
                                 '{{ $inv->inventory_id }}', 
                                 '{{ $inv->batch_number }}', 

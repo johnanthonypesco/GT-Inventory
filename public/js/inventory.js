@@ -271,3 +271,37 @@ document.getElementById('transferForm').addEventListener('submit', function(even
 });
 
 // SEARCH FUNCTION SECTION
+
+
+// SIGRAE EDIT STOCK FUNCTINO
+function openStockEditModal(datas) {
+    const stockEditModal = document.getElementById('edit-stock');
+    const stockEditForm = document.getElementById('edit-stock-form');
+    const chizBurger = document.getElementById('chizburger');
+
+    let inputs = {
+        id: document.getElementById('edit-stock-id'),
+        batchNumber: document.getElementById('edit-stock-batch'),
+        quantity: document.getElementById('edit-stock-quantity'),
+        expiry: document.getElementById('edit-stock-expiry'),
+    };
+
+    if (stockEditModal.classList.contains('-mt-[4000px]')) {
+        stockEditModal.classList.replace('-mt-[4000px]', '-mt-[0px]');
+
+        chizBurger.innerText = `${datas.generic_name} - ${datas.brand_name}`;
+
+        inputs.id.value = datas.id;
+        inputs.batchNumber.value = datas.batch_number;
+        inputs.quantity.value = datas.quantity;
+        inputs.expiry.value = datas.expiry_date;
+    } else {
+        stockEditModal.classList.replace('-mt-[0px]', '-mt-[4000px]');
+
+        inputs.id.value = '';
+        inputs.batchNumber.value = '';
+        inputs.quantity.value = '';
+        inputs.expiry.value = '';
+    }
+}
+// SIGRAE EDIT STOCK FUNCTINO

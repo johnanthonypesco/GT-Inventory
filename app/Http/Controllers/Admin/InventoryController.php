@@ -313,6 +313,25 @@ class InventoryController extends Controller
         return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }
 
+    public function editStock(Request $request) {
+        $validated = $request->validate([
+            'inventory_id' => 'integer|min:1|required',
+            'form_type' => 'string|min:3|required|in:edit-stock',
+            'batch_number' => 'string|min:3|required',
+            'quantity' => 'integer|min:1|max:100000|required',
+            'expiry_date' => 'date|required',
+        ]);
+
+        $validated = array_map('strip_tags', $validated);
+
+        $stock = Inventory::findOrFail($validated['inventory_id']);
+
+        // dd($stock->toArray());
+
+        $stock->update($validated);
+
+        return to_route('admin.inventory');
+    }
 
     public function addStock(Request $request, $addType = null)
     {

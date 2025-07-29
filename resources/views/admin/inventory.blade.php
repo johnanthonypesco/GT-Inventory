@@ -403,9 +403,9 @@
                         <label for="product_id" class="text-md font-semibold">Product:</label>
                         <select name="product_id[]" id="product_id" class="w-full p-3 outline-none rounded-lg" style="box-shadow:none; border: 1px solid #005382">
                             @if ($products->count() > 0)
-                                @foreach ($products as $product)
+                                @foreach ($uniqueProducts as $product)
                                     <option value="{{ $product->id }}">
-                                        {{ $product->generic_name ? $product->generic_name : "No Generic Name"}} - {{ $product->brand_name ? $product->brand_name : "No Brand Name" }}
+                                        {{ $product->generic_name ? $product->generic_name : "No Generic Name"}} - {{ $product->brand_name ? $product->brand_name : "No Brand Name" }}  - {{ $product->form ? $product->form : "No Form" }} - {{ $product->strength ? $product->strength : "No Strength" }}
                                     </option>
                                 @endforeach
                             @else
@@ -440,9 +440,9 @@
                             <select name="product_id[]" id="product_id" class="w-full p-3 outline-none rounded-lg" style="box-shadow:none; border: 1px solid #005382">
                                 <option value="1" class="text-black/40" disabled selected>Select a Product</option>
                                 @if ($products->count() > 0)
-                                    @foreach ($products as $product)
+                                    @foreach ($uniqueProducts as $product)
                                         <option value="{{ $product->id }}">
-                                            {{ $product->generic_name ? $product->generic_name : "No Generic Name"}} - {{ $product->brand_name ? $product->brand_name : "No Brand Name" }}
+                                            {{ $product->generic_name ? $product->generic_name : "No Generic Name"}} - {{ $product->brand_name ? $product->brand_name : "No Brand Name" }} - {{ $product->form ? $product->form : "No Form" }} - {{ $product->strength ? $product->strength : "No Strength" }}
                                         </option>
                                     @endforeach
                                 @else
@@ -532,6 +532,51 @@
         </div>
     </div>
     {{-- EDIT REGISTERED PRODUCTS MODAL --}}
+
+    {{-- EDIT STOCK MODAL --}}
+    @php
+        $errorPresentInStockEdit = old('form_type') === 'edit-stock';
+    @endphp
+    <div class="w-full {{ $errorPresentInStockEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]'}}   transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-stock">        
+        <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose click="openStockEditModal" />
+
+            <form action="{{ route('admin.edit.stock') }}" method="POST" id="edit-stock-form">
+                @csrf
+                @method('PUT')
+
+                <div class="flex justify-between">
+                    <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> 
+                        Edit Stock: <span id="chizburger"></span> 
+                    </h1>
+                </div>
+
+                <input type="hidden" name="form_type" value="edit-stock">
+                <input type="hidden" name="inventory_id" id="edit-stock-id" 
+                value="{{ $errorPresentInStockEdit ? old('inventory_id') : '' }}">
+                {{-- <input type="hidden" name="form_type" value="edit-product"> --}}
+                
+
+                <x-label-input label="Batch Number:" inputid="edit-stock-batch" name="batch_number" type="text" for="batch_number" divclass="mt-2" placeholder="Enter Batch Number" 
+                value="{{ $errorPresentInStockEdit ? old('batch_number') : '' }}"
+                :errorChecker="$errorPresentInStockEdit ? $errors->first('batch_number') : null " />
+                    
+                <x-label-input label="Quantity:" inputid="edit-stock-quantity" name="quantity" type="number" for="quantity" divclass="mt-5" placeholder="Enter Quantity" 
+                value="{{ $errorPresentInStockEdit ? old('quantity') : '' }}"
+                :errorChecker="$errorPresentInStockEdit ? $errors->first('quantity') : null "/>
+
+                <x-label-input label="Expiry Date:" inputid="edit-stock-expiry" name="expiry_date" type="date" for="expiry_date" divclass="mt-5" 
+                value="{{ $errorPresentInStockEdit ? old('expiry_date') : '' }}"
+                :errorChecker="$errorPresentInStockEdit ? $errors->first('expiry_date') : null "/>
+
+                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                    <img src="{{asset('image/image 51.png')}}"/>
+                    Save Changes 
+                </button>
+            </form>
+        </div>
+    </div>
+    {{-- EDIT STOCK MODAL --}}
 
 
    {{-- Transfer Inventory Modal --}}
