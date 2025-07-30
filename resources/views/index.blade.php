@@ -82,52 +82,67 @@
         <section class="mt-10 relative flex flex-col items-center scroll-mt-24" id="products">
             <div class="bg-[#084876]/20 rounded-full w-[70%] h-[100%] blur-3xl absolute z-0"></div>
             <h1 class="text-xl text-[#084876] text-center font-bold">Our Products</h1>
-            
-            <div class="flex gap-5 mt-10 z-1 relative">
-                <button class="text-[#084876] font-bold border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
-                <button class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
-                <button class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
-            </div>
-            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center">
-                {{-- Main Product Loop --}}
-                @forelse($enabledProducts as $product)
-                    <x-promotionalpage.product 
-                        :image="$product->img_file_path"
-                        genericname="{{ $product->generic_name }}"
-                        brandname="{{ $product->brand_name }}"
-                        form="{{ $product->form }}"
-                    />
-                @empty
-                    <p class="text-center text-gray-500">No products available.</p>
-                @endforelse
-            </div>
-            <button class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" id="viewallproducts">View All Products</button>
-        </section>
 
-        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-10" id="productsmodal">
-            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5">
-                <x-modalclose id="closeproductsmodal"/>
-                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
-                <div class="mt-5 flex gap-2 justify-center lg:justify-start">
-                    <button class="text-[#084876] font-md border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
-                    <button class="text-gray-600 font-md filter-btn" data-filter="injectables">Injectables</button>
-                    <button class="text-gray-600 font-md filter-btn" data-filter="oral">Oral</button>
-                </div>
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
-                    {{-- Modal Product Loop --}}
-                    @forelse($enabledProducts as $product)
+            <div class="flex gap-5 mt-10 z-1 relative">
+                <button onclick="setFilter('all')" class="text-[#084876] font-bold border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
+                <button onclick="setFilter('injectables')" class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
+                <button onclick="setFilter('oral')" class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
+            </div>
+
+            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center">
+                @forelse($enabledProducts as $product)
+                    <div class="product-card" data-filter="{{ strtolower($product->form) }}">
                         <x-promotionalpage.product 
                             :image="$product->img_file_path"
                             genericname="{{ $product->generic_name }}"
                             brandname="{{ $product->brand_name }}"
                             form="{{ $product->form }}"
                         />
+                    </div>
+                @empty
+                    <p class="text-center text-gray-500">No products available.</p>
+                @endforelse
+            </div>
+
+            @if($enabledProducts->isNotEmpty())
+                <button 
+                    class="bg-[#0097D3] text-white px-5 py-2 rounded mt-10 font-semibold cursor-pointer z-5 relative" 
+                    id="viewallproducts"
+                    onclick="openProductsModal()">
+                    View All Products
+                </button>
+            @endif
+        </section>
+
+        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-10" id="productsmodal">
+            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5 ">
+                <x-modalclose id="closeproductsmodal"/>
+                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
+
+                <div class="mt-5 flex gap-4 justify-center lg:justify-start">
+                    <button class="text-[#084876] font-md text-xl border-b border-[#084876] filter-btn" data-filter="all" onclick="applyModalFilter('all')">All Products</button>
+                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="injectables" onclick="applyModalFilter('injectables')">Injectables</button>
+                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
+                </div>
+
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
+                    @forelse($enabledProducts as $product)
+                        <div class="product-card" data-filter="{{ strtolower($product->form) }}">
+                            <x-promotionalpage.product 
+                                :image="$product->img_file_path"
+                                genericname="{{ $product->generic_name }}"
+                                brandname="{{ $product->brand_name }}"
+                                form="{{ $product->form }}"
+                            />
+                        </div>
                     @empty
                         <p class="text-center text-gray-500">No products available.</p>
                     @endforelse
                 </div>
             </div>
         </div>
+
+
 
         <div class="flex mt-24 justify-center gap-2">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
@@ -168,31 +183,30 @@
         </section>
 
         <section id="reviews" class="mt-20 px-5 lg:px-24">
-    <h2 class="text-xl font-bold text-center text-[#084876]">What Our Customers Say</h2>
+            <h2 class="text-xl font-bold text-center text-[#084876]">What Our Customers Say</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-        @forelse($reviews as $review)
-            <div class="bg-white p-4 border rounded shadow">
-                <div class="flex gap-1 mb-2">
-                    @for ($i = 1; $i <= 5; $i++)
-                        @if ($i <= $review->rating)
-                            <i class="fa-solid fa-star text-yellow-400"></i>
-                        @else
-                            <i class="fa-regular fa-star text-gray-300"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                @forelse($reviews as $review)
+                    <div class="bg-white p-4 border rounded shadow">
+                        <div class="flex gap-1 mb-2">
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= $review->rating)
+                                    <i class="fa-solid fa-star text-yellow-400"></i>
+                                @else
+                                    <i class="fa-regular fa-star text-gray-300"></i>
+                                @endif
+                            @endfor
+                        </div>
+                        <p class="italic text-gray-700">"{{ $review->comment }}"</p>
+                        @if ($review->allow_public_display && $review->user)
+                            <p class="text-sm text-gray-600 mt-2">– {{ $review->user->name }}</p>
                         @endif
-                    @endfor
-                </div>
-                <p class="italic text-gray-700">"{{ $review->comment }}"</p>
-                @if ($review->allow_public_display && $review->user)
-                    <p class="text-sm text-gray-600 mt-2">– {{ $review->user->name }}</p>
-                @endif
+                    </div>
+                @empty
+                    <p class="text-center text-gray-500">No public reviews yet.</p>
+                @endforelse
             </div>
-        @empty
-            <p class="text-center text-gray-500">No public reviews yet.</p>
-        @endforelse
-    </div>
-</section>
-
+        </section>
     </main>
 
     <footer class="bg-[#084876] text-white p-5 w-full">

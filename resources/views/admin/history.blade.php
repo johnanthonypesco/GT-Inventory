@@ -113,10 +113,10 @@
             <form action="{{ route('admin.history') }}" method="GET" id="employee-search-form" class="relative w-full">
                 {{-- Filters (hidden inputs) --}}
                 @if ($isStatusPresent)
-                    <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
+                    <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ?? '' }}">
                 @endif
                 @if ($isProvincePresent)
-                    <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ?? '' }}">
                 @endif
 
                 <input type="search" name="employee_search"
