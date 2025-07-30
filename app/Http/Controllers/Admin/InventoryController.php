@@ -224,6 +224,21 @@ class InventoryController extends Controller
             'img_file_path' => 'nullable|image|mimes:jpeg,png,jpg|max:30048', // 30MB limit
         ]);
 
+        // CHECK IF MERON NA SAME PRODUCT
+        $duplicate = Product::where('generic_name', $validated['generic_name'])
+            ->where('brand_name', $validated['brand_name'])
+            ->where('form', $validated['form'])
+            ->where('strength', $validated['strength'])
+            ->exists();
+
+        if ($duplicate) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'DUPLICATE' => 'This product already exists with the same Generic, Brand, Form, and Strength.'
+                ]);
+        }
+
         if ($request->hasFile('img_file_path')) {
             $file = $request->file('img_file_path');
             
@@ -268,6 +283,22 @@ class InventoryController extends Controller
             'strength' => 'string|min:3|max:120|required',
             'img_file_path' => 'nullable|image|mimes:jpeg,png,jpg|max:30048', // 30MB limit
         ]);
+
+        // CHECK IF MERON NA SAME PRODUCT
+        $duplicate = Product::where('generic_name', $validated['generic_name'])
+            ->where('brand_name', $validated['brand_name'])
+            ->where('form', $validated['form'])
+            ->where('strength', $validated['strength'])
+            ->where('id', '!=', $validated['id']) // AKA dont check yourself
+            ->exists();
+
+        if ($duplicate) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'DUPLICATE' => 'This product already exists with the same Generic, Brand, Form, and Strength.'
+                ]);
+        }
 
         if ($request->hasFile('img_file_path')) {
             $file = $request->file('img_file_path');
@@ -330,9 +361,9 @@ class InventoryController extends Controller
 
         $stock->update($validated);
 
-        return to_route('admin.inventory');
+        return redirect()->to(url()->previous());
     }
-
+    
     public function addStock(Request $request, $addType = null)
     {
         // I'm using Validator to differentiate the two types of add stock forms, para mahiwalay yung re-popup.

@@ -215,7 +215,7 @@
                                                     
                                                     $productInfo = $order->exclusive_deal->product;
 
-                                                    $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name;
+                                                    $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name . "|" . $productInfo->form . "|" . $productInfo->strength;
 
                                                     $currentStock = $stocksAvailable[$keyWord] ?? 0;
                                                     $isExpired = $currentStock === 'expired';                                                  
@@ -473,6 +473,8 @@
                            <th>Employee</th>
                             <th>Generic Name</th>
                             <th>Brand Name</th>
+                            <th>Form</th>
+                            <th>Strength</th>
                             <th>Current Supply</th>
                             <th>Demanded Quantity</th>
                         </tr>
@@ -493,6 +495,8 @@
                                     <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
                                     <td> {{ $explodedName[0] }} </td>
                                     <td> {{ $explodedName[1] }} </td>
+                                    <td> {{ $explodedName[2] }} </td>
+                                    <td> {{ $explodedName[3] }} </td>
                                     <td>
                                         {{ $isExpired ? 'Expired' : number_format($available) }}
                                     </td>
@@ -522,6 +526,8 @@
                     <tr>
                         <th>Generic Name</th>
                         <th>Brand Name</th>
+                        <th>Form</th>
+                        <th>Strength</th>
                         <th>Available Stock</th>
                         <th>Total Ordered</th>
                     </tr>
@@ -535,6 +541,8 @@
                         <tr>
                             <td>{{ $explosionBaby[0] }}</td>
                             <td>{{ $explosionBaby[1] }}</td>
+                            <td>{{ $explosionBaby[2] }}</td>
+                            <td>{{ $explosionBaby[3] }}</td>
                             <td>{{ $item['available'] }}</td>
                             <td>{{ $item['ordered'] }}</td>
                         </tr>

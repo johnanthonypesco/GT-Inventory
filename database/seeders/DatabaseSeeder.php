@@ -25,7 +25,12 @@ class DatabaseSeeder extends Seeder
         $this->call(ManageContentsSeeder::class);
 
         // Create base products and inventory
-        Product::factory()->count(24)->create();
+        Product::factory()
+        ->configure()
+        ->perPair(2)
+        ->count(23 * 2)
+        ->create();
+
         Inventory::factory()->count(20)->create();
         
         // Create companies and users
@@ -41,7 +46,7 @@ class DatabaseSeeder extends Seeder
         ExclusiveDeal::factory()->count(20)->create();
 
         // Seed seasonal data - moved before additional orders
-        $this->call(SeasonalDataSeeder::class);
+        // $this->call(SeasonalDataSeeder::class);
 
         // Create additional orders
         Order::factory()->count(120)->create(); // number of random orders

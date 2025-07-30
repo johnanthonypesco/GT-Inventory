@@ -19,6 +19,13 @@ return new class extends Migration
             $table->string('strength');
             $table->string('img_file_path')->nullable()->default('image/default-product-pic.png');
             $table->timestamps();
+
+            $table->unique([
+                'generic_name',
+                'brand_name',
+                'form',
+                'strength',
+            ]);
         });
     }
 

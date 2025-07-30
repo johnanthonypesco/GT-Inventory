@@ -27,11 +27,10 @@ class ImmutableHistoryFactory extends Factory
         $companyName = $usableUser->company->name;
         $employeeName = $usableUser->name;
 
-        $orderID = Order::where('user_id', '=', $userID)
-        ->whereIn('status', ['delivered', 'cancelled'] )->pluck('id')->random();
+        $orderID = Order::pluck('id')->random();
         $usableOrder = Order::with('exclusive_deal.product')->findOrFail($orderID);
         $dateOrdered = $usableOrder->date_ordered;
-        $status = $usableOrder->status;
+        $status = fake()->randomElement(['delivered', 'cancelled']);
 
         $usableDeal = ExclusiveDeal::with('product')->find($usableOrder->exclusive_deal_id);
 

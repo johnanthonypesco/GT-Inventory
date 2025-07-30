@@ -271,7 +271,7 @@
 
     {{-- Modal for Register New Product --}}
     @php
-        $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength']);
+        $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength', 'DUPLICATE']);
     @endphp
 
     <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="registerproductmodal">
@@ -283,6 +283,12 @@
             @csrf
 
             <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-4">Register New Product</h1>
+
+            @if (old('form_type') !== 'edit-product' && $failedToRegister)
+                @error('DUPLICATE')
+                    <p class="mt-1 text-lg text-red-600 text-center self-center">{{ $message }}</p>
+                @enderror
+            @endif
 
             {{-- BTW FORM_TYPE IS FOR THE EDIT REGISTERED PRODUCT'S ERROR HANDLING --}}
             <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-4" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
@@ -503,8 +509,14 @@
                         </button>
                     </div>
 
-                    <img src="/" class="w-[128px] h-[128px] bg-black/60 object-scale-down self rounded-sm border-2 border-[#005382]" alt="product image" id="prod-img">
+                    <img src="{{ App::environment('local') ? 'http://127.0.0.1:8000/image/default-product-pic.png' : 'https://rmpoims.com/image/default-product-pic.png' }}" class="w-[128px] h-[128px] bg-black/60 object-scale-down self rounded-sm border-2 border-[#005382]" alt="product image" id="prod-img">
                 </div>
+
+                @if ($errorPresentInEdit)
+                    @error('DUPLICATE')
+                        <p class="mt-1 text-lg text-red-600 text-center self-center">{{ $message }}</p>
+                    @enderror
+                @endif
 
                 <input type="hidden" name="id" id="edit-prod-id" value="{{ $errorPresentInEdit ? old('id') : '' }}">
                 <input type="hidden" name="form_type" value="edit-product">

@@ -94,7 +94,7 @@ class OrderController extends Controller
     $currentStocks = Inventory::with("product")
     ->get()
     ->groupBy(function ($stock) {
-        return $stock->product->generic_name . "|" . $stock->product->brand_name;
+        return $stock->product->generic_name . "|" . $stock->product->brand_name . "|" . $stock->product->form . "|" . $stock->product->strength;
     })
     ->map(function ($productStocks) {
         $nonExpired = $productStocks->where('expiry_date', '>=', now());
@@ -115,9 +115,8 @@ class OrderController extends Controller
             if (!$order->exclusive_deal || !$order->exclusive_deal->product) {
                 return 'Unknown Product';
             }
-            return $order->exclusive_deal->product->generic_name. "|" . $order->exclusive_deal->product->brand_name;
+            return $order->exclusive_deal->product->generic_name. "|" . $order->exclusive_deal->product->brand_name . "|" . $order->exclusive_deal->product->form . "|" . $order->exclusive_deal->product->strength;
         })->toArray();
-
 
         // // To connect the pair dynamic between the order quantity and the stock quantity 
         $insufficients = [];
@@ -135,6 +134,8 @@ class OrderController extends Controller
                 }
             }
         }
+
+        // dd($insufficients);
 
         // // Groups the non-suppliable by product-name
         // $insufficients = collect($insufficients)->groupBy(function ($pair) {
