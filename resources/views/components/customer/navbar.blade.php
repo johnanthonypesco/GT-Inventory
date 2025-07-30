@@ -55,7 +55,7 @@
 
             <div class="mb-4">
                 <label for="comment" class="block text-gray-700 mb-2">Your Feedback</label>
-                <textarea name="comment" id="comment" rows="4" class="w-full p-2 border rounded-md" placeholder="Tell us what you liked or what could be improved..."></textarea>
+                <textarea name="comment" id="comment" rows="4" required class="w-full p-2 border rounded-md" placeholder="Tell us what you liked or what could be improved..."></textarea>
             </div>
 
             <div class="mb-6">
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 successMessage.classList.remove('hidden');
                 setTimeout(() => modal.classList.add('hidden'), 2000);
             } else {
-                alert('Something went wrong. Please try again.');
+                alert('Dont forget the stars!');
             }
         })
         .catch(err => {
