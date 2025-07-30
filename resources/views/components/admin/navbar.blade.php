@@ -15,10 +15,10 @@
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-boxes-stacked text-[#005382] text-sm {{ request()->is('admin/inventory') ? 'text-white' : ''  }}"></i><span class="sm:hidden lg:inline-block">Inventory</span>
 
             </a>
-            <a href="{{ route('admin.sales') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-print text-[#005382] text-sm"></i>
-                <span class="sm:hidden lg:inline-block">Sales Report</span>
-
+            
+            <a href="{{ route('admin.sales') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/sales*') ? 'active' : '' }}">
+                <i class="fa-solid fa-print sm:text-2xl lg:text-sm text-sm {{ request()->is('admin/sales*') ? 'text-white' : 'text-[#005382]' }}"></i>
+                <span class="sm:hidden lg:inline-block">Sales Reports</span>
             </a>
             
             <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/productlisting') ? 'active' : ''  }}">
@@ -35,10 +35,9 @@
                 @endif
             </a>
             
-            <a href="{{ route('superadmin.account.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-bars-progress text-[#005382] text-sm"></i>
+            <a href="{{ route('superadmin.account.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('manageaccounts*') ? 'active' : '' }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-bars-progress text-sm {{ request()->is('manageaccounts*') ? 'text-white' : 'text-[#005382]' }}"></i>
                 <span class="sm:hidden lg:inline-block">Manage Accounts</span>
-
             </a>
             
             <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }}">

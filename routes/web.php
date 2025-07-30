@@ -76,8 +76,17 @@ use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+// download apk for registration.
+use App\Http\Controllers\FileDownloadController;
 
+Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
+Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
 
+// Existing Route for Staff/Admin App
+Route::get('/download/app', [FileDownloadController::class, 'downloadApk'])->name('apk.download');
+
+// ✅ ADDED: New route for the Customer App download
+Route::get('/download/customer-app', [FileDownloadController::class, 'downloadCustomerApk'])->name('customer.apk.download');
 //////super admin archive route
 Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 Route::post('/superadmin/accounts/{role}/{id}/archive', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.archive');
@@ -97,7 +106,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
     Route::middleware(['auth:superadmin,admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
-        
+        Route::post('/admin/filtered-revenue', [App\Http\Controllers\Admin\DashboardController::class, 'getFilteredTotalRevenue'])->name('admin.filtered-revenue');
         //1///////////////////////// << INVENTORY ROUTES >> //////////////////////////////1//
         Route::get('admin/inventory/', [InventoryController::class, 'showInventory'])->name('admin.inventory');
         Route::post('admin/inventory/', [InventoryController::class, 'showInventoryLocation'])->name('admin.inventory.location');
@@ -160,7 +169,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::post('/manageaccounts', [SuperAdminAccountController::class, 'store'])->name('superadmin.account.store');
 
         Route::get('/manageaccounts/{role}/{id}/edit', [SuperAdminAccountController::class, 'edit'])->name('superadmin.account.edit');
-        Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
+        // Route::post('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
+        Route::put('/manageaccounts/{role}/{id}/update', [SuperAdminAccountController::class, 'update'])->name('superadmin.account.update');
 
         Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
 

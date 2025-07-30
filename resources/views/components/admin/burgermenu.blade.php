@@ -20,7 +20,7 @@
     @if (auth('superadmin')->check())
         <a href="{{ route('admin.inventory') }}" class="text-md {{ request()->is('admin/inventory') ? 'active' : ''  }}"><i class="fa-solid fa-boxes-stacked {{ request()->is('admin/inventory') ? 'text-white' : 'text-[#005382]'  }} text-md w-6"></i>Inventory</a>
 
-        <a href="{{ route('admin.sales') }}" class="text-md"><i class="fa-solid fa-print text-[#005382] text-md w-6"></i>Sales Reports</a>
+        <a href="{{ route('admin.sales') }}" class="text-md {{ request()->is('admin/sales*') ? 'active' : '' }}"><i class="fa-solid fa-print {{ request()->is('admin/sales*') ? 'text-white' : 'text-[#005382]' }} text-md w-6"></i>Sales Reports</a>
 
         <a href="{{ route('admin.order') }}" class="text-md {{ request()->is('admin/order') ? 'active' : ''  }}"><i class="fa-solid fa-cart-shopping {{ request()->is('admin/order') ? 'text-white' : 'text-[#005382]'  }} text-md w-6"></i>Orders</a>
 
@@ -32,7 +32,7 @@
                 </span>
             @endif
         </a>
-        <a href="{{ route('superadmin.account.index') }}" class="text-md whitespace-normal"><i class="fa-solid fa-bars-progress text-[#005382] text-md w-6"></i>Manage Account</a>
+        <a href="{{ route('superadmin.account.index') }}" class="text-md whitespace-normal {{ request()->is('manageaccounts*') ? 'active' : '' }}"><i class="fa-solid fa-bars-progress {{ request()->is('manageaccounts*') ? 'text-white' : 'text-[#005382]' }} text-md w-6"></i>Manage Account</a>
 
         <a href="{{ route('admin.productlisting') }}" class="text-md {{ request()->is('admin/productlisting') ? 'active' : ''  }}"><i class="fa-solid fa-list-check {{ request()->is('admin/productlisting') ? 'text-white' : 'text-[#005382]'  }} text-md w-6"></i>Product Deals</a>
 

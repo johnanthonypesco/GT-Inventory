@@ -53,6 +53,12 @@ class Conversation extends Model
             ->where('receiver_type', $userType)
             ->where('is_read', false);
     }
+    protected function filePath(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? asset($value) : null,
+        );
+    }
 
     /**
      * Mark messages as read for a specific conversation.
