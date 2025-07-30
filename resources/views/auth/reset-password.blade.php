@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
@@ -18,11 +19,11 @@
         <!-- Reset Password Form -->
         <form method="POST" action="{{ route($userType .'.password.store') }}" class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit bg-white">
             @csrf
-            <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">
+            <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-center">
                 “Reset Your Password <span class="font-light">Securely & Quickly</span>”
             </h1>
 
-            <p class="text-gray-600 text-center lg:text-left mt-3">
+            <p class="text-gray-600 text-center lg:text-center mt-3">
                 Enter your new password below to reset your credentials.
             </p>
 
@@ -47,15 +48,17 @@
             </div>
 
             <!-- New Password -->
-            <div class="mt-4">
+            <div class="mt-4 relative">
                 <label class="block text-[18px] text-[#005382]">New Password</label>
                 <input id="password" type="password" name="password" class="outline-none bg-white p-3 border rounded-lg w-full mt-2" required autocomplete="new-password">
+                <i onclick="showpassword()" id="eye-password" class="fa-solid fa-eye absolute right-5 top-[53px] cursor-pointer"></i>
             </div>
 
             <!-- Confirm Password -->
-            <div class="mt-4">
+            <div class="mt-4 relative">
                 <label class="block text-[18px] text-[#005382]">Confirm Password</label>
                 <input id="password_confirmation" type="password" name="password_confirmation" class="outline-none bg-white p-3 border rounded-lg w-full mt-2" required autocomplete="new-password">
+                <i onclick="showconfirmpassword()" id="eye-confirm-password" class="fa-solid fa-eye absolute right-5 top-[53px] cursor-pointer"></i>
             </div>
 
             <!-- Submit Button -->
@@ -63,9 +66,41 @@
 
             <!-- Back to Login Link -->
             <div class="text-center mt-4">
-                <a href="{{ route($userType === 'users' ? 'login' : $userType . '.login') }}" class="text-[#005382]/61">← Back to Login</a>
+                <a href="{{ route($userType === 'users' ? 'login' : $userType . '.login') }}" class="text-[#005382]/61 border-b-2 border-black">← Back to Login</a>
             </div>
         </form>
     </div>
 </body>
 </html>
+
+<script>
+    function showpassword() {
+        var password = document.getElementById('password');
+        var eye = document.getElementById('eye-password');
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            eye.classList.remove('fa-eye');
+            eye.classList.add('fa-eye-slash');
+        } else {
+            password.type = 'password';
+            eye.classList.remove('fa-eye-slash');
+            eye.classList.add('fa-eye');
+        }
+    }
+
+        function showconfirmpassword() {
+        var password = document.getElementById('password_confirmation');
+        var eye = document.getElementById('eye-confirm-password');
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            eye.classList.remove('fa-eye');
+            eye.classList.add('fa-eye-slash');
+        } else {
+            password.type = 'password';
+            eye.classList.remove('fa-eye-slash');
+            eye.classList.add('fa-eye');
+        }
+ }
+</script>
