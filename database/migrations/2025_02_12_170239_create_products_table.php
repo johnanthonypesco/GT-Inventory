@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -17,15 +18,8 @@ return new class extends Migration
             $table->string('brand_name')->nullable();
             $table->string('form');
             $table->string('strength');
-            $table->string('img_file_path')->nullable()->default('image/default-product-pic.png');
+            $table->string('img_file_path')->nullable();
             $table->timestamps();
-
-            $table->unique([
-                'generic_name',
-                'brand_name',
-                'form',
-                'strength',
-            ]);
         });
     }
 
