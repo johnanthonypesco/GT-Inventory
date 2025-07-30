@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ImmutableHistory; // ✅ ADDED: Import ImmutableHistory model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,52 +18,101 @@ class MobileOrderHistoryController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $orders = Order::where('user_id', $user->id)
-            ->whereIn('status', ['cancelled', 'delivered'])
+        // ✅ Step 1: Get active orders from the 'orders' table
+        $activeOrders = Order::where('user_id', $user->id)
             ->with('exclusive_deal.product')
-            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($order) {
-                // Safely get product details
                 $product = optional(optional($order->exclusive_deal)->product);
-
                 return [
                     'id' => $order->id,
                     'date_ordered' => $order->created_at,
                     'status' => ucfirst($order->status),
                     'quantity' => $order->quantity,
                     'total' => $order->quantity * optional($order->exclusive_deal)->price,
-                    // The product data is now included directly for the list view if needed,
-                    // but more importantly, it's structured for the details view.
                     'exclusive_deal' => $order->exclusive_deal ? [
-                        'id' => $order->exclusive_deal->id,
                         'price' => $order->exclusive_deal->price,
                         'product' => [
                             'brand_name' => $product->brand_name,
                             'generic_name' => $product->generic_name,
                             'form' => $product->form,
                             'strength' => $product->strength,
-                            // ✅ Use the 'image_url' from the Product model's accessor
-                            'image_url' => $product->image_url, 
+                            'image_url' => $product->image_url,
                         ]
                     ] : null,
                 ];
             });
 
+        // ✅ Step 2: Get historical orders from the 'immutable_histories' table
+        $historicalOrders = ImmutableHistory::where('employee', $user->name) // Assuming employee name matches user name
+            ->get()
+            ->map(function ($history) {
+                 // Create a structure that matches the 'Order' model's output
+                return [
+                    'id' => $history->order_id, // Use the original order_id
+                    'date_ordered' => $history->date_ordered,
+                    'status' => ucfirst($history->status),
+                    'quantity' => $history->quantity,
+                    'total' => $history->subtotal,
+                    'exclusive_deal' => [ // Reconstruct the product details
+                        'price' => $history->price,
+                        'product' => [
+                            'brand_name' => $history->brand_name,
+                            'generic_name' => $history->generic_name,
+                            'form' => $history->form,
+                            'strength' => null, // Assuming strength is not in this table
+                            'image_url' => null, // No image in history, frontend should handle null
+                        ]
+                    ],
+                ];
+            });
+
+        // ✅ Step 3: Merge the two collections and sort by date
+        $allOrders = $activeOrders->merge($historicalOrders)->sortByDesc('date_ordered')->values();
+
         return response()->json([
             'success' => true,
-            'orders' => $orders
+            'orders' => $allOrders
         ]);
     }
 
     public function getOrderDetails($orderId)
     {
         $user = Auth::user();
-
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
+        // ✅ UPDATED: First, check the ImmutableHistory table for the order
+        $history = ImmutableHistory::where('order_id', $orderId)
+            // ->where('employee', $user->name) // Add this if you need to scope by user
+            ->first();
+
+        if ($history) {
+            // If found in history, format and return its data
+            return response()->json([
+                'success' => true,
+                'order' => [
+                    'id' => $history->order_id,
+                    'date_ordered' => $history->date_ordered,
+                    'status' => ucfirst($history->status),
+                    'quantity' => $history->quantity,
+                    'total' => $history->subtotal,
+                    'exclusive_deal' => [
+                        'price' => $history->price,
+                        'product' => [
+                            'brand_name' => $history->brand_name,
+                            'generic_name' => $history->generic_name,
+                            'form' => $history->form,
+                            'strength' => null,
+                            'image_url' => null,
+                        ]
+                    ],
+                ]
+            ]);
+        }
+        
+        // If not in history, check the active Orders table
         $order = Order::where('user_id', $user->id)
             ->where('id', $orderId)
             ->with('exclusive_deal.product')
@@ -72,9 +122,8 @@ class MobileOrderHistoryController extends Controller
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
         
-        // Safely get product details
+        // Format and return data from the Order model
         $product = optional(optional($order->exclusive_deal)->product);
-
         return response()->json([
             'success' => true,
             'order' => [
@@ -84,14 +133,12 @@ class MobileOrderHistoryController extends Controller
                 'quantity' => $order->quantity,
                 'total' => $order->quantity * optional($order->exclusive_deal)->price,
                 'exclusive_deal' => $order->exclusive_deal ? [
-                    'id' => $order->exclusive_deal->id,
                     'price' => $order->exclusive_deal->price,
                     'product' => [
                         'brand_name' => $product->brand_name,
                         'generic_name' => $product->generic_name,
                         'form' => $product->form,
                         'strength' => $product->strength,
-                        // ✅ Use the 'image_url' from the Product model's accessor
                         'image_url' => $product->image_url,
                     ]
                 ] : null,

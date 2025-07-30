@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Mobile;
 
 use Log;
-use App\Models\User;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\ExclusiveDeal;
@@ -12,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MobileOrderController extends Controller
 {
+    // ... (storeOrder and index methods are unchanged) ...
     public function storeOrder(Request $request)
     {
         \Log::info("📌 Request Data:", $request->all());
@@ -47,11 +47,11 @@ class MobileOrderController extends Controller
                 'user_id' => $user->id,
                 'exclusive_deal_id' => $item['exclusive_deal_id'],
                 'quantity' => $item['quantity'],
-                'date_ordered' => now()->toDateString(), // Keep for record-keeping if needed
-                'status' => 'pending', // Default status
+                'date_ordered' => now()->toDateString(), 
+                'status' => 'pending',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ];    
+            ];      
         }
     
         try {
@@ -80,8 +80,6 @@ class MobileOrderController extends Controller
             ], 401);
         }
     
-        // The manual 'foreach' loop is removed. 
-        // The accessor in your Product model now handles the image URL automatically.
         $deals = ExclusiveDeal::where('company_id', $user->company_id)
             ->with(['product' => function ($query) {
                 $query->select('id', 'brand_name', 'generic_name', 'form', 'strength', 'img_file_path');
@@ -105,10 +103,9 @@ class MobileOrderController extends Controller
         \Log::info("✅ Fetching orders for user:", ['user_id' => $user->id]);
 
         $orders = Order::where('user_id', $user->id)
-            // ✅ BINAGO: Sinapala ang listahan para ipakita lang ang 'pending' at 'packed' na orders.
-            ->whereIn('status', ['pending', 'packed']) 
+            // ✅ UPDATED: Added 'out for delivery' to the query
+            ->whereIn('status', ['pending', 'packed', 'out for delivery']) 
             ->with(['exclusive_deal.product'])
-            // ✅ BINAGO: Inayos ang pag-sort para base sa 'created_at' (pinakabago una)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -118,9 +115,9 @@ class MobileOrderController extends Controller
 
             return [
                 'orderId' => $order->id,
-                'created_at' => $order->created_at->toIso8601String(), // ISO 8601 format for JS Date object
+                'created_at' => $order->created_at->toIso8601String(),
                 'totalAmount' => '₱' . number_format($order->quantity * ($exclusiveDeal->price ?? 0), 2),
-                'status' => ucfirst($order->status),
+                'status' => ucfirst(str_replace('-', ' ', $order->status)), // Formats 'out-for-delivery' to 'Out for delivery'
                 'items' => [
                     [
                         'brand' => $product->brand_name ?? 'Unknown',

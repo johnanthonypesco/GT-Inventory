@@ -101,7 +101,7 @@ class ProductlistingController extends Controller
             'locations' => $locations,
             'dealsDB'   => $dealsDB,
             
-            'products'  => Product::all(),
+            'products'  => Product::all()->sortBy('generic_name'),
             'companySearchSuggestions' => Company::get("name"),
 
             'current_search' => [

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AIGeneratedExecutiveSummary;
 use App\Models\Admin;
 use App\Models\Conversation;
+use App\Models\ImmutableHistory;
 use App\Models\Inventory;
 use App\Models\Location;
 use App\Models\Order;
@@ -86,57 +87,53 @@ class DashboardController extends Controller
             $adminsidebar_counter = $unreadMessagesStaff;
         }
         
-        // --- START NG MGA PAGBABAGO ---
+        // Direct database queries without caching
+        $totalOrders = ImmutableHistory::where('status', 'delivered')->count();
+        $cancelledOrders = ImmutableHistory::where('status', 'cancelled')->count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $totalRevenue = ImmutableHistory::where('status', 'delivered')
+        ->sum(DB::raw('quantity * price'));
 
-        // I-cache ang mga mabibigat na query. Mag-e-expire ito sa loob ng isang oras,
-        // o kapag may bagong order (dahil sa Observer na gagawin natin sa Step 2).
-        $cacheDuration = now()->addHour();
 
-        $totalOrders = Cache::remember('dashboard.total_orders', $cacheDuration, fn() => Order::where('status', 'delivered')->count());
-        $pendingOrders = Cache::remember('dashboard.pending_orders', $cacheDuration, fn() => Order::where('status', 'pending')->count());
-        $cancelledOrders = Cache::remember('dashboard.cancelled_orders', $cacheDuration, fn() => Order::where('status', 'cancelled')->count());
-        $totalRevenue = Cache::remember('dashboard.total_revenue', $cacheDuration, fn() => 
-            Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->where('orders.status', 'delivered')->sum(DB::raw('orders.quantity * exclusive_deals.price'))
-        );
+        // Base delivered-sum query builder (PARA SA ORDERED PRODUCTS PERFORMANCE):
+        $baseQuery = ImmutableHistory::query()
+            ->where('status', 'delivered')
+            ->select(
+                'generic_name',
+                DB::raw('SUM(quantity) as total_quantity')
+            )
+            ->groupBy('generic_name');
 
-        $mostSoldProducts = Cache::remember('dashboard.most_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')
-                ->groupBy('products.generic_name')->orderBy('total_quantity', 'DESC')->limit(6)->get();
-        });
+        // 1. Most sold (top 6):
+        $mostSoldProducts = (clone $baseQuery)
+            ->orderByDesc('total_quantity')
+            ->limit(6)
+            ->get();
 
-        $lowSoldProductsQuery = Cache::remember('dashboard.low_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '<=', 10)
-                ->orderBy('total_quantity', 'ASC')->limit(6)->get();
-        });
+        // 2. Low sold (<= 10, bottom 6):
+        $lowSoldProducts = (clone $baseQuery)
+            ->having('total_quantity', '<=', 10)
+            ->orderBy('total_quantity', 'asc')
+            ->limit(6)
+            ->get();
 
-        $moderateSoldProducts = Cache::remember('dashboard.moderate_sold_products', $cacheDuration, function () {
-            return Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-                ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(orders.quantity) as total_quantity'))
-                ->where('orders.status', 'delivered')->groupBy('products.generic_name')->having('total_quantity', '>', 10)
-                ->having('total_quantity', '<=', 50)->orderBy('total_quantity', 'DESC')->limit(6)->get();
-        });
+        // 3. Moderate sold (> 10 & <= 50, top 6 among those):
+        $moderateSoldProducts = (clone $baseQuery)
+            ->having('total_quantity', '>', 10)
+            ->having('total_quantity', '<=', 50)
+            ->orderByDesc('total_quantity')
+            ->limit(6)
+            ->get();
         
-        $lowStockProductsList = Cache::remember('dashboard.low_stock_products', $cacheDuration, function () {
-             return Inventory::join('products', 'inventories.product_id', '=', 'products.id')
-                ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
-                ->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->get();
-        });
+        $lowStockProductsList = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
+            ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
+            ->groupBy('products.generic_name')->having('total_quantity', '<=', 50)->get();
         
-        // --- END NG MGA PAGBABAGO ---
+        $labels = $mostSoldProducts->pluck('generic_name')->toArray(); // most sold
+        $data = $mostSoldProducts->pluck('total_quantity')->toArray(); // most sold
 
-        $labels = $mostSoldProducts->pluck('generic_name')->toArray();
-        $data = $mostSoldProducts->pluck('total_quantity')->toArray();
-
-        $lowSoldLabels = $lowSoldProductsQuery->pluck('generic_name')->toArray();
-        $lowSoldData = $lowSoldProductsQuery->pluck('total_quantity')->toArray();
+        $lowSoldLabels = $lowSoldProducts->pluck('generic_name')->toArray();
+        $lowSoldData = $lowSoldProducts->pluck('total_quantity')->toArray();
 
         $moderateSoldLabels = $moderateSoldProducts->pluck('generic_name')->toArray();
         $moderateSoldData = $moderateSoldProducts->pluck('total_quantity')->toArray();
@@ -393,14 +390,14 @@ PROMPT;
         ];
     }
 
-    public function getInventoryLevels($locationId = null)
+    public function getInventoryLevels($location = null)
     {
         $query = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
             ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'));
 
         // If a locationId is provided and is not null/empty, filter the query.
-        if ($locationId) {
-            $query->where('inventories.location_id', $locationId);
+        if ($location) {
+            $query->where('inventories.location_id', $location);
         }
 
         $inventoryData = $query->groupBy('products.generic_name')
@@ -414,34 +411,33 @@ PROMPT;
         ]);
     }
 
-    public function getFilteredDeductedQuantities($year, $month, $locationId = null)
+    public function getFilteredDeductedQuantities($year, $month, $location = null)
     {
-        $deductedQuery = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-            ->join('products', 'exclusive_deals.product_id', '=', 'products.id')
-            ->where('orders.status', 'delivered')
-            ->whereYear('orders.updated_at', $year)
-            ->whereMonth('orders.updated_at', $month);
+        $query = ImmutableHistory::query()
+        ->where('status', 'delivered')
+        ->whereYear('updated_at', $year)
+        ->whereMonth('updated_at', $month);
 
-        if ($locationId) {
-            // This assumes a relationship exists that can link an order to a location.
-            // A more direct link might be needed if this is too slow or inaccurate.
-            $deductedQuery->whereHas('exclusiveDeal.product.inventories', function($q) use ($locationId) {
-                $q->where('location_id', $locationId);
-            });
+        // if you need to filter by province (or company/location), adjust this
+        if ($location) {
+            // assuming $location is a province name or ID column on your flat table
+            $query->where('province', $location);
+            // or if you have province_id: ->where('province_id', $location);
         }
 
-        $deductedQuantities = $deductedQuery->select(
-                'products.generic_name',
-                DB::raw('SUM(orders.quantity) as total_deducted')
+        $deductedQuantities = $query
+            ->select(
+                'generic_name',
+                DB::raw('SUM(quantity) as total_deducted')
             )
-            ->groupBy('products.generic_name')
-            ->orderBy('total_deducted', 'DESC')
+            ->groupBy('generic_name')
+            ->orderByDesc('total_deducted')
             ->limit(10)
             ->get();
 
         return response()->json([
-            'labels' => $deductedQuantities->pluck('generic_name'),
-            'deductedData' => $deductedQuantities->pluck('total_deducted')
+            'labels'      => $deductedQuantities->pluck('generic_name'),
+            'deductedData'=> $deductedQuantities->pluck('total_deducted'),
         ]);
     }
 
@@ -451,73 +447,116 @@ PROMPT;
             return response()->json(['error' => 'Invalid period'], 400);
         }
 
-        $query = Order::join('exclusive_deals', 'orders.exclusive_deal_id', '=', 'exclusive_deals.id')
-            ->where('orders.status', 'delivered')
-            ->whereYear('orders.date_ordered', $year);
+        // Base query on flat history table:
+        $query = ImmutableHistory::query()
+            ->where('status', 'delivered')
+            ->whereYear('date_ordered', $year);
 
         switch ($period) {
             case 'day':
-                if (!$month) return response()->json(['error' => 'Month required for daily data'], 400);
-                $query->whereMonth('orders.date_ordered', $month)
-                    ->select(DB::raw('DAY(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
-                    ->groupBy('period_value')->orderBy('period_value');
+                if (!$month) {
+                    return response()->json(['error' => 'Month required for daily data'], 400);
+                }
+                $query->whereMonth('date_ordered', $month)
+                    ->select([
+                        DB::raw('DAY(date_ordered) as period_value'),
+                        DB::raw('SUM(quantity * price) as total_revenue')
+                    ])
+                    ->groupBy('period_value')
+                    ->orderBy('period_value');
                 break;
+
             case 'week':
-                 if (!$month) return response()->json(['error' => 'Month required for weekly data'], 400);
-                 $query->whereMonth('orders.date_ordered', $month)
-                    ->select(DB::raw('WEEK(orders.date_ordered, 1) - WEEK(DATE_FORMAT(orders.date_ordered, "%Y-%m-01"), 1) + 1 as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
-                    ->groupBy('period_value')->orderBy('period_value');
+                if (!$month) {
+                    return response()->json(['error' => 'Month required for weekly data'], 400);
+                }
+                // calculate week-of-month: week(date) - week(first day) + 1
+                $query->whereMonth('date_ordered', $month)
+                    ->select([
+                        DB::raw('WEEK(date_ordered, 1) - WEEK(DATE_FORMAT(date_ordered, "%Y-%m-01"), 1) + 1 as period_value'),
+                        DB::raw('SUM(quantity * price) as total_revenue')
+                    ])
+                    ->groupBy('period_value')
+                    ->orderBy('period_value');
                 break;
+
             case 'month':
-                $query->select(DB::raw('MONTH(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
-                    ->groupBy('period_value')->orderBy('period_value');
+                $query->select([
+                        DB::raw('MONTH(date_ordered) as period_value'),
+                        DB::raw('SUM(quantity * price) as total_revenue')
+                    ])
+                    ->groupBy('period_value')
+                    ->orderBy('period_value');
                 break;
+
             case 'year':
-                 $query->select(DB::raw('YEAR(orders.date_ordered) as period_value'), DB::raw('SUM(orders.quantity * exclusive_deals.price) as total_revenue'))
-                    ->groupBy('period_value')->orderBy('period_value');
+                $query->select([
+                        DB::raw('YEAR(date_ordered) as period_value'),
+                        DB::raw('SUM(quantity * price) as total_revenue')
+                    ])
+                    ->groupBy('period_value')
+                    ->orderBy('period_value');
                 break;
+
+            default:
+                return response()->json(['error' => 'Invalid period'], 400);
         }
 
-        $data = $query->get()->keyBy('period_value');
+        // Execute and key by the period value
+        $rawData = $query->get()->keyBy('period_value');
+        $valueMap = $rawData->pluck('total_revenue', 'period_value')->toArray();
+
+        // Build full label/value arrays so missing periods show zero
         $labels = [];
         $values = [];
-        $valueMap = $data->pluck('total_revenue', 'period_value')->toArray();
 
         switch ($period) {
             case 'day':
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-                for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $labels[] = date('M j', mktime(0, 0, 0, $month, $day, $year));
-                    $values[] = $valueMap[$day] ?? 0;
+                for ($d = 1; $d <= $daysInMonth; $d++) {
+                    $labels[] = date('M j', mktime(0, 0, 0, $month, $d, $year));
+                    $values[] = $valueMap[$d] ?? 0;
                 }
                 break;
+
             case 'week':
-                $date = new \DateTime("$year-$month-01");
-                $weeksInMonth = ceil(($date->format('t') + $date->format('N')) / 7);
-                for ($weekNum = 1; $weekNum <= $weeksInMonth; $weekNum++) {
-                    $labels[] = "Week " . $weekNum;
-                    $values[] = $valueMap[$weekNum] ?? 0;
+                $firstOfMonth = new \DateTime("$year-$month-01");
+                $daysInMonth = (int)$firstOfMonth->format('t');
+                // total weeks = ceil((daysInMonth + startWeekdayOffset) / 7)
+                $startWeekday = (int)$firstOfMonth->format('N'); // 1 (Mon) to 7 (Sun)
+                $weeksInMonth = (int)ceil(($daysInMonth + ($startWeekday - 1)) / 7);
+                for ($w = 1; $w <= $weeksInMonth; $w++) {
+                    $labels[] = "Week $w";
+                    $values[] = $valueMap[$w] ?? 0;
                 }
                 break;
+
             case 'month':
-                $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                for ($monthNum = 1; $monthNum <= 12; $monthNum++) {
-                    $labels[] = $monthNames[$monthNum - 1];
-                    $values[] = $valueMap[$monthNum] ?? 0;
+                $monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                for ($m = 1; $m <= 12; $m++) {
+                    $labels[] = $monthNames[$m - 1];
+                    $values[] = $valueMap[$m] ?? 0;
                 }
                 break;
+
             case 'year':
-                $startYear = Order::min(DB::raw('YEAR(date_ordered)')) ?? $year;
+                // find earliest year in data for full range
+                $startYear = ImmutableHistory::min(DB::raw('YEAR(date_ordered)')) ?? $year;
                 for ($y = $startYear; $y <= $year; $y++) {
-                    $labels[] = $y;
+                    $labels[] = (string)$y;
                     $values[] = $valueMap[$y] ?? 0;
                 }
                 break;
         }
 
-        return response()->json(['labels' => $labels, 'values' => $values]);
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values
+        ]);
     }
 
+    // ETO JM HINDI KO ALAM AYUSIN TRENDS & DATA NETO CHART
+    // - Seagray
     public function getTrendingProducts(Request $request)
     {
         // Suppress ONLY_FULL_GROUP_BY errors for this complex query
@@ -626,4 +665,6 @@ PROMPT;
             'predicted_peaks' => $predictedPeaks
         ]);
     }
+    // ETO JM HINDI KO ALAM AYUSIN TRENDS & DATA NETO CHART
+    // - Seagray
 }

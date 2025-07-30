@@ -135,6 +135,11 @@
             </h1>
 
             <div class="flex flex-wrap justify-between items-center">
+                    @php
+                        $uniqueProducts = $products->unique(function ($product) {
+                            return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;
+                        });
+                    @endphp
 
                     {{-- Search --}}
                     <x-input name="search"
@@ -143,7 +148,7 @@
                     divclass="w-full lg:w-[40%] bg-white relative rounded-lg"
                     id="search-stock-{{$provinceName}}"
                     searchType="stock"
-                    :dataList="$products"
+                    :dataList="$uniqueProducts"
                     :autofill="true"
                     :location_filter="$provinceName"
                     :currentSearch="$currentSearch['type'] === 'stock' ? $currentSearch['query'] : '' "/>
@@ -206,7 +211,7 @@
                     divclass="w-full lg:w-[100%] bg-white relative rounded-lg"
                     id="search-product"
                     searchType="product"
-                    :dataList="$products"
+                    :dataList="$uniqueProducts"
                     :autofill="true"
                     :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
                 </div>

@@ -28,9 +28,12 @@ class MobileDashboardController extends Controller
         $stats = [
             'total' => $allUserOrders->count(),
             'pending' => $allUserOrders->whereIn('status', ['pending', 'Pending'])->count(),
-            'confirmed' => $allUserOrders->whereIn('status', ['confirmed', 'Confirmed'])->count(),
-            'delivered' => $allUserOrders->whereIn('status', ['delivered', 'Delivered', 'Completed', 'completed'])->count(),
+            // ✅ CHANGED: 'delivered' now counts completed/delivered orders for the "Delivered Orders" card.
+            'delivered' => $allUserOrders->whereIn('status', ['delivered', 'Delivered', 'completed', 'Completed'])->count(),
+            // ✅ ADDED: New 'out_for_delivery' status for the "Out for Delivery" card.
+            'out_for_delivery' => $allUserOrders->whereIn('status', ['out for delivery', 'Out for Delivery'])->count(),
             'cancelled' => $allUserOrders->whereIn('status', ['cancelled', 'Cancelled'])->count(),
+            // The 'confirmed' key is no longer needed.
         ];
         
         // --- Recent Orders (Last 5) ---

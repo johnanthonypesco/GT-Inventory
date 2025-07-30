@@ -23,6 +23,8 @@
             <a href="#about" class="lg:mr-12 font-semibold hover:text-[#0097D3]">About Us</a>
             <a href="#products" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Products</a>
             <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</a>
+            
+            <a href="{{ route('beta.register') }}" class="bg-red-600 animate-pulse w-fit px-5 py-2 rounded-lg font-semibold text-white">Join The Beta Test Program</a>
         </nav>
 
         <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>

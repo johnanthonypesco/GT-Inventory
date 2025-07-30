@@ -18,17 +18,25 @@ class MobileStaffOrdersController extends Controller
 {
     /**
      * Get all active orders and summary counts for the staff mobile app.
-     * (No changes needed in this method)
      */
     public function index()
     {
         try {
-            // 1. Get current stock levels
+            // 1. Get current stock levels (including expired items)
             $currentStocks = Inventory::with("product")
-                ->where('expiry_date', '>=', now()->toDateString())
                 ->get()
-                ->groupBy(fn($stock) => optional($stock->product)->generic_name . "|" . optional($stock->product)->brand_name)
-                ->map->sum('quantity');
+                ->groupBy(function ($stock) {
+                    return optional($stock->product)->generic_name . "|" . optional($stock->product)->brand_name;
+                })
+                ->map(function ($productStocks) {
+                    $nonExpired = $productStocks->where('expiry_date', '>=', now());
+
+                    if ($nonExpired->isEmpty()) {
+                        return 'expired';
+                    }
+
+                    return $nonExpired->sum('quantity');
+                });
 
             // 2. Get active orders
             $allActiveOrders = Order::with(['user.company.location', 'exclusive_deal.product'])
@@ -36,7 +44,7 @@ class MobileStaffOrdersController extends Controller
                 ->orderBy('date_ordered', 'desc')
                 ->get();
 
-            // 3. Process orders
+            // 3. Process orders and identify insufficient ones
             $processedOrders = $allActiveOrders->map(function ($order) use ($currentStocks) {
                 $productKey = optional($order->exclusive_deal->product)->generic_name . "|" . optional($order->exclusive_deal->product)->brand_name;
                 $provinceKey = optional($order->user->company->location)->province ?? 'Uncategorized';
@@ -44,7 +52,8 @@ class MobileStaffOrdersController extends Controller
                 $userDateKey = (optional($order->user)->name ?? 'Unknown User') . '|' . Carbon::parse($order->date_ordered)->toDateString();
 
                 $order->available_stock = $currentStocks->get($productKey, 0);
-                $order->is_insufficient = $order->available_stock < $order->quantity;
+                $order->is_insufficient = ($order->available_stock === 'expired' || 
+                                          (is_numeric($order->available_stock) && $order->available_stock < $order->quantity));
 
                 $order->grouping_keys = [
                     'province' => $provinceKey,
@@ -55,36 +64,75 @@ class MobileStaffOrdersController extends Controller
                 return $order;
             });
 
-            // 4. Calculate Summary Counts
+            // 4. Group insufficient orders by product for summary
+            // MODIFIED: Exclude items that are insufficient only because stock is zero.
+            // We only want to show EXPIRED items or LOW STOCK items (stock > 0 but < ordered).
+            $insufficientOrders = $processedOrders->filter(function ($order) {
+                return $order->is_insufficient && $order->available_stock != 0;
+            });
+            
+            $insufficientSummary = $insufficientOrders
+                ->groupBy(function($order) {
+                    return optional($order->exclusive_deal->product)->generic_name . "|" . 
+                           optional($order->exclusive_deal->product)->brand_name;
+                })
+                ->map(function($orders, $productName) use ($currentStocks) {
+                    $available = $currentStocks->get($productName, 0);
+                    $totalOrdered = $orders->sum('quantity');
+                    
+                    return [
+                        'product' => $productName,
+                        'available' => $available,
+                        'ordered' => $totalOrdered,
+                    ];
+                });
+            
+            $insufficientOrderLines = $insufficientOrders
+                ->map(function ($order) {
+                    return [
+                        'date_ordered' => Carbon::parse($order->date_ordered)->toIso8601String(),
+                        'company' => optional($order->user->company)->name ?? 'Unknown',
+                        'employee' => optional($order->user)->name ?? 'Unknown User',
+                        'generic_name' => optional($order->exclusive_deal->product)->generic_name ?? 'N/A',
+                        'brand_name' => optional($order->exclusive_deal->product)->brand_name ?? 'N/A',
+                        'available' => $order->available_stock,
+                        'ordered' => $order->quantity,
+                    ];
+                })->values();
+
+            // 5. Calculate Summary Counts
             $summary = [
                 'ordersThisWeek' => Order::whereBetween('date_ordered', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
                 'pendingOrders' => $processedOrders->where('status', 'pending')->count(),
-                'insufficientOrders' => $processedOrders->where('is_insufficient', true)->count(),
-                'insufficientProducts' => $processedOrders->where('is_insufficient', true)->unique(fn ($o) => optional($o->exclusive_deal->product)->generic_name . "|" . optional($o->exclusive_deal->product)->brand_name)->count(),
+                'insufficientOrders' => $insufficientOrderLines->count(),
+                'insufficientProducts' => $insufficientSummary->count(),
+                'insufficientSummary' => $insufficientSummary->values()->all(),
+                'insufficientOrderLines' => $insufficientOrderLines,
             ];
 
-            // 5. Group orders
+            // 6. Group orders
             $ordersByProvince = $processedOrders
                 ->groupBy('grouping_keys.province')
                 ->map(fn($provinces) => $provinces->groupBy('grouping_keys.company')
                     ->map(fn($companies) => $companies->groupBy('grouping_keys.user_date')
-                        ->map->values()
+                        ->map(fn($userDateGroup) => $userDateGroup->values())
                     )
                 );
 
-            // 6. Return response
             return response()->json([
                 'summary' => $summary,
                 'ordersByProvince' => $ordersByProvince,
             ]);
+            
         } catch (\Exception $e) {
             Log::error('MobileStaffOrdersController Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'An error occurred while fetching orders.', 'error' => 'Server Error'], 500);
         }
     }
 
+
     /**
-     * [NEW] Get available staff for a specific order's location.
+     * Get available staff for a specific order's location.
      */
     public function getAvailableStaff(Order $order)
     {
@@ -108,7 +156,7 @@ class MobileStaffOrdersController extends Controller
 
 
     /**
-     * [MODIFIED] Update the status of an order, now with staff assignment and stock deduction.
+     * Update the status of an order, now with staff assignment and stock deduction.
      */
     public function updateStatus(Request $request, Order $order)
     {

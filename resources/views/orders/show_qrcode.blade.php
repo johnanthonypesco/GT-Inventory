@@ -65,6 +65,7 @@
                         <p><strong>Product:</strong> {{ $deal->product->generic_name }}</p>
                         <p><strong>Brand:</strong> {{ $deal->product->brand_name }}</p>
                         <p><strong>Form:</strong> {{ $deal->product->form }}</p>
+                        <p><strong>Strength:</strong> {{ $deal->product->strength }}</p>
                         <p><strong>Quantity:</strong> {{ $order->quantity }}</p>
                         <p><strong>Unit Price:</strong> ₱{{ number_format($unitPrice, 2) }}</p>
                         <p class="font-bold text-lg mt-2"><strong>Total Price:</strong> ₱{{ number_format($totalPrice, 2) }}</p>

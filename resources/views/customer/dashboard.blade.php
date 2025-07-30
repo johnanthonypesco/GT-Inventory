@@ -27,10 +27,10 @@
                 $cards = [
                     ['label' => 'Total Orders', 'count' => $totalorder, 'icon' => 'fa-list', 'bg' => 'bg-gray-100', 'text' => 'text-gray-600'],
                     ['label' => 'Pending Orders', 'count' => $pendingorder, 'icon' => 'fa-clock', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-600'],
-                    ['label' => 'Confirmed Orders', 'count' => $confirmedorder, 'icon' => 'fa-check', 'bg' => 'bg-blue-100', 'text' => 'text-blue-600'],
+                    ['label' => 'Packed Orders', 'count' => $packedOrder, 'icon' => 'fa-check', 'bg' => 'bg-blue-100', 'text' => 'text-blue-600'],
                     ['label' => 'Out for Delivery', 'count' => $outfordelivery, 'icon' => 'fa-truck', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-600'],
                     ['label' => 'Cancelled Orders', 'count' => $cancelledorder, 'icon' => 'fa-times', 'bg' => 'bg-red-100', 'text' => 'text-red-600'],
-                    ['label' => 'Completed Orders', 'count' => $completedorder, 'icon' => 'fa-check-double', 'bg' => 'bg-green-100', 'text' => 'text-green-600'],
+                    ['label' => 'Delivered Orders', 'count' => $deliveredOrder, 'icon' => 'fa-check-double', 'bg' => 'bg-green-100', 'text' => 'text-green-600'],
                 ];
             @endphp
 

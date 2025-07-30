@@ -112,7 +112,7 @@ class InventoryController extends Controller
         
 
         return view('admin.inventory', [
-            'products' => Product::all(),
+            'products' => Product::all()->sortBy('generic_name'),
 
             // if the user searches in the registered products table, it will provide the data from the searched result instead
             'registeredProducts' => $search_type === 'product' ? $form_data : Product::query()
@@ -468,6 +468,7 @@ class InventoryController extends Controller
             'generic_name' => $productDeets["generic_name"],
             'brand_name' => $productDeets["brand_name"],
             'form' => $productDeets["form"],
+            'strength' => $productDeets["strength"],
             'quantity' => $orderArchiveArray["quantity"],
             'price' => $productPrice,
             'subtotal' => $productPrice * $orderArchiveArray["quantity"],
@@ -622,6 +623,7 @@ class InventoryController extends Controller
             'generic_name' => $productDeets["generic_name"],
             'brand_name' => $productDeets["brand_name"],
             'form' => $productDeets["form"],
+            'strength' => $productDeets["strength"],
             'quantity' => $orderArchiveArray["quantity"],
             'price' => $productPrice,
             'subtotal' => $productPrice * $orderArchiveArray["quantity"],
