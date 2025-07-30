@@ -91,10 +91,10 @@ class OrderController extends Controller
         });
 
 
-    $currentStocks = Inventory::with("product")
+    $currentStocks = Inventory::with(["product", "location"])
     ->get()
     ->groupBy(function ($stock) {
-        return $stock->product->generic_name . "|" . $stock->product->brand_name . "|" . $stock->product->form . "|" . $stock->product->strength;
+        return $stock->product->generic_name . "|" . $stock->product->brand_name . "|" . $stock->product->form . "|" . $stock->product->strength . "|" . $stock->location->province;
     })
     ->map(function ($productStocks) {
         $nonExpired = $productStocks->where('expiry_date', '>=', now());
@@ -105,9 +105,9 @@ class OrderController extends Controller
 
         return $nonExpired->sum('quantity');
     });
-        
+    // dd($currentStocks);
         // To get only the orders grouped by name
-        $orderArray = Order::with(['user.company', 'exclusive_deal.product']) 
+        $orderArray = Order::with(['user.company.location', 'exclusive_deal.product']) 
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
         ->get()
@@ -115,7 +115,7 @@ class OrderController extends Controller
             if (!$order->exclusive_deal || !$order->exclusive_deal->product) {
                 return 'Unknown Product';
             }
-            return $order->exclusive_deal->product->generic_name. "|" . $order->exclusive_deal->product->brand_name . "|" . $order->exclusive_deal->product->form . "|" . $order->exclusive_deal->product->strength;
+            return $order->exclusive_deal->product->generic_name. "|" . $order->exclusive_deal->product->brand_name . "|" . $order->exclusive_deal->product->form . "|" . $order->exclusive_deal->product->strength . "|" . $order->user->company->location->province;
         })->toArray();
 
         // // To connect the pair dynamic between the order quantity and the stock quantity 
@@ -135,7 +135,7 @@ class OrderController extends Controller
             }
         }
 
-        // dd($insufficients);
+        // dd($currentStocks);
 
         // // Groups the non-suppliable by product-name
         // $insufficients = collect($insufficients)->groupBy(function ($pair) {
@@ -189,6 +189,7 @@ class OrderController extends Controller
                 'ordered' => $totalOrdered,
             ];
         });
+
 
         return view('admin.order', [
             'provinces' => $provinces,

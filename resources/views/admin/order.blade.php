@@ -215,7 +215,7 @@
                                                     
                                                     $productInfo = $order->exclusive_deal->product;
 
-                                                    $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name . "|" . $productInfo->form . "|" . $productInfo->strength;
+                                                    $keyWord = $productInfo->generic_name . "|" . $productInfo->brand_name . "|" . $productInfo->form . "|" . $productInfo->strength . "|" . $provinceName;
 
                                                     $currentStock = $stocksAvailable[$keyWord] ?? 0;
                                                     $isExpired = $currentStock === 'expired';                                                  
@@ -457,7 +457,7 @@
 
     {{-- FOR ACTION MAPS --}}
     <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
-        <div class="modal bg-white w-full md:w-[60%] mx-auto p-5 rounded-lg relative shadow-lg">
+        <div class="modal bg-white w-full md:w-[80%] mx-auto p-5 rounded-lg relative shadow-lg">
             <x-modalclose click="showInsufficients"/>
 
             <h1 class="text-xl font-semibold text-gray-800 mb-4">
@@ -468,6 +468,7 @@
                <table>
                    <thead>
                        <tr>
+                            <th>Province</th>
                            <th>Date Ordered</th>
                            <th>Company</th>
                            <th>Employee</th>
@@ -490,6 +491,7 @@
                                 @endphp
                         
                                 <tr>
+                                    <td> {{ $explodedName[4] }} </td>
                                     <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
@@ -517,12 +519,27 @@
             <x-modalclose click="showInsufficientProducts"/>
     
             <h1 class="text-xl font-semibold text-gray-800 mb-4">
-                Summary of Products That Cannot Fulfill Orders:
+                Summary of Products That Cannot Fulfill the Total Orders:
             </h1>
     
             <div class="h-[70vh] overflow-auto">
-                <table>
+                @php
+                    $groupedSummary = collect($insufficientSummary)
+                    ->groupBy(function ($item) {
+                        // Split the 'product' string
+                        $parts = explode('|', $item['product']);
+                        
+                        // Location is the last part
+                        return $parts[4] ?? 'Unknown';
+                    });
+                @endphp
+
+                @foreach($groupedSummary as $provName => $orders)
+                <table class="mb-4 mt-7">
                 <thead>
+                    <tr>
+                        <th class="bg-blue-500 text-white" colspan="100"> {{ $provName }} </th>
+                    </tr>
                     <tr>
                         <th>Generic Name</th>
                         <th>Brand Name</th>
@@ -533,7 +550,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($insufficientSummary as $item)
+                    @foreach ($orders as $item)
                         @php
                             $explosionBaby = explode("|", $item['product']);
                         @endphp    
@@ -549,6 +566,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @endforeach
             </div>
         </div>
     </div>
