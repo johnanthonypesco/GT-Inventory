@@ -85,5 +85,8 @@ class Admin extends Authenticatable
     {
         return $this->update(['archived_at' => null]);
     }
-
+    public function getNameAttribute()
+    {
+        return $this->username;
+    }
 }

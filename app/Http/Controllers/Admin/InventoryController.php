@@ -142,7 +142,7 @@ class InventoryController extends Controller
             ->groupBy('location.province') // First, group by province
             ->map(function ($provinceGroup) { // Map each province group
                 return $provinceGroup->groupBy(function ($stock) {
-                    return $stock->product->generic_name . '|' . $stock->product->brand_name;
+                    return $stock->product->generic_name . '|' . $stock->product->brand_name . '|' . $stock->product->form . '|' . $stock->product->strength;
                 })
                 ->map(function ($group) { // Calculate totals for each product grouping
                     $total = $group->sum('quantity');

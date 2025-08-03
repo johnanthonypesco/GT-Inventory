@@ -53,7 +53,7 @@ class MobileStaffOrdersController extends Controller
 
                 $order->available_stock = $currentStocks->get($productKey, 0);
                 $order->is_insufficient = ($order->available_stock === 'expired' || 
-                                          (is_numeric($order->available_stock) && $order->available_stock < $order->quantity));
+                                         (is_numeric($order->available_stock) && $order->available_stock < $order->quantity));
 
                 $order->grouping_keys = [
                     'province' => $provinceKey,
@@ -65,8 +65,6 @@ class MobileStaffOrdersController extends Controller
             });
 
             // 4. Group insufficient orders by product for summary
-            // MODIFIED: Exclude items that are insufficient only because stock is zero.
-            // We only want to show EXPIRED items or LOW STOCK items (stock > 0 but < ordered).
             $insufficientOrders = $processedOrders->filter(function ($order) {
                 return $order->is_insufficient && $order->available_stock != 0;
             });
@@ -101,9 +99,25 @@ class MobileStaffOrdersController extends Controller
                 })->values();
 
             // 5. Calculate Summary Counts
+            
+            $normalOrdersThisWeek = Order::whereIn('status', ['pending', 'packed', 'out for delivery'])
+                ->whereBetween('date_ordered', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                ])->count();
+            
+            $archivedOrdersThisWeek = ImmutableHistory::whereIn('status', ['cancelled', 'delivered'])
+                ->whereBetween('date_ordered', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                ])->count();
+
+            $ordersThisWeek = $archivedOrdersThisWeek + $normalOrdersThisWeek;
+            $currentPendings = Order::where('status', 'pending')->get()->count();
+
             $summary = [
-                'ordersThisWeek' => Order::whereBetween('date_ordered', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
-                'pendingOrders' => $processedOrders->where('status', 'pending')->count(),
+                'ordersThisWeek' => $ordersThisWeek,
+                'pendingOrders' => $currentPendings,
                 'insufficientOrders' => $insufficientOrderLines->count(),
                 'insufficientProducts' => $insufficientSummary->count(),
                 'insufficientSummary' => $insufficientSummary->values()->all(),

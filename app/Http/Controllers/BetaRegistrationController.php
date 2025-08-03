@@ -35,7 +35,7 @@ class BetaRegistrationController extends Controller
         try {
             // Define validation messages consistent with your SuperAdminAccountController
             $messages = [
-                'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+                'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one of the following special characters: @$!%*#?&_',
                 'email.unique' => 'The email address is already registered.',
                 'username.unique' => 'The username is already taken.',
                 'password.confirmed' => 'Password confirmation does not match.',
@@ -48,7 +48,7 @@ class BetaRegistrationController extends Controller
                 'name' => 'required_if:role,customer|nullable|string|max:255',
                 'username' => 'required_if:role,admin,staff|nullable|string|max:255|unique:admins,username|unique:staff,staff_username',
                 'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
-                'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&]).+$/|confirmed',
+                'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&_]).+$/|confirmed',
                 'contact_number' => 'required|numeric|unique:users,contact_number|unique:admins,contact_number|unique:staff,contact_number',
                 
                 // Staff specific fields

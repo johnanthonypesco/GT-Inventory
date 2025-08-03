@@ -11,42 +11,39 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Sales Report</title>
 </head>
- 
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
-   
+    
     <x-admin.navbar />
 
     <main class="md:w-full h-full lg:ml-[16%] ml-0">
         <x-admin.header title="Sales Report" icon="fa-solid fa-print"/>
         
         <div class="flex flex-col h-full">
-            <!-- Top Bar -->
             <br>
 
-            <!-- Report Form Card -->
             <div class="bg-white rounded-lg shadow-md mb-8">
                 <div class="card-header px-6 py-4 border-b">
                     <h3 class="text-lg font-medium text-gray-800">Generate Sales Report</h3>
                 </div>
                 <div class="card-body p-6">
-                    <form method="post" action="{{ route('admin.sales.generate') }}" class="space-y-4">
+                    <form method="post" action="{{ route('admin.sales.generate') }}" class="space-y-4" id="report-form">
                         @csrf
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
                             <div class="flex space-x-2">
-                                <input type="date" name="start_date" class="form-input rounded-md shadow-sm w-full" 
-                                    value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
+                                <input type="date" name="start_date" class="form-input rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                       value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
                                 <span class="flex items-center px-3 bg-gray-100 text-gray-500">
                                     <i class="fas fa-arrow-right"></i>
                                 </span>
-                                <input type="date" name="end_date" class="form-input rounded-md shadow-sm w-full" 
-                                    value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                                <input type="date" name="end_date" class="form-input rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                       value="{{ request('end_date', now()->format('Y-m-d')) }}">
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Company</label>
-                            <select name="company_id" class="form-select rounded-md shadow-sm w-full">
+                            <select name="company_id" class="form-select rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <option value="">All Companies</option>
                                 @foreach($all_companies as $company)
                                     <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
@@ -60,9 +57,11 @@
                             <button type="submit" name="preview" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-eye mr-2"></i> Preview Report
                             </button>
-                            <button type="submit" name="download" value="1" class="btn btn-primary bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                            
+                            <button type="button" id="generate-pdf-btn" class="btn btn-primary bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-file-pdf mr-2"></i> Generate PDF
                             </button>
+                            
                             <a href="{{ route('admin.sales') }}" class="btn btn-secondary bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-times mr-2"></i> Clear Filters
                             </a>
@@ -71,7 +70,6 @@
                 </div>
             </div>
 
-            <!-- Report Preview Section -->
             @isset($orders)
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold mb-4">
@@ -82,7 +80,6 @@
                 </h3>
                 <p class="mb-6">Showing results from {{ $start_date }} to {{ $end_date }}</p>
 
-                <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div class="bg-blue-50 p-4 rounded-lg">
                         <h4 class="text-sm font-medium text-blue-800">Total Sales</h4>
@@ -98,7 +95,6 @@
                     </div>
                 </div>
 
-                <!-- Company Sales Breakdown -->
                 @if(!$company_id)
                 <div class="mb-8">
                     <h4 class="text-lg font-medium mb-4">Sales by Company</h4>
@@ -133,7 +129,6 @@
                 </div>
                 @endif
 
-                <!-- Detailed Orders -->
                 <h4 class="text-lg font-medium mb-4">Order Details</h4>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -172,5 +167,61 @@
         </div>
     </main>
     
+    <script>
+    $(document).ready(function() {
+        $('#generate-pdf-btn').on('click', function(e) {
+            e.preventDefault(); // Just in case, to prevent any default action
+
+            const btn = $(this);
+            const originalText = btn.html();
+            
+            // Provide user feedback
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Generating...');
+
+            // Get form data
+            const form = $('#report-form');
+            const url = form.attr('action');
+            const formData = form.serialize() + '&download=1'; // Add the 'download' parameter
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                // This is the crucial part for handling binary file data
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(blob, status, xhr) {
+                    // Create a URL for the blob object
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    
+                    // Create a temporary <a> element to trigger the download
+                    const tempLink = document.createElement('a');
+                    tempLink.style.display = 'none';
+                    tempLink.href = blobUrl;
+                    tempLink.setAttribute('download', 'sales-report.pdf'); // Set the filename
+                    
+                    // For Firefox, the link needs to be added to the body
+                    document.body.appendChild(tempLink);
+                    tempLink.click();
+                    
+                    // Clean up by removing the link and revoking the URL
+                    document.body.removeChild(tempLink);
+                    window.URL.revokeObjectURL(blobUrl);
+
+                    // Restore button
+                    btn.prop('disabled', false).html(originalText);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Error generating PDF: ", textStatus, errorThrown);
+                    alert('An error occurred while generating the PDF. Please try again.');
+                    
+                    // Restore button
+                    btn.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

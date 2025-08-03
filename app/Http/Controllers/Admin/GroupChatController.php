@@ -105,19 +105,27 @@ class GroupChatController extends Controller
         if ($isCurrentUser) {
             $senderName = "You";
         } else {
-            $senderName = match ($chat->sender_type) {
-                Staff::class      => 'Staff',
-                Admin::class      => 'Admin',
-                SuperAdmin::class => 'Super Admin',
-                default           => $chat->sender->name ?? 'Unknown',
-            };
+            // Eager load the sender relationship if it's not already loaded
+            $chat->loadMissing('sender');
+
+            if ($chat->sender) {
+                // --- FIX IS HERE ---
+                // Instead of returning a generic role, we now get the specific username from the related model.
+                $senderName = match ($chat->sender_type) {
+                    Staff::class      => $chat->sender->staff_username ?? 'Staff',
+                    Admin::class      => $chat->sender->username ?? 'Admin',
+                    SuperAdmin::class => $chat->sender->s_admin_username ?? 'Super Admin',
+                    default           => 'Unknown User',
+                };
+            } else {
+                $senderName = 'Unknown User'; // Fallback if sender is not found
+            }
         }
 
         return [
             'id'              => $chat->id,
             'sender_name'     => $senderName,
             'message'         => $chat->message ? Crypt::decryptString($chat->message) : null,
-            // ✅ Use the url() helper to generate the correct public URL
             'file_url'        => $chat->file_path ? url($chat->file_path) : null,
             'is_current_user' => $isCurrentUser,
             'timestamp'       => Carbon::parse($chat->created_at)->format('M d, Y, h:i A'),

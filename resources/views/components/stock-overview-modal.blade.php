@@ -54,7 +54,7 @@
                     @break
                 @case("near-expiry-stock")
                     <div class="flex justify-between items-center mr-5">
-                        Products About to Expire Next Month 
+                        Stocks About to Expire Next Month 
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "near-expiry-summary"]) }}" method="get">
                             <button type="submit" class="flex gap-2 items-center shadow-sm shadow-[#0052829e] px-4 py-1 rounded-lg text-black hover:bg-[#005282] hover:text-white font-semibold transition duration-150"><i class="fa-solid fa-download"></i>Export</button>
@@ -63,7 +63,7 @@
                     @break
                 @case("expired-stock")
                     <div class="flex justify-between items-center mr-5">
-                        Products Currently Expired in Inventory
+                        Currently Expired Stocks in Inventory
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "expired-summary"]) }}" method="get">
                             <button type="submit" class="flex gap-2 items-center shadow-sm shadow-[#0052829e] px-4 py-1 rounded-lg text-black hover:bg-[#005282] hover:text-white font-semibold transition duration-150"><i class="fa-solid fa-download"></i>Export</button>
@@ -87,7 +87,7 @@
                 @endphp --}}
     
                 @foreach ($variable as $provinceName => $trioArray)
-                    <h1 class="text-2xl font-bold uppercase text-blue-600">
+                    <h1 class="text-2xl font-bold uppercase text-blue-600 my-3">
                         Assigned In: {{ $provinceName }}
                     </h1>    
     
@@ -95,6 +95,8 @@
                         <thead>
                             <th>Generic Name</th>
                             <th>Brand Name</th>
+                            <th>Form</th>
+                            <th>Strength</th>
                             <th>Current Quantity</th>
                         </thead>
                         <tbody>
@@ -103,6 +105,8 @@
                                     @foreach ($generalInfo['inventory'] as $stock)
                                         <td> {{ $stock->product->generic_name }} </td>
                                         <td> {{ $stock->product->brand_name }} </td>
+                                        <td> {{ $stock->product->form }} </td>
+                                        <td> {{ $stock->product->strength }} </td>
                                         @break
                                     @endforeach
                                     <td>{{ $generalInfo['total'] }}</td>
@@ -114,7 +118,7 @@
     
             @else
                 @foreach ($variable as $location => $stocks)
-                    <h1 class="text-lg font-bold uppercase">
+                    <h1 class="text-lg font-bold uppercase my-3">
                         Assigned In: {{ $location }}
                     </h1>
                     <table>
@@ -122,7 +126,9 @@
                             <th>Batch Number</th>
                             <th>Generic Name</th>
                             <th>Brand Name</th>
-                            <th>Current Quantity</th>
+                            <th>Form</th>
+                            <th>Strength</th>
+                            <th>Quantity</th>
                             <th>Expiration Date</th>
                         </thead>
                         <tbody>
@@ -131,6 +137,8 @@
                                     <td> {{ $stock->batch_number }} </td>
                                     <td>{{ $stock->product->generic_name }}</td>
                                     <td>{{ $stock->product->brand_name }}</td>
+                                    <td>{{ $stock->product->form }}</td>
+                                    <td>{{ $stock->product->strength }}</td>
                                     <td>{{ $stock->quantity }}</td>
                                     <td>{{ Carbon::parse($stock->expiry_date)->translatedFormat('M j, Y') }}</td>
                                 </tr>

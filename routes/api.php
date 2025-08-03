@@ -17,6 +17,7 @@ use App\Http\Controllers\Mobile\MobileCustomerReview;
 use App\Http\Controllers\Mobile\MobileDashboardController;
 use App\Http\Controllers\Customer\TrackingController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -64,35 +65,35 @@ Route::prefix('mobile')->group(function () {
 
     // --- Staff Routes ---
     Route::prefix('staff')->group(function () {
-        // Authenticated Staff Routes (This part is correct)
-       Route::middleware('auth:sanctum')->group(function () {
-            Route::get('/user', [MobileStaffAuthController::class, 'user']);
-            Route::post('/logout', [MobileStaffAuthController::class, 'logout']);
-            Route::post('/location-update', [MobileStaffAuthController::class, 'updateLocation']);
-            Route::get('/dashboard-stats', [MobileStaffDashboardController::class, 'getDashboardStats']);
-            Route::get('/orders', [MobileStaffOrdersController::class, 'index']);
-            Route::post('/process-scan', [MobileStaffQrController::class, 'processScannedOrder']);
-            Route::post('/orders/{order}/update-status', [MobileStaffOrdersController::class, 'updateStatus']);
-            Route::get('/orders/{order}/available-staff', [MobileStaffOrdersController::class, 'getAvailableStaff']);
+    // Staff Authentication
+    Route::post('/login', [MobileStaffAuthController::class, 'login']);
+    Route::post('/verify-2fa', [MobileStaffAuthController::class, 'verifyTwoFactor']);
+    Route::post('/send-2fa-sms', [MobileStaffAuthController::class, 'sendTwoFactorSms']);
+    Route::post('/resend-2fa-email', [MobileStaffAuthController::class, 'resendTwoFactorEmail']);
 
-            // Chat Routes
-            Route::get('/chat/conversations', [MobileStaffChatController::class, 'getConversations']);
-            Route::get('/chat/messages/{id}/{type}', [MobileStaffChatController::class, 'getMessages']);
-            Route::post('/chat/send-message', [MobileStaffChatController::class, 'sendMessage']);
+    // Authenticated Staff Routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user', [MobileStaffAuthController::class, 'user']);
+        Route::post('/logout', [MobileStaffAuthController::class, 'logout']);
+        Route::post('/location-update', [MobileStaffAuthController::class, 'updateLocation']);
+        Route::get('/dashboard-stats', [MobileStaffDashboardController::class, 'getDashboardStats']);
+        Route::get('/orders', [MobileStaffOrdersController::class, 'index']);
+        Route::post('/process-scan', [MobileStaffQrController::class, 'processScannedOrder']);
+        Route::post('/orders/{order}/update-status', [MobileStaffOrdersController::class, 'updateStatus']);
+        Route::get('/orders/{order}/available-staff', [MobileStaffOrdersController::class, 'getAvailableStaff']);
 
-            // Group Chat Routes
-            Route::get('/chat/group', [MobileGroupChatController::class, 'getGroupMessages']);
-            Route::post('/chat/group/send', [MobileGroupChatController::class, 'sendGroupMessage']);
-            
-            // This wildcard route is correctly placed after more specific '/orders/...' routes.
-            Route::get('/orders/{status}', [MobileStaffDashboardController::class, 'getOrdersByStatus']);
-        });
+        // Chat Routes
+        Route::get('/chat/conversations', [MobileStaffChatController::class, 'getConversations']);
+        Route::get('/chat/messages/{id}/{type}', [MobileStaffChatController::class, 'getMessages']);
+        Route::post('/chat/send-message', [MobileStaffChatController::class, 'sendMessage']);
+        Route::get('/chat/unread-count', [MobileStaffChatController::class, 'getUnreadCount']);
 
+        // Group Chat Routes
+        Route::get('/chat/group', [MobileGroupChatController::class, 'getGroupMessages']);
+        Route::post('/chat/group/send', [MobileGroupChatController::class, 'sendGroupMessage']);
 
-        // Staff Authentication
-        Route::post('/login', [MobileStaffAuthController::class, 'login']);
-        Route::post('/verify-2fa', [MobileStaffAuthController::class, 'verifyTwoFactor']);
-        Route::post('/send-2fa-sms', [MobileStaffAuthController::class, 'sendTwoFactorSms']);
-        Route::post('/resend-2fa-email', [MobileStaffAuthController::class, 'resendTwoFactorEmail']);
+        // Wildcard Route
+        Route::get('/orders/{status}', [MobileStaffDashboardController::class, 'getOrdersByStatus']);
+    });
     });
 });

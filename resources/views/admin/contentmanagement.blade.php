@@ -13,7 +13,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Manage Content</title>
 </head>
@@ -39,24 +38,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($content as $content )            
+                        @foreach ($content as $contentItem )
                         <tr>
-                            <td class="text-left text-[10px]">{{ $content->aboutus1 }}</td>
-                            <td class="text-left text-[10px]">{{ $content->aboutus2 }}</td>
-                            <td class="text-left text-[10px]">{{ $content->aboutus3 }}</td>
-                            <td class="text-left text-[10px]">{{ $content->contact_number }}</td>
-                            <td class="text-left text-[10px]">{{ $content->email }}</td>
-                            <td class="text-left text-[10px]">{{ $content->address }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->aboutus1 }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->aboutus2 }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->aboutus3 }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->contact_number }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->email }}</td>
+                            <td class="text-left text-[10px]">{{ $contentItem->address }}</td>
                             <td>
                                 <button 
                                     class="edit-btn flex items-center justify-center text-[#005382] cursor-pointer gap-2"
-                                    data-id="{{ $content->id }}"
-                                    data-aboutus1="{{ $content->aboutus1 }}"
-                                    data-aboutus2="{{ $content->aboutus2 }}"
-                                    data-aboutus3="{{ $content->aboutus3 }}"
-                                    data-contact_number="{{ $content->contact_number }}"
-                                    data-email="{{ $content->email }}"
-                                    data-address="{{ $content->address }}"
+                                    data-id="{{ $contentItem->id }}"
+                                    data-aboutus1="{{ $contentItem->aboutus1 }}"
+                                    data-aboutus2="{{ $contentItem->aboutus2 }}"
+                                    data-aboutus3="{{ $contentItem->aboutus3 }}"
+                                    data-contact_number="{{ $contentItem->contact_number }}"
+                                    data-email="{{ $contentItem->email }}"
+                                    data-address="{{ $contentItem->address }}"
                                 >
                                 <i class="fa-regular fa-pen-to-square"></i>Edit</button>
                             </td>
@@ -66,45 +65,78 @@
                 </table>
             </div>     
         </div>
-        <div id="editmodal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto">
+
+        <div id="editmodal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto z-50">
             <div class="modal bg-white w-[90%] md:w-[80%] lg:w-[60%] mx-auto mt-10 p-5 rounded-md relative">
                 <x-modalclose click="closeeditmodal"/>
                 <h1 class="text-left text-[#005382] text-2xl font-bold mb-5">Edit Content</h1>
-                <form id="editForm" method="POST" action="{{ route('admin.contentmanagement.edit', ['id' => $content->id]) }}">
+                
+                <form id="editForm" method="POST" action=""> 
                     @csrf
                     @method('PUT')
+                    
                     <div class="mb-4">
                         <label for="aboutus1" class="block text-gray-700 text-md font-bold mb-2">About Us 1:</label>
-                        <textarea id="aboutus1" name="aboutus1" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus1 }}</textarea>
-                    </div>    
+                        <textarea id="aboutus1" name="aboutus1" class="w-full p-2 border rounded-md @error('aboutus1') border-red-500 @else border-[#005382] @enderror" rows="3">{{ old('aboutus1') }}</textarea>
+                        @error('aboutus1')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
                     <div class="mb-4">
                         <label for="aboutus2" class="block text-gray-700 text-md font-bold mb-2">About Us 2:</label>
-                        <textarea id="aboutus2" name="aboutus2" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus2 }}</textarea>
+                        <textarea id="aboutus2" name="aboutus2" class="w-full p-2 border rounded-md @error('aboutus2') border-red-500 @else border-[#005382] @enderror" rows="3">{{ old('aboutus2') }}</textarea>
+                        @error('aboutus2')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
+        
                     <div class="mb-4">
                         <label for="aboutus3" class="block text-gray-700 text-md font-bold mb-2">About Us 3:</label>
-                        <textarea id="aboutus3" name="aboutus3" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->aboutus3 }}</textarea>
+                        <textarea id="aboutus3" name="aboutus3" class="w-full p-2 border rounded-md @error('aboutus3') border-red-500 @else border-[#005382] @enderror" rows="3">{{ old('aboutus3') }}</textarea>
+                        @error('aboutus3')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
+        
                     <div class="mb-4">
                         <label for="contact_number" class="block text-gray-700 text-md font-bold mb-2">Phone Number:</label>
-                        <input type="text" id="contact_number" name="contact_number" value="{{ $content->contact_number }}" class="w-full p-2 border border-[#005382] rounded-md">
+                        <input 
+                            type="tel" 
+                            id="contact_number" 
+                            name="contact_number" 
+                            value="{{ old('contact_number') }}" 
+                            maxlength="11" 
+                            placeholder="09xxxxxxxxx"
+                            class="w-full p-2 border rounded-md @error('contact_number') border-red-500 @else border-[#005382] @enderror">
+                        @error('contact_number')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
+        
                     <div class="mb-4">
                         <label for="email" class="block text-gray-700 text-md font-bold mb-2">Email:</label>
-                        <input type="email" id="email" name="email" value="{{ $content->email }}" class="w-full p-2 border border-[#005382] rounded-md">
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full p-2 border rounded-md @error('email') border-red-500 @else border-[#005382] @enderror">
+                        @error('email')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
+        
                     <div class="mb-4">
                         <label for="address" class="block text-gray-700 text-md font-bold mb-2">Address:</label>
-                        <textarea id="address" name="address" class="w-full p-2 border border-[#005382] rounded-md" rows="3">{{ $content->address }}</textarea>
+                        <textarea id="address" name="address" class="w-full p-2 border rounded-md @error('address') border-red-500 @else border-[#005382] @enderror" rows="3">{{ old('address') }}</textarea>
+                        @error('address')
+                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <button type="button" id="updateButton" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg">Update Content</button>
+        
+                    <button type="submit" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg hover:bg-[#00456a] transition-colors">Update Content</button>
                 </form>
-
             </div>
         </div>
 
         <div class="table-container bg-white shadow-md rounded-md mt-5 p-4">
-            <h1 class="text-2xl font-bold text-[#005382] mb-4">Showned Product in Promotional Page</h1>
+            <h1 class="text-2xl font-bold text-[#005382] mb-4">Shown Product in Promotional Page</h1>
             <div class="h-[34vh] overflow-auto">
                 <table>
                     <thead>
@@ -117,18 +149,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($product as $product)
+                        @foreach ($product as $productItem)
                             <tr>
-                                <td>{{ $product->generic_name }}</td>
-                                <td class="hidden lg:table-cell">{{ $product->brand_name }}</td>
-                                <td class="hidden lg:table-cell">{{ $product->form }}</td>
-                                <td class="hidden lg:table-cell">{{ $product->strength }}</td>
+                                <td>{{ $productItem->generic_name }}</td>
+                                <td class="hidden lg:table-cell">{{ $productItem->brand_name }}</td>
+                                <td class="hidden lg:table-cell">{{ $productItem->form }}</td>
+                                <td class="hidden lg:table-cell">{{ $productItem->strength }}</td>
                                 <td>
-                                    <form action="{{ route('admin.product.enabledisable', $product->id) }}" method="POST" class="inline">
+                                    <form action="{{ route('admin.product.enabledisable', $productItem->id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PUT')
                                         <button 
-                                            type="submit" class="{{ $product->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $product->is_displayed ? 'Enabled' : 'Disabled' }}
+                                            type="submit" class="{{ $productItem->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded">{{ $productItem->is_displayed ? 'Enabled' : 'Disabled' }}
                                         </button>
                                     </form>
                                 </td>
@@ -140,25 +172,49 @@
         </div>
     </main>
 
-</body>
-
-
-</html>
 <script>
-    //make the Enable button text when clicked change to "Disabled" and change the background color to red
-    document.querySelectorAll('#enable-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent === 'Enable') {
-                this.textContent = 'Disabled';
-                //add classlist
-                this.classList.add('bg-red-500', 'text-white', 'px-4', 'py-2', 'rounded');
-            } else {
-                this.textContent = 'Enable';
-                this.style.backgroundColor = '';
-                this.classList.remove('bg-red-500', 'text-white', 'px-4', 'py-2', 'rounded');
-                this.classList.add('bg-[#005382]', 'text-white', 'px-4', 'py-2', 'rounded');
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        const editModal = document.getElementById('editmodal');
+        const editForm = document.getElementById('editForm');
+        
+        // Function to open the modal and populate it with the correct data
+        window.openeditmodal = function(button) {
+            const id = button.dataset.id;
+            // Create the correct route for the form action dynamically
+            const actionTemplate = "{{ route('admin.contentmanagement.edit', ['id' => 'ID_PLACEHOLDER']) }}";
+            const actionUrl = actionTemplate.replace('ID_PLACEHOLDER', id);
+            
+            editForm.action = actionUrl;
+            
+            // Populate form fields from the button's data attributes
+            document.getElementById('aboutus1').value = button.dataset.aboutus1;
+            document.getElementById('aboutus2').value = button.dataset.aboutus2;
+            document.getElementById('aboutus3').value = button.dataset.aboutus3;
+            document.getElementById('contact_number').value = button.dataset.contact_number;
+            document.getElementById('email').value = button.dataset.email;
+            document.getElementById('address').value = button.dataset.address;
+
+            editModal.classList.remove('hidden');
+        }
+
+        // Function to close the modal (used by your x-modalclose component)
+        window.closeeditmodal = function() {
+            document.getElementById('editmodal').classList.add('hidden');
+        }
+        
+        // Re-open the modal automatically if the page was reloaded with validation errors
+        @if($errors->any())
+            editModal.classList.remove('hidden');
+        @endif
+
+        // Attach event listeners to all edit buttons
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                openeditmodal(this);
+            });
         });
     });
 </script>
-<script src="{{ asset('js/managecontent.js') }}"></script>
+
+</body>
+</html>

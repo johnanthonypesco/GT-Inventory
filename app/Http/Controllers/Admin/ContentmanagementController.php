@@ -35,30 +35,61 @@ class ContentmanagementController extends Controller
     }
 
 
+    // public function editContent(Request $request, $id)
+    // {
+    //     //add validation rules
+    //     $request->validate([
+    //         'aboutus1' => 'required|string|max:255',
+    //         'aboutus2' => 'required|string|max:255',
+    //         'aboutus3' => 'required|string|max:255',
+    //         'contact_number' => 'required|string|max:15',
+    //         'email' => 'required|email|max:255',
+    //         'address' => 'required|string|max:255',
+    //     ]);
+
+    //     $content = ManageContents::findOrFail($id);
+
+    //     $content->aboutus1 = $request->input('aboutus1');
+    //     $content->aboutus2 = $request->input('aboutus2');
+    //     $content->aboutus3 = $request->input('aboutus3');
+    //     $content->contact_number = $request->input('contact_number');
+    //     $content->email = $request->input('email');
+    //     $content->address = $request->input('address');
+
+    //     $content->save();
+    //     // Log the content update
+    //     HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ');
+    //     return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
+    // }
     public function editContent(Request $request, $id)
-    {
-        //add validation rules
-        $request->validate([
-            'aboutus1' => 'required|string|max:255',
-            'aboutus2' => 'required|string|max:255',
-            'aboutus3' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:15',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string|max:255',
-        ]);
+{
+    // Validate the request data with more specific rules and custom messages
+    $validatedData = $request->validate([
+        'aboutus1' => 'required|string|max:1000',
+        'aboutus2' => 'required|string|max:1000',
+        'aboutus3' => 'required|string|max:1000',
+        // Example for a valid PH mobile number: 09xxxxxxxxx or +639xxxxxxxxx
+        'contact_number' => ['required', 'string', 'regex:/^(\+63|0)9\d{9}$/'],
+        'email' => 'required|email|max:255',
+        'address' => 'required|string|max:255',
+    ], [
+        // Custom error message for the phone number validation rule
+        'contact_number.regex' => 'Please enter a valid Philippine mobile number (e.g., 09xxxxxxxxx).'
+    ]);
 
-        $content = ManageContents::findOrFail($id);
+    $content = ManageContents::findOrFail($id);
 
-        $content->aboutus1 = $request->input('aboutus1');
-        $content->aboutus2 = $request->input('aboutus2');
-        $content->aboutus3 = $request->input('aboutus3');
-        $content->contact_number = $request->input('contact_number');
-        $content->email = $request->input('email');
-        $content->address = $request->input('address');
-
-        $content->save();
-        // Log the content update
-        HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ');
-        return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
-    }
+    $content->aboutus1 = $validatedData['aboutus1'];
+    $content->aboutus2 = $validatedData['aboutus2'];
+    $content->aboutus3 = $validatedData['aboutus3'];
+    $content->contact_number = $validatedData['contact_number'];
+    $content->email = $validatedData['email'];
+    $content->address = $validatedData['address'];
+    $content->save();
+    
+    // Log the content update
+    HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ');
+    
+    return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
+}
 }

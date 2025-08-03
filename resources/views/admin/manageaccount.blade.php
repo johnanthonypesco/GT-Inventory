@@ -16,6 +16,21 @@
     <title>Manage Accounts</title>
 
     <style>
+         @keyframes swal-pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .swal-icon-pulse .swal2-icon-content {
+            animation: swal-pulse 2s ease-in-out infinite;
+        }
         .input-indicator {
             font-weight: bold;
             font-size: 1.5rem; /* Larger for visibility */
@@ -30,6 +45,16 @@
             content: '✔';
             color: green;
         }
+        /* Styles for the toast notification */
+        .toast-notification {
+            transition: opacity 0.5s, transform 0.5s;
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col lg:flex-row gap-4">
@@ -37,12 +62,16 @@
 
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
- @if (session('success'))
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6" role="alert">
-                        <p class="font-bold">Success!</p>
-                        <p>{{ session('success') }}</p>
-                    </div>
-                @endif
+
+        <div id="successToast" class="toast-notification fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-2xl"></i>
+            <div>
+                <p class="font-bold">Success!</p>
+                <p id="toastMessage"></p>
+            </div>
+            <button onclick="closeToast()" class="text-xl font-bold ml-4">&times;</button>
+        </div>
+
         {{-- Filter & Add Account --}}
         <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
             <select id="accountFilter" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none">
@@ -62,88 +91,29 @@
         </div>
         {{-- End Filter & Add Account --}}
 
-     {{-- Table for Account List --}}
-<div class="w-full bg-white mt-3 rounded-lg p-5">
+        {{-- Table for Account List --}}
+        <div class="w-full bg-white mt-3 rounded-lg p-5">
+            {{-- Account List Header --}}
+            <div class="flex justify-between items-center flex-col md:flex-row gap-2">
+                <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
+                <div class="w-full md:w-[35%] relative">
+                    <input type="search" id="accountSearch" placeholder="Search Account Name or Email" class="w-full p-2 rounded-lg border border-[#005382]">
+                    <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
 
-    {{-- Account List Header --}}
-    <div class="flex justify-between items-center flex-col md:flex-row gap-2">
-        <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
-        <div class="w-full md:w-[35%] relative">
-            <input type="search" id="accountSearch" placeholder="Search Account Name" class="w-full p-2 rounded-lg border border-[#005382]">
-            <button class="border-l-1 border-[#005382] px-3 cursor-pointer text-xl absolute right-2 top-2">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
+            {{-- This div will be updated by our JavaScript --}}
+            <div id="accounts-table-wrapper">
+                @include('admin.partials.accounts_table', ['accounts' => $accounts])
+            </div>
         </div>
-    </div>
+        {{-- End Table for Account List --}}
 
-    {{-- Table Container --}}
-    <div class="table-container mt-5 overflow-auto">
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b">Account Id</th>
-                    <th class="py-2 px-4 border-b">Name/Username</th>
-                    <th class="py-2 px-4 border-b">Email Address</th>
-                    <th class="py-2 px-4 border-b">Role</th>
-                    <th class="py-2 px-4 border-b">Company</th>
-                    <th class="py-2 px-4 border-b">Action</th>
-                </tr>
-            </thead>
-            <tbody id="accountsTableBody">
-                @php
-                    $isSuperAdmin = auth()->guard('superadmin')->check();
-                    $isAdmin = auth()->guard('admin')->check();
-                @endphp
+        {{-- MODALS --}}
 
-                @foreach ($accounts as $account)
-                    @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
-                    <tr
-                        data-id="{{ $account->id }}"
-                        data-name="{{ $account->name }}"
-                        data-username="{{ $account->username ?? $account->staff_username ?? '' }}"
-                        data-email="{{ $account->email }}"
-                        data-role="{{ $account->role }}"
-                        data-location="{{ $account->location_id ?? '' }}"
-                        data-jobtitle="{{ $account->job_title ?? '' }}"
-                        data-adminid="{{ $account->admin_id ?? '' }}"
-                        data-contactnumber="{{ $account->contact_number ?? 'N/A' }}" >
-
-                        <td class="py-2 px-4 border-b">{{ $account->id }}</td>
-                        <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username ?? $account->staff_username ?? 'N/A' }}</td>
-                        <td class="py-2 px-4 border-b">{{ $account->email }}</td>
-                        <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
-                        <td class="py-2 px-4 border-b">{{ $account->company ?? 'RCT Med Pharma' }}</td>
-                        <td class="py-2 px-4 border-b flex justify-center items-center gap-4">
-                            <button class="text-[#005382] cursor-pointer" onclick="openEditAccountModal(this)">
-                                <i class="fa-regular fa-pen-to-square mr-2"></i> Edit
-                            </button>
-                            <form id="deleteaccountform-{{ $account->id }}" method="POST" action="{{ route('superadmin.account.delete', ['role' => $account->role, 'id' => $account->id]) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer"
-                                data-account-id="{{ $account->id }}"
-                                onclick="confirmDelete(this)">
-                                <i class="fa-solid fa-trash mr-2"></i> Delete
-                            </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endif
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    {{-- ✨ PAGINATION LINKS MOVED HERE ✨ --}}
-    <div class="mt-4">
-        {{ $accounts->links() }}
-    </div>
-
-</div>
-{{-- --}}
-
-        {{-- Modals --}}
-
+        {{-- Add Account Modal --}}
         <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
             <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-10 rounded-lg shadow-xl relative">
                 <x-modalclose click="closeAddAccountModal"/>
@@ -161,7 +131,7 @@
                         </select>
                         <span id="role-indicator" class="input-indicator"></span>
                     </div>
-                    @error('role')<p class="text-red-500 text-xs italic">{{ $message }}</p>@enderror
+                    @error('role', 'addAccount')<p class="text-red-500 text-xs italic">{{ $message }}</p>@enderror
 
                     <div id="nameField" style="display: none;" class="w-full">
                         <div class="flex items-center gap-2">
@@ -293,20 +263,23 @@
             </div>
         </div>
 
+        {{-- Edit Account Modal --}}
         <div id="editAccountModal" class="fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
             <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
-                <form method="POST" id="editaccountform">
+                {{-- <form method="POST" id="editaccountform"> error show if we use this "The PUT method is not supported for route manageaccounts. Supported methods: GET, HEAD, POST."--}}
+                    <form method="POST" id="editaccountform" 
+                    action="{{ $errors->hasBag('editAccount') ? url('/manageaccounts/' . old('role') . '/' . old('id') . '/update') : '' }}">
                     @csrf
-                    @method('POST') <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
+                    @method('PUT')
+                    <h1 class="text-3xl text-[#005382] font-bold text-center">Edit Account</h1>
 
                     <input type="hidden" name="id" id="editId" value="{{ old('id') }}">
 
-                    <select name="role" id="editRole" disabled class="w-full p-3 mt-5 border border-gray-300 rounded bg-gray-200 cursor-not-allowed">
-                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="staff" {{ old('role') === 'staff' ? 'selected' : '' }}>Staff</option>
-                        <option value="customer" {{ old('role') === 'customer' ? 'selected' : '' }}>Customer</option>
-                    </select>
+                    <div class="w-full p-3 mt-5 border border-gray-300 rounded bg-gray-100">
+                        <span class="font-medium">Role:</span> 
+                        <span id="displayRole" class="ml-2">{{ old('role') }}</span>
+                    </div>
                     <input type="hidden" name="role" id="editHiddenRole" value="{{ old('role') }}">
 
                     <div id="editNameField" class="hidden">
@@ -374,6 +347,8 @@
                 </form>
             </div>
         </div>
+        
+        {{-- Archived Modal --}}
         <div id="archivedModal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 p-5 flex justify-center z-50">
             <div class="modal absolute mt-10 bg-white w-[80%] rounded-lg p-5 shadow-lg">
                 <x-modalclose click="closeArchivedModal"/>
@@ -389,13 +364,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $isSuperAdmin = auth()->guard('superadmin')->check();
-                                $isAdmin = auth()->guard('admin')->check();
-                            @endphp
-
                             @forelse ($archivedAccounts as $account)
-                                @if($isSuperAdmin || ($isAdmin && in_array($account->role, ['staff', 'customer'])))
+                                @if(auth()->guard('superadmin')->check() || (auth()->guard('admin')->check() && in_array($account->role, ['staff', 'customer'])))
                                 <tr>
                                     <td class="py-2 px-4 border-b">{{ $account->name ?? $account->username }}</td>
                                     <td class="py-2 px-4 border-b">{{ $account->email }}</td>
@@ -408,7 +378,7 @@
                                     </td>
                                 </tr>
                                 @endif
-                            @empty
+                                @empty
                                 <tr>
                                     <td colspan="4" class="text-center py-4">No archived accounts found.</td>
                                 </tr>
@@ -418,11 +388,86 @@
                 </div>
             </div>
         </div>
-        </main>
+    </main>
 </body>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // --- DEBOUNCE FUNCTION ---
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+
+    // --- MAIN FUNCTION TO FETCH ACCOUNTS ---
+    const fetchAccounts = (page = 1) => {
+        const filter = document.getElementById('accountFilter').value;
+        const search = document.getElementById('accountSearch').value;
+        const accountsWrapper = document.getElementById('accounts-table-wrapper');
+        
+        // Show a loading state (optional but good for UX)
+        accountsWrapper.innerHTML = '<p class="text-center py-10">Loading accounts...</p>';
+
+        const url = `{{ route('superadmin.account.index') }}?page=${page}&filter=${filter}&search=${encodeURIComponent(search)}`;
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            accountsWrapper.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error fetching accounts:', error);
+            accountsWrapper.innerHTML = '<p class="text-center py-10 text-red-500">Failed to load accounts. Please try again.</p>';
+        });
+    };
+
+    // --- EVENT LISTENERS ---
+    const accountFilter = document.getElementById("accountFilter");
+    const accountSearch = document.getElementById("accountSearch");
+
+    accountFilter.addEventListener("change", () => fetchAccounts(1));
+    accountSearch.addEventListener("input", debounce(() => fetchAccounts(1), 400));
+
+    // Use event delegation for pagination links
+    document.getElementById('accounts-table-wrapper').addEventListener('click', function(e) {
+        if (e.target.closest('.pagination a')) {
+            e.preventDefault();
+            const url = new URL(e.target.closest('a').href);
+            const page = url.searchParams.get('page');
+            fetchAccounts(page);
+        }
+    });
+
+    // --- ALL OTHER JS FUNCTIONS ---
+
+    // --- Toast Notification Logic ---
+    const toast = document.getElementById('successToast');
+    const toastMessage = document.getElementById('toastMessage');
+    let toastTimeout;
+
+    function showToast(message) {
+        toastMessage.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => closeToast(), 5000);
+    }
+
+    window.closeToast = () => {
+        toast.classList.remove('show');
+    }
+
+    @if (session('success'))
+        showToast("{{ session('success') }}");
+    @endif
+
     // --- Global Helper Functions ---
     window.togglePasswordVisibility = (fieldId, iconId) => {
         const field = document.getElementById(fieldId);
@@ -458,9 +503,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("editContact").value = contactNumber;
         document.getElementById("editJobTitle").value = jobTitle || "";
         document.getElementById("editHiddenRole").value = role;
-
-        let editRoleSelect = document.getElementById("editRole");
-        for (let option of editRoleSelect.options) { option.selected = option.value === role; }
+        document.getElementById("displayRole").textContent = role.charAt(0).toUpperCase() + role.slice(1);
 
         let locationSelect = document.getElementById("editLocation");
         if (locationSelect) { for (let option of locationSelect.options) { option.selected = option.value === location; } }
@@ -521,34 +564,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
-    // --- Filter and Search ---
-    const accountFilter = document.getElementById("accountFilter");
-    const accountSearch = document.getElementById("accountSearch");
-    const accountsTableBody = document.getElementById("accountsTableBody");
-    const allRows = Array.from(accountsTableBody.getElementsByTagName('tr'));
-
-    function performFilterAndSearch() {
-        let selectedRole = accountFilter.value.toLowerCase();
-        let searchQuery = accountSearch.value.trim().toLowerCase();
-
-        allRows.forEach(row => {
-            let roleCell = row.querySelector("td:nth-child(4)");
-            let nameCell = row.querySelector("td:nth-child(2)");
-
-            if (roleCell && nameCell) {
-                let role = roleCell.textContent.trim().toLowerCase();
-                let name = nameCell.textContent.trim().toLowerCase();
-
-                const roleMatch = selectedRole === "all" || role === selectedRole;
-                const searchMatch = name.includes(searchQuery);
-
-                row.style.display = (roleMatch && searchMatch) ? "" : "none";
-            }
-        });
-    }
-    accountFilter.addEventListener("change", performFilterAndSearch);
-    accountSearch.addEventListener("input", performFilterAndSearch);
-
     // --- Add Account Form Logic ---
     const addForm = document.getElementById('addaccountform');
     if (addForm) {
@@ -560,7 +575,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const emailAjaxError = document.getElementById('email-ajax-error');
         const contactAjaxError = document.getElementById('contact_number-ajax-error');
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
         let ajaxValidationStatus = { email: true, contact_number: true };
 
         const checkUniqueness = async (field, value, url, errorElement) => {
@@ -574,14 +588,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 ajaxValidationStatus[field] = !data.exists;
                 if (data.exists) {
                     errorElement.textContent = `This ${field.replace('_', ' ')} is already taken.`;
-                    // Force the indicator to red asterisk if email exists
-                    if(field === 'email') {
-                        document.getElementById('email-indicator').className = 'input-indicator required';
-                    }
+                    if(field === 'email') { document.getElementById('email-indicator').className = 'input-indicator required'; }
                 } else {
                     errorElement.textContent = '';
                 }
-
             } catch (error) {
                 console.error('Validation check failed:', error);
                 errorElement.textContent = 'Could not validate. Please try again.';
@@ -590,24 +600,18 @@ document.addEventListener("DOMContentLoaded", function() {
             validateAndVisualize();
         };
 
-        emailInput.addEventListener('blur', () => {
-             if (emailInput.value.trim()) checkUniqueness('email', emailInput.value, '{{ route("superadmin.account.checkEmail") }}', emailAjaxError);
-        });
-        contactInput.addEventListener('blur', () => {
-            if (contactInput.value.trim().length === 11) checkUniqueness('contact_number', contactInput.value, '{{ route("superadmin.account.checkContact") }}', contactAjaxError);
-        });
+        emailInput.addEventListener('blur', () => { if (emailInput.value.trim()) checkUniqueness('email', emailInput.value, '{{ route("superadmin.account.checkEmail") }}', emailAjaxError); });
+        contactInput.addEventListener('blur', () => { if (contactInput.value.trim().length === 11) checkUniqueness('contact_number', contactInput.value, '{{ route("superadmin.account.checkContact") }}', contactAjaxError); });
 
-        // Central validation function
         const isInputValid = (input) => {
             if (!input.required || input.offsetParent === null) return true;
             const value = input.value.trim();
             if (value === '') return false;
-
             switch (input.name) {
                 case 'contact_number': return value.length === 11;
                 case 'password': return value.length >= 8;
                 case 'password_confirmation': return value === addForm.querySelector('#password').value;
-                default: return true; // Default check is just for non-empty
+                default: return true;
             }
         };
 
@@ -615,11 +619,7 @@ document.addEventListener("DOMContentLoaded", function() {
             allInputs.forEach(input => {
                 const indicator = document.getElementById(`${input.name}-indicator`);
                 if (indicator && input.offsetParent !== null && input.required) {
-                    // Special case for email to respect AJAX validation result
-                    if(input.name === 'email' && !ajaxValidationStatus.email) {
-                        indicator.className = 'input-indicator required';
-                        return; // Exit early for this input
-                    }
+                    if(input.name === 'email' && !ajaxValidationStatus.email) { indicator.className = 'input-indicator required'; return; }
                     indicator.className = isInputValid(input) ? 'input-indicator valid' : 'input-indicator required';
                 }
             });
@@ -628,10 +628,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const validateAndVisualize = () => {
             let allRequiredValid = true;
             for (const input of addForm.querySelectorAll('[required]')) {
-                if (!isInputValid(input)) {
-                    allRequiredValid = false;
-                    break;
-                }
+                if (!isInputValid(input)) { allRequiredValid = false; break; }
             }
             const isAjaxValid = ajaxValidationStatus.email && ajaxValidationStatus.contact_number;
             submitButton.disabled = !allRequiredValid || !isAjaxValid;
@@ -701,18 +698,37 @@ document.addEventListener("DOMContentLoaded", function() {
         addAccountForm.addEventListener('submit', function (event) {
             event.preventDefault();
             Swal.fire({
-                title: 'Save New Account?', text: 'Do you want to save this account?', icon: 'question',
-                showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33',
+                title: 'Save New Account?',
+                text: 'Do you want to save this account?',
+                icon: 'question',
+                // --- ITO ANG IDINAGDAG ---
+                customClass: {
+                    icon: 'swal-icon-pulse'
+                },
+                // -------------------------
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, save it!'
             }).then((result) => { if (result.isConfirmed) { this.submit(); } });
         });
     }
+
     if (editAccountForm) {
         editAccountForm.addEventListener('submit', function (event) {
             event.preventDefault();
             Swal.fire({
-                title: 'Save Changes?', text: 'Do you want to save the changes to this account?', icon: 'question',
-                showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33',
+                title: 'Save Changes?',
+                text: 'Do you want to save the changes to this account?',
+                icon: 'question',
+                // --- ITO ANG IDINAGDAG ---
+                customClass: {
+                    icon: 'swal-icon-pulse'
+                },
+                // -------------------------
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, save changes!'
             }).then((result) => { if (result.isConfirmed) { this.submit(); } });
         });

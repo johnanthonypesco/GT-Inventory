@@ -5,27 +5,27 @@
     </div>
 
     <li class="list-none flex flex-col p-2 gap-[3px] h-full">
-        <a href="{{ route('admin.dashboard') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
+        <a href="{{ route('admin.dashboard') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin">
             <i class="fa-solid fa-gauge text-[#005382] text-sm sm:text-2xl lg:text-sm"></i>
             <span class="sm:hidden lg:inline-block">Dashboard</span>
         </a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <a href="{{ route('admin.inventory') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/inventory') ? 'active' : ''  }}">
+            <a href="{{ route('admin.inventory') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/inventory') ? 'active' : ''  }} hover:animate-spin">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-boxes-stacked text-[#005382] text-sm {{ request()->is('admin/inventory') ? 'text-white' : ''  }}"></i><span class="sm:hidden lg:inline-block">Inventory</span>
 
             </a>
-            <a href="{{ route('admin.sales') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-print text-[#005382] text-sm"></i>
-                <span class="sm:hidden lg:inline-block">Sales Report</span>
-
+            
+            <a href="{{ route('admin.sales') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/sales*') ? 'active' : '' }}">
+                <i class="fa-solid fa-print sm:text-2xl lg:text-sm text-sm {{ request()->is('admin/sales*') ? 'text-white' : 'text-[#005382]' }}"></i>
+                <span class="sm:hidden lg:inline-block">Sales Reports</span>
             </a>
             
-            <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/productlisting') ? 'active' : ''  }}">
+            <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/productlisting') ? 'active' : ''  }} hover:animate-spin">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-list-check text-[#005382] text-sm {{ request()->is('admin/productlisting') ? 'text-white' : ''  }}"></i>
                 <span class="sm:hidden lg:inline-block">Product Deals</span>
             </a>
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
+            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin">
                 <i class="fa-brands fa-rocketchat text-[#005382]"></i>
                 <span class="sm:hidden lg:inline-block">Chat</span>
                 @if ($adminsidebar_counter > 0)
@@ -35,13 +35,12 @@
                 @endif
             </a>
             
-            <a href="{{ route('superadmin.account.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-bars-progress text-[#005382] text-sm"></i>
+            <a href="{{ route('superadmin.account.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('manageaccounts*') ? 'active' : '' }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-bars-progress text-sm {{ request()->is('manageaccounts*') ? 'text-white' : 'text-[#005382]' }}"></i>
                 <span class="sm:hidden lg:inline-block">Manage Accounts</span>
-
             </a>
             
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }}">
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }} hover:animate-spin">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping {{ request()->is('admin/order') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
 
@@ -54,22 +53,22 @@
             </a>
             
 
-            <a href="{{ route ('admin.historylog')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-magnifying-glass-chart text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">History Log</span></a>
+            <a href="{{ route ('admin.historylog')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin"><i class="fa-solid sm:text-2xl lg:text-sm fa-magnifying-glass-chart text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">History Log</span></a>
 
-            <a href="{{ route ('admin.stafflocation')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-map-location-dot text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Staff Location</span></a>
-            <a href="{{ route ('admin.contentmanagement')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-file text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Manage Content</span></a>
+            <a href="{{ route ('admin.stafflocation')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin"><i class="fa-solid sm:text-2xl lg:text-sm fa-map-location-dot text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Staff Location</span></a>
+            <a href="{{ route ('admin.contentmanagement')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin"><i class="fa-solid sm:text-2xl lg:text-sm fa-file text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Manage Content</span></a>
 
 
-            <a href="{{ route('superadmin.reviews.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-star text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Review Manager</span></a>
+            <a href="{{ route('superadmin.reviews.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin"><i class="fa-solid sm:text-2xl lg:text-sm fa-star text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Review Manager</span></a>
         @endif
 
         @if (auth('staff')->check())
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }} hover:animate-spin">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-sm {{ request()->is('staff/order') ? 'text-white' : 'text-[#005382]'  }}"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
             </a>
 
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
+            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 hover:animate-spin">
                 <i id="navBarCounter" class="fa-brands fa-rocketchat text-sm sm:text-2xl lg:text-sm"></i><span class="sm:hidden lg:inline-block">Chat</span>
                 @if ($adminsidebar_counter > 0)
                     <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
@@ -79,7 +78,7 @@
             </a>
         @endif
 
-        <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
+        <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto hover:animate-spin">
             @csrf
             <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-right-from-bracket text-white text-sm"></i><span class="sm:hidden lg:inline-block">Logout</span>

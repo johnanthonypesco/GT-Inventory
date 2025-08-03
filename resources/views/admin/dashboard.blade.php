@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-     <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
+    <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,9 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <title>Dashboard</title>
     <style>
-        /* Styles for the Executive Summary */
-        .kpi-card { background-color: #f8fafc; border-left: 4px solid #3b82f6; transition: all 0.3s ease; }
-        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        /* Styles for the AI Analysis Section */
         .anomaly-item.positive { border-left-color: #16a34a; }
         .anomaly-item.negative { border-left-color: #dc2626; }
         .anomaly-item.warning { border-left-color: #f59e0b; }
@@ -37,117 +35,117 @@
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-       {{-- Start of the cards container --}}
-<div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        {{-- Start of the cards container --}}
+        <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
 
-    {{-- DYNAMIC CARD COUNT LOGIC --}}
-    @php
-        // Start with the base number of cards everyone sees
-        $cardCount = 3; // Total Delivered, Pending, Cancelled
-        
-        // Add 1 if the user is not a Staff (for Total Revenue)
-        if (!$currentUser instanceof \App\Models\Staff) {
-            $cardCount++;
-        }
-        
-        // Add 1 for the Unread Messages card (everyone sees this)
-        $cardCount++;
-    @endphp
+            {{-- DYNAMIC CARD COUNT LOGIC --}}
+            @php
+                // Start with the base number of cards everyone sees
+                $cardCount = 3; // Total Delivered, Pending, Cancelled
+                
+                // Add 1 if the user is not a Staff (for Total Revenue)
+                if (!$currentUser instanceof \App\Models\Staff) {
+                    $cardCount++;
+                }
+                
+                // Add 1 for the Unread Messages card (everyone sees this)
+                $cardCount++;
+            @endphp
 
-    {{-- UPDATED GRID WITH DYNAMIC COLUMNS & BETTER ALIGNMENT --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-{{ $cardCount }} gap-4 items-stretch">
+            {{-- UPDATED GRID WITH DYNAMIC COLUMNS & BETTER ALIGNMENT --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-{{ $cardCount }} gap-4 items-stretch">
 
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
-        <div class="flex-1 min-w-0">
-            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
-                Total Delivered
-            </h3>
-            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
-                {{ $totalOrders }}
-            </p>
-        </div>
-        <div class="ml-4">
-            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                <img src="{{ asset('image/complete.png') }}" alt="Total Delivered" class="h-6 w-6 md:h-7 md:h-7">
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
-        <div class="flex-1 min-w-0">
-            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
-                Pending Orders
-            </h3>
-            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
-                {{ $pendingOrders }}
-            </p>
-        </div>
-        <div class="ml-4">
-            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                <img src="{{ asset('image/pending.png') }}" alt="Pending Orders" class="h-6 w-6 md:h-7 md:h-7">
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
-        <div class="flex-1 min-w-0">
-            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
-                Cancelled Orders
-            </h3>
-            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
-                {{ $cancelledOrders }}
-            </p>
-        </div>
-        <div class="ml-4">
-            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                <img src="{{ asset('image/cancel.png') }}" alt="Cancelled Orders" class="h-6 w-6 md:h-7 ">
-            </div>
-        </div>
-    </div>
-    
-    @if(!$currentUser instanceof \App\Models\Staff)
-        <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
-            <div class="flex-1 min-w-0">
-                <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
-                    Total Revenue
-                </h3>
-                <p class="text-gray-800 text-2xl md:text-2xl sm:text-lg font-bold mt-1 break-all">
-                    ₱{{ number_format($totalRevenue, 0) }}
-                </p>
-            </div>
-            <div class="ml-4">
-                <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                    <img src="{{ asset('image/pera.png') }}" alt="Total Revenue" class="h-6 w-6 md:h-7">
+                <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                            Total Delivered
+                        </h3>
+                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                            {{ $totalOrders }}
+                        </p>
+                    </div>
+                    <div class="ml-4">
+                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                            <img src="{{ asset('image/complete.png') }}" alt="Total Delivered" class="h-6 w-6 md:h-7 md:h-7">
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    @endif
 
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
-        <div class="flex-1 min-w-0">
-            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
-                Unread Messages
-            </h3>
-            <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
-                @if($currentUser instanceof \App\Models\SuperAdmin)
-                    {{ $unreadMessagesSuperAdmin ?? 0 }}
-                @elseif($currentUser instanceof \App\Models\Admin)
-                    {{ $unreadMessagesAdmin ?? 0 }}
-                @elseif($currentUser instanceof \App\Models\Staff)
-                    {{ $unreadMessagesStaff ?? 0 }}
+                <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                            Pending Orders
+                        </h3>
+                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                            {{ $pendingOrders }}
+                        </p>
+                    </div>
+                    <div class="ml-4">
+                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                            <img src="{{ asset('image/pending.png') }}" alt="Pending Orders" class="h-6 w-6 md:h-7 md:h-7">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                            Cancelled Orders
+                        </h3>
+                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                            {{ $cancelledOrders }}
+                        </p>
+                    </div>
+                    <div class="ml-4">
+                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                            <img src="{{ asset('image/cancel.png') }}" alt="Cancelled Orders" class="h-6 w-6 md:h-7 ">
+                        </div>
+                    </div>
+                </div>
+            
+                @if(!$currentUser instanceof \App\Models\Staff)
+                    <div id="totalSaleCard" class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                                Total Sale
+                            </h3>
+                            <p id="totalSaleValue" class="text-gray-800 text-2xl md:text-2xl sm:text-lg font-bold mt-1 break-all">
+                                ₱{{ number_format($totalRevenue, 0) }}
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                                <img src="{{ asset('image/pera.png') }}" alt="Total Revenue" class="h-6 w-6 md:h-7">
+                            </div>
+                        </div>
+                    </div>
                 @endif
-            </p>
-        </div>
-        <div class="ml-4">
-            <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                <img src="{{ asset('image/messages.png') }}" alt="Unread Messages" class="h-6 w-6 md:h-7">
-            </div>
-        </div>
-    </div>
 
-</div>
-    {{-- The rest of your dashboard code (AI Analysis, etc.) follows --}}
-                {{-- *** START: UNIFIED AI ANALYSIS SECTION *** --}}
+                <div class="bg-white rounded-xl shadow-sm p-4 md:p-5 flex items-center h-full">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">
+                            Unread Messages
+                        </h3>
+                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
+                            @if($currentUser instanceof \App\Models\SuperAdmin)
+                                {{ $unreadMessagesSuperAdmin ?? 0 }}
+                            @elseif($currentUser instanceof \App\Models\Admin)
+                                {{ $unreadMessagesAdmin ?? 0 }}
+                            @elseif($currentUser instanceof \App\Models\Staff)
+                                {{ $unreadMessagesStaff ?? 0 }}
+                            @endif
+                        </p>
+                    </div>
+                    <div class="ml-4">
+                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
+                            <img src="{{ asset('image/messages.png') }}" alt="Unread Messages" class="h-6 w-6 md:h-7">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            {{-- *** START: MODIFIED AI ANALYSIS SECTION *** --}}
             @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
             <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
                 {{-- Unified Controls --}}
@@ -158,13 +156,14 @@
                     </h2>
                     <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         <select id="aiModelSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                            <option value="gemini-1.5-flash">Google Gemini (Flash)</option>
-                            <option value="mistral-small-latest">Mistral AI (Small)</option>
+                            <option value="gemini-1.5-flash">(Prototype AI model 1) large</option>
+                            <option value="mistral-small-latest">(Prototype AI model 2) large</option>
                         </select>
                         <button id="refreshAiBtn" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
                             <i class="fas fa-redo-alt"></i> Refresh Analysis
                         </button>
-                        <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                        {{-- NEW: Timer Display --}}
+                        <div id="ai-timer-container" class="text-sm text-gray-500 font-medium mt-2 sm:mt-0" style="display: none;">
                             <i class="far fa-clock mr-1"></i>
                             <span id="ai-timer"></span>
                         </div>
@@ -173,54 +172,42 @@
 
                 <hr class="my-4 border-gray-200">
 
-                {{-- Part 1: Executive Summary --}}
-                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-purple-500"></i>Executive Summary</h3>
-
-                {{-- Executive Summary Filter Controls --}}
-                <div class="flex flex-col sm:flex-row gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4">
-                    <label for="summaryPeriodSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
-                    <select id="summaryPeriodSelect" class="w-full sm:w-auto p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                        <option value="7d" selected>Last 7 Days</option>
-                        <option value="today">Today</option>
-                        <option value="this_week">This Week</option>
-                        <option value="this_month">This Month</option>
-                        <option value="this_year">This Year</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
-                    <div id="summaryCustomRangeContainer" class="hidden flex flex-col sm:flex-row gap-2 items-center">
-                        <input type="date" id="summaryStartDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                        <span class="text-gray-500">to</span>
-                        <input type="date" id="summaryEndDate" class="p-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
+                <div id="ai-content-wrapper" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {{-- Part 1: Anomaly Detection & Recommendations --}}
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>AI Anomaly Detection</h3>
+                            <div id="ai-anomalies-content" class="space-y-3">
+                                <div class="loader">
+                                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span class="text-lg font-semibold">Loading AI analysis...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-lightbulb mr-2 text-blue-500"></i>AI Recommendations</h3>
+                            <div id="ai-recommendations-content" class="space-y-3">
+                                {{-- Recommendations will be loaded here by JS --}}
+                            </div>
+                        </div>
                     </div>
-                    <button id="applySummaryFilterBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto">
-                        <i class="fas fa-filter mr-1"></i> Apply
-                    </button>
-                </div>
 
-                <div id="ai-summary-content">
-                    <div class="loader">
-                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        <span class="text-lg font-semibold">Loading AI summary...</span>
+                    {{-- Part 2: Chart Analysis --}}
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
+                        <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
+                            {{-- Chart analysis will be loaded here by JS --}}
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
+                                <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <hr class="my-6 border-gray-200">
-
-                {{-- Part 2: Chart Analysis --}}
-                <h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Chart Analysis</h3>
-                <div id="ai-chart-analysis-content" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 min-h-[80px] flex flex-col items-center justify-center text-center">
-                    <p class="text-gray-500">Chart analysis will appear here after clicking "Refresh Analysis".</p>
-                    <small id="aiModelName" class="text-gray-400 mt-2"></small>
-                </div>
-                <div class="flex justify-end mt-3">
-                    <button id="speakAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hidden">
-                        <i class="fas fa-volume-up mr-2"></i> Speak Chart Analysis
-                    </button>
                 </div>
             </div>
             @endif
-            {{-- *** END: UNIFIED AI ANALYSIS SECTION *** --}}
-
+            {{-- *** END: MODIFIED AI ANALYSIS SECTION *** --}}
 
             @if(!$currentUser instanceof \App\Models\Staff)
                 <div class="mt-5 bg-white p-4 rounded-lg shadow">
@@ -289,6 +276,7 @@
                 </div>
             </div>
             @endif
+
             @if(!$currentUser instanceof \App\Models\Staff)
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
                 <div class="space-y-4 md:space-y-6" id="leftCharts">
@@ -440,6 +428,58 @@
             </div>
             @endif
         </div>
+
+        <div id="revenueFilterModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-100">
+        <div class="flex justify-between items-start">
+            <div class="space-y-1">
+                <h3 class="text-xl font-bold text-gray-900">Filter Total Sales</h3>
+                <p class="text-sm text-gray-500">Select your preferred date range</p>
+            </div>
+            <button id="closeRevenueModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mt-6 space-y-5">
+            <div>
+                <label for="revenueModalPeriod" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                <select id="revenueModalPeriod" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    <option value="all_time" selected>All Time</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="today">Today</option>
+                    <option value="this_week">This Week</option>
+                    <option value="this_month">This Month</option>
+                    <option value="this_year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            
+            <div id="revenueModalCustomRange" class="hidden space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="space-y-2">
+                    <label for="revenueModalStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" id="revenueModalStartDate" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label for="revenueModalEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" id="revenueModalEndDate" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end space-x-3">
+            <button id="cancelRevenueFilterBtn" class="px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                Cancel
+            </button>
+            <button id="applyRevenueFilterBtn" class="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Apply Filter
+            </button>
+        </div>
+    </div>
+</div>
+
     </main>
 
     <script>
@@ -447,102 +487,175 @@
         // Global variables
         const chartInstances = {};
 
+        // --- SCRIPT FOR REVENUE CARD MODAL ---
+        const totalSaleCard = document.getElementById('totalSaleCard');
+        const revenueModal = document.getElementById('revenueFilterModal');
+        const closeModalBtn = document.getElementById('closeRevenueModalBtn');
+        const applyFilterBtn = document.getElementById('applyRevenueFilterBtn');
+        const totalSaleValueEl = document.getElementById('totalSaleValue');
+        const modalPeriodSelect = document.getElementById('revenueModalPeriod');
+        const modalCustomRangeContainer = document.getElementById('revenueModalCustomRange');
+
+        if (totalSaleCard) {
+            totalSaleCard.addEventListener('click', () => {
+                revenueModal.classList.remove('hidden');
+            });
+        }
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                revenueModal.classList.add('hidden');
+            });
+        }
+        if (revenueModal) {
+            revenueModal.addEventListener('click', (event) => {
+                if (event.target === revenueModal) {
+                    revenueModal.classList.add('hidden');
+                }
+            });
+        }
+        if (modalPeriodSelect) {
+            modalPeriodSelect.addEventListener('change', () => {
+                modalCustomRangeContainer.classList.toggle('hidden', modalPeriodSelect.value !== 'custom');
+            });
+        }
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', async () => {
+                const period = modalPeriodSelect.value;
+                const startDate = document.getElementById('revenueModalStartDate').value;
+                const endDate = document.getElementById('revenueModalEndDate').value;
+                
+                applyFilterBtn.disabled = true;
+                applyFilterBtn.textContent = 'Loading...';
+                totalSaleValueEl.textContent = '...';
+
+                try {
+                    const response = await fetch("{{ route('admin.filtered-revenue') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            period: period,
+                            start_date: startDate,
+                            end_date: endDate
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    
+                    const formattedRevenue = '₱' + new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 }).format(result.total_revenue);
+                    totalSaleValueEl.textContent = formattedRevenue;
+                    
+                } catch (error) {
+                    console.error('Error fetching filtered revenue:', error);
+                    totalSaleValueEl.textContent = 'Error';
+                    alert('Could not fetch the filtered sales data.');
+                } finally {
+                    applyFilterBtn.disabled = false;
+                    applyFilterBtn.textContent = 'Apply Filter';
+                    revenueModal.classList.add('hidden');
+                }
+            });
+        }
+
+
         // --- UNIFIED AI ANALYSIS SCRIPT ---
         if (document.getElementById('ai-analysis-section')) {
-            let executiveSummaryData = @json($executiveSummaryData);
             let countdownInterval;
-
-            const summaryContentEl = document.getElementById('ai-summary-content');
+            
+            const anomaliesContentEl = document.getElementById('ai-anomalies-content');
+            const recommendationsContentEl = document.getElementById('ai-recommendations-content');
             const chartAnalysisContentEl = document.getElementById('ai-chart-analysis-content');
-            const timerEl = document.getElementById('ai-timer');
-            const timerContainerEl = document.getElementById('ai-timer-container');
             const aiModelSelect = document.getElementById('aiModelSelect');
             const refreshAiBtn = document.getElementById('refreshAiBtn');
             const speakAnalysisBtn = document.getElementById('speakAnalysisBtn');
-            const aiModelNameSpan = document.getElementById('aiModelName');
+            const timerContainerEl = document.getElementById('ai-timer-container');
+            const timerEl = document.getElementById('ai-timer');
 
-            // Summary filter elements
-            const summaryPeriodSelect = document.getElementById('summaryPeriodSelect');
-            const customRangeContainer = document.getElementById('summaryCustomRangeContainer');
-            const startDateInput = document.getElementById('summaryStartDate');
-            const endDateInput = document.getElementById('summaryEndDate');
-            const applySummaryFilterBtn = document.getElementById('applySummaryFilterBtn');
-
-            // Function to get summary filter parameters from the UI
-            function getSummaryFilterParams() {
-                const period = summaryPeriodSelect.value;
-                let startDate = '';
-                let endDate = '';
-                if (period === 'custom') {
-                    startDate = startDateInput.value;
-                    endDate = endDateInput.value;
-                }
-                return { period: period, start_date: startDate, end_date: endDate };
+            // Functions to save and load AI model choice from localStorage
+            function saveSelectedAiModel(model) {
+                localStorage.setItem('selectedAiModel', model);
             }
 
-            function renderSummary(summary) {
-                if (!summary || !summary.kpis) {
-                    summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI summary...</span></div>`;
+            function loadSelectedAiModel() {
+                const savedModel = localStorage.getItem('selectedAiModel');
+                if (savedModel) {
+                    aiModelSelect.value = savedModel;
+                }
+            }
+
+            function startCountdown(expiryDateString) {
+                if (countdownInterval) clearInterval(countdownInterval);
+
+                if (!expiryDateString) {
+                    timerContainerEl.style.display = 'none';
                     return;
                 }
-                let kpisHtml = summary.kpis.map(kpi => {
-                    let trendIcon = '';
-                    if (kpi.trend === 'up') trendIcon = `<span class="text-green-500"><i class="fas fa-arrow-up"></i></span>`;
-                    else if (kpi.trend === 'down') trendIcon = `<span class="text-red-500"><i class="fas fa-arrow-down"></i></span>`;
-                    else if (kpi.trend === 'stable' || kpi.trend === null) trendIcon = `<span class="text-gray-500"><i class="fas fa-minus"></i></span>`;
-                    return `<div class="kpi-card p-4 rounded-lg shadow"><h4 class="text-sm font-medium text-gray-500 flex justify-between items-center">${kpi.label || 'N/A'} ${trendIcon}</h4><p class="text-2xl font-semibold text-gray-900">${kpi.value || 'N/A'}</p></div>`;
-                }).join('');
-                let anomaliesHtml = summary.anomalies.map(anomaly => {
+
+                timerContainerEl.style.display = 'block';
+                const expiryDate = new Date(expiryDateString);
+
+                countdownInterval = setInterval(() => {
+                    const now = new Date();
+                    const diff = expiryDate - now;
+
+                    if (diff <= 0) {
+                        clearInterval(countdownInterval);
+                        timerEl.textContent = 'Analysis expired. Refresh needed.';
+                        return;
+                    }
+
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+
+                    timerEl.textContent = `New analysis in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            function renderAnomalies(anomalies) {
+                if (!anomalies || anomalies.length === 0) {
+                    anomaliesContentEl.innerHTML = `<div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i><p class="text-sm text-green-700">No critical anomalies detected.</p></div>`;
+                    return;
+                }
+                const anomaliesHtml = anomalies.map(anomaly => {
                     let iconClass, iconColor;
                     if (anomaly.type === 'positive') { iconClass = 'fa-check-circle'; iconColor = 'text-green-500'; }
                     else if (anomaly.type === 'negative') { iconClass = 'fa-exclamation-triangle'; iconColor = 'text-red-500'; }
                     else { iconClass = 'fa-exclamation-circle'; iconColor = 'text-yellow-500'; }
                     return `<div class="anomaly-item ${anomaly.type} bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas ${iconClass} ${iconColor} mt-1"></i><p class="text-sm text-gray-700">${anomaly.message || 'No message.'}</p></div>`;
                 }).join('');
-                let recommendationsHtml = summary.recommendations.map(rec => `<div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3"><i class="fas fa-lightbulb mt-1"></i><p class="font-medium flex-1">${rec.message || 'No message.'}</p></div>`).join('');
-
-                if (summary.kpis.length === 0) kpisHtml = `<p class="text-gray-700 col-span-1 md:col-span-3">No KPIs available.</p>`;
-                if (summary.anomalies.length === 0) anomaliesHtml = `<div class="anomaly-item positive bg-gray-50 p-3 rounded-lg border-l-4 flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i><p class="text-sm text-green-700">No critical anomalies detected.</p></div>`;
-                if (summary.recommendations.length === 0) recommendationsHtml = `<div class="bg-gray-50 p-4 rounded-lg"><p class="text-sm text-gray-600">No specific recommendations.</p></div>`;
-
-                summaryContentEl.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">${kpisHtml}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>AI Anomaly Detection</h3><div class="space-y-3">${anomaliesHtml}</div></div><div><h3 class="text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-lightbulb mr-2 text-blue-500"></i>AI Recommendations</h3><div class="space-y-3">${recommendationsHtml}</div></div></div>`;
+                anomaliesContentEl.innerHTML = anomaliesHtml;
             }
 
-            function renderChartAnalysis(analysisData) {
-                if (!analysisData || !analysisData.analysis) {
+            function renderRecommendations(recommendations) {
+                if (!recommendations || recommendations.length === 0) {
+                    recommendationsContentEl.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg"><p class="text-sm text-gray-600">No specific recommendations at this time.</p></div>`;
+                    return;
+                }
+                const recommendationsHtml = recommendations.map(rec => `<div class="recommendation-card text-white p-4 rounded-lg shadow-lg flex items-start gap-3"><i class="fas fa-lightbulb mt-1"></i><p class="font-medium flex-1">${rec.message || 'No message.'}</p></div>`).join('');
+                recommendationsContentEl.innerHTML = recommendationsHtml;
+            }
+
+            function renderChartAnalysis(analysis) {
+                if (!analysis) {
                     chartAnalysisContentEl.innerHTML = `<p class="text-gray-500">Could not generate chart analysis.</p>`;
                     speakAnalysisBtn.classList.add('hidden');
                     return;
                 }
-                chartAnalysisContentEl.innerHTML = `<p>${analysisData.analysis}</p>`;
-                aiModelNameSpan.textContent = `Analysis by: ${analysisData.model}`;
+                chartAnalysisContentEl.innerHTML = `<p>${analysis}</p>`;
                 speakAnalysisBtn.classList.remove('hidden');
             }
 
-            function startCountdown(expiryDateString) {
-                if (countdownInterval) clearInterval(countdownInterval);
-                if (!expiryDateString) { timerContainerEl.style.display = 'none'; return; }
-                timerContainerEl.style.display = 'block';
-                const expiryDate = new Date(expiryDateString);
-                countdownInterval = setInterval(() => {
-                    const diff = expiryDate - new Date();
-                    if (diff <= 0) {
-                        clearInterval(countdownInterval);
-                        timerEl.textContent = 'Expired. Refresh to update.';
-                        return;
-                    }
-                    const minutes = Math.floor((diff / 1000 / 60) % 60);
-                    const seconds = Math.floor((diff / 1000) % 60);
-                    timerEl.textContent = `Request resets in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                }, 1000);
-            }
-
-            function showLoadingState(isChartAnalysisOnly = false) {
-                 if (!isChartAnalysisOnly) {
-                    summaryContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold ml-3">Generating AI Summary...</span></div>`;
-                 }
-                chartAnalysisContentEl.innerHTML = `<div class="loader"><svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-md font-semibold ml-2">Analyzing Chart Data...</span></div>`;
-                aiModelNameSpan.textContent = '';
+            function showLoadingState() {
+                const loaderHtml = `<div class="loader"><svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold">Loading AI analysis...</span></div>`;
+                anomaliesContentEl.innerHTML = loaderHtml;
+                recommendationsContentEl.innerHTML = '';
+                chartAnalysisContentEl.innerHTML = '';
                 speakAnalysisBtn.classList.add('hidden');
                 startCountdown(null);
             }
@@ -550,21 +663,20 @@
             function handleError(error) {
                 console.error("Error fetching AI analysis:", error);
                 const errorMessage = error.message || 'Could not fetch analysis.';
-                renderSummary({ kpis: [], anomalies: [{type: 'negative', message: `Summary failed: ${errorMessage}`}], recommendations: [] });
-                chartAnalysisContentEl.innerHTML = `<p class="text-red-600">Chart analysis failed: ${errorMessage}</p>`;
-                timerEl.textContent = 'Error fetching data.';
+                renderAnomalies([{type: 'negative', message: `Analysis failed: ${errorMessage}`}]);
+                renderRecommendations([]);
+                chartAnalysisContentEl.innerHTML = `<p class="text-red-600">Chart analysis failed.</p>`;
+                startCountdown(new Date(Date.now() + 2 * 60 * 1000).toISOString());
             }
 
-            async function getCombinedAnalysis() {
+            async function getCombinedAnalysis(force = false) {
                 if (window.isFetchingAi) return;
                 window.isFetchingAi = true;
-
                 showLoadingState();
+                
                 const selectedAiModel = aiModelSelect.value;
-                const summaryFilters = getSummaryFilterParams(); // Get the new filter values
                 const chartsToAnalyze = {};
                 document.querySelectorAll('.chart-container').forEach(container => {
-                    // Only include visible charts in the analysis
                     if (container.style.display !== 'none') {
                         const chartId = container.dataset.chartId;
                         const chartInstance = chartInstances[`${chartId}Chart`];
@@ -584,18 +696,22 @@
                         method: "POST",
                         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: JSON.stringify({
-                            request_type: 'combined_analysis',
+                            request_type: 'dashboard_analysis',
                             ai_model: selectedAiModel,
                             chart_data: chartsToAnalyze,
-                            summary_filters: summaryFilters // Pass filters to backend
+                            force_refresh: force
                         })
                     });
                     if (!response.ok) { throw new Error( (await response.json()).error || 'Failed to fetch from server.'); }
 
                     const result = await response.json();
-                    renderSummary(result.summary_data.summary);
-                    startCountdown(result.summary_data.expires_at);
-                    renderChartAnalysis(result.chart_analysis_data);
+                    
+                    renderAnomalies(result.analysis.anomalies);
+                    renderRecommendations(result.analysis.recommendations);
+                    renderChartAnalysis(result.analysis.chart_analysis);
+                    startCountdown(result.expires_at);
+
+                    saveSelectedAiModel(selectedAiModel);
 
                 } catch (error) {
                     handleError(error);
@@ -603,24 +719,13 @@
                     window.isFetchingAi = false;
                 }
             }
+            
+            loadSelectedAiModel();
 
-            // --- Event Listeners ---
-            refreshAiBtn.addEventListener('click', getCombinedAnalysis);
-            applySummaryFilterBtn.addEventListener('click', getCombinedAnalysis); // FIXED: This now calls the combined analysis.
-
-            summaryPeriodSelect.addEventListener('change', () => {
-                if (summaryPeriodSelect.value === 'custom') {
-                    customRangeContainer.classList.remove('hidden');
-                    // Set default dates for better UX
-                    endDateInput.value = new Date().toISOString().split('T')[0];
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // inclusive
-                    startDateInput.value = sevenDaysAgo.toISOString().split('T')[0];
-                } else {
-                    customRangeContainer.classList.add('hidden');
-                }
+            refreshAiBtn.addEventListener('click', () => getCombinedAnalysis(true));
+            aiModelSelect.addEventListener('change', () => {
+                saveSelectedAiModel(aiModelSelect.value);
             });
-
             speakAnalysisBtn.addEventListener('click', () => {
                 const analysisText = chartAnalysisContentEl.querySelector('p')?.textContent;
                 if (analysisText) {
@@ -630,8 +735,7 @@
                 }
             });
 
-            // Initial page load with combined analysis
-            getCombinedAnalysis();
+            getCombinedAnalysis(false);
         }
 
         // --- CHARTING LOGIC ---
@@ -639,15 +743,12 @@
         const leftCharts = document.getElementById('leftCharts');
         const rightCharts = document.getElementById('rightCharts');
 
-        // --- NEW: Chart Display Options & Filtering Logic ---
         const chartFilterSelect = document.getElementById('chartFilter');
         const customChartSelectionDiv = document.getElementById('customChartSelection');
         const applyCustomChartsBtn = document.getElementById('applyCustomCharts');
         const allChartContainers = document.querySelectorAll('#chartsContainer .chart-container');
 
         function resizeAllCharts() {
-            // This function is critical to prevent charts from rendering incorrectly
-            // after their containers have been hidden and shown.
             Object.values(chartInstances).forEach(chart => {
                 if (chart && typeof chart.resize === 'function') {
                     chart.resize();
@@ -657,22 +758,15 @@
 
         function applyChartFilter() {
             const filterValue = chartFilterSelect.value;
-
-            // Show/hide the custom selection UI
             customChartSelectionDiv.classList.toggle('hidden', filterValue !== 'custom');
-
             if (filterValue === 'custom') {
-                // For custom, the 'Apply' button will handle the filtering, so we do nothing here.
                 return;
             }
-
             allChartContainers.forEach(container => {
                 const chartId = container.dataset.chartId;
                 const shouldShow = (filterValue === 'all') || (filterValue === chartId);
                 container.style.display = shouldShow ? 'block' : 'none';
             });
-
-            // Resize charts after layout changes to ensure proper rendering
             setTimeout(resizeAllCharts, 10);
         }
 
@@ -681,18 +775,14 @@
             document.querySelectorAll('input[name="customChart"]:checked').forEach(checkbox => {
                 selectedCharts.push(checkbox.value);
             });
-
             allChartContainers.forEach(container => {
                 const chartId = container.dataset.chartId;
                 const shouldShow = selectedCharts.includes(chartId);
                 container.style.display = shouldShow ? 'block' : 'none';
             });
-
-            // Resize charts after layout changes
             setTimeout(resizeAllCharts, 10);
         }
 
-        // Add event listeners for the new functionality
         if (chartFilterSelect) {
             chartFilterSelect.addEventListener('change', applyChartFilter);
         }
@@ -711,10 +801,8 @@
             destroyChart(canvasId);
             const canvasContainer = document.getElementById(canvasId + 'Container');
             if (!canvasContainer) return null;
-
             canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`;
             const ctx = document.getElementById(canvasId)?.getContext('2d');
-
             if (ctx) {
                 const newChart = new Chart(ctx, options);
                 chartInstances[canvasId] = newChart;
@@ -735,14 +823,11 @@
             const year = document.getElementById('revenueYearFilter')?.value;
             const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
             const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
-
             showChartLoader('revenueChartContainer', 'Loading revenue data...');
-
             try {
                 const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
                 if (!response.ok) throw new Error('Network response error');
                 const data = await response.json();
-
                 createChart('revenueChart', {
                     type: 'line',
                     data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
@@ -756,15 +841,15 @@
 
         function updatePerformanceChart(type) {
              const performanceData = {
-                 mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
-                 moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
-                 lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
+                  mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
+                  moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
+                  lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
              };
              const chartData = performanceData[type];
              createChart('productPerformanceChart', {
-                 type: 'bar',
-                 data: { labels: chartData.labels, datasets: [{ label: chartData.label, data: chartData.data, backgroundColor: chartData.backgroundColor, borderColor: chartData.borderColor, borderWidth: 1 }] },
-                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
+                  type: 'bar',
+                  data: { labels: chartData.labels, datasets: [{ label: chartData.label, data: chartData.data, backgroundColor: chartData.backgroundColor, borderColor: chartData.borderColor, borderWidth: 1 }] },
+                  options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
              });
         }
 
@@ -791,7 +876,6 @@
         async function updateInventoryChart() {
             const locationId = document.getElementById('inventoryLocationFilter')?.value;
             const url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
-
             showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
             try {
                 const response = await fetch(url);
@@ -822,70 +906,74 @@
                  const data = await response.json();
 
                  createChart('seasonalTrendsChart', {
-                     type: 'bar',
-                     data: {
-                         labels: data.trending_products.map(p => p.generic_name),
-                         datasets: [
-                             { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'},
-                             { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 },
-                             { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] }
-                         ]
-                     },
-                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                       type: 'bar',
+                       data: {
+                           labels: data.trending_products.map(p => p.generic_name),
+                           datasets: [
+                               { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'},
+                               { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 },
+                               { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] }
+                           ]
+                       },
+                       options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
                  });
 
                  predictionContainer.innerHTML = '';
                  if(data.predicted_peaks.length === 0) {
-                      predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Walang available na prediksyon para sa filter na ito.</p>';
+                       predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">No prediction available for this filter.</p>';
                  } else {
-                     data.predicted_peaks.forEach(p => {
-                          const card = document.createElement('div');
-                          card.className = 'bg-white p-4 rounded-lg shadow-md border-l-4 animate__animated animate__fadeInUp';
+                       data.predicted_peaks.forEach(p => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-white p-4 rounded-lg shadow-md border-l-4 animate__animated animate__fadeInUp';
 
-                          const percentage = p.prediction_percentage_change;
-                          const statusText = p.prediction_status_text;
+                            const percentage = p.prediction_percentage_change;
+                            const statusText = p.prediction_status_text;
 
-                          let colorClass = 'text-gray-600';
-                          let iconClass = 'fa-solid fa-minus';
-                          let borderColor = 'border-gray-400';
+                            let colorClass = 'text-gray-600';
+                            let iconClass = 'fa-solid fa-minus';
+                            let borderColor = 'border-gray-400';
 
-                          if (percentage >= 25) {
-                            colorClass = 'text-green-600';
-                            iconClass = 'fa-solid fa-arrow-trend-up';
-                            borderColor = 'border-green-500';
-                          } else if (percentage > 5) {
-                            colorClass = 'text-green-500';
-                            iconClass = 'fa-solid fa-arrow-up';
-                            borderColor = 'border-green-400';
-                          } else if (percentage < -20) {
-                            colorClass = 'text-red-600';
-                            iconClass = 'fa-solid fa-arrow-trend-down';
-                            borderColor = 'border-red-500';
-                          } else if (percentage < -5) {
-                             colorClass = 'text-yellow-600';
-                             iconClass = 'fa-solid fa-arrow-down';
-                             borderColor = 'border-yellow-500';
-                          }
+                            if (percentage >= 25) {
+                                colorClass = 'text-green-600';
+                                iconClass = 'fa-solid fa-arrow-trend-up';
+                                borderColor = 'border-green-500';
+                            } else if (percentage > 5) {
+                                colorClass = 'text-green-500';
+                                iconClass = 'fa-solid fa-arrow-up';
+                                borderColor = 'border-green-400';
+                            } else if (percentage < -20) {
+                                colorClass = 'text-red-600';
+                                iconClass = 'fa-solid fa-arrow-trend-down';
+                                borderColor = 'border-red-500';
+                            } else if (percentage < -5) {
+                                 colorClass = 'text-yellow-600';
+                                 iconClass = 'fa-solid fa-arrow-down';
+                                 borderColor = 'border-yellow-500';
+                            }
 
-                          card.classList.add(borderColor);
+                            card.classList.add(borderColor);
 
-                          card.innerHTML = `
-                            <h4 class="font-semibold text-gray-800 mb-1 truncate">${p.generic_name}</h4>
-                            <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
-                                <i class="${iconClass} mr-2 fa-fw"></i>
-                                <span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span>
-                            </div>
-                            <p class="text-xs text-gray-500">${statusText}</p>
-                          `;
+                            // --- MODIFIED SECTION START ---
+                            card.innerHTML = `
+                                <h4 class="font-semibold text-gray-800 truncate">${p.generic_name}</h4>
+                                <p class="text-sm text-gray-600 truncate">${p.brand_name}</p>
+                                <p class="text-xs text-gray-500 mb-2">${p.strength ? `${p.strength} - ` : ''}${p.form}</p>
+                                <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
+                                    <i class="${iconClass} mr-2 fa-fw"></i>
+                                    <span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span>
+                                </div>
+                                <p class="text-xs text-gray-500">${statusText}</p>
+                            `;
+                            // --- MODIFIED SECTION END ---
 
-                          predictionContainer.appendChild(card);
-                     });
+                            predictionContainer.appendChild(card);
+                        });
                  }
 
             } catch(error) {
                 console.error('Error fetching trend data:', error);
                 document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
-                predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">Nagkaroon ng error sa pag-analyze ng prediksyon.</p>';
+                predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">An error occurred while analyzing predictions.</p>';
             }
         }
         // ETO JM HINDI KO ALAM AYUSIN YUNG TRENDS & DATA NETO CHART
@@ -945,35 +1033,35 @@
         document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
         document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
     });
-    </script>
-    <!-- Location Tracking Script -->
-    @if(auth()->guard('staff')->check())
-    <script>
-        if (navigator.geolocation) {
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        fetch("{{ route('api.update-location') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            },
-                            body: JSON.stringify({
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude,
-                            }),
-                        });
-                    },
-                    function (error) {
-                        console.error("Error getting location: ", error);
-                    }
-                );
-            }, 10000); // Send location every 10 seconds
-        } else {
-            console.error("Geolocation is not supported.");
-        }
-    </script>
-    @endif
+</script>
+
+@if(auth()->guard('staff')->check())
+<script>
+    if (navigator.geolocation) {
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    fetch("{{ route('api.update-location') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        }),
+                    });
+                },
+                function (error) {
+                    console.error("Error getting location: ", error);
+                }
+            );
+        }, 10000); // Send location every 10 seconds
+    } else {
+        console.error("Geolocation is not supported.");
+    }
+</script>
+@endif
 </body>
 </html>

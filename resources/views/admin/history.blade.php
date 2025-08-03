@@ -39,7 +39,7 @@
                 @endphp
 
                 {{-- STATUS FILTER --}}
-                <form action="{{ route('admin.history') }}" method="GET">                  
+                <form action="{{ route('admin.history') }}" method="GET">
                     <input type="hidden" name="status_filter" value="all">
                     @if ($isSearchPresent)
                         <input type="hidden" name="employee_search" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
@@ -85,10 +85,10 @@
                 @if ($isStatusPresent)
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
-                
+
                 <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
                     <option value="all">All Location</option>
-    
+
                     @foreach ($dropdownLocationOptions as $location)
                         <option @selected($isProvincePresent === $location) value="{{ $location }}">{{ $location }}</option>
                     @endforeach
@@ -127,8 +127,8 @@
                     value="{{ $current_filters['search'] ? $current_filters['search'][0] . ' - ' . $current_filters['search'][1] : '' }}"
                     class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
                     onkeydown="if(event.key === 'Enter') {
-                        isInSuggestionEmployee() ? 
-                        document.getElementById('employee-search-form').submit() : 
+                        isInSuggestionEmployee() ?
+                        document.getElementById('employee-search-form').submit() :
                         event.preventDefault()
                     }"
                 >
@@ -287,24 +287,24 @@
                                                     </thead>
                                                     <tbody>
                                                        @php
-    // This is a safety check for backwards compatibility.
-    $batches = $firstItem->scannedQrCode->affected_batches;
-    if (is_string($batches)) {
-        // If it's a string, decode it into an array.
-        $batches = json_decode($batches, true);
-    }
-@endphp
+                                                            // This is a safety check for backwards compatibility.
+                                                            $batches = $firstItem->scannedQrCode->affected_batches;
+                                                            if (is_string($batches)) {
+                                                                // If it's a string, decode it into an array.
+                                                                $batches = json_decode($batches, true);
+                                                            }
+                                                        @endphp
 
-{{-- Only loop if $batches is a valid array --}}
-@if(is_array($batches))
-    @foreach ($batches as $batch)
-        <tr class="border-b">
-            <td class="p-2">{{ $batch['batch_number'] ?? 'N/A' }}</td>
-            <td class="p-2">{{ isset($batch['expiry_date']) ? Carbon::parse($batch['expiry_date'])->format('M d, Y') : 'N/A' }}</td>
-            <td class="p-2 text-center">{{ $batch['deducted_quantity'] ?? 'N/A' }}</td>
-        </tr>
-    @endforeach
-@endif
+                                                        {{-- Only loop if $batches is a valid array --}}
+                                                        @if(is_array($batches))
+                                                            @foreach ($batches as $batch)
+                                                                <tr class="border-b">
+                                                                    <td class="p-2">{{ $batch['batch_number'] ?? 'N/A' }}</td>
+                                                                    <td class="p-2">{{ isset($batch['expiry_date']) ? Carbon::parse($batch['expiry_date'])->format('M d, Y') : 'N/A' }}</td>
+                                                                    <td class="p-2 text-center">{{ $batch['deducted_quantity'] ?? 'N/A' }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
                                                     </tbody>
                                                 </table>
                                             </div>

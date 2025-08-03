@@ -12,16 +12,37 @@ use App\Models\ManageContents;
 class HistorylogController extends Controller
 {
     public function showHistorylog(Request $request) {
-        $historylogs = Historylogs::orderBy('created_at', 'desc')->paginate(10);
-    
-        return view('admin.historylog', [
-            'historylogs' => $historylogs,
-            'currentPage' => $historylogs->currentPage(),
-            'totalPage' => $historylogs->lastPage(),
-            'prevPageUrl' => $historylogs->previousPageUrl() ?? '#',
-            'nextPageUrl' => $historylogs->nextPageUrl() ?? '#',
-        ]);
+    // Start with a base query
+    $query = Historylogs::query();
+
+    // Check if there is a search keyword
+    if ($request->has('search') && $request->input('search') != '') {
+        $search = $request->input('search');
+        // Add a where clause to search in the description or other relevant columns
+        $query->where('description', 'like', '%' . $search . '%');
     }
+
+    // Check if there is an event filter and it's not 'All'
+    if ($request->has('event') && $request->input('event') != 'All') {
+        $event = $request->input('event');
+        $query->where('event', $event);
+    }
+
+    // Order by the newest logs and paginate the results
+    $historylogs = $query->orderBy('created_at', 'desc')->paginate(10);
+
+    // Append the search and filter parameters to the pagination links
+    // This ensures that when you go to the next page, the filters are still applied
+    $historylogs->appends($request->all());
+
+    return view('admin.historylog', [
+        'historylogs' => $historylogs,
+        'currentPage' => $historylogs->currentPage(),
+        'totalPage' => $historylogs->lastPage(),
+        'prevPageUrl' => $historylogs->previousPageUrl(),
+        'nextPageUrl' => $historylogs->nextPageUrl(),
+    ]);
+}
     
 
     // add Product log  

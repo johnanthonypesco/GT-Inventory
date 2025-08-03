@@ -18,62 +18,70 @@ use App\Http\Controllers\Admin\HistorylogController;
 class SuperAdminAccountController extends Controller
 {
     
-   
+    // index() method remains the same...
     public function index(Request $request)
     {
-        $isSuperAdmin = auth()->guard('superadmin')->check();
-        $isAdmin = auth()->guard('admin')->check();
+        $search = $request->input('search', '');
+        $filter = $request->input('filter', 'all');
 
-        // 1. Build the Admin Query (DO NOT use ->get())
+        // 1. Build the base queries for each role with company_id
         $adminsQuery = Admin::whereNull('archived_at')
-            ->select(
-                'id',
-                'email',
-                'contact_number',
-                'username',
-                DB::raw("NULL as staff_username"),
-                DB::raw("NULL as name"),
-                DB::raw("'admin' as role")
-            );
+            ->select('id', 'email', 'contact_number', 'username', DB::raw("NULL as staff_username"), DB::raw("NULL as name"), DB::raw("'admin' as role"), DB::raw("NULL as company_id"));
 
-        // 2. Build the Staff Query (DO NOT use ->get())
         $staffQuery = Staff::whereNull('archived_at')
-            ->select(
-                'id',
-                'email',
-                'contact_number',
-                DB::raw("NULL as username"),
-                'staff_username',
-                DB::raw("NULL as name"),
-                DB::raw("'staff' as role")
-            );
+            ->select('id', 'email', 'contact_number', DB::raw("NULL as username"), 'staff_username', DB::raw("NULL as name"), DB::raw("'staff' as role"), DB::raw("NULL as company_id"));
 
-        // 3. Build the User/Customer Query and UNION the others to it
-        // This keeps everything as a single Query Builder instance
-        $accountsQuery = User::whereNull('archived_at')
-            ->select(
-                'id',
-                'email',
-                'contact_number',
-                DB::raw("NULL as username"),
-                DB::raw("NULL as staff_username"),
-                'name',
-                DB::raw("'customer' as role")
-            )
-            ->unionAll($adminsQuery)
-            ->unionAll($staffQuery);
+        // *** ITO ANG BINAGO: Idinagdag ang 'company_id' sa select statement ***
+        $usersQuery = User::whereNull('archived_at')
+            ->select('id', 'email', 'contact_number', DB::raw("NULL as username"), DB::raw("NULL as staff_username"), 'name', DB::raw("'customer' as role"), 'company_id');
+
+        // 2. Apply search logic
+        if (!empty($search)) {
+            $adminsQuery->where(function ($q) use ($search) {
+                $q->where('username', 'LIKE', "%{$search}%")->orWhere('email', 'LIKE', "%{$search}%");
+            });
+            $staffQuery->where(function ($q) use ($search) {
+                $q->where('staff_username', 'LIKE', "%{$search}%")->orWhere('email', 'LIKE', "%{$search}%");
+            });
+            $usersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // 3. Conditionally union queries
+        if ($filter === 'all') {
+            $accountsQuery = $usersQuery->unionAll($adminsQuery)->unionAll($staffQuery);
+        } elseif ($filter === 'admin') {
+            $accountsQuery = $adminsQuery;
+        } elseif ($filter === 'staff') {
+            $accountsQuery = $staffQuery;
+        } elseif ($filter === 'customer') {
+            $accountsQuery = $usersQuery;
+        } else {
+            $accountsQuery = User::where('id', -1); 
+        }
 
         // 4. Paginate the final combined query
-        // We use DB::query() to properly handle pagination on a complex union
         $accounts = DB::query()
             ->fromSub($accountsQuery, 'accounts')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        // --- The rest of the data fetching remains the same ---
+        // ** ITO ANG IDINAGDAG: Kunin ang listahan ng lahat ng kumpanya para sa view **
+        $companies = Company::all()->keyBy('id');
+
+        // 5. Handle AJAX requests
+        if ($request->ajax()) {
+            // Ipapasa na rin natin ang $companies sa partial view
+            return view('admin.partials.accounts_table', compact('accounts', 'companies'))->render();
+        }
+
+        // --- For full page load ---
         $allAdmins = Admin::whereNull('archived_at')->get();
         $locations = Location::all();
-        $companies = Company::all();
         $allStaff = Staff::whereNull('archived_at')->get();
+        $isSuperAdmin = auth()->guard('superadmin')->check();
+        $isAdmin = auth()->guard('admin')->check();
 
         $archivedAdmins = Admin::whereNotNull('archived_at')->get();
         $archivedStaff = Staff::whereNotNull('archived_at')->get();
@@ -88,7 +96,7 @@ class SuperAdminAccountController extends Controller
             'accounts' => $accounts,
             'locations' => $locations,
             'admins' => $allAdmins,
-            'companies' => $companies,
+            'companies' => $companies, // Ipapasa na rin natin dito
             'archivedAccounts' => $archivedAccounts,
             'isSuperAdmin' => $isSuperAdmin,
             'isAdmin' => $isAdmin,
@@ -96,309 +104,254 @@ class SuperAdminAccountController extends Controller
         ]);
     }
 
-    // ... The rest of your controller methods
 
     public function store(Request $request)
     {
         try {
             session()->forget('errors.editAccount');
 
-            $messages = ['password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-            'email.unique' => 'The email address is already registered.',
-            'username.unique' => 'The username is already used.',
-            'staff_username.unique' => 'The username is already used.',
-            'username.unique' => 'The username is already used.',
-            'password.confirmed' => 'Password confirmation does not match.',
-    'contact_number.regex' => 'The contact number must be in the format +639191234567 or 09191234567.',
-        'contact_number.unique' => 'This contact number is already in use.'
-
-
-        ];
+            $messages = [
+                // ✅ UPDATED: The message now reflects the robust requirements
+                'password.regex' => 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+                'email.unique' => 'The email address is already registered.',
+                'username.unique' => 'The username is already used.',
+                'staff_username.unique' => 'The username is already used.',
+                'password.confirmed' => 'Password confirmation does not match.',
+                'contact_number.regex' => 'The contact number must be in the format +639191234567 or 09191234567.',
+                'contact_number.unique' => 'This contact number is already in use.'
+            ];
             $validated =$request->validate([
                'role' => [
-        'required',
-        'string',
-        'in:admin,staff,customer',
-        function ($attribute, $value, $fail) {
-            // Prevent Admins and Staff from selecting "Admin"
-            if (!auth()->guard('superadmin')->check() && $value === 'admin') {
-                $fail("You are not allowed to create an admin account.");
-            }
-        },
-    ],
+                    'required',
+                    'string',
+                    'in:admin,staff,customer',
+                    function ($attribute, $value, $fail) {
+                        if (!auth()->guard('superadmin')->check() && $value === 'admin') {
+                            $fail("You are not allowed to create an admin account.");
+                        }
+                    },
+                ],
                 'name' => 'nullable|string|max:255', // Only for customers
                 'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
                 'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
-    'password' => 'required|string|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])/|confirmed',
+                // ✅ UPDATED: New regex for broader character support
+                'password' => [
+                    'required',
+                    'string',
+                    'confirmed',
+                    // This regex requires one uppercase, one lowercase, one number, and one symbol/punctuation.
+                    'regex:/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\p{N})(?=.*[\p{P}\p{S}]).{8,}$/u'
+                ],
                 'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
-    'contact_number' => 'nullable|numeric|unique:users,contact_number|unique:admins,contact_number|unique:staff,contact_number',
-    'location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer
-    'job_title' => 'nullable|string|max:255',
-    'company_location_id' => 'nullable|integer|exists:locations,id', // ✅ Ensure it's an integer and exists
-    'company_id' => 'nullable|exists:companies,id', // Validate existing company
+                'contact_number' => 'nullable|numeric|unique:users,contact_number|unique:admins,contact_number|unique:staff,contact_number',
+                'location_id' => 'nullable|integer|exists:locations,id',
+                'job_title' => 'nullable|string|max:255',
+                'company_location_id' => 'nullable|integer|exists:locations,id',
+                'company_id' => 'nullable|exists:companies,id',
                 'new_company' => 'nullable|string|max:255|unique:companies,name',
-                'new_company_address' => 'nullable|string|max:255', // Address field for new company
+                'new_company_address' => 'nullable|string|max:255',
 
             ], $messages);
 
+            // ... The rest of the store method remains the same
             $validated = array_map("strip_tags", $validated);
+            $plainPassword = $validated['password'];
 
-            // ✅ 1. Capture the plain-text password from the request.
-        // This is the password the admin entered in the form.
-        $plainPassword = $validated['password'];
-
-        // Handle Company Creation logic (no changes needed here)
-        if ($validated['role'] === 'customer') {
-           // ... your company creation logic
-        }
-
-        $user = null;
-        $loginUrl = '';
-
-
-         // Handle Company Creation for Customers
-         if ($validated['role'] === 'customer') {
-            if (!empty($validated['new_company'])) {
-                // Ensure company_location_id exists before assigning
-                $locationId = isset($validated['company_location_id']) ? $validated['company_location_id'] : null;
-        
-                // ✅ Create new company with address
-                $company = Company::create([
-                    'name' => $validated['new_company'],
-                    'location_id' => $locationId, // Ensure valid ID
-                    'address' => $validated['new_company_address'],
-                    'status' => 'active'
-                ]);
-        
-                $validated['company_id'] = $company->id;
+            if ($validated['role'] === 'customer') {
+                if (!empty($validated['new_company'])) {
+                    $locationId = isset($validated['company_location_id']) ? $validated['company_location_id'] : null;
+                    $company = Company::create([
+                        'name' => $validated['new_company'],
+                        'location_id' => $locationId,
+                        'address' => $validated['new_company_address'],
+                        'status' => 'active'
+                    ]);
+                    $validated['company_id'] = $company->id;
+                }
             }
+
+            $user = null;
+            $loginUrl = '';
+
+            $user = match ($validated['role']) {
+                'admin' => tap(Admin::create([
+                    'username' => $validated['username'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($plainPassword),
+                    'super_admin_id' => auth()->id(),
+                    'contact_number' => $validated['contact_number'] ?? null,
+                    'is_admin' => 1,
+                ]), function() use (&$loginUrl) {
+                    $loginUrl = url('/admin/login');
+                }),
+
+                'staff' => tap(Staff::create([
+                    'staff_username' => $validated['username'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($plainPassword),
+                    'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
+                    'location_id' => $validated['location_id'],
+                    'contact_number' => $validated['contact_number'] ?? null,
+                    'job_title' => $validated['job_title'],
+                    'is_staff' => 1,
+                ]), function() use (&$loginUrl) {
+                    $loginUrl = url('/staff/login');
+                }),
+
+                'customer' => tap(User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($plainPassword),
+                    'contact_number' => $validated['contact_number'],
+                    'company_id' => $validated['company_id'] ?? null,
+                    'is_admin' => 0,
+                    'email_verified_at' => null,
+                ]), function() use (&$loginUrl) {
+                    $loginUrl = url('/login');
+                }),
+            };
+
+            if ($user) {
+                Mail::to($user->email)->send(new NewAccountMail($user, $plainPassword, $loginUrl));
+            }
+
+            HistorylogController::addaccountlog(
+                "Add",
+                ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
+            );
+
+            return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
         }
-        
-
-            // dd($validated);
-       $user = match ($validated['role']) {
-            'admin' => tap(Admin::create([
-                'username' => $validated['username'],
-                'email' => $validated['email'],
-                'password' => Hash::make($plainPassword), // Hashing the password for the DB
-                'super_admin_id' => auth()->id(),
-                'contact_number' => $validated['contact_number'] ?? null,
-                'is_admin' => 1,
-            ]), function() use (&$loginUrl) {
-                $loginUrl = url('/admin/login');
-            }),
-
-            'staff' => tap(Staff::create([
-                'staff_username' => $validated['username'],
-                'email' => $validated['email'],
-                'password' => Hash::make($plainPassword), // Hashing the password for the DB
-                'admin_id' => $validated['role'] === 'staff' ? $validated['admin_id'] : null,
-                'location_id' => $validated['location_id'],
-                'contact_number' => $validated['contact_number'] ?? null,
-                'job_title' => $validated['job_title'],
-                'is_staff' => 1,
-            ]), function() use (&$loginUrl) {
-                $loginUrl = url('/staff/login');
-            }),
-
-            'customer' => tap(User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($plainPassword), // Hashing the password for the DB
-                'contact_number' => $validated['contact_number'],
-                'company_id' => $validated['company_id'] ?? null,
-                'is_admin' => 0,
-                'email_verified_at' => null,
-            ]), function() use (&$loginUrl) {
-                $loginUrl = url('/login');
-            }),
-        };
-
-        if ($user) {
-            Mail::to($user->email)->send(new NewAccountMail($user, $plainPassword, $loginUrl));
+        catch (\Exception $e) {
+            Log::error('Error creating account', ['message' => $e->getMessage()]);
+            return back()->with('error', 'Failed to create account. Please check logs.');
         }
-
-        // Your existing history log
-        HistorylogController::addaccountlog(
-            "Add",
-            ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
-        );
-
-        return redirect()->route('superadmin.account.index')->with('success', ucfirst($validated['role']) . ' account created successfully.');
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return redirect()->back()->withErrors($e->errors(),'addAccount')->withInput();
-    }
-    catch (\Exception $e) {
-        Log::error('Error creating account', ['message' => $e->getMessage()]);
-        return back()->with('error', 'Failed to create account. Please check logs.');
-    }
-}
-
-    /**
-     * Show the form for editing an account dynamically.
-     */
-    public function edit($role, $id)
-    {
-        $model = match ($role) {
-            'admin' => Admin::findOrFail($id),
-            'staff' => Staff::findOrFail($id),
-            'customer' => User::findOrFail($id),
-            default => abort(404),
-        };
-
-        $locations = Location::all();
-        return view('superadmin.superadmin-editaccount', compact('model', 'role', 'locations'));
     }
 
-    /**
-     * Update an account dynamically.
-     */
     public function update(Request $request, $role, $id)
-{
-    try {
+    {
+        try {
+            session()->forget('errors.addAccount');
+            $editMessages = [
+                 // ✅ UPDATED: The message now reflects the robust requirements
+                'password.regex' => 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+                'email.unique' => 'The email address is already registered.',
+                'username.unique' => 'The username is already used.',
+                'password.confirmed' => 'Password confirmation does not match.',
+            ];
 
-        session()->forget('errors.addAccount');
+            $model = match ($role) {
+                'admin' => Admin::findOrFail($id),
+                'staff' => Staff::findOrFail($id),
+                'customer' => User::findOrFail($id),
+                default => abort(404),
+            };
 
-        // Custom error messages
-        $editMessages = [
-            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-            'email.unique' => 'The email address is already registered.',
-            'username.unique' => 'The username is already used.',
-            'password.confirmed' => 'Password confirmation does not match.',
-        ];
+            $validatedData = $request->validate([
+                'role' => 'required|string|in:admin,staff,customer',
+                'name' => $role === 'customer' ? 'required|string|max:255' : 'nullable|string|max:255',
+                'username' => $role !== 'customer' ? 'required|string|max:255|unique:admins,username,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,staff_username,' . ($role == 'staff' ? $id : 'null') : 'nullable',
+                'email' => 'required|string|email|max:255|unique:admins,email,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,email,' . ($role == 'staff' ? $id : 'null') . '|unique:users,email,' . ($role == 'customer' ? $id : 'null'),
+                // ✅ UPDATED: New regex for broader character support
+                'password' => [
+                    'nullable', // Password is not required on update
+                    'string',
+                    'confirmed',
+                    'regex:/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\p{N})(?=.*[\p{P}\p{S}]).{8,}$/u'
+                ],
+                'admin_id' => $role === 'staff' ? 'required|integer|exists:admins,id' : 'nullable',
+                'location_id' => 'nullable|exists:locations,id',
+                'job_title' => $role === 'staff' ? 'nullable|string|max:255' : 'nullable',
+                'contact_number' => 'nullable|numeric|unique:admins,contact_number,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,contact_number,' . ($role == 'staff' ? $id : 'null') . '|unique:users,contact_number,' . ($role == 'customer' ? $id : 'null'),
 
-        // Find the correct model based on role
-        $model = match ($role) {
-            'admin' => Admin::findOrFail($id),
-            'staff' => Staff::findOrFail($id),
-            'customer' => User::findOrFail($id),
-            default => abort(404),
-        };
+            ], $editMessages);
 
-        // Validation rules
-        $validatedData = $request->validate([
-            'role' => 'required|string|in:admin,staff,customer',
-            'name' => $role === 'customer' ? 'required|string|max:255' : 'nullable|string|max:255',
-            'username' => $role !== 'customer' ? 'required|string|max:255|unique:admins,username,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,staff_username,' . ($role == 'staff' ? $id : 'null') : 'nullable',
-            'email' => 'required|string|email|max:255|unique:admins,email,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,email,' . ($role == 'staff' ? $id : 'null') . '|unique:users,email,' . ($role == 'customer' ? $id : 'null'),
-            'password' => [
-                'nullable',
-                'string',
-                'min:8',
-                'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&]).+$/',
-                'confirmed'
-            ],
-            'admin_id' => $role === 'staff' ? 'required|integer|exists:admins,id' : 'nullable',
-            'location_id' => 'nullable|exists:locations,id',
-            'job_title' => $role === 'staff' ? 'nullable|string|max:255' : 'nullable',
-            'contact_number' => 'nullable|numeric|unique:admins,contact_number,' . ($role == 'admin' ? $id : 'null') . '|unique:staff,contact_number,' . ($role == 'staff' ? $id : 'null') . '|unique:users,contact_number,' . ($role == 'customer' ? $id : 'null'),
+            // ... The rest of the update method remains the same
+            $validatedData = array_map("strip_tags", $validatedData);
 
-        ], $editMessages);
+            if (!empty($validatedData['password'])) {
+                $validatedData['password'] = Hash::make($validatedData['password']);
+            } else {
+                unset($validatedData['password']);
+            }
 
-        // Sanitize input
-        $validatedData = array_map("strip_tags", $validatedData);
+            match ($role) {
+                'admin' => $model->update([
+                    'username' => $validatedData['username'] ?? $model->username,
+                    'email' => $validatedData['email'] ?? $model->email,
+                    'password' => $validatedData['password'] ?? $model->password,
+                    'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+                ]),
+                'staff' => $model->update([
+                    'staff_username' => $validatedData['username'] ?? $model->staff_username,
+                    'email' => $validatedData['email'] ?? $model->email,
+                    'password' => $validatedData['password'] ?? $model->password,
+                    'admin_id' => $validatedData['admin_id'] ?? $model->admin_id,
+                    'location_id' => $validatedData['location_id'] ?? $model->location_id,
+                    'job_title' => $validatedData['job_title'] ?? $model->job_title,
+                    'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+                ]),
+                'customer' => $model->update([
+                    'name' => $validatedData['name'] ?? $model->name,
+                    'email' => $validatedData['email'] ?? $model->email,
+                    'password' => $validatedData['password'] ?? $model->password,
+                    'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
+                ]),
+            };
 
-        // Only hash the password if a new one is provided
-        if (!empty($validatedData['password'])) {
-            $validatedData['password'] = Hash::make($validatedData['password']);
-        } else {
-            unset($validatedData['password']); // Prevent overwriting with null
+            HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->email . ') was updated');
+            return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
+        } 
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors(), 'editAccount')->withInput();
         }
-
-        // Update the model based on role
-        match ($role) {
-            'admin' => $model->update([
-                'username' => $validatedData['username'] ?? $model->username,
-                'email' => $validatedData['email'] ?? $model->email,
-                'password' => $validatedData['password'] ?? $model->password,
-                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
-
-            ]),
-            'staff' => $model->update([
-                'staff_username' => $validatedData['username'] ?? $model->staff_username,
-                'email' => $validatedData['email'] ?? $model->email,
-                'password' => $validatedData['password'] ?? $model->password,
-                'admin_id' => $validatedData['admin_id'] ?? $model->admin_id,
-                'location_id' => $validatedData['location_id'] ?? $model->location_id,
-                'job_title' => $validatedData['job_title'] ?? $model->job_title,
-                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
-
-            ]),
-            'customer' => $model->update([
-                'name' => $validatedData['name'] ?? $model->name,
-                'email' => $validatedData['email'] ?? $model->email,
-                'password' => $validatedData['password'] ?? $model->password,
-                'contact_number' => $validatedData['contact_number'] ?? $model->contact_number,
-
-            ]),
-        };
-
-        HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->email . ') was updated');
-
-
-        return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
-    } 
-    catch (\Illuminate\Validation\ValidationException $e) {
-        return redirect()->back()->withErrors($e->errors(), 'editAccount')->withInput();
+        catch (\Exception $e) {
+            Log::error('Error updating account', ['message' => $e->getMessage()]);
+            return back()->with('error', 'Failed to update account. Please check logs.');
+        }
     }
-    catch (\Exception $e) {
-        Log::error('Error updating account', ['message' => $e->getMessage()]);
-        return back()->with('error', 'Failed to update account. Please check logs.');
-    }
-}
-
-
-    /**
-     * Remove an account dynamically.
-     */
+    
+    // destroy(), restore(), checkEmail(), and checkContact() methods remain the same...
     public function destroy($role, $id)
     {
         $model = match ($role) {
             'admin' => Admin::findOrFail($id),
             'staff' => Staff::findOrFail($id),
             'customer' => User::findOrFail($id),
-            // 'superadmin' => SuperAdmin::findOrFail($id),
             default => abort(404),
         };
     
-        // Archive instead of delete
         $model->archive();
     
-        // Log the action
         HistorylogController::editaccountlog('Archive', ucfirst($role) . ' account (' . $model->email . ') was archived');
     
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account archived successfully.');
     }
 
-
     public function restore($role, $id)
-{
-    $model = match ($role) {
-        'admin' => Admin::findOrFail($id),
-        'staff' => Staff::findOrFail($id),
-        'customer' => User::findOrFail($id),
-        default => abort(404),
-    };
+    {
+        $model = match ($role) {
+            'admin' => Admin::findOrFail($id),
+            'staff' => Staff::findOrFail($id),
+            'customer' => User::findOrFail($id),
+            default => abort(404),
+        };
 
-    $model->update(['archived_at' => null]);
-
-   
-
-  
-
-    HistorylogController::editaccountlog('Restore', ucfirst($role) . ' account (' . $model->email . ') was restored');
-
-    return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
-}
+        $model->update(['archived_at' => null]);
+        HistorylogController::editaccountlog('Restore', ucfirst($role) . ' account (' . $model->email . ') was restored');
+        return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
+    }
 
     public function checkEmail(Request $request)
     {
         $email = $request->input('email');
         
         $exists = Admin::where('email', $email)->exists() ||
-                  Staff::where('email', $email)->exists() ||
-                  User::where('email', $email)->exists();
+                    Staff::where('email', $email)->exists() ||
+                    User::where('email', $email)->exists();
 
         return response()->json(['exists' => $exists]);
     }
@@ -407,14 +360,13 @@ class SuperAdminAccountController extends Controller
     {
         $contact = $request->input('contact_number');
 
-        // Check only if the contact number is not empty
         if (empty($contact)) {
             return response()->json(['exists' => false]);
         }
 
         $exists = Admin::where('contact_number', $contact)->exists() ||
-                  Staff::where('contact_number', $contact)->exists() ||
-                  User::where('contact_number', $contact)->exists();
+                    Staff::where('contact_number', $contact)->exists() ||
+                    User::where('contact_number', $contact)->exists();
 
         return response()->json(['exists' => $exists]);
     }
