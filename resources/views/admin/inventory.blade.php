@@ -68,7 +68,7 @@
 
         <div class="h-[82vh] overflow-x-auto mt-4">
                 {{-- Total Container --}}
-                <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
+                <div id="real-timer-counters" class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
                     <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
                     <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
                     <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
@@ -134,7 +134,7 @@
                 Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
             </h1>
 
-            <div class="flex flex-wrap justify-between items-center">
+            <div  class="flex flex-wrap justify-between items-center">
                     @php
                         $uniqueProducts = $products->unique(function ($product) {
                             return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;
@@ -167,7 +167,7 @@
                 </div>
 
                 {{-- Table for Inventory --}}
-                <div class="overflow-auto h-[290px] mt-5">
+                <div id="real-timer-stock" data-location="{{ $provinceName }}" class="overflow-auto h-[290px] mt-5">
                     {{-- <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/> --}}
                     <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$groupedStocks->items()" category="inventory"/>
                 </div>
@@ -176,7 +176,7 @@
                 {{-- Pagination --}}
                 {{-- <x-pagination/> --}}
 
-                <div class="mt-6">
+                <div id="stock-pagination-container" class="mt-6">
                     {{ $groupedStocks->links() }}
                 </div>
                 {{-- Pagination --}}
@@ -218,7 +218,7 @@
             </div>
 
             {{-- Table for all products --}}
-            <div class="table-container mt-5 overflow-auto h-[300px]">
+            <div id="real-timer-products-table" class="table-container mt-5 overflow-auto h-[300px]">
                 <table>
                     <thead>
                         <tr>
@@ -407,7 +407,7 @@
                     <x-label-input label="Batch No:" name="batch_number[]" type="text" for="batch_number" divclass="w-1/2" inputclass="p-3"  placeholder="Enter Quantity"/>
                     <div class="flex flex-col w-1/2" inputclass="p-3">
                         <label for="product_id" class="text-md font-semibold">Product:</label>
-                        <select name="product_id[]" id="product_id" class="w-full p-3 outline-none rounded-lg" style="box-shadow:none; border: 1px solid #005382">
+                        <select name="product_id[]" id="product_id" class="w-full p-3 outline-none rounded-lg" style="box-shadow:none; border: 1px solid #005382" data-type="real-time">
                             @if ($products->count() > 0)
                                 @foreach ($uniqueProducts as $product)
                                     <option value="{{ $product->id }}">
@@ -620,6 +620,102 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+
+{{-- REAL TIME INVENTORY STOCKER --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stockTableID = '#real-timer-stock';
+        const stockCountersID = '#real-timer-counters';
+        const stockNotifModalID = '#real-timer-notifs-modals';
+        const productTableID = '#real-timer-products-table';
+        const productSearchListID = '#search-options-product';
+        const stockSearchListID = '.realTimerStockSearch';
+
+        // every 5 secs mag update yung main section
+        setInterval(() => {
+            updateInventoryPage(window.location.href);
+        }, 6500); 
+
+        function updateInventoryPage(url) {
+            fetch(url, {
+                // need netong header nato para magamit yung $request->ajax() function (para ma notice ng controller yung AJAX request)
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text()) // convert blade view to text
+            .then(html => {
+                const parser = new DOMParser();
+                const updatedPage = parser.parseFromString(html, 'text/html');
+
+                // DITO YUNG MULTI REPLACE SECTION
+                const currentTables = document.querySelectorAll(stockTableID);
+                const currentNotifTables = document.querySelectorAll(stockNotifModalID);
+                const currentStockSearchLists = document.querySelectorAll(stockSearchListID);
+
+                currentTables.forEach(currentTable => {
+                    const location = currentTable.dataset.location;
+
+                    // Update the current iter with the updated version
+                    const updatedTable = updatedPage.querySelector(`#real-timer-stock[data-location="${location}"]`);
+                    
+                    if (updatedTable) {
+                        currentTable.innerHTML = updatedTable.innerHTML;
+                    }
+                })
+
+                currentNotifTables.forEach(currentTable => {
+                    const type = currentTable.dataset.type;
+
+                    // Update the current iter with the updated version
+                    const updatedTable = updatedPage.querySelector(`#real-timer-notifs-modals[data-type="${type}"]`);
+                    
+                    if (updatedTable) {
+                        currentTable.innerHTML = updatedTable.innerHTML;
+                    } else {
+                        console.log("No tables found in updated notif tables");
+                    }
+                })
+
+                currentStockSearchLists.forEach(currentList => {
+                    const location = currentList.dataset.location;
+
+                    // Update the current iter with the updated version
+                    const updatedList = updatedPage.querySelector(`.realTimerStockSearch[data-location="${location}"]`);
+                    
+                    if (updatedList) {
+                        currentList.innerHTML = updatedList.innerHTML;
+                    } else {
+                        console.log("No lists found in updated stock search list");
+                    }
+                })
+                // DITO YUNG MULTI REPLACE SECTION
+
+                // DITO YUNG SINGULAR REPLACE SECTION
+                const currentCounters = document.querySelector(stockCountersID);
+                const updatedCounters = updatedPage.querySelector(stockCountersID);
+                currentCounters.innerHTML = updatedCounters.innerHTML;
+                
+                const currentProductTable = document.querySelector(productTableID);
+                const updatedProductTable = updatedPage.querySelector(productTableID);
+                currentProductTable.innerHTML = updatedProductTable.innerHTML;
+
+                const currentProductSearch = document.querySelector(productSearchListID);
+                const updatedProductSearch = updatedPage.querySelector(productSearchListID);
+                currentProductSearch.innerHTML = updatedProductSearch.innerHTML;
+                
+                // DITO YUNG SINGULAR REPLACE SECTION
+
+                console.log("updated full page successfully");
+            })
+            .catch(error => {
+                console.error("The realtime update para sa stock is not working ya bitch! ", error);
+            });
+        }
+    });
+</script>
+{{-- REAL TIME INVENTORY STOCKER --}}
+
 
 <script>
 function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {

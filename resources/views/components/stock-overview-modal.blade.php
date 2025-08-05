@@ -74,7 +74,7 @@
                     YAHOO
             @endswitch
         </h1>
-        <div class="overflow-auto h-[70vh]">
+        <div id="real-timer-notifs-modals" data-type="{{ $modalType }}" class="overflow-auto h-[70vh]">
     
             @if (in_array($modalType, ['in-stock', 'low-stock', 'out-stock']))
                 {{-- @php

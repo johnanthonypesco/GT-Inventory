@@ -19,7 +19,7 @@
         @csrf
 
         @if ($searchType === 'stock')
-            <datalist id="search-options-{{$id}}-{{$location_filter}}">
+            <datalist class="realTimerStockSearch" id="search-options-{{$id}}-{{$location_filter}}" data-location="{{$location_filter}}">
                 @foreach ($dataList as $data)
                     @php
                         $generic_name = $data->generic_name ? $data->generic_name : 'No Generic Name';
