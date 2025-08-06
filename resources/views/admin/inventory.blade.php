@@ -14,9 +14,6 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-
-
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     <title>Inventory</title>
 </head>
@@ -27,6 +24,24 @@
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
+        {{-- bg green of sweet alert success --}}
+        @if (session ('success'))
+            <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-2xl"></i>
+                <div>
+                    <p class="font-bold">Success!</p>
+                    <p id="successMessage"></p>
+                </div>
+            </div>
+        @elseif (session ('error'))
+            <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                <div>
+                    <p class="font-bold">Error!</p>
+                    <p id="errorMessage">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 
         @php
@@ -503,7 +518,7 @@
                 <div class="flex justify-between">
                     <div class="flex-col gap-5">
                         <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> Updating Product ID: {{ $errorPresentInEdit ? old("id")  : '' }} </h1>
-                        <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                        <button type="button" id="edit-prod-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
                             <img src="{{asset('image/image 51.png')}}"/>
                             Save Changes 
                         </button>
@@ -581,7 +596,7 @@
                 value="{{ $errorPresentInStockEdit ? old('expiry_date') : '' }}"
                 :errorChecker="$errorPresentInStockEdit ? $errors->first('expiry_date') : null "/>
 
-                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                <button type="button" id="edit-stock-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
                     <img src="{{asset('image/image 51.png')}}"/>
                     Save Changes 
                 </button>
@@ -611,8 +626,8 @@
             </select>
 
             <div class="flex justify-between mt-4">
-                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeTransferModal()">Cancel</button>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Confirm Transfer</button>
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer" onclick="closeTransferModal()">Cancel</button>
+                <button type="submit" id="confirmtransferbutton" class="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer">Confirm Transfer</button>
             </div>
         </form>
     </div>
@@ -623,6 +638,8 @@
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>
+    window.successMessage = @json(session('success'));
+
     document.addEventListener('DOMContentLoaded', function () {
         const stockTableID = '#real-timer-stock';
         const stockCountersID = '#real-timer-counters';
@@ -738,25 +755,58 @@ document.getElementById('transferForm').addEventListener('submit', function(even
         new_location: document.getElementById('new_location').value, // Ensure this is an `id` from `locations`
     };
 
-    fetch("{{ route('admin.inventory.transfer') }}", {
-        method: "PUT",
-        headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire("Success", data.message, "success")
-                .then(() => window.location.reload()); // Reload to reflect changes
-        } else {
-            Swal.fire("Error", data.message || "Transfer failed.", "error");
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action will transfer the inventory to a new location.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, transfer it!",
+        cancelButtonText: "No, cancel!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with the transfer
+            fetch("{{ route('admin.inventory.transfer') }}", {
+                method: "PUT",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success", data.message, "success")
+                        .then(() => window.location.reload()); // Reload to reflect changes
+                } else {
+                    Swal.fire("Error", data.message || "Transfer failed.", "error");
+                }
+            })
+            .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
         }
-    })
-    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+    });
 });
+
+//     fetch("{{ route('admin.inventory.transfer') }}", {
+//         method: "PUT",
+//         headers: {
+//             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+//             "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify(formData)
+//     })
+
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             Swal.fire("Success", data.message, "success")
+//                 .then(() => window.location.reload()); // Reload to reflect changes
+//         } else {
+//             Swal.fire("Error", data.message || "Transfer failed.", "error");
+//         }
+//     })
+//     .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+// });
 
 </script>
 </body>

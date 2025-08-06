@@ -193,5 +193,50 @@ class HistorylogController extends Controller
             'created_at' => now()
         ]);
     }
+
+    //transfer product log
+    public static function transferproductlog($event, $description, $productId, $locationName)
+    {
+        $product = Product::find($productId);
+
+        if (!$product) {
+            return; 
+        }
+
+        Historylogs::create([
+            'event' => $event,
+            'description' => "$description Product: {$product->generic_name} to Location: {$locationName}",
+            'user_email' => auth()->user()->email,
+            'created_at' => now(),
+        ]);
+    }
+
+    //edit stock log quantity and expiry
+    public static function editstocklog($event, $description, $productId, $locationName)
+    {
+        $product = Product::find($productId);
+
+        if (!$product) {
+            return; 
+        }
+
+        Historylogs::create([
+            'event' => $event,
+            'description' => "$description Product: {$product->generic_name} at Location: {$locationName}",
+            'user_email' => auth()->user()->email,
+            'created_at' => now(),
+        ]);
+    }
+
+    //scan qrcode log
+    public static function scanqrcodelog($event, $description){
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
     
 }

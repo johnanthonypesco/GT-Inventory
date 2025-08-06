@@ -157,7 +157,7 @@ class ProductlistingController extends Controller
     
     
         // redirecting to previous will keep the damn pagination url params
-        return redirect()->to(url()->previous());
+        return redirect()->to(url()->previous())->with('success', 'Deal(s) created successfully.');
     }
 
     public function updateExclusiveDeal(Request $request, $aidee = 0) {
@@ -169,6 +169,8 @@ class ProductlistingController extends Controller
         $validated = array_map("strip_tags", $validated);
 
         ExclusiveDeal::findOrFail($aidee)->update($validated);
+
+        session()->flash('success', 'Deal updated successfully.');
 
         // redirecting to previous will keep the damn pagination url params
         return redirect()->to(url()->previous())

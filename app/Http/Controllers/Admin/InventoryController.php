@@ -269,7 +269,7 @@ class InventoryController extends Controller
 
         HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
-        return to_route('admin.inventory');
+        return to_route('admin.inventory')->with('success', 'Product registered successfully.');
     }
 
     public function editRegisteredProduct(Request $request, Product $product) {
@@ -340,6 +340,8 @@ class InventoryController extends Controller
         HistorylogController::addproductlog('Edit', 'Product ' . $prod->generic_name . ' ' . $prod->brand_name . ' has been updated by ');
 
         // dd("updated");
+        session()->flash('success', 'Edited Product Successfuly');
+
         return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }
 
@@ -356,12 +358,29 @@ class InventoryController extends Controller
 
         $stock = Inventory::findOrFail($validated['inventory_id']);
 
-        // dd($stock->toArray());
+        $originalQuantity = $stock->quantity;
+        $originalExpiryDate = $stock->expiry_date;
+        $originalBatchNumber = $stock->batch_number;
 
         $stock->update($validated);
 
-        return redirect()->to(url()->previous());
+        // show the edited stock in the history log — quantity, expiry, or batch number
+        if ($originalQuantity != $validated['quantity']) {
+            HistorylogController::editstocklog('Edit', 'Stock quantity for', $stock->product_id, $stock->location->province);
+        } 
+        elseif ($originalExpiryDate != $validated['expiry_date']) {
+            HistorylogController::editstocklog('Edit', 'Stock expiry date for', $stock->product_id, $stock->location->province);
+        } 
+        elseif ($originalBatchNumber != $validated['batch_number']) {
+            HistorylogController::editstocklog('Edit', 'Stock batch number for', $stock->product_id, $stock->location->province);
+        } 
+        else {
+            return redirect()->to(url()->previous())->with('noChanges', true);
+        }
+
+        return redirect()->to(url()->previous())->with('success', 'Stock updated successfully.');
     }
+
     
     public function addStock(Request $request, $addType = null)
     {
@@ -411,7 +430,7 @@ class InventoryController extends Controller
         HistorylogController::addstocklog('Add', ' ' . $count . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
 
 
-        return to_route('admin.inventory');
+        return to_route('admin.inventory')->with('success', 'Stock(s) added successfully.');
     }
 
     public function destroyProduct(Product $product) {
@@ -491,6 +510,7 @@ class InventoryController extends Controller
             
             $inventory->quantity -= $deductFromThisBatch;
             $inventory->save();
+            
 
             $quantityToDeduct -= $deductFromThisBatch;
             
@@ -709,6 +729,8 @@ class InventoryController extends Controller
             'scanned_at' => now(),
         ]);
 
+        HistorylogController::scanqrcodelog('QR Upload & Deduct', 'QR code processed and inventory deducted for Order #' . $orderId . ', Product: "' . $productName . '", Location: "' . $location . '".');
+
         DB::commit();
 
         return response()->json(['message' => '✅ Inventory successfully deducted!'], 200);
@@ -731,35 +753,46 @@ class InventoryController extends Controller
         public function transferInventory(Request $request)
         {
             try {
-                // Log the received request data
                 \Log::info("Received Transfer Request:", $request->all());
 
-                // Validate the request
                 $validated = $request->validate([
                     'inventory_id' => 'required|exists:inventories,inventory_id',
-                    'new_location' => 'required' // We will check if it's an ID or a name
+                    'new_location' => 'required'
                 ]);
 
-                // Check if new_location is an ID or a province name
+                // Determine location name from ID or province string
+                $locationName = null;
                 if (!is_numeric($validated['new_location'])) {
-                    // If it's a province name, fetch the corresponding ID
                     $location = Location::where('province', $validated['new_location'])->first();
                     if (!$location) {
                         return response()->json(['success' => false, 'message' => 'Location not found.'], 400);
                     }
-                    $validated['new_location'] = $location->id; // Replace name with ID
+                    $validated['new_location'] = $location->id;
+                    $locationName = $location->province;
+                } else {
+                    $location = Location::find($validated['new_location']);
+                    $locationName = $location ? $location->province : 'Unknown';
                 }
 
-                // Find the inventory record
+                // Find the inventory
                 $inventory = Inventory::where('inventory_id', $validated['inventory_id'])->first();
                 if (!$inventory) {
                     return response()->json(['success' => false, 'message' => 'Inventory not found.'], 404);
                 }
 
-                // Update the inventory's location_id
+                // ✅ Store the old location before updating
+                $oldLocation = $inventory->location ? $inventory->location->province : 'Unknown';
+
+                // Update the inventory's location
                 $inventory->update(['location_id' => $validated['new_location']]);
 
-                HistoryLogController::addstocklog('Transfer', 'Inventory with ID ' . $inventory->inventory_id . ' has been transferred to location ID ' . $validated['new_location'] . '.');
+                // ✅ Log the transfer with correct parameters
+                HistorylogController::transferproductlog(
+                    'Transfer',
+                    'Inventory for ' . $inventory->product->generic_name . ' has been transferred from ' . $oldLocation . ' to ' . $locationName . '.',
+                    $inventory->product_id,
+                    $locationName
+                );
 
                 return response()->json([
                     'success' => true,
@@ -774,5 +807,6 @@ class InventoryController extends Controller
                 ], 500);
             }
         }
+
 
     }
