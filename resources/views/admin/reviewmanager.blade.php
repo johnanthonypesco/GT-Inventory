@@ -21,12 +21,24 @@
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
 
-            @if(session('success'))
-                <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
-                    {{ session('success') }}
+            @if (session ('success'))
+                <div id="successAlert" class="fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                    <div>
+                        <p class="font-bold">Success!</p>
+                        <p id="successMessage"></p>
+                    </div>
+                </div>
+            @elseif (session ('error'))
+                <div id="errorAlert" class="fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                    <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                    <div>
+                        <p class="font-bold">Error!</p>
+                        <p>{{ session('error') }}</p>
+                    </div>
                 </div>
             @endif
-
+            
             <div class="overflow-auto">
                 <table class="w-full table-auto text-left border border-gray-200">
                     <thead class="bg-[#005382] text-white">
@@ -60,9 +72,9 @@
                             <td class="p-2">
                                 <form action="{{ $review->is_approved 
                                     ? route('superadmin.reviews.disapprove', $review) 
-                                    : route('superadmin.reviews.approve', $review) }}" method="POST">
+                                    : route('superadmin.reviews.approve', $review) }}" id="approve-form" method="POST">
                                     @csrf
-                                    <button type="submit" class="px-4 py-2 rounded text-white
+                                    <button type="button" id="approve-button" class="px-4 py-2 rounded text-white
                                         {{ $review->is_approved ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700' }}">
                                         {{ $review->is_approved ? 'Disapprove' : 'Approve' }}
                                     </button>
@@ -78,8 +90,12 @@
                 </table>
             </div>
         </div>
+
     </main>
 
-    <script src="{{ asset('js/sweetalert/productlistingsweetalert.js') }}"></script>
+    <script src="{{ asset('js/sweetalert/reviewmanagersweetalert.js') }}"></script>
+    <script>window.successMessage = @json(session('success'));</script>
+    <script>window.errorMessage = @json(session('error'));</script>
+    
 </body>
 </html>

@@ -302,7 +302,7 @@ class SuperAdminAccountController extends Controller
                 ]),
             };
 
-            HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->email . ') was updated');
+            HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->name . ') was updated');
             return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
         } 
         catch (\Illuminate\Validation\ValidationException $e) {

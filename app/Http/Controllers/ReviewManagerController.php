@@ -18,7 +18,7 @@ class ReviewManagerController extends Controller
     {
         $review->update(['is_approved' => true]);
         // Log the approval action
-        HistorylogController::reviewmanagerlog('Approve', 'Review ' . $review->id . ' has been approved by ');
+        HistorylogController::reviewmanagerlog('Approve', 'Review of Customer:' . $review->user->name . ' has been approved by ');
         return back()->with('success', 'Review approved for display.');
 
     }
@@ -26,7 +26,7 @@ class ReviewManagerController extends Controller
     public function disapprove(Review $review)
     {
         $review->update(['is_approved' => false]);
-        HistorylogController::disapprovereviewlog('Disapprove', 'Review ' . $review->id . ' has been disapproved by ');
+        HistorylogController::disapprovereviewlog('Disapprove', 'Review of Customer: ' . $review->user->name . ' has been disapproved by ' );
         return back()->with('success', 'Review hidden from public.');
         // Log the disapproval action
     }

@@ -55,7 +55,7 @@
                                             ($log->event == 'Edit' ? 'bg-green-500/70' : 
                                             ($log->event == 'Archive' ? 'bg-red-600/70' : 
                                             ($log->event == 'Disapprove' ? 'bg-red-600/70' :
-                                            ($log->event == 'Approve' ? 'bg-green-600/70' : 'bg-gray-500/70 text-black')))) }}">
+                                            ($log->event == 'Approve' ? 'bg-blue-600/70' : 'bg-gray-500/70 text-black')))) }}">
                                             {{ $log->event }}
                                         </p>
                                     </td>

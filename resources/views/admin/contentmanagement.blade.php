@@ -130,7 +130,7 @@
                         @enderror
                     </div>
         
-                    <button type="submit" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg hover:bg-[#00456a] transition-colors">Update Content</button>
+                    <button type="button" id="updateButton" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg hover:bg-[#00456a] transition-colors">Update Content</button>
                 </form>
             </div>
         </div>
@@ -170,12 +170,31 @@
                 </table>
             </div>
         </div>
+
+        @if (session ('success'))
+            <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-2xl"></i>
+                <div>
+                    <p class="font-bold">Success!</p>
+                    <p id="successMessage"></p>
+                </div>
+            </div>
+        @elseif (session ('error'))
+            <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                <div>
+                    <p class="font-bold">Error!</p>
+                    <p>{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
     </main>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const editModal = document.getElementById('editmodal');
         const editForm = document.getElementById('editForm');
+        const updateButton = document.getElementById('updateButton');
         
         // Function to open the modal and populate it with the correct data
         window.openeditmodal = function(button) {
@@ -214,7 +233,10 @@
             });
         });
     });
+    
 </script>
+<script>window.successMessage = @json(session('success'));</script>
+<script src="{{ asset('js/sweetalert/managecontentsweetalert.js') }}"></script>
 
 </body>
 </html>

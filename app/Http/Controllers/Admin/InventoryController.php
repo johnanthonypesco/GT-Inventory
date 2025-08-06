@@ -269,7 +269,7 @@ class InventoryController extends Controller
 
         HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
-        return to_route('admin.inventory');
+        return to_route('admin.inventory')->with('success', 'Product registered successfully.');
     }
 
     public function editRegisteredProduct(Request $request, Product $product) {
@@ -340,7 +340,7 @@ class InventoryController extends Controller
         HistorylogController::addproductlog('Edit', 'Product ' . $prod->generic_name . ' ' . $prod->brand_name . ' has been updated by ');
 
         // dd("updated");
-        return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
+        return to_route('admin.inventory')->with( 'success' ,'Editing Product Successfuly', true)->withInput();
     }
 
     public function editStock(Request $request) {
@@ -376,7 +376,7 @@ class InventoryController extends Controller
             return redirect()->to(url()->previous())->with('noChanges', true);
         }
 
-        return redirect()->to(url()->previous());
+        return redirect()->to(url()->previous())->with('success', 'Stock updated successfully.');
     }
 
     
@@ -428,7 +428,7 @@ class InventoryController extends Controller
         HistorylogController::addstocklog('Add', ' ' . $count . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
 
 
-        return to_route('admin.inventory');
+        return to_route('admin.inventory')->with('success', 'Stock(s) added successfully.');
     }
 
     public function destroyProduct(Product $product) {
@@ -709,6 +709,8 @@ class InventoryController extends Controller
 
             'scanned_at' => now(),
         ]);
+
+        HistorylogController::scanqrcodelog('QR Upload & Deduct', 'QR code processed and inventory deducted for Order #' . $orderId . ', Product: "' . $productName . '", Location: "' . $location . '".');
 
         DB::commit();
 

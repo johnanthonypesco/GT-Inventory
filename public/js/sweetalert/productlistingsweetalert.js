@@ -1,44 +1,52 @@
 const addproductlistingBtn = document.getElementById('addproductlistingBtn');
-    const addproductlistngform = document.getElementById('addproductlistingform');
+const addproductlistngform = document.getElementById('addproductlistingform');
 
-    const editproductlistingBtn = document.getElementById('editproductlistingBtn');
-    const editproductlistingform = document.getElementById('editproductlistingform');
+const editproductlistingBtn = document.getElementById('editproductlistingBtn');
+const editproductlistingform = document.getElementById('editproductlistingform');
 
-    addproductlistingBtn.addEventListener('click', () => {
-        sweetalert(addproductlistngform);
-    });
+addproductlistingBtn.addEventListener('click', () => {
+    sweetalert(addproductlistngform);
+});
 
-    editproductlistingBtn.addEventListener('click', () => {
-        sweetalert(editproductlistingform);
-    });
-    
+editproductlistingBtn.addEventListener('click', () => {
+    sweetalert(editproductlistingform);
+});
 
-    function sweetalert(form) {
+
+function sweetalert(form) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, save it!'
+    }).then((result) => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, save it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Saved!',
-                    text: 'Your Product has been successfully saved.',
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6'
-                }).then(() => {
-                    form.submit();
-                });
-            } else {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: 'Succesfully cancelled!',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
+            title: 'Processing...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
         });
+        form.submit();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
     }
+    else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
+});

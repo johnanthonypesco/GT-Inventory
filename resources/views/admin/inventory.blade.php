@@ -14,9 +14,6 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-
-
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     <title>Inventory</title>
 </head>
@@ -27,6 +24,24 @@
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
 
+        {{-- bg green of sweet alert success --}}
+        @if (session ('success'))
+            <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-2xl"></i>
+                <div>
+                    <p class="font-bold">Success!</p>
+                    <p id="successMessage"></p>
+                </div>
+            </div>
+        @elseif (session ('error'))
+            <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+                <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                <div>
+                    <p class="font-bold">Error!</p>
+                    <p id="errorMessage">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 
         @php
@@ -503,7 +518,7 @@
                 <div class="flex justify-between">
                     <div class="flex-col gap-5">
                         <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> Updating Product ID: {{ $errorPresentInEdit ? old("id")  : '' }} </h1>
-                        <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                        <button type="button" id="edit-prod-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
                             <img src="{{asset('image/image 51.png')}}"/>
                             Save Changes 
                         </button>
@@ -581,7 +596,7 @@
                 value="{{ $errorPresentInStockEdit ? old('expiry_date') : '' }}"
                 :errorChecker="$errorPresentInStockEdit ? $errors->first('expiry_date') : null "/>
 
-                <button type="submit" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                <button type="button" id="edit-stock-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
                     <img src="{{asset('image/image 51.png')}}"/>
                     Save Changes 
                 </button>
@@ -620,6 +635,7 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+<script>window.successMessage = @json(session('success'));</script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>

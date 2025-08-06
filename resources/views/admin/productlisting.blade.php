@@ -163,7 +163,7 @@
                 </div>
 
                 {{-- Table for all products --}}
-                <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[80%]">
+                <div class="table-container mt-5 overflow-auto h-[50vh] lg:h-[76%]">
                     <table>
                         <thead>
                             <tr class="text-center">
@@ -286,8 +286,27 @@
             </div>
         @endforeach
     @endforeach
+
+    @if (session ('success'))
+        <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+            <i class="fa-solid fa-circle-check text-2xl"></i>
+            <div>
+                <p class="font-bold">Success!</p>
+                <p id="successMessage"></p>
+            </div>
+        </div>
+    @elseif (session ('error'))
+        <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+            <i class="fa-solid fa-circle-xmark text-2xl"></i>
+            <div>
+                <p class="font-bold">Error!</p>
+                <p>{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
 </body>
 
 <script src="{{asset('js/productlisting.js')}}"></script>
 <script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
+<script>window.successMessage = @json(session('success'));</script>
 </html>

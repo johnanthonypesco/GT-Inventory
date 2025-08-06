@@ -237,5 +237,6 @@ class HistorylogController extends Controller
             'created_at' => now()
         ]);
     }
+
     
 }

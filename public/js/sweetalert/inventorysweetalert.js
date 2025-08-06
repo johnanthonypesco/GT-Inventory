@@ -1,10 +1,14 @@
 const addstockBtn = document.getElementById('addstockBtn');
 const addmultiplestockBtn = document.getElementById('addmultiplestockBtn');
 const addproductBtn = document.getElementById('addproductBtn');
+const editstockBtn = document.getElementById('edit-stock-btn');
+const editproductBtn = document.getElementById('edit-prod-btn');
 
 const addproductform = document.getElementById('addproduct');
 const addSpecificStockForm = document.getElementById('addspecificstock');
 const addmultiplestockform = document.getElementById('addmultiplestockform');
+const editStockForm = document.getElementById('edit-stock-form');
+const editProductForm = document.getElementById('edit-prod-reset');
 
 addproductBtn.addEventListener('click', () => {
     showsweetalert(addproductform);
@@ -18,7 +22,13 @@ addmultiplestockBtn.addEventListener('click', () => {
     showsweetalert(addmultiplestockform);
 });
 
+editstockBtn.addEventListener('click', () => {
+    showsweetalert(editStockForm);
+});
 
+editproductBtn.addEventListener('click', () => {
+    showsweetalert(editProductForm);
+});
 
 function showsweetalert(form) {
     Swal.fire({
@@ -32,20 +42,30 @@ function showsweetalert(form) {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'Summited Successfully!',
-                text: 'Your Product has been successfully submitted.',
-                icon: 'success',
-                confirmButtonColor: '#3085d6'
-            }).then(() => {
-                form.submit();
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-        } else {
-            Swal.fire({
-                title: 'Cancelled',
-                text: 'Succesfully cancelled!',
-                icon: 'error',
-                confirmButtonColor: '#3085d6'
-            });
+            form.submit();
         }
-    })
+    });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    }
+    else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
+});

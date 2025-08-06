@@ -154,3 +154,18 @@ table tbody tr:hover{
     width: 100%;
     height: 100%;
 }
+
+#successAlert {
+    animation: slide-in 0.5s ease-in-out;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
