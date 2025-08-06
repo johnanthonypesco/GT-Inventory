@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
-    private const MISTRAL_CHAT_API_URL = 'https://api.mistral.ai/v1/chat/completions';
+    // The single API endpoint for all AI requests via OpenRouter.
+    private const OPENROUTER_CHAT_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
     /**
      * Handles all AI-related requests from the dashboard.
@@ -33,12 +34,15 @@ class DashboardController extends Controller
     {
         try {
             if ($request->input('request_type') === 'dashboard_analysis') {
-                $aiModel = $request->input('ai_model', 'gemini-1.5-flash');
+                $aiModel = $request->input('ai_model', 'deepseek/deepseek-r1:free'); 
                 $chartData = $request->input('chart_data', []);
                 $forceRefresh = $request->input('force_refresh', false);
-                
-                $result = $this->generateDashboardAnalysis($aiModel, $chartData, $forceRefresh);
-                
+                // MODIFIED: Get the selected API key type from the request
+                $apiKeyType = $request->input('api_key_type', 'primary'); 
+
+                // MODIFIED: Pass the key type to the analysis function
+                $result = $this->generateDashboardAnalysis($aiModel, $chartData, $forceRefresh, $apiKeyType);
+
                 return response()->json($result);
             }
             return response()->json(['error' => 'Invalid AI request type specified.'], 400);
@@ -51,55 +55,72 @@ class DashboardController extends Controller
     /**
      * Generates a complete dashboard analysis, checking the database unless a force refresh is requested.
      */
-    private function generateDashboardAnalysis(string $aiModel, array $chartData, bool $forceRefresh = false): array
+    /**
+     * Generates a complete dashboard analysis, checking the database unless a force refresh is requested.
+     */
+    private function generateDashboardAnalysis(string $aiModel, array $chartData, bool $forceRefresh = false, string $apiKeyType = 'primary'): array
     {
         $latestSummary = AIGeneratedExecutiveSummary::latest()->first();
+        $response = [];
 
         if ($forceRefresh === false && $latestSummary && $latestSummary->created_at->gt(now()->subHour())) {
-            return [
+            $response = [
                 'analysis' => $latestSummary->summary_data,
                 'expires_at' => $latestSummary->created_at->addHour()->toIso8601String(),
             ];
-        }
+        } else {
+            $rawAiResponseForLogging = '';
+             try {
+                $dataForPrompt = $this->gatherDataForAnalysis();
+                $prompt = $this->createUnifiedAnalysisPrompt($dataForPrompt, $chartData);
+                
+                // MODIFIED: Pass the apiKeyType to the dispatch function
+                $aiResponse = $this->_dispatchAiRequest($prompt, $aiModel, $apiKeyType, true);
+                $rawAiResponseForLogging = $aiResponse['content']; 
+                $analysis = json_decode($rawAiResponseForLogging, true);
 
-        try {
-            $dataForPrompt = $this->gatherDataForAnalysis();
-            $prompt = $this->createUnifiedAnalysisPrompt($dataForPrompt, $chartData);
-            
-            $response = $this->_dispatchAiRequest($prompt, $aiModel, true);
-            $analysis = json_decode($response['content'], true);
+                if (!is_array($analysis) || !isset($analysis['anomalies'])) {
+                    $cleanedJsonString = preg_replace('/```json\s*|\s*```/', '', $rawAiResponseForLogging);
+                    $analysis = json_decode($cleanedJsonString, true);
+                    if (!is_array($analysis) || !isset($analysis['anomalies'])) {
+                        throw new \Exception('AI analysis response was malformed.');
+                    }
+                }
 
-            if (!is_array($analysis) || !isset($analysis['anomalies'])) {
-                throw new \Exception('AI analysis response was malformed.');
+                $analysis['_model_used'] = $aiResponse['model_name'];
+                
+                AIGeneratedExecutiveSummary::create(['summary_data' => $analysis]);
+
+                $response = [
+                    'analysis' => $analysis,
+                    'expires_at' => now()->addHour()->toIso8601String(),
+                ];
+
+            } catch (\Exception $e) {
+                Log::error('Exception in generateDashboardAnalysis: ' . $e->getMessage(), [
+                    'raw_ai_response' => $rawAiResponseForLogging
+                ]);
+                $response = [
+                    'analysis' => [
+                        'anomalies' => [['type' => 'negative', 'message' => 'Error generating analysis: ' . $e->getMessage() . ' Check logs.']],
+                        'recommendations' => [['message' => 'Please check the system logs or try again later.']],
+                        'chart_analysis' => 'Could not generate chart analysis due to a system error.'
+                    ],
+                    'expires_at' => now()->addMinutes(1)->toIso8601String(),
+                ];
             }
-
-            $analysis['_model_used'] = $response['model_name'];
-            
-            AIGeneratedExecutiveSummary::create(['summary_data' => $analysis]);
-
-            return [
-                'analysis' => $analysis,
-                'expires_at' => now()->addHour()->toIso8601String(),
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Exception in generateDashboardAnalysis: ' . $e->getMessage());
-            return [
-                'analysis' => [
-                    'anomalies' => [['type' => 'negative', 'message' => 'Error generating analysis: ' . $e->getMessage()]],
-                    'recommendations' => [['message' => 'Please check the system logs or try again later.']],
-                    'chart_analysis' => 'Could not generate chart analysis due to a system error.'
-                ],
-                'expires_at' => now()->addMinutes(2)->toIso8601String(),
-            ];
         }
+
+        $response['history'] = AIGeneratedExecutiveSummary::latest()->limit(10)->get();
+        
+        return $response;
     }
 
 
     /**
      * Gathers key business metrics from the database for AI analysis.
      */
-    private function gatherDataForAnalysis(): array
+     private function gatherDataForAnalysis(): array
     {
         $startDate = Carbon::now('Asia/Manila')->subDays(30)->startOfDay();
         $endDate = Carbon::now('Asia/Manila')->endOfDay();
@@ -142,12 +163,14 @@ class DashboardController extends Controller
         $db_json = json_encode($dbData, JSON_PRETTY_PRINT);
         $chart_json = json_encode($chartData, JSON_PRETTY_PRINT);
         $currentDate = now('Asia/Manila')->format('F j, Y');
+        
         return <<<PROMPT
         **Role and Goal:** You are an expert business intelligence analyst for a leading pharmaceutical e-commerce and distribution company in the Philippines. Your primary objective is to analyze the provided data from the last 30 days and generate a concise, data-driven report for the company's executive team.
 
         **Contextual Information:**
-        * **Company Location:** Santa Rosa, Philippines
-        * **Today's Date:** {$currentDate}
+        * **Company Location:** Tarlac City, Cabanatuan City, Philippines
+        * **Current Time in the Philippines:** {$currentDate}
+        * **Current Season in the Philippines:** It is currently August, which is the peak of the 'tag-ulan' (rainy season). This season typically runs from June to November. Common illnesses include flu, dengue fever, colds, and other respiratory infections.
 
         **Mandatory Output Format:**
         Your response **MUST** be a single, raw, and valid JSON object. Do not include any explanatory text, markdown formatting, or comments before or after the JSON structure.
@@ -171,7 +194,7 @@ class DashboardController extends Controller
 
         **Detailed Directives:**
 
-        1.  **Anomaly Detection:** Scrutinize the `DATABASE STATISTICS`. Identify 1-3 of the most critical deviations or insights. Prioritize significant events, such as a best-selling drug being critically low on stock (`low_stock_products`), a sudden spike in demand for a specific product, or unusually low sales for a typically popular item.
+        1.  **Anomaly Detection:** Scrutinize the `DATABASE STATISTICS`. Identify 1-3 of the most critical deviations or insights. Prioritize significant events, such as a best-selling drug being critically low on stock (`low_stock_products`), a sudden spike in demand for a specific product, or unusually low sales for a typically popular item. Relate findings to the current rainy season where applicable.
 
         2.  **Strategic Recommendations:** Generate 1-2 high-impact, actionable recommendations. You **must cross-reference `DATABASE STATISTICS` with `CHART DATA`** to form these insights. For example, if a product is listed in `low_stock_products` AND is a top performer in the `Products Delivered` chart, recommend an urgent restock and a review of safety stock levels.
 
@@ -188,37 +211,53 @@ class DashboardController extends Controller
     }
 
     /**
-     * Dispatches a request to the selected AI model.
+     * MODIFIED: This function now exclusively uses OpenRouter for all AI requests.
+     * All old logic for direct Gemini and Mistral calls has been removed.
      */
-    private function _dispatchAiRequest(string $prompt, string $model, bool $jsonMode = false): array
+    private function _dispatchAiRequest(string $prompt, string $model, string $apiKeyType = 'primary', bool $jsonMode = false): array
     {
-        if (str_starts_with($model, 'gemini')) {
-            $apiKey = config('services.gemini.key');
-            if (!$apiKey) throw new \Exception('Gemini API Key is not set in config/services.php.');
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
-            $payload = [
-                'contents' => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
-                'generationConfig' => [ 'temperature' => 0.5, 'maxOutputTokens' => 2048, 'responseMimeType' => $jsonMode ? 'application/json' : 'text/plain', ],
-            ];
-            $response = Http::timeout(100)->post($url, $payload);
-            if (!$response->successful()) {
-                Log::error('Gemini API request failed: ' . $response->body());
-                throw new \Exception('Failed to get a response from Gemini.');
+        // MODIFIED: Select the key from the config array
+        $apiKey = config('services.openrouter.keys.' . $apiKeyType);
+
+        if (!$apiKey) {
+            // Fallback to primary key if the selected one is not found or null
+            $apiKey = config('services.openrouter.keys.primary');
+            if (!$apiKey) {
+                throw new \Exception('OpenRouter API Key is not set for selected type (' . $apiKeyType . ') or primary. Please check your .env and config/services.php file.');
             }
-            return [ 'content' => $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '', 'model_name' => 'Gemini 1.5 Flash', ];
-        } elseif (str_starts_with($model, 'mistral')) {
-            $apiKey = config('services.mistral.key');
-            if (!$apiKey) throw new \Exception('Mistral API Key is not set in config/services.php.');
-            $payload = [ 'model' => $model, 'messages' => [['role' => 'user', 'content' => $prompt]], 'temperature' => 0.5, 'max_tokens' => 2048, ];
-            if($jsonMode) { $payload['response_format'] = ['type' => 'json_object']; }
-            $response = Http::timeout(100)->withToken($apiKey)->post(self::MISTRAL_CHAT_API_URL, $payload);
-            if (!$response->successful()) {
-                Log::error('Mistral API request failed: ' . $response->body());
-                throw new \Exception('Failed to get a response from Mistral AI.');
-            }
-            return [ 'content' => $response->json()['choices'][0]['message']['content'] ?? '', 'model_name' => $model, ];
         }
-        throw new \Exception('Invalid AI model selected.');
+
+        $payload = [
+            'model' => $model,
+            'messages' => [['role' => 'user', 'content' => $prompt]],
+            'temperature' => 0.5,
+            'max_tokens' => 4096,
+        ];
+
+        if ($jsonMode) {
+            $payload['response_format'] = ['type' => 'json_object'];
+        }
+
+        $response = Http::timeout(120)
+            ->withToken($apiKey)
+            ->withHeaders([
+                'HTTP-Referer' => config('services.openrouter.referer', config('app.url')),
+                'X-Title' => config('app.name'),
+            ])
+            ->post(self::OPENROUTER_CHAT_API_URL, $payload);
+
+        if (!$response->successful()) {
+            Log::error('OpenRouter API request failed: ' . $response->body(), [
+                'status' => $response->status(),
+                'model' => $model
+            ]);
+            throw new \Exception('Failed to get a response from OpenRouter: ' . $response->body());
+        }
+
+        return [
+            'content'    => $response->json()['choices'][0]['message']['content'] ?? '',
+            'model_name' => $model,
+        ];
     }
 
     /**
@@ -244,17 +283,17 @@ class DashboardController extends Controller
             $unreadMessagesStaff = Conversation::where('is_read', false)->where('receiver_type', 'staff')->where('receiver_id', $currentUser->id)->count();
             $adminsidebar_counter = $unreadMessagesStaff;
         }
-        
+
         $totalOrders = ImmutableHistory::where('status', 'delivered')->count();
         $pendingOrders = Order::where('status', 'pending')->count();
         $cancelledOrders = Order::where('status', 'cancelled')->count();
-        
+
         $totalRevenue = ImmutableHistory::where('status', 'delivered')
             ->select(DB::raw('SUM(quantity * price) as total_revenue'))
             ->first()->total_revenue ?? 0;
-        
+
         $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-        
+
         $topSeller = ImmutableHistory::where('status', 'delivered')
             ->select('generic_name', DB::raw('SUM(quantity * price) as total_revenue'))
             ->groupBy('generic_name')
@@ -284,19 +323,19 @@ class DashboardController extends Controller
             ->orderByDesc('total_quantity')
             ->limit(6)
             ->get();
-        
+
         $lowStockProductsList = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
             ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
             ->groupBy('products.generic_name')
             ->having('total_quantity', '<=', 50)
             ->get();
-        
+
         $labels = $mostSoldProducts->pluck('generic_name')->toArray();
         $data = $mostSoldProducts->pluck('total_quantity')->toArray();
 
         $lowSoldLabels = $lowSoldProductsQuery->pluck('generic_name')->toArray();
         $lowSoldData = $lowSoldProductsQuery->pluck('total_quantity')->toArray();
-        
+
         $moderateSoldLabels = $moderateSoldProducts->pluck('generic_name')->toArray();
         $moderateSoldData = $moderateSoldProducts->pluck('total_quantity')->toArray();
 
@@ -363,9 +402,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * Provide product delivery data for charts.
-     */
-    /**
      * Provide product delivery data for charts, filtered by province.
      */
     public function getFilteredDeductedQuantities($year, $month, $province = null)
@@ -374,7 +410,6 @@ class DashboardController extends Controller
             ->whereYear('date_ordered', $year)
             ->whereMonth('date_ordered', $month);
 
-        // MODIFIED: Check for a province name and filter the query
         if ($province) {
             $deductedQuery->where('province', $province);
         }
@@ -389,8 +424,8 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json([
-            'labels'      => $deductedQuantities->pluck('generic_name'),
-            'deductedData'=> $deductedQuantities->pluck('total_deducted'),
+            'labels'        => $deductedQuantities->pluck('generic_name'),
+            'deductedData'  => $deductedQuantities->pluck('total_deducted'),
         ]);
     }
 
@@ -432,7 +467,6 @@ class DashboardController extends Controller
         $data = $query->get()->keyBy('period_value');
         $labels = [];
         $values = [];
-        // THIS LINE WAS MISSING AND IS NOW FIXED
         $valueMap = $data->pluck('total_revenue', 'period_value')->toArray();
 
         switch ($period) {
@@ -543,30 +577,7 @@ class DashboardController extends Controller
                 $percentageChange = 100;
             }
 
-            // $statusText = '';
-            // if ($percentageChange >= 25) {
-            //     $statusText = 'Strong potential for a significant sales increase.';
-            // } elseif ($percentageChange > 5) {
-            //     $statusText = 'A slight increase in sales is expected.';
-            // } elseif ($percentageChange < -20) {
-            //     $statusText = 'High possibility of a significant drop in sales.';
-            // } elseif ($percentageChange < -5) {
-            //     $statusText = 'Sales may decrease in the coming month.';
-            // } else {
-            //     $statusText = 'No significant change is expected in the sales forecast.';
-            // }
-
-            // $predictions[] = [
-            //     'id' => $product->id,
-            //     'generic_name' => $product->generic_name,
-            //     'season_peak' => $product->season_peak,
-            //     'current_sales' => round($currentSales),
-            //     'next_month_prediction' => round($finalPrediction),
-            //     'historical_avg' => round($historicalOverallAverage, 2),
-            //     'prediction_percentage_change' => round($percentageChange),
-            //     'prediction_status_text' => $statusText,
-            // ];
-             $statusText = '';
+            $statusText = '';
             if ($percentageChange >= 25) {
                 $statusText = 'Strong potential for a significant sales increase.';
             } elseif ($percentageChange > 5) {
@@ -582,8 +593,8 @@ class DashboardController extends Controller
             $predictions[] = [
                 'id' => $product->id,
                 'generic_name' => $product->generic_name,
-                'form' => $product->form,             // ADD THIS LINE
-                'strength' => $product->strength,     // ADD THIS LINE
+                'form' => $product->form,
+                'strength' => $product->strength,
                 'brand_name' => $product->brand_name,
                 'season_peak' => $product->season_peak,
                 'current_sales' => round($currentSales),
@@ -650,4 +661,5 @@ class DashboardController extends Controller
         
         return response()->json(['total_revenue' => $totalRevenue]);
     }
+    
 }

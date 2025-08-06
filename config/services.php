@@ -23,7 +23,14 @@ return [
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
-
+    'openrouter' => [
+        'keys' => [
+            'primary'   => env('OPENROUTER_API_KEY'),
+            'secondary' => env('OPENROUTER_API_KEY1'),
+            // You can add more keys here like 'tertiary' => env('OPENROUTER_API_KEY2')
+        ],
+        'referer' => env('APP_URL'), // Best practice for OpenRouter analytics
+    ],
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

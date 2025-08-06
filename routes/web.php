@@ -39,6 +39,8 @@ use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Customer\ChatRepsController;
 use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
+// use app\http\Controllers\ExportController as ExportDocxController;
+use App\Http\Controllers\ExportController as ExportDocxController;
 
 
 use App\Http\Controllers\Admin\ManageaccountController;
@@ -79,8 +81,8 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 // download apk for registration.
 use App\Http\Controllers\FileDownloadController;
 
-Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
-Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
+// Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
+// Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
 
 // Existing Route for Staff/Admin App
 Route::get('/download/app', [FileDownloadController::class, 'downloadApk'])->name('apk.download');
@@ -221,16 +223,16 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
-
+        // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
-
-        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        
     });
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
 
-
+Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED ROUTES FOR ALL EMPLOYEES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
 

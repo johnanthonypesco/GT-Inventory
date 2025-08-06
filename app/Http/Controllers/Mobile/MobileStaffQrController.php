@@ -31,6 +31,9 @@ class MobileStaffQrController extends Controller
 
             $orderId = $scannedData['order_id'] ?? null;
             $productName = $scannedData['product_name'] ?? null;
+            $brand_name = $scannedData['brand_name'] ?? null;
+            $strength = $scannedData['strength'] ?? null;
+            $form = $scannedData['form'] ?? null;
             $location = $scannedData['location'] ?? null;
             $quantity = $scannedData['quantity'] ?? 1;
             $signature = $request->file('signature');
@@ -42,7 +45,11 @@ class MobileStaffQrController extends Controller
             $locationId = Location::where('province', $location)->value('id');
             if (!$locationId) throw new \Exception('Location "' . $location . '" not found');
 
-            $productId = Product::where('generic_name', $productName)->value('id');
+            $productId = Product::where('generic_name', $productName)
+            ->where('brand_name', $brand_name)
+            ->where('form', $form)
+            ->where('strength', $strength)
+            ->value('id');
             if (!$productId) throw new \Exception('Product "' . $productName . '" not found');
 
             $inventories = Inventory::where('location_id', $locationId)

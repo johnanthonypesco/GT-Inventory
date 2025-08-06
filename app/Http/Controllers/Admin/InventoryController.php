@@ -435,6 +435,9 @@ class InventoryController extends Controller
         $data = $request->all();
         $orderId = $data['order_id'] ?? null;
         $productName = $data['product_name'] ?? null;
+        $brand_name = $data['brand_name'] ?? null;
+        $strength = $data['strength'] ?? null;
+        $form = $data['form'] ?? null;
         $location = $data['location'] ?? null;
         $quantity = $data['quantity'] ?? 1;
         $signature = $request->file('signature');
@@ -448,15 +451,21 @@ class InventoryController extends Controller
 
         // This is the correct way to handle "not found" inside a transaction
         $locationId = Location::where('province', $location)->value('id');
+        // dd($locationId);
         if (!$locationId) {
             throw new \Exception('Location "' . $location . '" not found in the database');
         }
-
-        $productId = Product::where('generic_name', $productName)->value('id');
+// dd($$locationId);
+        $productId = Product::where('generic_name', $productName)
+        ->where('brand_name', $brand_name)
+        ->where('strength', $strength)
+        ->where('form', $form)
+         ->value('id');
+        // dd($productId);
         if (!$productId) {
             throw new \Exception('Product "' . $productName . '" not found in the database');
         }
-
+        // dd($productId);
         // ✅ Step 3: Find and lock all available batches for the product
         $inventories = Inventory::where('location_id', $locationId)
             ->where('product_id', $productId)
@@ -465,7 +474,7 @@ class InventoryController extends Controller
             ->orderBy('created_at', 'asc')
             ->lockForUpdate()
             ->get();
-
+// dd($inventories->toArray());
         $totalAvailable = $inventories->sum('quantity');
         if ($totalAvailable < $quantity) {
             throw new \Exception('Not enough stock available. Requested: ' . $quantity . ', Available: ' . $totalAvailable);
@@ -595,6 +604,9 @@ class InventoryController extends Controller
         // --- Inventory Deduction Logic ---
         $orderId = $data['order_id'] ?? null;
         $productName = $data['product_name'] ?? null;
+        $brand_name = $data['brand_name'] ?? null;
+        $form = $data['form'] ?? null;
+        $strength = $data['strength'] ?? null;
         $batchNumber = $data['batch_number'] ?? null;
         $expiryDate = $data['expiry_date'] ?? null;
         $location = $data['location'] ?? null;
@@ -609,7 +621,12 @@ class InventoryController extends Controller
             throw new \Exception('Location not found in the database.');
         }
 
-        $productId = Product::where('generic_name', $productName)->value('id');
+        $productId = Product::where('generic_name', $productName)
+                ->where('brand_name', $brand_name)
+
+        ->where('strength', $strength)
+        ->where('form', $form)
+         ->value('id');
         if (!$productId) {
             throw new \Exception('Product not found in the database.');
         }
@@ -741,6 +758,8 @@ class InventoryController extends Controller
 
                 // Update the inventory's location_id
                 $inventory->update(['location_id' => $validated['new_location']]);
+
+                HistoryLogController::addstocklog('Transfer', 'Inventory with ID ' . $inventory->inventory_id . ' has been transferred to location ID ' . $validated['new_location'] . '.');
 
                 return response()->json([
                     'success' => true,

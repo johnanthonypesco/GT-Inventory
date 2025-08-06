@@ -144,6 +144,7 @@
             let qrData;
             try {
                 qrData = JSON.parse(decodedText);
+                // console.log(qrData);
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Invalid QR Code', text: 'The scanned code is not in the correct format.' });
                 isProcessing = false;
@@ -155,6 +156,9 @@
             const formData = new FormData();
             formData.append("order_id", qrData.order_id);
             formData.append("product_name", qrData.product_name);
+            formData.append("brand_name", qrData.brand_name);
+            formData.append("form", qrData.form);
+            formData.append("strength", qrData.strength);
             formData.append("batch_number", qrData.batch_number);
             formData.append("expiry_date", qrData.expiry_date);
             formData.append("location", qrData.location);

@@ -22,7 +22,7 @@
                         <td>{{ $inv->product->brand_name }}</td>
                         <td>{{ $inv->product->form }}</td>
                         <td>{{ $inv->product->strength }}</td>
-                        <td>{{ $inv->quantity }}</td>
+                        <td class="{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                         <td class="flex justify-center gap-2">
                             {{-- <button class="cursor-pointer bg-blue-600 text-white px-3 rounded-xl flex justify-center items-center">
