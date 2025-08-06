@@ -19,6 +19,7 @@ addmultiplestockBtn.addEventListener('click', () => {
 });
 
 
+
 function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',

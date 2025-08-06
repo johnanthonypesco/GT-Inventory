@@ -611,8 +611,8 @@
             </select>
 
             <div class="flex justify-between mt-4">
-                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeTransferModal()">Cancel</button>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Confirm Transfer</button>
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer" onclick="closeTransferModal()">Cancel</button>
+                <button type="submit" id="confirmtransferbutton" class="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer">Confirm Transfer</button>
             </div>
         </form>
     </div>
@@ -738,25 +738,58 @@ document.getElementById('transferForm').addEventListener('submit', function(even
         new_location: document.getElementById('new_location').value, // Ensure this is an `id` from `locations`
     };
 
-    fetch("{{ route('admin.inventory.transfer') }}", {
-        method: "PUT",
-        headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire("Success", data.message, "success")
-                .then(() => window.location.reload()); // Reload to reflect changes
-        } else {
-            Swal.fire("Error", data.message || "Transfer failed.", "error");
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action will transfer the inventory to a new location.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, transfer it!",
+        cancelButtonText: "No, cancel!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with the transfer
+            fetch("{{ route('admin.inventory.transfer') }}", {
+                method: "PUT",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success", data.message, "success")
+                        .then(() => window.location.reload()); // Reload to reflect changes
+                } else {
+                    Swal.fire("Error", data.message || "Transfer failed.", "error");
+                }
+            })
+            .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
         }
-    })
-    .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+    });
 });
+
+//     fetch("{{ route('admin.inventory.transfer') }}", {
+//         method: "PUT",
+//         headers: {
+//             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+//             "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify(formData)
+//     })
+
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             Swal.fire("Success", data.message, "success")
+//                 .then(() => window.location.reload()); // Reload to reflect changes
+//         } else {
+//             Swal.fire("Error", data.message || "Transfer failed.", "error");
+//         }
+//     })
+//     .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+// });
 
 </script>
 </body>

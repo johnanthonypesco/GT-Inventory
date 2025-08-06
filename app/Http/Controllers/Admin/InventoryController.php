@@ -499,6 +499,7 @@ class InventoryController extends Controller
             
             $inventory->quantity -= $deductFromThisBatch;
             $inventory->save();
+            
 
             $quantityToDeduct -= $deductFromThisBatch;
             
