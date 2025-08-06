@@ -2,8 +2,11 @@
     <div class="p-3 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-1">
+        <hr class="mt-1">
     </div>
 
+    <li class="list-none flex flex-col px-2 py-0 gap-[3px] h-full">
+        <a href="{{ route('admin.dashboard') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
     <li class="list-none flex flex-col px-2 py-0 gap-[3px] h-full">
         <a href="{{ route('admin.dashboard') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
             <i class="fa-solid fa-gauge text-[#005382] text-sm sm:text-2xl lg:text-sm"></i>
@@ -60,14 +63,17 @@
 
 
             <a href="{{ route('superadmin.reviews.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-star text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Review Manager</span></a>
+            <a href="{{ route('superadmin.reviews.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-star text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Review Manager</span></a>
         @endif
 
         @if (auth('staff')->check())
+            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
             <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-sm {{ request()->is('staff/order') ? 'text-white' : 'text-[#005382]'  }}"></i>
                 <span class="sm:hidden lg:inline-block">Orders</span>
             </a>
 
+            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
             <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
                 <i id="navBarCounter" class="fa-brands fa-rocketchat text-sm sm:text-2xl lg:text-sm"></i><span class="sm:hidden lg:inline-block">Chat</span>
                 @if ($adminsidebar_counter > 0)
@@ -78,6 +84,7 @@
             </a>
         @endif
 
+        <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
         <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">

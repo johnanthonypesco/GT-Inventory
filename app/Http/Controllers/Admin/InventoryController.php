@@ -110,7 +110,6 @@ class InventoryController extends Controller
             return $stocks->location->province;
         });
         
-
         return view('admin.inventory', [
             'products' => Product::all()->sortBy('generic_name'),
 
@@ -349,7 +348,7 @@ class InventoryController extends Controller
             'inventory_id' => 'integer|min:1|required',
             'form_type' => 'string|min:3|required|in:edit-stock',
             'batch_number' => 'string|min:3|required',
-            'quantity' => 'integer|min:1|max:100000|required',
+            'quantity' => 'integer|min:0|max:100000|required',
             'expiry_date' => 'date|required',
         ]);
 
