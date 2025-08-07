@@ -3,14 +3,14 @@
 
 |ROLES|MEMBERS|
 |:--------:|:------:|
-|**PROJECT MANAGER / BACKEND / DEVOPS**|SIGRAE DERF E. GABRIEL|
-|**BACKEND / LEAD MOBILE DEV**|ROMARK A. BAYAN|
-|**FRONTEND / UI & UX**|JOHN ANTHONY L. PESCO|
-|**FULLY STACKED DEV / AI SPECIALIST**|JOHN MICHAEL G. JONATAS|
+|**PROJECT MANAGER / BACKEND DEV / DEVOPS**|SIGRAE DERF E. GABRIEL|
+|**FULLSTACK DEV / MOBILE DEV**|ROMARK A. BAYAN|
+|**FULLSTACK DEV / UI & UX**|JOHN ANTHONY L. PESCO|
+|**FULL STACK DEV / LEAD MOBILE DEV / AI INTEGRATION SPECIALIST**|JOHN MICHAEL G. JONATAS|
 ---
 ---
 
-# How to Make the Project Run
+<!-- # How to Make the Project Run
 
 1. Go to XAMPP's apache php.ini file
 2. CTRL + F then find this line: `;extension=gd`
@@ -66,4 +66,4 @@
 8. Now the project is able to run: 
     ```bash 
     php artisan test 
-    ```
+    ``` -->

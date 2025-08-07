@@ -10,7 +10,7 @@
         <p class="text-lg font-semibold text-gray-800">{{$title}}</p>
         <img src="{{asset ('image/'. $image)}}" alt="" class="w-14 h-14 p-2 rounded-full bg-gray-200">
     </div>
-    <p class="text-2xl font-semibold">0{{$count}}</p>
+    <p class="text-2xl font-semibold" id="real-timer-stock-count" data-type="{{ $buttonType }}">0{{$count}}</p>
 </div>
 
 <style>

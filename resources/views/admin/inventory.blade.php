@@ -83,7 +83,7 @@
 
         <div class="h-[82vh] overflow-x-auto mt-4">
                 {{-- Total Container --}}
-                <div id="real-timer-counters" class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
+                <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
                     <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
                     <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
                     <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
@@ -642,7 +642,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const stockTableID = '#real-timer-stock';
-        const stockCountersID = '#real-timer-counters';
+        const stockCountersID = '#real-timer-stock-count';
         const stockNotifModalID = '#real-timer-notifs-modals';
         const productTableID = '#real-timer-products-table';
         const productSearchListID = '#search-options-product';
@@ -667,6 +667,7 @@
 
                 // DITO YUNG MULTI REPLACE SECTION
                 const currentTables = document.querySelectorAll(stockTableID);
+                const currentCounts = document.querySelectorAll(stockCountersID);
                 const currentNotifTables = document.querySelectorAll(stockNotifModalID);
                 const currentStockSearchLists = document.querySelectorAll(stockSearchListID);
 
@@ -678,6 +679,17 @@
                     
                     if (updatedTable) {
                         currentTable.innerHTML = updatedTable.innerHTML;
+                    }
+                })
+                
+                currentCounts.forEach(currentCount => {
+                    const type = currentCount.dataset.type;
+
+                    // Update the current iter with the updated version
+                    const updatedCount = updatedPage.querySelector(`#real-timer-stock-count[data-type="${type}"]`);
+                    
+                    if (updatedCount) {
+                        currentCount.innerHTML = updatedCount.innerHTML;
                     }
                 })
 
@@ -699,27 +711,34 @@
 
                     // Update the current iter with the updated version
                     const updatedList = updatedPage.querySelector(`.realTimerStockSearch[data-location="${location}"]`);
+
+                    // to check if may naiba, we need na ma compare yung <options>, ginawa kong array ito
+                    // para less expensive sa comparison process
+                    const currentOptions = Array.from(currentList.options).map(opt => opt.value).join(',');
+                    const updatedOptions = Array.from(updatedList.options).map(opt => opt.value).join(',');
                     
-                    if (updatedList) {
+                    if (currentOptions !== updatedOptions) {
                         currentList.innerHTML = updatedList.innerHTML;
-                    } else {
-                        console.log("No lists found in updated stock search list");
+                        console.log("stock search updated")
                     }
                 })
                 // DITO YUNG MULTI REPLACE SECTION
 
-                // DITO YUNG SINGULAR REPLACE SECTION
-                const currentCounters = document.querySelector(stockCountersID);
-                const updatedCounters = updatedPage.querySelector(stockCountersID);
-                currentCounters.innerHTML = updatedCounters.innerHTML;
-                
+                // DITO YUNG SINGULAR REPLACE SECTION    
                 const currentProductTable = document.querySelector(productTableID);
                 const updatedProductTable = updatedPage.querySelector(productTableID);
                 currentProductTable.innerHTML = updatedProductTable.innerHTML;
 
                 const currentProductSearch = document.querySelector(productSearchListID);
                 const updatedProductSearch = updatedPage.querySelector(productSearchListID);
-                currentProductSearch.innerHTML = updatedProductSearch.innerHTML;
+
+                const currentProdOptions = Array.from(currentProductSearch.options).map(opt => opt.value).join(',');
+                const updatedProdOptions = Array.from(updatedProductSearch.options).map(opt => opt.value).join(',');
+
+                if (currentProdOptions !== updatedProdOptions) {
+                    currentProductSearch.innerHTML = updatedProductSearch.innerHTML;
+                    console.log("registered product search updated");
+                }
                 
                 // DITO YUNG SINGULAR REPLACE SECTION
 
