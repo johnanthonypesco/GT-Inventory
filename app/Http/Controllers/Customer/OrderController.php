@@ -132,7 +132,7 @@ class OrderController extends Controller
 
             
     
-            return to_route('customer.order')->with('success', true);
+            return to_route('customer.order')->with('success', 'Order placed successfully.');
         } else {
             abort(403, 'DO NOT MODIFY THE ORDER DATA REQUEST. YOU HAVE BEEN WARNED HACKER >:(');
         }
@@ -224,6 +224,6 @@ class OrderController extends Controller
         }
 
         // 8. Redirect with a success message.
-        return redirect()->route('customer.manageorder')->with('success', 'Successfully re-ordered your last purchase. The new order is now pending.');
+        return redirect()->route('customer.dashboard')->with('success', 'Successfully re-ordered your last purchase.');
     }
 }

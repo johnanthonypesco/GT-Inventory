@@ -7,7 +7,7 @@ checkoutBtn.addEventListener("click", (event) => {
 
     Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: "You're about to checkout your order!",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -16,19 +16,30 @@ checkoutBtn.addEventListener("click", (event) => {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title:'Checkout!',
-                text: 'Your order has been placed.',
-                icon: 'success'
-            }).then(() => {
-                ordersummary.submit();
+                title:'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-        } else {
-            Swal.fire({
-                title: 'Cancelled',
-                text: 'Your order is safe.',
-                icon: 'error',
-                confirmButtonColor: '#3085d6'
-            });
+            ordersummary.submit();
         }
-    });
+    });    
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    } else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
 });
