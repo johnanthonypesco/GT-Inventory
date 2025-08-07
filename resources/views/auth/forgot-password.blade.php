@@ -57,9 +57,12 @@
             <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5">Send Password Reset Link</button>
 
             <!-- ✅ Back to Login -->
-            <div class="text-center mt-4">
-                <a href="{{ route('login') }}" class="text-[#005382]/61">← Back to Login</a>
-            </div>
+        <div class="mt-4">
+    <a href="{{ route('login') }}" class="block w-full bg-[#15ABFF] p-3 rounded-lg text-white text-center hover:bg-blue-600 transition-colors duration-300">
+        ← Back to Login
+    </a>
+</div>
+</div>
         </form>
     </div>
 </body>

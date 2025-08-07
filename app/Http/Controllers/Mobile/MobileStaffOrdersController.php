@@ -18,113 +18,131 @@ class MobileStaffOrdersController extends Controller
 {
     /**
      * Get all active orders and summary counts for the staff mobile app.
+     * This logic is now aligned with the web Admin/OrderController to ensure consistent counts.
      */
     public function index()
     {
         try {
-            // 1. Get current stock levels (including expired items)
-            $currentStocks = Inventory::with("product")
+            // ✅ Step 1: Get current stock levels, grouped by product AND location.
+            // This is the key change to match the web controller's logic.
+            $currentStocks = Inventory::with(["product", "location"])
                 ->get()
                 ->groupBy(function ($stock) {
-                    return optional($stock->product)->generic_name . "|" . optional($stock->product)->brand_name;
+                    $product = $stock->product;
+                    $location = $stock->location;
+                    // Ensure stock has valid product and location to prevent errors
+                    if (!$product || !$location) {
+                        return 'invalid_stock_record';
+                    }
+                    // Create a unique key: Generic|Brand|Form|Strength|Province
+                    return "{$product->generic_name}|{$product->brand_name}|{$product->form}|{$product->strength}|{$location->province}";
                 })
                 ->map(function ($productStocks) {
+                    // Check for non-expired stock within the group
                     $nonExpired = $productStocks->where('expiry_date', '>=', now());
-
+                    // If all stock for this product/location is expired, mark it as 'expired'
                     if ($nonExpired->isEmpty()) {
                         return 'expired';
                     }
-
+                    // Otherwise, return the sum of available quantity
                     return $nonExpired->sum('quantity');
                 });
 
-            // 2. Get active orders
+            // Step 2: Get all active (non-delivered, non-cancelled) orders
             $allActiveOrders = Order::with(['user.company.location', 'exclusive_deal.product'])
                 ->whereNotIn('status', ['delivered', 'cancelled'])
                 ->orderBy('date_ordered', 'desc')
                 ->get();
 
-            // 3. Process orders and identify insufficient ones
+            // Step 3: Process each order to check its stock availability
             $processedOrders = $allActiveOrders->map(function ($order) use ($currentStocks) {
-                $productKey = optional($order->exclusive_deal->product)->generic_name . "|" . optional($order->exclusive_deal->product)->brand_name;
-                $provinceKey = optional($order->user->company->location)->province ?? 'Uncategorized';
-                $companyKey = optional($order->user->company)->name ?? 'Unknown Company';
-                $userDateKey = (optional($order->user)->name ?? 'Unknown User') . '|' . Carbon::parse($order->date_ordered)->toDateString();
+                $product = optional($order->exclusive_deal)->product;
+                $location = optional($order->user->company)->location;
 
+                // Ensure order has necessary details
+                if (!$product || !$location) {
+                    $order->available_stock = 0;
+                    $order->is_insufficient = true;
+                    return $order;
+                }
+
+                // ✅ Create the same location-specific key for the order to look up its stock
+                $productKey = "{$product->generic_name}|{$product->brand_name}|{$product->form}|{$product->strength}|{$location->province}";
+                
+                // Get the available stock using the specific key
                 $order->available_stock = $currentStocks->get($productKey, 0);
-                $order->is_insufficient = ($order->available_stock === 'expired' || 
-                                         (is_numeric($order->available_stock) && $order->available_stock < $order->quantity));
 
+                // Determine if the order is insufficient
+                $order->is_insufficient = ($order->available_stock === 'expired' || 
+                                          (is_numeric($order->available_stock) && $order->available_stock < $order->quantity));
+
+                // Add grouping keys for easier structuring on the frontend
                 $order->grouping_keys = [
-                    'province' => $provinceKey,
-                    'company' => $companyKey,
-                    'user_date' => $userDateKey,
+                    'province' => $location->province,
+                    'company' => optional($order->user->company)->name ?? 'Unknown Company',
+                    'user_date' => (optional($order->user)->name ?? 'Unknown User') . '|' . Carbon::parse($order->date_ordered)->toDateString(),
                 ];
 
                 return $order;
             });
 
-            // 4. Group insufficient orders by product for summary
-            $insufficientOrders = $processedOrders->filter(function ($order) {
-                return $order->is_insufficient && $order->available_stock != 0;
-            });
-            
-            $insufficientSummary = $insufficientOrders
-                ->groupBy(function($order) {
-                    return optional($order->exclusive_deal->product)->generic_name . "|" . 
-                           optional($order->exclusive_deal->product)->brand_name;
-                })
-                ->map(function($orders, $productName) use ($currentStocks) {
-                    $available = $currentStocks->get($productName, 0);
-                    $totalOrdered = $orders->sum('quantity');
-                    
-                    return [
-                        'product' => $productName,
-                        'available' => $available,
-                        'ordered' => $totalOrdered,
-                    ];
-                });
-            
-            $insufficientOrderLines = $insufficientOrders
-                ->map(function ($order) {
-                    return [
-                        'date_ordered' => Carbon::parse($order->date_ordered)->toIso8601String(),
-                        'company' => optional($order->user->company)->name ?? 'Unknown',
-                        'employee' => optional($order->user)->name ?? 'Unknown User',
-                        'generic_name' => optional($order->exclusive_deal->product)->generic_name ?? 'N/A',
-                        'brand_name' => optional($order->exclusive_deal->product)->brand_name ?? 'N/A',
-                        'available' => $order->available_stock,
-                        'ordered' => $order->quantity,
-                    ];
-                })->values();
+            // Step 4: Calculate summary counts based on the processed orders
+            $insufficientOrders = $processedOrders->filter(fn($order) => $order->is_insufficient);
 
-            // 5. Calculate Summary Counts
+            // Count of individual order lines that cannot be fulfilled
+            $insufficientOrderLinesCount = $insufficientOrders->count();
+
+            // Group by product to count unique insufficient products
+            $insufficientProductGroups = $insufficientOrders->groupBy(function($order) {
+                $product = optional($order->exclusive_deal)->product;
+                return "{$product->generic_name}|{$product->brand_name}|{$product->form}|{$product->strength}|{$order->grouping_keys['province']}";
+            });
+
+            // Count of unique products that are insufficient
+            $insufficientProductsCount = $insufficientProductGroups->count();
+
+            // Create detailed summaries for the modal views
+            $insufficientSummary = $insufficientProductGroups->map(function($orders, $productKey) {
+                return [
+                    'product' => $productKey,
+                    'available' => $orders->first()->available_stock,
+                    'ordered' => $orders->sum('quantity'),
+                ];
+            });
+
+            $insufficientOrderLines = $insufficientOrders->map(function ($order) {
+                return [
+                    'date_ordered' => Carbon::parse($order->date_ordered)->toIso8601String(),
+                    'company' => optional($order->user->company)->name ?? 'Unknown',
+                    'employee' => optional($order->user)->name ?? 'Unknown User',
+                    'generic_name' => optional($order->exclusive_deal->product)->generic_name ?? 'N/A',
+                    'brand_name' => optional($order->exclusive_deal->product)->brand_name ?? 'N/A',
+                    'available' => $order->available_stock,
+                    'ordered' => $order->quantity,
+                ];
+            })->values();
+
+            // Step 5: Calculate total orders this week (same logic as web)
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
             
             $normalOrdersThisWeek = Order::whereIn('status', ['pending', 'packed', 'out for delivery'])
-                ->whereBetween('date_ordered', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek(),
-                ])->count();
+                ->whereBetween('date_ordered', [$startOfWeek, $endOfWeek])->count();
             
             $archivedOrdersThisWeek = ImmutableHistory::whereIn('status', ['cancelled', 'delivered'])
-                ->whereBetween('date_ordered', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek(),
-                ])->count();
+                ->whereBetween('date_ordered', [$startOfWeek, $endOfWeek])->count();
 
-            $ordersThisWeek = $archivedOrdersThisWeek + $normalOrdersThisWeek;
-            $currentPendings = Order::where('status', 'pending')->get()->count();
-
+            // Final summary object for the API response
             $summary = [
-                'ordersThisWeek' => $ordersThisWeek,
-                'pendingOrders' => $currentPendings,
-                'insufficientOrders' => $insufficientOrderLines->count(),
-                'insufficientProducts' => $insufficientSummary->count(),
+                'ordersThisWeek' => $archivedOrdersThisWeek + $normalOrdersThisWeek,
+                'pendingOrders' => $allActiveOrders->where('status', 'pending')->count(),
+                'insufficientOrders' => $insufficientOrderLinesCount,
+                'insufficientProducts' => $insufficientProductsCount,
                 'insufficientSummary' => $insufficientSummary->values()->all(),
                 'insufficientOrderLines' => $insufficientOrderLines,
             ];
 
-            // 6. Group orders
+            // Step 6: Group orders for display on the mobile screen
             $ordersByProvince = $processedOrders
                 ->groupBy('grouping_keys.province')
                 ->map(fn($provinces) => $provinces->groupBy('grouping_keys.company')
@@ -143,7 +161,6 @@ class MobileStaffOrdersController extends Controller
             return response()->json(['message' => 'An error occurred while fetching orders.', 'error' => 'Server Error'], 500);
         }
     }
-
 
     /**
      * Get available staff for a specific order's location.
@@ -168,9 +185,8 @@ class MobileStaffOrdersController extends Controller
         }
     }
 
-
     /**
-     * Update the status of an order, now with staff assignment and stock deduction.
+     * Update the status of an order.
      */
     public function updateStatus(Request $request, Order $order)
     {
@@ -182,67 +198,38 @@ class MobileStaffOrdersController extends Controller
         DB::beginTransaction();
         try {
             $newStatus = $validated['status'];
-            $originalStatus = $order->status;
-
-            // Assign staff if status is 'out for delivery'
+            
             if ($newStatus === 'out for delivery') {
                 $order->staff_id = $validated['staff_id'];
             }
 
-            // Handle stock deduction when order is marked as 'delivered'
-            if ($newStatus === 'delivered' && $originalStatus !== 'delivered') {
-                $locationId = $order->user->company->location->id;
-                $productId = $order->exclusive_deal->product->id;
-                $quantity = $order->quantity;
-
-                $inventories = Inventory::where('location_id', $locationId)
-                    ->where('product_id', $productId)
-                    ->where('quantity', '>', 0)
-                    ->where('expiry_date', '>=', now()) // Only non-expired stock
-                    ->orderBy('expiry_date', 'asc')
-                    ->orderBy('created_at', 'asc')
-                    ->lockForUpdate()
-                    ->get();
-
-                if ($inventories->sum('quantity') < $quantity) {
-                    throw new \Exception('Not enough stock available to fulfill this order.');
-                }
-
-                $quantityToDeduct = $quantity;
-                foreach ($inventories as $inventory) {
-                    if ($quantityToDeduct <= 0) break;
-                    $deductFromThisBatch = min($inventory->quantity, $quantityToDeduct);
-                    $inventory->quantity -= $deductFromThisBatch;
-                    $inventory->save();
-                    $quantityToDeduct -= $deductFromThisBatch;
-                }
-            }
-
-            // Update the order status
+            // The logic for stock deduction is now primarily handled by the QR scan process.
+            // This update is for status changes only. If a 'delivered' status is forced here,
+            // it assumes stock was handled elsewhere or isn't required for this action.
+            
             $order->status = $newStatus;
             $order->save();
 
             // Create an immutable history record for the change
-            ImmutableHistory::create([
-                'order_id' => $order->id,
-                'province' => $order->user->company->location->province,
-                'company' => $order->user->company->name,
-                'employee' => $order->user->name,
-                'date_ordered' => $order->date_ordered,
-                'status' => $newStatus,
-                'generic_name' => $order->exclusive_deal->product->generic_name,
-                'brand_name' => $order->exclusive_deal->product->brand_name,
-                'form' => $order->exclusive_deal->product->form,
-                'quantity' => $order->quantity,
-                'price' => $order->exclusive_deal->price,
-                'subtotal' => $order->quantity * $order->exclusive_deal->price,
-            ]);
+            if (in_array($newStatus, ['delivered', 'cancelled'])) {
+                 ImmutableHistory::create([
+                    'order_id' => $order->id,
+                    'province' => $order->user->company->location->province,
+                    'company' => $order->user->company->name,
+                    'employee' => $order->user->name,
+                    'date_ordered' => $order->date_ordered,
+                    'status' => $newStatus,
+                    'generic_name' => $order->exclusive_deal->product->generic_name,
+                    'brand_name' => $order->exclusive_deal->product->brand_name,
+                    'form' => $order->exclusive_deal->product->form,
+                    'strength' => $order->exclusive_deal->product->strength,
+                    'quantity' => $order->quantity,
+                    'price' => $order->exclusive_deal->price,
+                    'subtotal' => $order->quantity * $order->exclusive_deal->price,
+                ]);
+            }
 
             DB::commit();
-
-            Log::info('Order status updated by mobile staff.', [
-                'order_id' => $order->id, 'new_status' => $newStatus, 'staff_user_id' => Auth::id()
-            ]);
 
             return response()->json(['message' => 'Order status updated successfully.']);
 

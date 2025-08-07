@@ -170,6 +170,8 @@ class ProductlistingController extends Controller
 
         ExclusiveDeal::findOrFail($aidee)->update($validated);
 
+        session()->flash('success', 'Deal updated successfully.');
+
         // redirecting to previous will keep the damn pagination url params
         return redirect()->to(url()->previous())
         ->with('success', 'Deal updated successfully.');

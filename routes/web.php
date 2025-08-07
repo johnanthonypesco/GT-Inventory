@@ -39,6 +39,8 @@ use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Customer\ChatRepsController;
 use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
+// use app\http\Controllers\ExportController as ExportDocxController;
+use App\Http\Controllers\ExportController as ExportDocxController;
 
 
 use App\Http\Controllers\Admin\ManageaccountController;
@@ -79,8 +81,8 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 // download apk for registration.
 use App\Http\Controllers\FileDownloadController;
 
-Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
-Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
+// Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
+// Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
 
 // Existing Route for Staff/Admin App
 Route::get('/download/app', [FileDownloadController::class, 'downloadApk'])->name('apk.download');
@@ -142,6 +144,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
         Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
         Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
+        // for realtime
+        Route::get('/dashboard-stats', [App\Http\Controllers\Admin\DashboardController::class, 'getDashboardStats'])->name('api.dashboard-stats');
         
         Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
         // sales reports
@@ -221,16 +225,16 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
-
+        // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
-
+        
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
-        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
-    });
+        Route::get('/admin/historylog/search', [HistorylogController::class, 'searchHistorylog'])->name('admin.historylog.search');
+    }); 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
-
-
+    // nilabas koto dahil ewan koba ayaw pag nasa loob e
+    Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED ROUTES FOR ALL EMPLOYEES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
 
