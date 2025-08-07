@@ -45,7 +45,7 @@
 
                 <div class="mt-10">
                     <label for="two_factor_code" class="block text-lg font-medium text-[#005382]">Verification Code</label>
-                    <input type="text" name="two_factor_code" id="two_factor_code"
+                    <input type="number" name="two_factor_code" id="two_factor_code"
                            placeholder="Enter 6-Digit Code"
                            class="outline-none bg-white p-3 w-full mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#15ABFF]"
                            required autofocus>

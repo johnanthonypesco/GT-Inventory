@@ -144,6 +144,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
         Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
         Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
+        // for realtime
+        Route::get('/dashboard-stats', [App\Http\Controllers\Admin\DashboardController::class, 'getDashboardStats'])->name('api.dashboard-stats');
         
         Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
         // sales reports
@@ -226,13 +228,13 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
-        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
-        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         
-    });
+        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
+        Route::get('/admin/historylog/search', [HistorylogController::class, 'searchHistorylog'])->name('admin.historylog.search');
+    }); 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
-
-Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
+    // nilabas koto dahil ewan koba ayaw pag nasa loob e
+    Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
 
     //??~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED ROUTES FOR ALL EMPLOYEES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~??//
 

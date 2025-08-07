@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,32 +18,29 @@
     <main class="md:w-full h-full lg:ml-[16%] ml-0">
         <x-admin.header title="Sales Report" icon="fa-solid fa-print"/>
         
-        <div class="flex flex-col h-full">
-            <br>
-
+        <div class="flex flex-col h-full p-4">
             <div class="bg-white rounded-lg shadow-md mb-8">
-                <div class="card-header px-6 py-4 border-b">
+                <div class="px-6 py-4 border-b">
                     <h3 class="text-lg font-medium text-gray-800">Generate Sales Report</h3>
                 </div>
-                <div class="card-body p-6">
+                <div class="p-6">
+                    {{-- Form remains the same --}}
                     <form method="post" action="{{ route('admin.sales.generate') }}" class="space-y-4" id="report-form">
                         @csrf
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
                             <div class="flex space-x-2">
-                                <input type="date" name="start_date" class="form-input rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                <input type="date" name="start_date" class="form-input rounded-md shadow-sm w-full border border-gray-300" 
                                        value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
-                                <span class="flex items-center px-3 bg-gray-100 text-gray-500">
-                                    <i class="fas fa-arrow-right"></i>
-                                </span>
-                                <input type="date" name="end_date" class="form-input rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                <span class="flex items-center px-3 bg-gray-100 text-gray-500"><i class="fas fa-arrow-right"></i></span>
+                                <input type="date" name="end_date" class="form-input rounded-md shadow-sm w-full border border-gray-300" 
                                        value="{{ request('end_date', now()->format('Y-m-d')) }}">
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Company</label>
-                            <select name="company_id" class="form-select rounded-md shadow-sm w-full border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select name="company_id" class="form-select rounded-md shadow-sm w-full border border-gray-300">
                                 <option value="">All Companies</option>
                                 @foreach($all_companies as $company)
                                     <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
@@ -57,11 +54,9 @@
                             <button type="submit" name="preview" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-eye mr-2"></i> Preview Report
                             </button>
-                            
                             <button type="button" id="generate-pdf-btn" class="btn btn-primary bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-file-pdf mr-2"></i> Generate PDF
                             </button>
-                            
                             <a href="{{ route('admin.sales') }}" class="btn btn-secondary bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
                                 <i class="fas fa-times mr-2"></i> Clear Filters
                             </a>
@@ -70,29 +65,21 @@
                 </div>
             </div>
 
-            @isset($orders)
+            {{-- UPDATED REPORT SECTION --}}
+            @isset($histories)
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold mb-4">
                     Sales Report Summary
-                    @if($company_id && $companies->count() > 0)
-                        - {{ $companies->first()->name }}
+                    @if($selected_company_name)
+                        - {{ $selected_company_name }}
                     @endif
                 </h3>
-                <p class="mb-6">Showing results from {{ $start_date }} to {{ $end_date }}</p>
+                <p class="mb-6">Showing results from <strong>{{ $start_date }}</strong> to <strong>{{ $end_date }}</strong></p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <h4 class="text-sm font-medium text-blue-800">Total Sales</h4>
-                        <p class="text-2xl font-bold text-blue-600">₱{{ number_format($total_sales, 2) }}</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <h4 class="text-sm font-medium text-green-800">Total Orders</h4>
-                        <p class="text-2xl font-bold text-green-600">{{ $orders->count() }}</p>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <h4 class="text-sm font-medium text-purple-800">Companies</h4>
-                        <p class="text-2xl font-bold text-purple-600">{{ $companies->count() }}</p>
-                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg"><h4 class="text-sm font-medium text-blue-800">Total Sales</h4><p class="text-2xl font-bold text-blue-600">₱{{ number_format($total_sales, 2) }}</p></div>
+                    <div class="bg-green-50 p-4 rounded-lg"><h4 class="text-sm font-medium text-green-800">Total Orders</h4><p class="text-2xl font-bold text-green-600">{{ $histories->count() }}</p></div>
+                    <div class="bg-purple-50 p-4 rounded-lg"><h4 class="text-sm font-medium text-purple-800">Companies</h4><p class="text-2xl font-bold text-purple-600">{{ $company_summary->count() }}</p></div>
                 </div>
 
                 @if(!$company_id)
@@ -102,27 +89,21 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Orders</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Sales</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Orders</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Sales</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($companies as $company)
-                                @if($company->exclusiveDeals->flatMap->orders->count() > 0)
+                                @forelse($company_summary as $summary)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $company->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $company->exclusiveDeals->flatMap->orders->count() }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        ₱{{ number_format($company->exclusiveDeals->sum(function($deal) {
-                                            return $deal->orders->sum(function($order) use ($deal) {
-                                                return $order->quantity * $deal->price;
-                                            });
-                                        }), 2) }}
-                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $summary->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $summary->total_orders }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">₱{{ number_format($summary->total_sales, 2) }}</td>
                                 </tr>
-                                @endif
-                                @endforeach
+                                @empty
+                                <tr><td colspan="3" class="text-center py-4">No sales data found for any company in this period.</td></tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -134,31 +115,33 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                                 @if(!$company_id)
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
                                 @endif
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($orders as $order)
+                            @forelse($histories as $history)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $order->date_ordered->format('Y-m-d') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $order->user->name }}</td>
-                                <td>{{ $order->exclusiveDeal->product->generic_name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->date_ordered->format('Y-m-d') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->employee }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->generic_name }}</td>
                                 @if(!$company_id)
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $order->exclusiveDeal->company->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->company }}</td>
                                 @endif
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $order->quantity }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">₱{{ number_format($order->exclusiveDeal->price, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">₱{{ number_format($order->quantity * $order->exclusiveDeal->price, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->quantity }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">₱{{ number_format($history->price, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">₱{{ number_format($history->subtotal, 2) }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr><td colspan="{{ $company_id ? 6 : 7 }}" class="text-center py-4">No individual orders found for this period.</td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -167,56 +150,50 @@
         </div>
     </main>
     
+    {{-- AJAX script for PDF download remains the same --}}
     <script>
     $(document).ready(function() {
         $('#generate-pdf-btn').on('click', function(e) {
-            e.preventDefault(); // Just in case, to prevent any default action
-
+            e.preventDefault(); 
             const btn = $(this);
             const originalText = btn.html();
-            
-            // Provide user feedback
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Generating...');
-
-            // Get form data
             const form = $('#report-form');
             const url = form.attr('action');
-            const formData = form.serialize() + '&download=1'; // Add the 'download' parameter
+            const formData = form.serialize() + '&download=1'; 
 
             $.ajax({
                 url: url,
                 method: 'POST',
                 data: formData,
-                // This is the crucial part for handling binary file data
-                xhrFields: {
-                    responseType: 'blob'
-                },
+                xhrFields: { responseType: 'blob' },
                 success: function(blob, status, xhr) {
-                    // Create a URL for the blob object
                     const blobUrl = window.URL.createObjectURL(blob);
-                    
-                    // Create a temporary <a> element to trigger the download
                     const tempLink = document.createElement('a');
                     tempLink.style.display = 'none';
                     tempLink.href = blobUrl;
-                    tempLink.setAttribute('download', 'sales-report.pdf'); // Set the filename
                     
-                    // For Firefox, the link needs to be added to the body
+                    // Extract filename from header if possible, otherwise use a default
+                    let filename = "sales-report.pdf";
+                    const disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        const matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    tempLink.setAttribute('download', filename);
+                    
                     document.body.appendChild(tempLink);
                     tempLink.click();
-                    
-                    // Clean up by removing the link and revoking the URL
                     document.body.removeChild(tempLink);
                     window.URL.revokeObjectURL(blobUrl);
-
-                    // Restore button
                     btn.prop('disabled', false).html(originalText);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.error("Error generating PDF: ", textStatus, errorThrown);
-                    alert('An error occurred while generating the PDF. Please try again.');
-                    
-                    // Restore button
+                    alert('An error occurred while generating the PDF.');
                     btn.prop('disabled', false).html(originalText);
                 }
             });

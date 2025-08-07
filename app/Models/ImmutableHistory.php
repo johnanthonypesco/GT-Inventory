@@ -28,6 +28,7 @@ class ImmutableHistory extends Model
     protected $casts = [
         'date_ordered' => 'datetime',
     ];
+    
 
      public function scannedQrCode()
     {

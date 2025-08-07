@@ -2,169 +2,249 @@
 <html>
 <head>
     <title>Sales Report - {{ $start_date }} to {{ $end_date }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
-        body {
-            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-            color: #555;
+        /* Define a professional color palette */
+        :root {
+            --primary-color: #003366; /* Deep Corporate Blue */
+            --secondary-color: #4A90E2; /* Lighter Accent Blue */
+            --text-color: #333333;
+            --light-text-color: #FFFFFF;
+            --border-color: #DDDDDD;
+            --background-light: #F4F7F9;
         }
+
+        @page {
+            margin: 40px 50px;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            color: var(--text-color);
+            font-size: 11px;
+        }
+
+        /* NEW: Footer Styling for page numbers */
+        .footer {
+            position: fixed;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #888888;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
+        }
+        .header img {
+            width: 140px;
+            margin-bottom: 10px;
         }
         .header h1 {
             margin: 0;
-            font-size: 28px;
-            color: #333;
+            font-size: 26px;
+            color: var(--primary-color);
         }
         .header p {
             margin: 5px 0 0;
+            font-size: 14px;
+            color: #555555;
+        }
+
+        .section-title {
             font-size: 16px;
-            color: #777;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
         }
-        .summary-container {
+        
+        /* Redesigned Summary Section */
+        .summary-table {
             width: 100%;
-            margin-bottom: 40px;
+            border-collapse: separate;
+            border-spacing: 10px 0;
+            margin-bottom: 20px;
         }
-        .summary-box {
-            display: inline-block;
-            width: 30%;
+        .summary-table td {
             text-align: center;
-            padding: 20px;
-            margin: 0 1.5%;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
+            width: 33.33%;
+            padding: 15px 10px;
+            background-color: var(--background-light);
+            border: 1px solid #DAE4ED;
             border-radius: 8px;
         }
-        .summary-box h3 {
-            margin: 0 0 10px;
-            font-size: 14px;
-            color: #666;
-            text-transform: uppercase;
-        }
-        .summary-box p {
-            margin: 0;
-            font-size: 24px;
+        .summary-table .summary-title {
+            font-size: 11px;
             font-weight: bold;
-            color: #333;
+            text-transform: uppercase;
+            color: #555555;
+            margin-bottom: 8px;
         }
-        table {
+        .summary-table .summary-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        /* Redesigned Data Tables */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
-        th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #ddd;
+        .data-table th, .data-table td {
+            padding: 10px 12px;
             text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+        .data-table thead th {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            font-size: 10px;
             text-transform: uppercase;
-            font-size: 12px;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .section-title {
-            font-size: 22px;
-            color: #333;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .total-row td {
             font-weight: bold;
-            background-color: #f2f2f2;
-            font-size: 16px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--background-light);
+        }
+        .data-table .total-row td {
+            font-weight: bold;
+            font-size: 12px;
+            background-color: #E9EDF1;
+            border-top: 2px solid #C5D2E0;
         }
         .currency {
-            font-family: monospace;
+            font-family: sans-serif;
         }
-        .page-break {
-            page-break-after: always;
-        }
+        /* NEW: Text alignment classes */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
+
+    @php
+        $logoPath = public_path('image/Logowname.png');
+        $logoData = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+    @endphp
+    
+    <div class="footer">
+        Sales Report &copy; {{ date('Y') }} {{-- Your Company Name --}} | Generated on: {{ \Carbon\Carbon::now()->format('F d, Y, h:i A') }}
+        <script type="text/php">
+            if (isset($pdf)) {
+                $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+                $x = $pdf->get_width() - 120;
+                $y = $pdf->get_height() - 35;
+                $font = null;
+                $size = 10;
+                $color = array(0.5, 0.5, 0.5);
+                $word_space = 0.0;
+                $char_space = 0.0;
+                $angle = 0.0;
+                $pdf->page_text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
+            }
+        </script>
+    </div>
+
     <div class="header">
+        @if($logoData)
+            <img src="data:image/png;base64,{{ $logoData }}" alt="Company Logo">
+        @endif
+        
         <h1>Sales Report</h1>
-        <p>{{ $start_date }} to {{ $end_date }}</p>
+        <p>
+            {{ \Carbon\Carbon::parse($start_date)->format('F d, Y') }} to {{ \Carbon\Carbon::parse($end_date)->format('F d, Y') }}
+            @if($selected_company_name)
+                <br><strong>Company: {{ $selected_company_name }}</strong>
+            @endif
+        </p>
     </div>
 
-    <div class="summary-container">
-        <div class="summary-box">
-            <h3>Total Sales</h3>
-            <p><span class="currency">P</span>{{ number_format($total_sales, 2) }}</p>
-        </div>
-        <div class="summary-box">
-            <h3>Total Orders</h3>
-            <p>{{ $orders->count() }}</p>
-        </div>
-        <div class="summary-box">
-            <h3>Companies</h3>
-            <p>{{ $companies->count() }}</p>
-        </div>
-    </div>
+    <table class="summary-table">
+        <tr>
+            <td>
+                <div class="summary-title">Total Sales</div>
+                <div class="summary-value"><span class="currency">P</span>{{ number_format($total_sales, 2) }}</div>
+            </td>
+            <td>
+                <div class="summary-title">Total Orders</div>
+                <div class="summary-value">{{ $histories->count() }}</div>
+            </td>
+            <td>
+                <div class="summary-title">Companies</div>
+                <div class="summary-value">{{ $company_summary->count() }}</div>
+            </td>
+        </tr>
+    </table>
 
-    <h2 class="section-title">Sales by Company</h2>
-    <table>
+    @if(!$company_id)
+    <div class="section-title">Sales by Company</div>
+    <table class="data-table">
         <thead>
             <tr>
                 <th>Company</th>
-                <th>Total Orders</th>
-                <th>Total Sales</th>
+                <th class="text-center">Total Orders</th>
+                <th class="text-right">Total Sales</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($companies as $company)
-                @if($company->exclusiveDeals->flatMap->orders->count() > 0)
-                <tr>
-                    <td>{{ $company->name }}</td>
-                    <td>{{ $company->exclusiveDeals->flatMap->orders->count() }}</td>
-                    <td><span class="currency">P</span>{{ number_format($company->exclusiveDeals->sum(function($deal) {
-                        return $deal->orders->sum(function($order) use ($deal) {
-                            return $order->quantity * $deal->price;
-                        });
-                    }), 2) }}</td>
-                </tr>
-                @endif
-            @endforeach
+            @forelse($company_summary as $summary)
+            <tr>
+                <td>{{ $summary->name }}</td>
+                <td class="text-center">{{ $summary->total_orders }}</td>
+                <td class="text-right"><span class="currency">P</span>{{ number_format($summary->total_sales, 2) }}</td>
+            </tr>
+            @empty
+            <tr><td colspan="3" class="text-center">No data available.</td></tr>
+            @endforelse
         </tbody>
     </table>
+    @endif
 
-    <h2 class="section-title">Order Details</h2>
-    <table>
+    <div class="section-title">Order Details</div>
+    <table class="data-table">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Product</th>
+                @if(!$company_id)
                 <th>Company</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Total</th>
+                @endif
+                <th class="text-center">Qty</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($orders as $order)
+            @forelse($histories as $history)
             <tr>
-                <td>{{ \Carbon\Carbon::parse($order->date_ordered)->format('Y-m-d') }}</td>
-                <td>{{ $order->user->name }}</td>
-                <td>{{ $order->exclusiveDeal->product->generic_name ?? 'N/A' }}</td>
-                <td>{{ $order->exclusiveDeal->company->name }}</td>
-                <td>{{ $order->quantity }}</td>
-                <td><span class="currency">P</span>{{ number_format($order->exclusiveDeal->price, 2) }}</td>
-                <td><span class="currency">P</span>{{ number_format($order->quantity * $order->exclusiveDeal->price, 2) }}</td>
+                <td>{{ $history->date_ordered->format('Y-m-d') }}</td>
+                <td>{{ $history->employee }}</td>
+                <td>{{ $history->generic_name }}</td>
+                @if(!$company_id)
+                <td>{{ $history->company }}</td>
+                @endif
+                <td class="text-center">{{ $history->quantity }}</td>
+                <td class="text-right"><span class="currency">P</span>{{ number_format($history->price, 2) }}</td>
+                <td class="text-right"><span class="currency">P</span>{{ number_format($history->subtotal, 2) }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr><td colspan="{{ $company_id ? 6 : 7 }}" class="text-center">No individual orders found.</td></tr>
+            @endforelse
             <tr class="total-row">
-                <td colspan="6" style="text-align: right;">Total Sales:</td>
-                <td><span class="currency">P</span>{{ number_format($total_sales, 2) }}</td>
+                <td colspan="{{ $company_id ? 5 : 6 }}" class="text-right"><strong>Grand Total:</strong></td>
+                <td class="text-right"><strong><span class="currency">P</span>{{ number_format($total_sales, 2) }}</strong></td>
             </tr>
         </tbody>
     </table>

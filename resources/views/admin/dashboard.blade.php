@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
-    <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -18,26 +17,19 @@
     <title>Dashboard</title>
     <style>
         /* Styles for the AI Analysis Section */
-        /* Styles for the AI Analysis Section */
         .anomaly-item.positive { border-left-color: #16a34a; }
         .anomaly-item.negative { border-left-color: #dc2626; }
         .anomaly-item.warning { border-left-color: #f59e0b; }
         .recommendation-card { background: linear-gradient(135deg, #6d28d9, #4f46e5); }
         .loader { display: flex; align-items: center; justify-content: center; padding: 2rem; color: #6b21a8; }
         .loader svg { color: #6b21a8; }
-
-        /* Chart-related styles */
         .chart-container { transition: all 0.3s ease; min-height: 300px; cursor: grab; }
         .chart-container:active { cursor: grabbing; }
-
-        /* AI History Panel Styles */
         .history-panel { max-height: 300px; overflow-y: auto; }
         .history-item { cursor: pointer; transition: background-color 0.2s ease-in-out; }
         .history-item:hover { background-color: #f3e8ff; }
         .history-item.active { background-color: #e9d5ff; border-left-color: #9333ea; }
-        #refreshAiBtn:disabled {
-        cursor: not-allowed;
-    }
+        #refreshAiBtn:disabled { cursor: not-allowed; }
     </style>
 </head>
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
@@ -46,109 +38,69 @@
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        {{-- Start of the cards container --}}
-        {{-- Start of the cards container --}}
         <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
-
-            {{-- DYNAMIC CARD COUNT LOGIC --}}
             @php
                 $cardCount = 3; 
                 if (!$currentUser instanceof \App\Models\Staff) { $cardCount++; }
                 $cardCount++;
             @endphp
 
-            {{-- UPDATED GRID WITH ANIMATED CARDS --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-{{ $cardCount }} gap-4 items-stretch">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-{{ $cardCount }} gap-4 items-start">
+                
+                @include('admin.partials._dashboard_card', [
+                    'title' => 'Total Delivered',
+                    'countId' => 'total-delivered-count',
+                    'count' => $totalOrders,
+                    'icon' => 'complete.png',
+                    'bgColor' => 'bg-blue-100',
+                    'glowColor' => 'rgba(96,165,250,.15)'
+                ])
 
-                {{-- Card 1: Total Delivered --}}
-                <div class="bg-white rounded-xl p-4 md:p-5 flex items-center h-full transform-gpu transition-all duration-500 ease-out relative overflow-hidden will-change-transform"
-                     style="transform-style: preserve-3d; perspective: 1200px; transform: translateZ(0);"
-                     onmousemove="const el=this,rect=el.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top,tiltX=(y-rect.height/2)/rect.height*10,tiltY=-((x-rect.width/2)/rect.width)*10;el.style.transform=`translateY(-12px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;el.style.boxShadow=`0 4px 12px rgba(0,0,0,0.08),0 ${20+Math.abs(tiltX)*2}px 30px rgba(0,0,0,0.12),0 0 0 1px #e5e7eb`;if(!el.querySelector('.tilt-glow')){const t=document.createElement('div');t.classList.add('tilt-glow'),t.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at ${x}px ${y}px,rgba(96,165,250,.15) 0%,transparent 60%);border-radius:inherit;z-index:0`,el.appendChild(t)}else el.querySelector('.tilt-glow').style.background=`radial-gradient(circle at ${x}px ${y}px,rgba(96,165,250,.15) 0%,transparent 60%)`"
-                     onmouseleave="const el=this;el.style.transition='all .7s cubic-bezier(.25,.8,.25,1)',el.style.transform='translateY(0) rotateX(0deg) rotateY(0deg) scale(1)',el.style.boxShadow='0 1px 3px rgba(0,0,0,0.1),0 2px 6px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.06)';setTimeout(()=>{el.style.transition.includes('cubic-bezier')&&(el.style.transition='')},700),el.querySelector('.tilt-glow')&&el.removeChild(el.querySelector('.tilt-glow'))">
-                    <div class="flex-1 min-w-0 relative z-10">
-                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">Total Delivered</h3>
-                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">{{ $totalOrders }}</p>
-                    </div>
-                    <div class="ml-4 relative z-10">
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-blue-100 rounded-full">
-                            <img src="{{ asset('image/complete.png') }}" alt="Total Delivered" class="h-6 w-6 md:h-7 md:h-7">
-                        </div>
-                    </div>
-                </div>
+                @include('admin.partials._dashboard_card', [
+                    'title' => 'Pending Orders',
+                    'countId' => 'pending-orders-count',
+                    'count' => $pendingOrders,
+                    'icon' => 'pending.png',
+                    'bgColor' => 'bg-yellow-100',
+                    'glowColor' => 'rgba(252,211,77,.15)'
+                ])
 
-                {{-- Card 2: Pending Orders --}}
-                <div class="bg-white rounded-xl p-4 md:p-5 flex items-center h-full transform-gpu transition-all duration-500 ease-out relative overflow-hidden will-change-transform"
-                     style="transform-style: preserve-3d; perspective: 1200px; transform: translateZ(0);"
-                     onmousemove="const el=this,rect=el.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top,tiltX=(y-rect.height/2)/rect.height*10,tiltY=-((x-rect.width/2)/rect.width)*10;el.style.transform=`translateY(-12px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;el.style.boxShadow=`0 4px 12px rgba(0,0,0,0.08),0 ${20+Math.abs(tiltX)*2}px 30px rgba(0,0,0,0.12),0 0 0 1px #e5e7eb`;if(!el.querySelector('.tilt-glow')){const t=document.createElement('div');t.classList.add('tilt-glow'),t.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at ${x}px ${y}px,rgba(252,211,77,.15) 0%,transparent 60%);border-radius:inherit;z-index:0`,el.appendChild(t)}else el.querySelector('.tilt-glow').style.background=`radial-gradient(circle at ${x}px ${y}px,rgba(252,211,77,.15) 0%,transparent 60%)`"
-                     onmouseleave="const el=this;el.style.transition='all .7s cubic-bezier(.25,.8,.25,1)',el.style.transform='translateY(0) rotateX(0deg) rotateY(0deg) scale(1)',el.style.boxShadow='0 1px 3px rgba(0,0,0,0.1),0 2px 6px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.06)';setTimeout(()=>{el.style.transition.includes('cubic-bezier')&&(el.style.transition='')},700),el.querySelector('.tilt-glow')&&el.removeChild(el.querySelector('.tilt-glow'))">
-                    <div class="flex-1 min-w-0 relative z-10">
-                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">Pending Orders</h3>
-                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">{{ $pendingOrders }}</p>
-                    </div>
-                    <div class="ml-4 relative z-10">
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-yellow-100 rounded-full">
-                            <img src="{{ asset('image/pending.png') }}" alt="Pending Orders" class="h-6 w-6 md:h-7 md:h-7">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 3: Cancelled Orders --}}
-                <div class="bg-white rounded-xl p-4 md:p-5 flex items-center h-full transform-gpu transition-all duration-500 ease-out relative overflow-hidden will-change-transform"
-                     style="transform-style: preserve-3d; perspective: 1200px; transform: translateZ(0);"
-                     onmousemove="const el=this,rect=el.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top,tiltX=(y-rect.height/2)/rect.height*10,tiltY=-((x-rect.width/2)/rect.width)*10;el.style.transform=`translateY(-12px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;el.style.boxShadow=`0 4px 12px rgba(0,0,0,0.08),0 ${20+Math.abs(tiltX)*2}px 30px rgba(0,0,0,0.12),0 0 0 1px #e5e7eb`;if(!el.querySelector('.tilt-glow')){const t=document.createElement('div');t.classList.add('tilt-glow'),t.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at ${x}px ${y}px,rgba(239,68,68,.1) 0%,transparent 60%);border-radius:inherit;z-index:0`,el.appendChild(t)}else el.querySelector('.tilt-glow').style.background=`radial-gradient(circle at ${x}px ${y}px,rgba(239,68,68,.1) 0%,transparent 60%)`"
-                     onmouseleave="const el=this;el.style.transition='all .7s cubic-bezier(.25,.8,.25,1)',el.style.transform='translateY(0) rotateX(0deg) rotateY(0deg) scale(1)',el.style.boxShadow='0 1px 3px rgba(0,0,0,0.1),0 2px 6px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.06)';setTimeout(()=>{el.style.transition.includes('cubic-bezier')&&(el.style.transition='')},700),el.querySelector('.tilt-glow')&&el.removeChild(el.querySelector('.tilt-glow'))">
-                    <div class="flex-1 min-w-0 relative z-10">
-                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">Cancelled Orders</h3>
-                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">{{ $cancelledOrders }}</p>
-                    </div>
-                    <div class="ml-4 relative z-10">
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-red-100 rounded-full">
-                            <img src="{{ asset('image/cancel.png') }}" alt="Cancelled Orders" class="h-6 w-6 md:h-7 ">
-                        </div>
-                    </div>
-                </div>
+                @include('admin.partials._dashboard_card', [
+                    'title' => 'Cancelled Orders',
+                    'countId' => 'cancelled-orders-count',
+                    'count' => $cancelledOrders,
+                    'icon' => 'cancel.png',
+                    'bgColor' => 'bg-red-100',
+                    'glowColor' => 'rgba(239,68,68,.1)'
+                ])
 
                 @if(!$currentUser instanceof \App\Models\Staff)
-                {{-- Card 4: Total Sale --}}
-                <div id="totalSaleCard" class="bg-white rounded-xl p-4 md:p-5 flex items-center h-full cursor-pointer transform-gpu transition-all duration-500 ease-out relative overflow-hidden will-change-transform"
-                     style="transform-style: preserve-3d; perspective: 1200px; transform: translateZ(0);"
-                     onmousemove="const el=this,rect=el.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top,tiltX=(y-rect.height/2)/rect.height*10,tiltY=-((x-rect.width/2)/rect.width)*10;el.style.transform=`translateY(-12px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;el.style.boxShadow=`0 4px 12px rgba(0,0,0,0.08),0 ${20+Math.abs(tiltX)*2}px 30px rgba(0,0,0,0.12),0 0 0 1px #e5e7eb`;if(!el.querySelector('.tilt-glow')){const t=document.createElement('div');t.classList.add('tilt-glow'),t.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at ${x}px ${y}px,rgba(59,130,246,.15) 0%,transparent 60%);border-radius:inherit;z-index:0`,el.appendChild(t)}else el.querySelector('.tilt-glow').style.background=`radial-gradient(circle at ${x}px ${y}px,rgba(59,130,246,.15) 0%,transparent 60%)`"
-                     onmouseleave="const el=this;el.style.transition='all .7s cubic-bezier(.25,.8,.25,1)',el.style.transform='translateY(0) rotateX(0deg) rotateY(0deg) scale(1)',el.style.boxShadow='0 1px 3px rgba(0,0,0,0.1),0 2px 6px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.06)';setTimeout(()=>{el.style.transition.includes('cubic-bezier')&&(el.style.transition='')},700),el.querySelector('.tilt-glow')&&el.removeChild(el.querySelector('.tilt-glow'))">
-                    <div class="flex-1 min-w-0 relative z-10">
-                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">Total Sale</h3>
-                        <p id="totalSaleValue" class="text-gray-800 text-2xl md:text-2xl sm:text-lg font-bold mt-1 break-all">₱{{ number_format($totalRevenue, 0) }}</p>
-                    </div>
-                    <div class="ml-4 relative z-10">
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-green-100 rounded-full">
-                            <img src="{{ asset('image/pera.png') }}" alt="Total Revenue" class="h-6 w-6 md:h-7">
-                        </div>
-                    </div>
-                </div>
+                    @include('admin.partials._dashboard_card', [
+                        'cardId' => 'totalSaleCard',
+                        'title' => 'Total Sale',
+                        'countId' => 'total-sale-value',
+                        'count' => '₱' . number_format($totalRevenue),
+                        'icon' => 'pera.png',
+                        'bgColor' => 'bg-green-100',
+                        'glowColor' => 'rgba(59,130,246,.15)',
+                        'extraClasses' => 'cursor-pointer'
+                    ])
                 @endif
                 
-                {{-- Card 5: Unread Messages --}}
-                <div class="bg-white rounded-xl p-4 md:p-5 flex items-center h-full transform-gpu transition-all duration-500 ease-out relative overflow-hidden will-change-transform"
-                     style="transform-style: preserve-3d; perspective: 1200px; transform: translateZ(0);"
-                     onmousemove="const el=this,rect=el.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top,tiltX=(y-rect.height/2)/rect.height*10,tiltY=-((x-rect.width/2)/rect.width)*10;el.style.transform=`translateY(-12px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;el.style.boxShadow=`0 4px 12px rgba(0,0,0,0.08),0 ${20+Math.abs(tiltX)*2}px 30px rgba(0,0,0,0.12),0 0 0 1px #e5e7eb`;if(!el.querySelector('.tilt-glow')){const t=document.createElement('div');t.classList.add('tilt-glow'),t.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at ${x}px ${y}px,rgba(167,139,250,.15) 0%,transparent 60%);border-radius:inherit;z-index:0`,el.appendChild(t)}else el.querySelector('.tilt-glow').style.background=`radial-gradient(circle at ${x}px ${y}px,rgba(167,139,250,.15) 0%,transparent 60%)`"
-                     onmouseleave="const el=this;el.style.transition='all .7s cubic-bezier(.25,.8,.25,1)',el.style.transform='translateY(0) rotateX(0deg) rotateY(0deg) scale(1)',el.style.boxShadow='0 1px 3px rgba(0,0,0,0.1),0 2px 6px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.06)';setTimeout(()=>{el.style.transition.includes('cubic-bezier')&&(el.style.transition='')},700),el.querySelector('.tilt-glow')&&el.removeChild(el.querySelector('.tilt-glow'))">
-                    <div class="flex-1 min-w-0 relative z-10">
-                        <h3 class="text-gray-500 font-medium text-sm md:text-base truncate">Unread Messages</h3>
-                        <p class="text-gray-800 text-2xl md:text-3xl font-bold mt-1 break-all">
-                            @if($currentUser instanceof \App\Models\SuperAdmin)
-                                {{ $unreadMessagesSuperAdmin ?? 0 }}
-                            @elseif($currentUser instanceof \App\Models\Admin)
-                                {{ $unreadMessagesAdmin ?? 0 }}
-                            @elseif($currentUser instanceof \App\Models\Staff)
-                                {{ $unreadMessagesStaff ?? 0 }}
-                            @endif
-                        </p>
-                    </div>
-                    <div class="ml-4 relative z-10">
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-purple-100 rounded-full">
-                            <img src="{{ asset('image/messages.png') }}" alt="Unread Messages" class="h-6 w-6 md:h-7">
-                        </div>
-                    </div>
-                </div>
+                @php
+                    $unreadCount = 0;
+                    if($currentUser instanceof \App\Models\SuperAdmin) { $unreadCount = $unreadMessagesSuperAdmin ?? 0; }
+                    elseif($currentUser instanceof \App\Models\Admin) { $unreadCount = $unreadMessagesAdmin ?? 0; }
+                    elseif($currentUser instanceof \App\Models\Staff) { $unreadCount = $unreadMessagesStaff ?? 0; }
+                @endphp
+                @include('admin.partials._dashboard_card', [
+                    'title' => 'Unread Messages',
+                    'countId' => 'unread-messages-count',
+                    'count' => $unreadCount,
+                    'icon' => 'messages.png',
+                    'bgColor' => 'bg-purple-100',
+                    'glowColor' => 'rgba(167,139,250,.15)'
+                ])
 
             </div>
 
@@ -217,7 +169,6 @@
             @endif
             {{-- *** END: MODIFIED AI ANALYSIS SECTION *** --}}
 
-
             @if(!$currentUser instanceof \App\Models\Staff)
                 <div class="mt-5 bg-white p-4 rounded-lg shadow">
                     <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
@@ -280,7 +231,6 @@
                 </div>
             </div>
             @endif
-
 
             @if(!$currentUser instanceof \App\Models\Staff)
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
@@ -471,7 +421,6 @@
         </div>
     </main>
 
-
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Global variables
@@ -479,42 +428,78 @@ document.addEventListener('DOMContentLoaded', function() {
     let sortableInstances = {}; // To hold the SortableJS instances
     const XL_BREAKPOINT = 1280; // Tailwind CSS 'xl' breakpoint in pixels
 
+    // MODIFIED: Added a global flag to control realtime revenue updates.
+    window.isRevenueFiltered = false;
+
     // --- SCRIPT FOR REVENUE CARD MODAL ---
     const totalSaleCard = document.getElementById('totalSaleCard');
     const revenueModal = document.getElementById('revenueFilterModal');
     const closeModalBtn = document.getElementById('closeRevenueModalBtn');
     const applyFilterBtn = document.getElementById('applyRevenueFilterBtn');
-    const totalSaleValueEl = document.getElementById('totalSaleValue');
+    const cancelRevenueFilterBtn = document.getElementById('cancelRevenueFilterBtn');
+    const totalSaleValueEl = document.getElementById('total-sale-value');
     const modalPeriodSelect = document.getElementById('revenueModalPeriod');
     const modalCustomRangeContainer = document.getElementById('revenueModalCustomRange');
+    const revenueModalStartDate = document.getElementById('revenueModalStartDate');
+    const revenueModalEndDate = document.getElementById('revenueModalEndDate');
+
+    function closeModal() {
+        revenueModal.classList.add('hidden');
+        // We don't reset filters here so the state persists if the modal is just closed
+    }
 
     if (totalSaleCard) {
         totalSaleCard.addEventListener('click', () => {
             revenueModal.classList.remove('hidden');
         });
     }
+
     if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            revenueModal.classList.add('hidden');
-        });
+        closeModalBtn.addEventListener('click', closeModal);
     }
+
     if (revenueModal) {
         revenueModal.addEventListener('click', (event) => {
             if (event.target === revenueModal) {
-                revenueModal.classList.add('hidden');
+                closeModal();
             }
         });
     }
+
     if (modalPeriodSelect) {
         modalPeriodSelect.addEventListener('change', () => {
             modalCustomRangeContainer.classList.toggle('hidden', modalPeriodSelect.value !== 'custom');
         });
     }
+
+    if (cancelRevenueFilterBtn) {
+        cancelRevenueFilterBtn.addEventListener('click', closeModal);
+    }
+
     if (applyFilterBtn) {
         applyFilterBtn.addEventListener('click', async () => {
             const period = modalPeriodSelect.value;
-            const startDate = document.getElementById('revenueModalStartDate').value;
-            const endDate = document.getElementById('revenueModalEndDate').value;
+            const startDate = revenueModalStartDate.value;
+            const endDate = revenueModalEndDate.value;
+
+            // Validate custom date range
+            if (period === 'custom' && (!startDate || !endDate)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Input',
+                    text: 'Please provide both start and end dates for custom range.',
+                });
+                return;
+            }
+
+            if (period === 'custom' && new Date(endDate) < new Date(startDate)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Date Range',
+                    text: 'End date must be on or after start date.',
+                });
+                return;
+            }
 
             applyFilterBtn.disabled = true;
             applyFilterBtn.textContent = 'Loading...';
@@ -525,36 +510,60 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     },
                     body: JSON.stringify({
                         period: period,
                         start_date: startDate,
-                        end_date: endDate
-                    })
+                        end_date: endDate,
+                    }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
                 }
 
                 const result = await response.json();
-
                 const formattedRevenue = '₱' + new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 }).format(result.total_revenue);
                 totalSaleValueEl.textContent = formattedRevenue;
 
+                // MODIFIED: Update the flag and title based on the selected filter
+                const totalSaleTitleEl = document.getElementById('total-sale-value-title');
+                if (totalSaleTitleEl) {
+                    if (period === 'all_time') {
+                        window.isRevenueFiltered = false;
+                        totalSaleTitleEl.textContent = 'Total Sale';
+                    } else {
+                        window.isRevenueFiltered = true;
+                        const selectedOptionText = modalPeriodSelect.options[modalPeriodSelect.selectedIndex].text;
+                        totalSaleTitleEl.textContent = `Total Sale (${selectedOptionText})`;
+                    }
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Revenue updated successfully!',
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+
+                closeModal();
             } catch (error) {
                 console.error('Error fetching filtered revenue:', error);
                 totalSaleValueEl.textContent = 'Error';
-                alert('Could not fetch the filtered sales data.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Could not fetch the filtered sales data: ' + error.message,
+                });
             } finally {
                 applyFilterBtn.disabled = false;
                 applyFilterBtn.textContent = 'Apply Filter';
-                revenueModal.classList.add('hidden');
             }
         });
     }
-
 
     // --- UNIFIED AI ANALYSIS SCRIPT ---
     if (document.getElementById('ai-analysis-section')) {
@@ -731,7 +740,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showLoadingState();
 
-            // MODIFIED: Parse the key type and model name from the single dropdown's composite value
             const compositeValue = aiModelSelect.value;
             const separatorIndex = compositeValue.indexOf(':');
             const selectedApiKeyType = compositeValue.substring(0, separatorIndex);
@@ -904,11 +912,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePerformanceChart(type) {
-         const performanceData = {
-              mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
-              moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
-              lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
-       };
+          const performanceData = {
+                 mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
+                 moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
+                 lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
+        };
         const chartData = performanceData[type];
         createChart('productPerformanceChart', {
             type: 'bar',
@@ -1136,5 +1144,110 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 </script>
 @endif
+
+{{-- realtime --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ✅ Object to store animation frame IDs
+        const activeAnimations = {};
+
+        // Function to fetch and update the dashboard card statistics
+        async function updateDashboardCards() {
+            try {
+                const response = await fetch("{{ route('api.dashboard-stats') }}", {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to fetch dashboard stats. Status:', response.status);
+                    return;
+                }
+
+                const stats = await response.json();
+
+                // Update each card with a smooth counting animation
+                animateCountUp('total-delivered-count', stats.totalOrders);
+                animateCountUp('pending-orders-count', stats.pendingOrders);
+                animateCountUp('cancelled-orders-count', stats.cancelledOrders);
+                animateCountUp('unread-messages-count', stats.unreadMessages);
+
+                const totalSaleEl = document.getElementById('total-sale-value');
+                if (totalSaleEl) {
+                    // MODIFIED: Check the global flag. Only update revenue if no filter is active.
+                    if (window.isRevenueFiltered === false) {
+                        animateRevenue('total-sale-value', stats.totalRevenue);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error updating dashboard cards:', error);
+            }
+        }
+        
+        function formatNumberWithCommas(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // --- Animation Functions ---
+        function animateCountUp(elementId, endValue) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            if (activeAnimations[elementId]) cancelAnimationFrame(activeAnimations[elementId]);
+            const startValue = parseInt(el.textContent.replace(/,/g, '')) || 0;
+            if (startValue === endValue) return;
+            const duration = 1500, totalFrames = Math.round((duration / 1000) * 60);
+            let currentFrame = 0;
+            const count = () => {
+                currentFrame++;
+                const progress = currentFrame / totalFrames;
+                const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic(progress));
+                el.textContent = formatNumberWithCommas(currentValue);
+                if (currentFrame < totalFrames) {
+                    activeAnimations[elementId] = requestAnimationFrame(count);
+                } else {
+                    el.textContent = formatNumberWithCommas(endValue);
+                    delete activeAnimations[elementId];
+                }
+            };
+            activeAnimations[elementId] = requestAnimationFrame(count);
+        }
+
+        function animateRevenue(elementId, endValue) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            if (activeAnimations[elementId]) cancelAnimationFrame(activeAnimations[elementId]);
+            const startValue = parseInt(el.textContent.replace(/[₱,]/g, '')) || 0;
+            if (startValue === endValue) return;
+            const duration = 3000, totalFrames = Math.round((duration / 1000) * 60);
+            let currentFrame = 0;
+            const count = () => {
+                currentFrame++;
+                const progress = currentFrame / totalFrames;
+                const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic(progress));
+                el.textContent = '₱' + formatNumberWithCommas(currentValue);
+                if (currentFrame < totalFrames) {
+                    activeAnimations[elementId] = requestAnimationFrame(count);
+                } else {
+                    el.textContent = '₱' + formatNumberWithCommas(endValue);
+                    delete activeAnimations[elementId];
+                }
+            };
+            activeAnimations[elementId] = requestAnimationFrame(count);
+        }
+
+        function easeOutCubic(t) {
+            return (--t) * t * t + 1;
+        }
+
+        // --- Set Interval ---
+        setInterval(updateDashboardCards, 10000); // Update every 10 seconds
+
+        // Initial call on page load
+        updateDashboardCards();
+    });
+</script>
 </body>
 </html>

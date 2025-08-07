@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{asset ('css/style.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>History Log</title>
 </head>
@@ -21,93 +20,108 @@
         
         <div class="p-4 bg-white rounded-md mt-5">
             <div class="flex flex-col md:flex-row justify-between">
-                <x-input id="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search History Log by Event..." classname="fa fa-magnifying-glass"/>
-                <select id="eventFilter" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
+                {{-- Added name="search" for easier access in JS --}}
+                <x-input id="search" name="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search logs by description, event, or user..." classname="fa fa-magnifying-glass"/>
+                
+                {{-- Added name="event" and included all event types --}}
+                <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
                     <option value="All">--All Events--</option>
                     <option value="Add">Add</option>
                     <option value="Edit">Edit</option>
                     <option value="Delete">Delete</option>
+                    <option value="Archive">Archive</option>
+                    <option value="Approve">Approve</option>
+                    <option value="Disapprove">Disapprove</option>
                 </select>
             </div>
 
-            <div class="overflow-x-auto mt-5 h-[60vh]">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Event</th>
-                            <th>Description</th>
-                            <th>Action By</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTableBody">
-                        @if($historylogs->isEmpty())
-                            <tr id="noDataRow">
-                                <td colspan="4" class="text-center p-4">No history logs available.</td>
-                            </tr>
-                        @else
-                            @foreach($historylogs as $log)
-                                <tr data-event="{{ $log->event }}">
-                                    <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
-                                    <td class="flex justify-center">
-                                        <p class="py-1 px-3 text-white rounded-md w-20 text-center text-[12px]
-                                            {{ $log->event == 'Add' ? 'bg-blue-500/70' : 
-                                            ($log->event == 'Edit' ? 'bg-green-500/70' : 
-                                            ($log->event == 'Archive' ? 'bg-red-600/70' : 
-                                            ($log->event == 'Disapprove' ? 'bg-red-600/70' :
-                                            ($log->event == 'Approve' ? 'bg-blue-600/70' : 'bg-gray-500/70 text-black')))) }}">
-                                            {{ $log->event }}
-                                        </p>
-                                    </td>
-                                    <td>{{ $log->description }}</td>
-                                    <td>{{ $log->user_email ?? 'Unknown User' }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+            <div id="historylog-data-container">
+                {{-- This includes the table partial for the initial page load. --}}
+                {{-- It will be replaced with new content when a filter is used. --}}
+                @include('admin.partials.historylog_table')
             </div>
-            <x-pagination 
-                currentPage="{{ $currentPage }}" 
-                totalPage="{{ $totalPage }}" 
-                prev="{{ $prevPageUrl }}" 
-                next="{{ $nextPageUrl }}" 
-            />
         </div>
     </main>
     
 </body>
+
+{{-- This new script replaces your old one. It handles all AJAX logic. --}}
 <script>
-    document.getElementById('eventFilter').addEventListener('change', function () {
-        let selectedEvent = this.value;
-        let rows = document.querySelectorAll('#logTableBody tr');
-        let hasVisibleRow = false;
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const eventFilter = document.getElementById('eventFilter');
+        const dataContainer = document.getElementById('historylog-data-container');
 
-        rows.forEach(row => {
-            let eventType = row.getAttribute('data-event');
+        // The base URL for our AJAX requests, pointing to the new route.
+        const baseUrl = "{{ route('admin.historylog.search') }}";
 
-            if (selectedEvent === "All" || eventType === selectedEvent) {
-                row.style.display = "";
-                hasVisibleRow = true;
-            } else {
-                row.style.display = "none";
+        // Function to fetch data from the server without reloading the page.
+        const fetchData = async (url) => {
+            try {
+                // Add a visual indicator to show the user something is happening.
+                dataContainer.style.opacity = '0.5';
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const html = await response.text();
+                // Replace the content of the container with the new table from the server.
+                dataContainer.innerHTML = html;
+            } catch (error) {
+                console.error('Failed to fetch history logs:', error);
+                dataContainer.innerHTML = '<p class="text-center text-red-500 p-4">Could not load data. Please try again.</p>';
+            } finally {
+                // Restore the opacity once the content is loaded.
+                dataContainer.style.opacity = '1';
             }
-        });
+        };
 
-        let noDataRow = document.getElementById('noDataRow');
-        if (noDataRow) {
-            noDataRow.remove();
-        }
+        // Function to build the correct URL with filter parameters and then call fetchData.
+        const updateTable = () => {
+            const search = searchInput.value;
+            const event = eventFilter.value;
+            
+            // Use URLSearchParams to safely build the query string.
+            const params = new URLSearchParams({
+                search: search,
+                event: event
+            });
 
-        if (!hasVisibleRow) {
-            let tbody = document.getElementById('logTableBody');
-            let noDataMessage = document.createElement('tr');
-            noDataMessage.id = 'noDataRow';
-            noDataMessage.innerHTML = `
-                <td colspan="4" class="text-center p-4">No history logs available.</td>
-            `;
-            tbody.appendChild(noDataMessage);
-        }
+            fetchData(`${baseUrl}?${params.toString()}`);
+        };
+
+        // A "debounce" function to prevent sending too many requests while the user is typing.
+        const debounce = (func, delay) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        };
+
+        // --- EVENT LISTENERS ---
+
+        // Listen for typing in the search bar.
+        searchInput.addEventListener('keyup', debounce(updateTable, 300)); // 300ms delay
+
+        // Listen for changes in the dropdown filter.
+        eventFilter.addEventListener('change', updateTable);
+
+        // Listen for clicks inside the data container to handle pagination links.
+dataContainer.addEventListener('click', function (e) {
+    // First, find the closest anchor tag to what was clicked.
+    const targetLink = e.target.closest('a');
+
+    // Then, check if that link exists and is inside a .pagination container.
+    // Also, ensure it has an href to prevent errors.
+    if (targetLink && targetLink.href && targetLink.closest('.pagination')) {
+        e.preventDefault(); // Stop the browser from navigating to the new page.
+        fetchData(targetLink.href); // Fetch the content for the clicked page instead.
+    }
+});
     });
 </script>
 </html>

@@ -405,29 +405,32 @@ class DashboardController extends Controller
      * Provide product delivery data for charts, filtered by province.
      */
     public function getFilteredDeductedQuantities($year, $month, $province = null)
-    {
-        $deductedQuery = ImmutableHistory::where('status', 'delivered')
-            ->whereYear('date_ordered', $year)
-            ->whereMonth('date_ordered', $month);
+{
+    $deductedQuery = ImmutableHistory::where('status', 'delivered')
+        ->whereYear('date_ordered', $year)
+        ->whereMonth('date_ordered', $month);
 
-        if ($province) {
-            $deductedQuery->where('province', $province);
-        }
-
-        $deductedQuantities = $deductedQuery->select(
-                'generic_name',
-                DB::raw('SUM(quantity) as total_deducted')
-            )
-            ->groupBy('generic_name')
-            ->orderBy('total_deducted', 'DESC')
-            ->limit(10)
-            ->get();
-
-        return response()->json([
-            'labels'        => $deductedQuantities->pluck('generic_name'),
-            'deductedData'  => $deductedQuantities->pluck('total_deducted'),
-        ]);
+    if ($province) {
+        $deductedQuery->where('province', $province);
     }
+
+    $deductedQuantities = $deductedQuery->select(
+            'generic_name',
+            DB::raw('SUM(quantity) as total_deducted')
+        )
+        ->groupBy('generic_name')
+        ->orderBy('total_deducted', 'DESC')
+        ->limit(10)
+        ->get();
+
+    // Idagdag ang linyang ito para i-debug
+    // dd($deductedQuantities); 
+
+    return response()->json([
+        'labels'        => $deductedQuantities->pluck('generic_name'),
+        'deductedData'  => $deductedQuantities->pluck('total_deducted'),
+    ]);
+}
 
     /**
      * Provide revenue data for charts based on different time periods.
@@ -660,6 +663,49 @@ class DashboardController extends Controller
         $totalRevenue = $query->sum(DB::raw('quantity * price'));
         
         return response()->json(['total_revenue' => $totalRevenue]);
+    }
+
+    // for realtime update cards
+    public function getDashboardStats(): JsonResponse
+    {
+        try {
+            $currentUser = Auth::user();
+
+            // Calculate unread messages based on the current user's role
+            $unreadMessages = 0;
+            if ($currentUser instanceof SuperAdmin) {
+                $unreadMessages = Conversation::where('is_read', false)->where('receiver_type', 'super_admin')->where('receiver_id', $currentUser->id)->count();
+            } elseif ($currentUser instanceof Admin) {
+                $unreadMessages = Conversation::where('is_read', false)->where('receiver_type', 'admin')->where('receiver_id', $currentUser->id)->count();
+            } elseif ($currentUser instanceof Staff) {
+                $unreadMessages = Conversation::where('is_read', false)->where('receiver_type', 'staff')->where('receiver_id', $currentUser->id)->count();
+            }
+
+            // Calculate order counts
+            $totalOrders = ImmutableHistory::where('status', 'delivered')->count();
+            $pendingOrders = Order::where('status', 'pending')->count();
+            $cancelledOrders = ImmutableHistory::where('status', 'cancelled')->count();
+
+            // Calculate total revenue (only for non-staff)
+            $totalRevenue = 0;
+            if (!$currentUser instanceof Staff) {
+                 $totalRevenue = ImmutableHistory::where('status', 'delivered')
+                    ->select(DB::raw('SUM(quantity * price) as total_revenue'))
+                    ->first()->total_revenue ?? 0;
+            }
+
+            return response()->json([
+                'totalOrders' => $totalOrders,
+                'pendingOrders' => $pendingOrders,
+                'cancelledOrders' => $cancelledOrders,
+                'totalRevenue' => $totalRevenue,
+                'unreadMessages' => $unreadMessages,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch dashboard stats: " . $e->getMessage());
+            return response()->json(['error' => 'Could not retrieve dashboard statistics.'], 500);
+        }
     }
     
 }
