@@ -145,6 +145,17 @@ class HistorylogController extends Controller
         ]);
     }
 
+    // edit deals log
+    public static function editdealslog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email' => auth()->user()->email ?? 'System',
+            'created_at' => now(),
+        ]);
+    }
+
     // delete deals log
     public static function deletedealslog($event, $description, $companyId, $productId)
     {
@@ -213,6 +224,28 @@ class HistorylogController extends Controller
 
     //disapprove review log
     public static function disapprovereviewlog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
+    //transfer product log
+    public static function transferproductlog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
+    //edit stock log
+    public static function editstocklog($event, $description)
     {
         Historylogs::create([
             'event' => $event,

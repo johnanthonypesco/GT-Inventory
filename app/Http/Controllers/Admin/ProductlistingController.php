@@ -168,7 +168,14 @@ class ProductlistingController extends Controller
 
         $validated = array_map("strip_tags", $validated);
 
-        ExclusiveDeal::findOrFail($aidee)->update($validated);
+        // ExclusiveDeal::findOrFail($aidee)->update($validated);
+
+        //gawa ni anthony cinomment ko muna sayo kapag may problem balik mo
+        $exclusiveDeal = ExclusiveDeal::findOrFail($aidee);
+        $exclusiveDeal->update($validated);
+        
+        HistorylogController::editdealslog("Edit", "Edit deals of product:" . $exclusiveDeal->product->generic_name . " in company " . $exclusiveDeal->company->name, $exclusiveDeal->product_id);
+        //gawa ni anthony
 
         session()->flash('success', 'Deal updated successfully.');
 

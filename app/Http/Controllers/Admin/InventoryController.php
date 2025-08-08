@@ -345,6 +345,41 @@ class InventoryController extends Controller
         return to_route('admin.inventory')->with('editProductSuccess', true)->withInput();
     }
 
+    // public function editStock(Request $request) {
+    //     $validated = $request->validate([
+    //         'inventory_id' => 'integer|min:1|required',
+    //         'form_type' => 'string|min:3|required|in:edit-stock',
+    //         'batch_number' => 'string|min:3|required',
+    //         'quantity' => 'integer|min:0|max:100000|required',
+    //         'expiry_date' => 'date|required',
+    //     ]);
+
+    //     $validated = array_map('strip_tags', $validated);
+
+    //     $stock = Inventory::findOrFail($validated['inventory_id']);
+
+    //     $originalQuantity = $stock->quantity;
+    //     $originalExpiryDate = $stock->expiry_date;
+    //     $originalBatchNumber = $stock->batch_number;
+
+    //     $stock->update($validated);
+
+    //     // show the edited stock in the history log — quantity, expiry, or batch number
+    //     if ($originalQuantity != $validated['quantity']) {
+    //         HistorylogController::editstocklog('Edit', 'Stock quantity for', $stock->product_id , $stock->location->province);
+    //     } 
+    //     elseif ($originalExpiryDate != $validated['expiry_date']) {
+    //         HistorylogController::editstocklog('Edit', 'Stock expiry date for', $stock->product_id, $stock->location->province);
+    //     } 
+    //     elseif ($originalBatchNumber != $validated['batch_number']) {
+    //         HistorylogController::editstocklog('Edit', 'Stock batch number for', $stock->product_id, $stock->location->province);
+    //     } 
+    //     else {
+    //         return redirect()->to(url()->previous())->with('noChanges', true);
+    //     }
+
+    //     return redirect()->to(url()->previous())->with('success', 'Stock updated successfully.');
+    // }
     public function editStock(Request $request) {
         $validated = $request->validate([
             'inventory_id' => 'integer|min:1|required',
@@ -356,7 +391,7 @@ class InventoryController extends Controller
 
         $validated = array_map('strip_tags', $validated);
 
-        $stock = Inventory::findOrFail($validated['inventory_id']);
+        $stock = Inventory::with('product', 'location')->findOrFail($validated['inventory_id']);
 
         $originalQuantity = $stock->quantity;
         $originalExpiryDate = $stock->expiry_date;
@@ -364,15 +399,19 @@ class InventoryController extends Controller
 
         $stock->update($validated);
 
-        // show the edited stock in the history log — quantity, expiry, or batch number
+        // Kunin generic name ng product
+        $genericName = $stock->product->generic_name ?? 'Unknown Product';
+        $location = $stock->location->province ?? 'Unknown Location';
+
+        // Log changes with product name in the description
         if ($originalQuantity != $validated['quantity']) {
-            HistorylogController::editstocklog('Edit', 'Stock quantity for', $stock->product_id, $stock->location->province);
+            HistorylogController::editstocklog('Edit', "Stock quantity for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         elseif ($originalExpiryDate != $validated['expiry_date']) {
-            HistorylogController::editstocklog('Edit', 'Stock expiry date for', $stock->product_id, $stock->location->province);
+            HistorylogController::editstocklog('Edit', "Stock expiry date for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         elseif ($originalBatchNumber != $validated['batch_number']) {
-            HistorylogController::editstocklog('Edit', 'Stock batch number for', $stock->product_id, $stock->location->province);
+            HistorylogController::editstocklog('Edit', "Stock batch number for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         else {
             return redirect()->to(url()->previous())->with('noChanges', true);
