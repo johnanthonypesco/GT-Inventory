@@ -182,7 +182,7 @@
                 </div>
 
                 {{-- Table for Inventory --}}
-                <div id="real-timer-stock" data-location="{{ $provinceName }}" class="overflow-auto h-[290px] mt-5">
+                <div id="real-timer-stock" data-location="{{ $provinceName }}" class="overflow-auto h-fit mt-5">
                     {{-- <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/> --}}
                     <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$groupedStocks->items()" category="inventory"/>
                 </div>
