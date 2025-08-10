@@ -91,5 +91,10 @@
     </div>
 </div>      </div>
     </div>
+
+    {{-- loader --}}
+    <x-admin.loader/>
+    {{-- loader --}}
 </body>
+
 </html>

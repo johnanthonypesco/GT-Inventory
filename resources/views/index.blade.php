@@ -30,7 +30,7 @@
         </nav>
 
         <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>
-    </header>
+    </header>    
 
     <main class="mt-20 mb-20 main">
         <section id="home" class="flex flex-col-reverse px-5 lg:flex-row justify-center lg:px-24">
@@ -225,6 +225,10 @@
 
         <p class="text-md text-center mt-5">Copyright © RCT MED PHARMA. All Rights Reserve</p>
     </footer>
+
+    {{-- loader --}}
+    <x-admin.loader/>
+    {{-- loader --}}
 </body>
 <script src="{{ asset('js/landingpage/index.js') }}"></script>
 </html>

@@ -402,6 +402,10 @@
             </div>
         </div>
     </main>
+
+    {{-- loader --}}
+    <x-admin.loader/>
+    {{-- loader --}}
 </body>
 
 <script>

@@ -209,6 +209,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-admin.loader/>
+    {{-- loader --}}
+
     {{-- Modal for View All Products --}}
     <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">

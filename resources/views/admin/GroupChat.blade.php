@@ -22,6 +22,9 @@
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
+    {{-- loader --}}
+    <x-admin.loader/>
+    {{-- loader --}}
     <div class="w-full max-w-2xl bg-white shadow-2xl rounded-xl flex flex-col h-[700px]">
         <div class="bg-slate-800 text-white p-4 font-bold flex items-center justify-between rounded-t-xl">
             <a href="javascript:history.back()" class="text-white hover:bg-slate-700 p-2 rounded-full transition-colors">

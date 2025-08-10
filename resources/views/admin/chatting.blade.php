@@ -181,6 +181,9 @@
 </head>
 <body>
 
+{{-- loader --}}
+<x-admin.loader/>
+{{-- loader --}}
 <div class="chat-container">
     <div class="chat-header">
         <h5 class="fw-bold">Chat with {{ $user->name ?: ($user->username ?: ($user->s_admin_username ?: ($user->staff_username ?: 'User'))) }}</h5>

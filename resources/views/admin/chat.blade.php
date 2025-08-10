@@ -176,6 +176,10 @@
         </div>
     </main>
 
+    {{-- Loader --}}
+    <x-admin.loader/>
+    {{-- Loader --}}
+
     <script>
         function selectChat(userId, userName) {
             alert(`Chat selected with ${userName} (ID: ${userId})`);
