@@ -371,9 +371,9 @@
                                     <td class="py-2 px-4 border-b">{{ $account->email }}</td>
                                     <td class="py-2 px-4 border-b">{{ ucfirst($account->role) }}</td>
                                     <td class="py-2 px-4 border-b">
-                                        <form action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
+                                        <form id="restoreForm" action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
+                                            <button id="restoreButton" type="button" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -559,6 +559,14 @@ document.addEventListener("DOMContentLoaded", function() {
             confirmButtonText: "Yes, archive it!"
         }).then((result) => {
             if (result.isConfirmed) {
+                // document.getElementById(`deleteaccountform-${accountId}`).submit();
+                Swal.fire({
+                    title: ' Processing...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
                 document.getElementById(`deleteaccountform-${accountId}`).submit();
             }
         });
@@ -733,6 +741,33 @@ document.addEventListener("DOMContentLoaded", function() {
             }).then((result) => { if (result.isConfirmed) { this.submit(); } });
         });
     }
+
+    const restoreForm = document.getElementById("restoreForm");
+    const restoreButton = document.getElementById("restoreButton");
+
+    restoreButton.addEventListener('click', () => {
+        Swal.fire({
+            title: "Restore Account?",
+            text: "Do you want to restore this account?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, restore it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Restoring...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                restoreForm.submit();
+            }
+        });
+    });
+
 
     // --- Modal visibility on validation errors ---
     @if ($errors->hasBag('addAccount'))
