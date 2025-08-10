@@ -75,7 +75,6 @@ nav {
     border-radius: 10px;
 }
 
-/* animate when modal open */
 .modal {
     animation: modalopen 0.3s ease-in-out;
 }
