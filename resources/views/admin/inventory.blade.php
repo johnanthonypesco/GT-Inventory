@@ -640,6 +640,7 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+<script>window.successMessage = @json(session('success'));</script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>

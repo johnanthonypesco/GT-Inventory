@@ -181,10 +181,7 @@ class ProductlistingController extends Controller
 
         // redirecting to previous will keep the damn pagination url params
         return redirect()->to(url()->previous())
-        ->with([
-            'edit-success' => true,
-            'company-success' => $validated['company'],
-        ]);
+        ->with('success', 'Deal updated successfully.');
     }
 
     public function destroyExclusiveDeal($deal_id = null, $company = null) {
