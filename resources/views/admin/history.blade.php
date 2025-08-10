@@ -31,7 +31,7 @@
             $isStatusPresent = request()->query('status_filter');
         @endphp
 
-        <div class="mt-10 flex flex-col items-center lg:flex-row justify-between">
+        <div class="mt-5 flex flex-col items-center lg:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";

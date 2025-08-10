@@ -21,7 +21,8 @@ function sweetalert(form) {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, save it!'
+        confirmButtonText: 'Yes, save it!',
+        allowOutsideClick: false
     }).then((result) => {
         Swal.fire({
             title: 'Processing...',

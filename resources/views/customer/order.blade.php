@@ -132,29 +132,21 @@
 
 
     @if (session("success"))
-        <div id="yahoo" class="fixed px-24 py-10 transition-all duration-500 bg-white rounded-lg border-4 animate-pulse border-green-600 h-fit w-fit left-[40%] top-5 z-50">
-            <p class="text-xl text-green-600 uppercase font-bold">
-                ORDER SUCCESSFULL
-            </p>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const popup = document.getElementById('yahoo');
-
-                    // moves the popup up after 5s
-                    setTimeout(() => {
-                        popup.style.marginTop = '-1000px'
-
-                        // deletes any trace of this script ever running to make the code clean
-                        setTimeout(() => {popup.remove(); document.currentScript.remove()}, 1500)
-                    }, 6000);
-                })
-            </script>
+    <div id="successAlert" class="fixed bg-green-600 px-6 py-3 top-5 right-3 rounded-lg flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-2xl text-white"></i>
+        <div>
+            <p class="text-white font-semibold">Success!</p>
+            <p id="successMessage" class="text-white font-semibold"></p>
         </div>
+    </div>
     @endif
 </body>
 
 
 <script src="{{ asset('js/customer/order.js') }}"></script>
-{{-- <script src="{{ asset('js/customer/sweetalert/order.js') }}"></script> --}}
+<script src="{{ asset('js/customer/sweetalert/order.js') }}"></script>
+
+<script>
+    window.successMessage = @json(session('success'));
+</script>
 </html>

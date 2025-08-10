@@ -280,31 +280,57 @@
                     </div> 
                 </div> 
             </div> 
-        </div> 
+        </div>
+
+        @if (session ('success'))
+            <div id="successAlert" class="fixed top-4 right-4 bg-green-500 rounded-lg px-6 py-3 flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-2xl text-white"></i>
+                <div>
+                    <p class="font-semibold text-white">Success!</p>
+                    <p id="successMessage" class="text-white font-semibold"></p>
+                </div>
+            </div>
+        @elseif (session ('error'))
+            <div id="errorAlert" class="fixed top-4 right-4 bg-red-500 rounded-lg px-6 py-3 flex items-center gap-3">
+                <i class="fa-solid fa-circle-xmark text-2xl text-white"></i>
+                <div>
+                    <p class="font-semibold text-white">Error!</p>
+                    <p id="errorMessage" class="text-white font-semibold">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
     </main> 
 
     <script> 
         document.addEventListener('DOMContentLoaded', function () { 
-            const reorderButton = document.getElementById('reorderBtn'); 
-            const reorderForm = document.getElementById('reorderForm'); 
+            // const reorderButton = document.getElementById('reorderBtn'); 
+            // const reorderForm = document.getElementById('reorderForm'); 
 
-            if(reorderButton) { 
-                reorderButton.addEventListener('click', function () { 
-                    Swal.fire({ 
-                        title: 'Are you sure?', 
-                        text: "This will create a new pending order with the items from your last purchase.", 
-                        icon: 'question', 
-                        showCancelButton: true, 
-                        confirmButtonColor: '#005382', 
-                        cancelButtonColor: '#d33', 
-                        confirmButtonText: 'Yes, re-order it!' 
-                    }).then((result) => { 
-                        if (result.isConfirmed) { 
-                            reorderForm.submit(); 
-                        } 
-                    }) 
-                }); 
-            } 
+            // if(reorderButton) { 
+            //     reorderButton.addEventListener('click', function () { 
+            //         Swal.fire({ 
+            //             title: 'Are you sure?', 
+            //             text: "This will create a new pending order with the items from your last purchase.", 
+            //             icon: 'question', 
+            //             showCancelButton: true, 
+            //             confirmButtonColor: '#005382', 
+            //             cancelButtonColor: '#d33', 
+            //             confirmButtonText: 'Yes, re-order it!' 
+            //         }).then((result) => { 
+            //             if (result.isConfirmed) { 
+            //                 Swal.fire({
+            //                     title: 'Re-ordering...', 
+            //                     text: 'Please wait while we process your request.', 
+            //                     allowOutsideClick: false, 
+            //                     didOpen: () => { 
+            //                         Swal.showLoading(); 
+            //                     } 
+            //                 }); 
+            //                 reorderForm.submit(); 
+            //             } 
+            //         });
+            //     }); 
+            // } 
 
             // Lazy Load / Network-Aware Logic 
             const recentOrdersContent = document.getElementById('recentOrdersContent'); 
@@ -376,7 +402,10 @@
                     } 
                 }); 
             }); 
-        }); 
+        });
+        
+        window.successMessage = @json(session('success'));
     </script> 
+    <script src="{{ asset('js/customer/sweetalert/dashboardsweetalert.js') }}"></script>
 </body> 
 </html>
