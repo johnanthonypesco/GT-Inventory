@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
 
 
