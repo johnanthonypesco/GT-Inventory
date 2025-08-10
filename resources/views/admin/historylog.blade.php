@@ -31,6 +31,8 @@
                     <option value="Add">Add</option>
                     <option value="Edit">Edit</option>
                     <option value="Delete">Delete</option>
+                    <option value="Restore">Restore</option>
+
                     <option value="Archive">Archive</option>
                     <option value="Approve">Approve</option>
                     <option value="Disapprove">Disapprove</option>

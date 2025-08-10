@@ -76,7 +76,7 @@
 
         {{-- Filter & Add Account --}}
         <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
-            <select id="accountFilter" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none">
+            <select id="accountFilter" appearance="none" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
                 <option value="all">All Accounts</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
@@ -473,6 +473,89 @@ document.addEventListener("DOMContentLoaded", function() {
     window.openArchivedModal = () => document.getElementById('archivedModal').classList.replace('hidden', 'flex');
     window.closeArchivedModal = () => document.getElementById('archivedModal').classList.replace('flex', 'hidden');
     // ... Other global functions like openEditAccountModal, confirmDelete, etc. should be here ...
+
+    window.openEditAccountModal = (button) => {
+        const editModal = document.getElementById("editAccountModal");
+        editModal.classList.replace("hidden", "flex");
+
+        let row = button.closest("tr");
+        let id = row.getAttribute("data-id");
+        let name = row.getAttribute("data-name");
+        let username = row.getAttribute("data-username");
+        let email = row.getAttribute("data-email");
+        let contactNumber = row.getAttribute("data-contactnumber") || '';
+        let role = row.getAttribute("data-role").trim().toLowerCase();
+        let location = row.getAttribute("data-location");
+        let jobTitle = row.getAttribute("data-jobtitle");
+        let adminId = row.getAttribute("data-adminid");
+
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = name || "";
+        document.getElementById("editUsername").value = username || "";
+        document.getElementById("editEmail").value = email || "";
+        document.getElementById("editContact").value = contactNumber;
+        document.getElementById("editJobTitle").value = jobTitle || "";
+        document.getElementById("editHiddenRole").value = role;
+        document.getElementById("displayRole").textContent = role.charAt(0).toUpperCase() + role.slice(1);
+
+        let locationSelect = document.getElementById("editLocation");
+        if (locationSelect) { for (let option of locationSelect.options) { option.selected = option.value === location; } }
+
+        let adminSelect = document.getElementById("editAdmin");
+        if (adminSelect) { for (let option of adminSelect.options) { option.selected = option.value === adminId; } }
+
+        toggleEditFields(role);
+
+        const form = document.getElementById("editaccountform");
+        form.action = `/manageaccounts/${role}/${id}/update`;
+    };
+
+    window.closeEditAccountModal = () => document.getElementById("editAccountModal").classList.replace("flex", "hidden");
+
+    window.toggleEditFields = (role) => {
+        role = role.toLowerCase();
+        const fields = {
+            name: document.getElementById("editNameField"),
+            contact: document.getElementById("editContactField"),
+            username: document.getElementById("editUsernameField"),
+            location: document.getElementById("editLocationField"),
+            jobTitle: document.getElementById("editJobTitleField"),
+            admin: document.getElementById("editAdminField"),
+        };
+        Object.values(fields).forEach(field => field.classList.add("hidden"));
+
+        if (role === "customer") {
+            fields.name.classList.remove("hidden");
+            fields.contact.classList.remove("hidden");
+            fields.location.classList.remove("hidden");
+        } else if (role === "staff") {
+            fields.username.classList.remove("hidden");
+            fields.contact.classList.remove("hidden");
+            fields.location.classList.remove("hidden");
+            fields.jobTitle.classList.remove("hidden");
+            fields.admin.classList.remove("hidden");
+        } else if (role === "admin") {
+            fields.username.classList.remove("hidden");
+            fields.contact.classList.remove("hidden");
+        }
+    };
+
+    window.confirmDelete = (button) => {
+        const accountId = button.getAttribute('data-account-id');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This account will be archived, not deleted permanently.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, archive it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`deleteaccountform-${accountId}`).submit();
+            }
+        });
+    };
 
     // --- Add Account Form Logic ---
     const addForm = document.getElementById('addaccountform');
