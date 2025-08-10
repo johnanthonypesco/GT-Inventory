@@ -24,14 +24,16 @@ function sweetalert(form) {
         confirmButtonText: 'Yes, save it!',
         allowOutsideClick: false
     }).then((result) => {
-        Swal.fire({
-            title: 'Processing...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        form.submit();
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            form.submit();
+        }
     });
 }
 
