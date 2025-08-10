@@ -177,7 +177,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="real-timer-deals-table" data-company="{{ $companyName }}">
                             @foreach ($deals->items() as $deal)
                             <tr class="text-center">
                                 <td>{{ $deal->product->generic_name }}</td>
@@ -261,6 +261,8 @@
             @php
                 $generic = $deal->product->generic_name ?? 'No Generic Name';
                 $brand = $deal->product->brand_name ?? 'No Brand Name';
+                $form = $deal->product->form ?? 'No Form';
+                $strength = $deal->product->strength ?? 'No Strenth';
             @endphp
 
             <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
@@ -271,17 +273,21 @@
                         @csrf
                         @method("PUT")
 
-                        <h1 class="text-center font-bold text-3xl text-[#005382]">
-                            Edit Product's Price: {{ $generic }} - {{ $brand }}
-                        </h1>
+                        <div id="real-timer-deals-edit" 
+                        data-deal="{{ $deal->id }}">
+                            <h1 class="text-center font-bold text-3xl text-[#005382]">
+                                Edit Product's Price: <br> {{ $generic }} - {{ $brand }} - {{ $form }} - {{ $strength }}
+                            </h1>
+    
+                            <input type="hidden" value="{{ $deal->company->name }}" name="company">
+    
+                            <x-label-input label="Current Price:" value="{{ $deal->price }}" disabled name="current-price" type="number" for="current-price" divclass="mt-5" placeholder="Current Price"/>
+                        </div>
 
-                        <input type="hidden" value="{{ $deal->company->name }}" name="company">
-
-                        <x-label-input label="Current Price:" value="{{ $deal->price }}" disabled name="current-price" type="number" for="current-price" divclass="mt-5" placeholder="Current Price"/>
                         <x-label-input label="New Price:" name="price" type="number" for="price" divclass="mt-5" placeholder="1500"/>
 
                         {{-- <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/> --}}
-                        <x-submit-button btnType="button" id="editproductlistingBtn"/>
+                        <x-submit-button btnType="submit" id="editproductlistingBtn"/>
                     </form> 
                     {{-- Form --}}
                 </div>
@@ -310,5 +316,100 @@
 
 <script src="{{asset('js/productlisting.js')}}"></script>
 <script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
-<script>window.successMessage = @json(session('success'));</script>
+<script>
+    window.successMessage = @json(session('success'));
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const totalPersonalCounterID = '#real-timer-total-personal-counter';
+        const dealsTableID = '#real-timer-deals-table';
+        const searchCompanyID = '#company-search-suggestions';
+        const searchDealID = '#deal-search-suggestions';
+        const editDealFormID = '#real-timer-deals-edit';
+
+        // every 5 secs mag update yung main section
+        setInterval(() => {
+            updateListingPage(window.location.href);
+        }, 9500); 
+
+        function updateListingPage(url) {
+            fetch(url)
+            .then(response => response.text()) // convert blade view to text
+            .then(html => {
+                const parser = new DOMParser();
+                const updatedPage = parser.parseFromString(html, 'text/html');
+
+                // DITO YUNG MULTI REPLACE SECTION
+                const currentCounters = document.querySelectorAll(totalPersonalCounterID);
+                const currentTables = document.querySelectorAll(dealsTableID);
+                const currentEditForms = document.querySelectorAll(editDealFormID);
+                
+
+                currentCounters.forEach(currentCounter => {
+                    const company = currentCounter.dataset.company;
+
+                    // Update the current iter with the updated version
+                    const updatedCounter = updatedPage.querySelector(`${totalPersonalCounterID}[data-company="${company}"]`);
+                    
+                    if (updatedCounter) {
+                        currentCounter.innerHTML = updatedCounter.innerHTML;
+                    }
+                });
+
+                currentTables.forEach(currentTable => {
+                    const company = currentTable.dataset.company;
+
+                    // Update the current iter with the updated version
+                    const updatedTable = updatedPage.querySelector(`${dealsTableID}[data-company="${company}"]`);
+                    
+                    if (updatedTable) {
+                        currentTable.innerHTML = updatedTable.innerHTML;
+                    }
+                });
+                
+                currentEditForms.forEach(currentEditForm => {
+                    const deal = currentEditForm.dataset.deal;
+
+                    // Update the current iter with the updated version
+                    const updatedEditForm = updatedPage.querySelector(`${editDealFormID}[data-deal="${deal}"]`);
+                    
+                    if (updatedEditForm) {
+                        currentEditForm.innerHTML = updatedEditForm.innerHTML;
+                    }
+                });
+                
+                // DITO YUNG MULTI REPLACE SECTION
+
+                // DITO YUNG SINGULAR REPLACE SECTION    
+                const currentCompanySearch = document.querySelector(searchCompanyID);
+                const updatedCompanySearch = updatedPage.querySelector(searchCompanyID);
+
+                const currentCompanyOptions = Array.from(currentCompanySearch.options).map(opt => opt.value).join(',');
+                const updatedCompanyOptions = Array.from(updatedCompanySearch.options).map(opt => opt.value).join(',');
+
+                if (currentCompanyOptions !== updatedCompanyOptions) {
+                    currentCompanySearch.innerHTML = updatedCompanySearch.innerHTML;
+                    console.log("company search updated");
+                }
+                
+                const currentDealSearch = document.querySelector(searchDealID);
+                const updatedDealSearch = updatedPage.querySelector(searchDealID);
+
+                const currentDealOptions = Array.from(currentDealSearch.options).map(opt => opt.value).join(',');
+                const updatedDealOptions = Array.from(updatedDealSearch.options).map(opt => opt.value).join(',');
+
+                if (currentDealOptions !== updatedDealOptions) {
+                    currentDealSearch.innerHTML = updatedDealSearch.innerHTML;
+                    console.log("product search updated");
+                }
+
+                // DITO YUNG SINGULAR REPLACE SECTION
+
+                console.log("updated full page successfully");
+            })
+            .catch(error => {
+                console.error("The realtime update para sa product listing is not working ya bitch! ", error);
+            });
+        }
+    });
+</script>
 </html>

@@ -70,7 +70,7 @@
                     <tr class="text-center">
                         <td>{{ $company->id }}</td>
                         <td> {{ $company->name }} </td>
-                        <td> 
+                        <td id="real-timer-total-personal-counter" data-company="{{ $company->name }}"> 
                             {{ isset($secondaryVariable[$company->name]) ? 
                             $secondaryVariable[$company->name]->total() 
                             : 'No' }} {{ $dealSearchCompany === $company->name ? "Searched" : "" }} Personalized Products

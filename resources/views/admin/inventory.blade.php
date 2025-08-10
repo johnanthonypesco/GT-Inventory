@@ -659,12 +659,7 @@
         }, 6500); 
 
         function updateInventoryPage(url) {
-            fetch(url, {
-                // need netong header nato para magamit yung $request->ajax() function (para ma notice ng controller yung AJAX request)
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
+            fetch(url)
             .then(response => response.text()) // convert blade view to text
             .then(html => {
                 const parser = new DOMParser();
