@@ -8,6 +8,15 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Beta Registration</title>
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+    /* Hide the default browser password reveal icon */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-webkit-password-reveal-button {
+        display: none;
+    }
+</style>
 </head>
 <body class="bg-gray-100">
     <div class="flex flex-col lg:flex-row p-4 gap-10 items-center justify-center min-h-screen">

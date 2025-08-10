@@ -43,11 +43,21 @@ class NewPasswordController extends Controller
         // Detect user type from URL
         $userType = $this->detectUserType($request);
 
-        // ✅ Validate sanitized input
+        // ✅ Validate sanitized input with modern password rules
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            // --- START: Updated Password Validation ---
+            // This is the recommended, modern approach for robust password validation.
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8)
+                    ->mixedCase() // Requires at least one uppercase and one lowercase letter.
+                    ->numbers()   // Requires at least one number.
+                    ->symbols()   // Requires at least one special character.
+            ],
+            // --- END: Updated Password Validation ---
         ]);
 
         // Use the appropriate password broker based on user type
@@ -70,7 +80,7 @@ class NewPasswordController extends Controller
         return $status == Password::PASSWORD_RESET
             ? redirect()->route($loginRoute)->with('status', __($status))
             : back()->withInput($request->only('email'))
-                    ->withErrors(['email' => __($status)]);
+                      ->withErrors(['email' => __($status)]);
     }
 
     /**

@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="icon" href="{{ asset('image/Logowname.png') }}" type="image/png">
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         /* Simple loader for preloader */
         .loader {

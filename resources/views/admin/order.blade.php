@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Orders</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">

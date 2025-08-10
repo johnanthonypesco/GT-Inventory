@@ -12,6 +12,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEtcVVWN4Tzhknu9cn96CHDHLY6v4J7Aw"></script>
 
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">

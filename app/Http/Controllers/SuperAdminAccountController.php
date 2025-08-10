@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\HistorylogController;
+use Illuminate\Support\Facades\Password;
+
 
 class SuperAdminAccountController extends Controller
 {
@@ -135,13 +137,16 @@ class SuperAdminAccountController extends Controller
                 'username' => 'nullable|string|max:255|unique:admins,username|unique:staff,staff_username', // Only for admin/staff
                 'email' => 'required|string|email|max:255|unique:admins,email|unique:staff,email|unique:users,email',
                 // ✅ UPDATED: New regex for broader character support
-                'password' => [
-                    'required',
-                    'string',
-                    'confirmed',
-                    // This regex requires one uppercase, one lowercase, one number, and one symbol/punctuation.
-                    'regex:/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\p{N})(?=.*[\p{P}\p{S}]).{8,}$/u'
-                ],
+               'password' => [
+    'required',
+    'string',
+    'confirmed',
+    // The Password rule object replaces the complex regex for better readability and more specific error messages.
+    \Illuminate\Validation\Rules\Password::min(8)
+        ->mixedCase() // Requires both uppercase and lowercase letters.
+        ->numbers()   // Requires at least one number.
+        ->symbols()   // Requires at least one special character.
+],
                 'admin_id' => $request->role === 'staff' ? 'required|numeric|exists:admins,id' : 'nullable',
                 'contact_number' => 'nullable|numeric|unique:users,contact_number|unique:admins,contact_number|unique:staff,contact_number',
                 'location_id' => 'nullable|integer|exists:locations,id',

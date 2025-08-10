@@ -7,10 +7,11 @@
 
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     {{-- SweetAlert --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Font Awesome --}}
@@ -66,95 +67,85 @@
                 <x-label-input label="Account Password" type="password" inputid="accountpassword" value="********" divclass="mt-3 relative" readonly>
                     <x-view-password onclick="showpassword()" id="eye"/>
                 </x-label-input>
-                        
             </div>
         </div>
 
         {{-- Edit Account Modal --}}
         <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 overflow-auto" id="editAccountModal">
-            <div class="modal bg-white p-5 rounded-lg w-[80%] lg:w-[40%] m-auto mt-5 relative">
+            <div class="modal bg-white p-8 rounded-lg w-[80%] lg:w-[60%] m-auto mt-5 relative">
                 <x-modalclose click="closeEditAccount"/>
                 <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>
 
-                <form id="editAccountForm" enctype="multipart/form-data" class="text-center">
-                    @csrf
-
-                    <div class="relative w-fit inline-block group">
-                        <label for="profile_image" class="cursor-pointer">
-                            @if (Auth::user()->company && Auth::user()->company->profile_image)
-                                <img 
-                                    id="profilePreview"
-                                    src="{{ asset(Auth::user()->company->profile_image) }}"
-                                    class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                    alt="Company Profile Picture"
-                                >
-                            @else
-                                <i
-                                    id="profilePreview"
-                                    class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                                    style="font-size: 2rem;"
-                                ></i>
-                            @endif
-
-                            <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="text-center">
-                                    <i class="fa-solid fa-camera text-2xl"></i>
-                                    <span class="block text-sm">Change</span>
-                                </div>
-                            </div>
-                        </label>
-                        <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
-                    </div>
-                    <p id="fileNameDisplay" class="text-sm text-gray-500 mt-2 h-4"></p>
-
-
-                    <div class="text-left">
-                        <x-label-input label="Account Name" type="text" id="editName" name="name"
-                            value="{{ old('name', Auth::user()->name) }}" divclass="mt-5"/>
-
-                        <x-label-input label="Email" type="text" id="editEmail" name="email"
-                            value="{{ Auth::user()->email }}" divclass="mt-5" readonly/>
-
-                        <x-label-input 
-                            label="Contact Number" 
-                            type="tel" 
-                            id="editContactNumber" 
-                            name="contact_number"
-                            value="{{ old('contact_number', Auth::user()->contact_number) }}" 
-                            divclass="mt-5"
-                            maxlength="11" 
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                        />
-                
-                        <x-label-input label="Account Password" type="password" inputid="editpassword" name="password"
-                            placeholder="Leave blank to keep current password" divclass="mt-5 relative">
-                            <x-view-password onclick="editshowpassword()" id="eye2"/>
-                        </x-label-input>
-                
-                        <x-label-input label="Confirm Password" type="password" inputid="editconfirmpassword" name="password_confirmation"
-                            placeholder="Re-enter your new password" divclass="mt-5 relative">
-                            <x-view-password onclick="editshowconfirmpassword()" id="eye3"/>
-                        </x-label-input>
-
-                        <p id="passwordmismatch" class="text-sm mt-1 text-red-500 hidden"></p>
-                    </div>
-                
-                    <x-submitbutton id="submitButton" type="button" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer">
-                        <img src="{{ asset('image/image 51.png') }}" alt="Icon"> Submit
-                    </x-submitbutton>
-                </form>
-                
+                 <form id="editAccountForm" enctype="multipart/form-data" class="mt-6">
+                     @csrf
+                     <div class="relative w-fit mx-auto group mb-6">
+                         <label for="profile_image" class="cursor-pointer">
+                             @if (Auth::user()->company && Auth::user()->company->profile_image)
+                                 <img id="profilePreview" src="{{ asset(Auth::user()->company->profile_image) }}" class="w-32 h-32 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" alt="Company Profile Picture">
+                             @else
+                                 <i id="profilePreview" class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md text-2xl"></i>
+                             @endif
+                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                 <div class="text-center">
+                                     <i class="fa-solid fa-camera text-xl"></i>
+                                     <span class="block text-sm">Change</span>
+                                 </div>
+                             </div>
+                         </label>
+                         <input type="file" name="profile_image" id="profile_image" class="hidden" accept="image/*">
+                     </div>
+                     <p id="fileNameDisplay" class="text-sm text-center text-gray-500 mt-2 h-4"></p>
+ 
+                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mt-6 text-left">
+                         <div>
+                             <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Profile Details</h3>
+                             <x-label-input label="Account Name" type="text" id="editName" name="name" value="{{ old('name', Auth::user()->name) }}" divclass="mt-4"/>
+                             <x-label-input label="Email" type="text" id="editEmail" name="email" value="{{ Auth::user()->email }}" divclass="mt-4" readonly/>
+                             <x-label-input label="Contact Number" type="tel" id="editContactNumber" name="contact_number" value="{{ old('contact_number', Auth::user()->contact_number) }}" divclass="mt-4" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                         </div>
+                         
+                         <div>
+                             <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Change Password</h3>
+                             <x-label-input label="Current Password" type="password" inputid="current_password" name="current_password" placeholder="Enter current password" divclass="mt-4 relative"/>
+ 
+                             <x-label-input label="New Password" type="password" inputid="editpassword" name="password" placeholder="Leave blank to keep current" divclass="mt-4 relative">
+                                 <x-view-password onclick="editshowpassword()" id="eye2"/>
+                             </x-label-input>
+                             <div class="text-sm">
+                                 <div id="password-rules" class="text-gray-600 space-y-1 hidden mt-2">
+                                     <p id="rule-uppercase" class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i>At least one Uppercase</p>
+                                     <p id="rule-lowercase" class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i>At least oneLowercase</p>
+                                     <p id="rule-number" class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i>At least one Number</p>
+                                     <p id="rule-special" class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i>At least one Symbol</p>
+                                     <p id="rule-length" class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i>Minimum 8 Characters</p>
+                                 </div>
+                                 <p id="password-secure-status" class="h-5 font-semibold mt-2"></p>
+                             </div>
+                             
+                             <x-label-input label="Confirm New Password" type="password" inputid="editconfirmpassword" name="password_confirmation" placeholder="Re-enter new password" divclass="mt-4 relative">
+                                 <x-view-password onclick="editshowconfirmpassword()" id="eye3"/>
+                             </x-label-input>
+                             <p id="password-match-status" class="text-sm h-5"></p>
+                         </div>
+                     </div>
+                     <div class="text-center mt-8">
+                         <x-submitbutton id="submitButton" type="button" class="px-6 py-3 rounded-lg bg-[#005382] text-white font-semibold hover:bg-[#004063] focus:outline-none focus:ring-2 focus:ring-[#005382] focus:ring-opacity-50">
+                             Submit
+                         </x-submitbutton>
+                     </div>
+                 </form>
+ 
             </div>
         </div>
     </main>
 
-{{-- JavaScript --}}
 <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
 <script>
     // Open the edit account modal
     function editAccount() {
         document.getElementById("editAccountModal").classList.remove("hidden");
+        updateButtonState(); // Check button state on modal open
     }
 
     // Close the edit account modal
@@ -162,7 +153,7 @@
         document.getElementById("editAccountModal").classList.add("hidden");
     }
 
-    // Handle form submission
+    // Handle form submission with SweetAlert
     document.getElementById("submitButton").addEventListener("click", function (e) {
         e.preventDefault();
         let form = document.getElementById("editAccountForm");
@@ -179,7 +170,6 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 let formData = new FormData(form);
-
                 fetch("{{ route('customer.account.update') }}", {
                     method: "POST",
                     headers: {
@@ -196,29 +186,19 @@
                             text: 'Your account has been successfully updated.',
                             icon: 'success',
                             confirmButtonText: 'OK'
-                        }).then(() => {
-                            location.reload();
-                        });
+                        }).then(() => { location.reload(); });
                     } else {
-                        // Build an HTML list for the error messages
-                        let errorHtml = '<div class="text-left text-sm">';
+                        let errorHtml = '<div class="text-left text-sm"><ul class="list-disc list-inside space-y-1">';
                         if (data.errors) {
-                            errorHtml += '<ul class="list-disc list-inside space-y-1">';
-                            // Loop through all error messages returned from the backend
                             Object.values(data.errors).forEach(errorArray => {
-                                errorArray.forEach(errorMessage => {
-                                    errorHtml += `<li>${errorMessage}</li>`;
-                                });
+                                errorArray.forEach(errorMessage => { errorHtml += `<li>${errorMessage}</li>`; });
                             });
-                            errorHtml += '</ul>';
                         } else {
-                            errorHtml += data.message || "Something went wrong!";
+                            errorHtml += `<li>${data.message || "Something went wrong!"}</li>`;
                         }
-                        errorHtml += '</div>';
-
+                        errorHtml += '</ul></div>';
                         Swal.fire({
                             title: "Update Failed!",
-                            // Use the 'html' property to render the list
                             html: errorHtml,
                             icon: "error",
                             confirmButtonText: "OK"
@@ -227,19 +207,7 @@
                 })
                 .catch(error => {
                     console.error("Fetch Error:", error);
-                    Swal.fire({
-                        title: "Error!",
-                        text: "An unexpected error occurred. Please try again later.",
-                        icon: "error",
-                        confirmButtonText: "OK"
-                    });
-                });
-            } else {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: 'Your changes were not saved.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
+                    Swal.fire("Error!", "An unexpected error occurred. Please try again later.", "error");
                 });
             }
         });
@@ -252,15 +220,11 @@
         const preview = document.getElementById("profilePreview");
 
         if (file) {
-            fileNameDisplay.textContent = file.name; // Display the file name
+            fileNameDisplay.textContent = file.name;
             let reader = new FileReader();
             reader.onload = function (event) {
                 if (preview.tagName === 'IMG') {
-                     preview.src = event.target.result;
-                } else {
-                    // This can be enhanced to replace the icon with an img tag if needed,
-                    // but for now, it just prevents an error.
-                    console.log("Cannot preview image on an icon element.");
+                    preview.src = event.target.result;
                 }
             };
             reader.readAsDataURL(file);
@@ -268,6 +232,130 @@
             fileNameDisplay.textContent = '';
         }
     });
+
+    // --- START: PASSWORD VALIDATION & BUTTON STATE LOGIC ---
+    const editPasswordInput = document.getElementById('editpassword');
+    const editConfirmPasswordInput = document.getElementById('editconfirmpassword');
+    const submitButton = document.getElementById('submitButton');
+
+    const editRulesContainer = document.getElementById('password-rules');
+    const editPasswordSecureStatus = document.getElementById('password-secure-status');
+    const editPasswordMatchStatus = document.getElementById('password-match-status');
+    const editRules = {
+        uppercase: document.getElementById('rule-uppercase'),
+        lowercase: document.getElementById('rule-lowercase'),
+        number: document.getElementById('rule-number'),
+        special: document.getElementById('rule-special'),
+        length: document.getElementById('rule-length'),
+    };
+
+    const isEditPasswordStrong = () => {
+        const password = editPasswordInput.value;
+        if (!password) return false;
+        return /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>_]/.test(password) && password.length >= 8;
+    };
+
+    const doEditPasswordsMatch = () => {
+        return editPasswordInput.value === editConfirmPasswordInput.value;
+    };
+
+    const updateEditRuleUI = (ruleElement, isValid) => {
+        const icon = ruleElement.querySelector('i');
+        icon.classList.toggle('fa-check', isValid);
+        icon.classList.toggle('text-green-600', isValid);
+        icon.classList.toggle('fa-times', !isValid);
+        icon.classList.toggle('text-red-500', !isValid);
+    };
+    
+    const validateEditPasswordRules = () => {
+        editPasswordSecureStatus.textContent = '';
+        editRulesContainer.classList.add('hidden');
+        const password = editPasswordInput.value;
+
+        if (password) {
+            if (isEditPasswordStrong()) {
+                editPasswordSecureStatus.textContent = '✅ New password is secure.';
+                editPasswordSecureStatus.classList.add('text-green-600');
+            } else {
+                editPasswordSecureStatus.classList.remove('text-green-600');
+                editRulesContainer.classList.remove('hidden');
+                updateEditRuleUI(editRules.uppercase, /[A-Z]/.test(password));
+                updateEditRuleUI(editRules.lowercase, /[a-z]/.test(password));
+                updateEditRuleUI(editRules.number, /[0-9]/.test(password));
+                updateEditRuleUI(editRules.special, /[!@#$%^&*(),.?":{}|<>]/.test(password));
+                updateEditRuleUI(editRules.length, password.length >= 8);
+            }
+        }
+    };
+
+    const validateEditPasswordMatch = () => {
+        const newPassword = editPasswordInput.value;
+        const confirmPassword = editConfirmPasswordInput.value;
+        if (newPassword || confirmPassword) {
+            if (doEditPasswordsMatch()) {
+                editPasswordMatchStatus.textContent = '✅ Passwords match!';
+                editPasswordMatchStatus.classList.remove('text-red-500');
+                editPasswordMatchStatus.classList.add('text-green-600');
+            } else {
+                editPasswordMatchStatus.textContent = '❌ Passwords do not match.';
+                editPasswordMatchStatus.classList.remove('text-green-600');
+                editPasswordMatchStatus.classList.add('text-red-500');
+            }
+        } else {
+            editPasswordMatchStatus.textContent = '';
+        }
+    };
+    
+    const updateButtonState = () => {
+        const newPassword = editPasswordInput.value;
+        let isPasswordSectionValid = true;
+
+        // If the user is trying to change their password, the new password must be strong and confirmed.
+        if (newPassword) {
+            isPasswordSectionValid = isEditPasswordStrong() && doEditPasswordsMatch();
+        }
+
+        if (isPasswordSectionValid) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    };
+
+    editPasswordInput.addEventListener('input', () => {
+        validateEditPasswordRules();
+        validateEditPasswordMatch();
+        updateButtonState();
+    });
+    editConfirmPasswordInput.addEventListener('input', () => {
+        validateEditPasswordMatch();
+        updateButtonState();
+    });
+
+    function editshowpassword() {
+        var eye = document.getElementById('eye2');
+        var input = document.getElementById('editpassword');
+        if (input.type === 'password') {
+            input.type = 'text';
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eye.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+    function editshowconfirmpassword() {
+        var eye = document.getElementById('eye3');
+        var input = document.getElementById('editconfirmpassword');
+        if (input.type === 'password') {
+            input.type = 'text';
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eye.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
 </script>
 </body>
 </html>

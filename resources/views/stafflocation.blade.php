@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Staff Location Tracking</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 mx-auto">

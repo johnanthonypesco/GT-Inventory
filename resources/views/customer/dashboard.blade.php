@@ -15,6 +15,8 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon"> 
     <title>Dashboard</title> 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style> 
         /* Skeleton Loader Styles */ 
         .skeleton-loader { 

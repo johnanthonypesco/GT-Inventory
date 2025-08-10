@@ -8,6 +8,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Customer Login</title>
 </head>
 <body>

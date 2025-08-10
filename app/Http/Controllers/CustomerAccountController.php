@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException; // It's good practice to catch validation exceptions specifically
 
 class CustomerAccountController extends Controller
@@ -46,13 +47,21 @@ class CustomerAccountController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'contact_number' => 'nullable|numeric|digits:11',
-                'password' => [
-                    'nullable',
-                    'string',
-                    'min:8',
-                    'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&_])/',
-                    'confirmed'
-                ],
+                 'current_password' => ['nullable', 'required_with:password', 
+                function ($attribute, $value, $fail) use ($user) {
+                    if (!Hash::check($value, $user->password)) {
+                        $fail('The current password you entered is incorrect.');
+                    }
+                }
+            ],
+                 'password' => [
+        'nullable', // Allows the user to leave it blank if they don't want to change it
+        'confirmed',
+        Password::min(8)
+            ->mixedCase()
+            ->numbers()
+            ->symbols()
+    ],
                 'password_confirmation' => 'nullable|same:password',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ], $messages);

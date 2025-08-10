@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{asset ('css/index.css')}}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Admin Login</title>
 </head>
 <body>

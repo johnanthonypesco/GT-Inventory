@@ -11,6 +11,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Order</title>
 </head>
 <body class="flex p-5 gap-5">
@@ -36,7 +38,7 @@
                             autocomplete="off">
 
                         <button type="button"
-                            class="absolute right-2  top-2 text-xl text-[#005382] border-l-2 border-b-0 border-r-0 border-t-0 border-[#005382] px-2"
+                            class="absolute right-3 top-2 text-xl text-[#005382] border-l-2 border-b-0 border-r-0 border-t-0 border-[#005382] px-1"
                             onclick="isInSuggestionDeal() ? document.getElementById('deal-search-form').submit() : event.preventDefault()">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
@@ -112,7 +114,7 @@
                     <span class="block lg:hidden"><i onclick="viewOrderSummary()" id="ordersummaryicon" class="fa-solid fa-angles-up border border-[#005382] p-3 rounded-full text-center hover:bg-[#005382] hover:text-white transition-all duration-500"></i></span>
                 </div>
 
-                {{-- This div is where all the magic happens ;) --}}
+                {{-- This div is where all the magic happens 😉 --}}
                 <div id="order-summary-content" class="flex flex-col px-3 lg:block lg:pt-2 sm:pt-10 none h-[0] max-h-[20vh] lg:max-h-none lg:h-[45vh] overflow-auto trasnition-all duration-500">
                     {{-- This is where the order summary will be displayed --}}
                 </div>

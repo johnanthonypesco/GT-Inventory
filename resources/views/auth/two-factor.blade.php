@@ -7,6 +7,8 @@
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Two-Factor Authentication</title>
 </head>
 <body>

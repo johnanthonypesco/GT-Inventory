@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>Confirm Password</title>
 </head>
 <body>

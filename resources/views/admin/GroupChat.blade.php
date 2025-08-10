@@ -8,6 +8,8 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         /* Custom scrollbar for a cleaner look */
         #chatBox::-webkit-scrollbar { width: 6px; }
