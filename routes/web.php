@@ -179,8 +179,8 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::delete('/manageaccounts/{role}/{id}/delete', [SuperAdminAccountController::class, 'destroy'])->name('superadmin.account.delete');
 
         // Add these with your other superadmin routes
-Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 'checkEmail'])->name('superadmin.account.checkEmail');
-Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
+        Route::post('/manageaccounts/check-email', [SuperAdminAccountController::class, 'checkEmail'])->name('superadmin.account.checkEmail');
+        Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class, 'checkContact'])->name('superadmin.account.checkContact');
         //4///////////////////////// << ACCOUNT MANAGEMENT ROUTES >> //////////////////////////////4//
 
         //5///////////////////////// << CONTENT MANAGEMENT ROUTES >> //////////////////////////////5//
@@ -227,10 +227,11 @@ Route::post('/manageaccounts/check-contact', [SuperAdminAccountController::class
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
         // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
-        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog');
+        // Initial page load for the history log
+        Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog.show');
         
-        //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
-        Route::get('/admin/historylog/search', [HistorylogController::class, 'searchHistorylog'])->name('admin.historylog.search');
+        // AJAX route for filtering, searching, and paginating history logs
+        Route::get('admin/historylog/search', [HistorylogController::class, 'searchHistorylog'])->name('admin.historylog.search');
     }); 
     //!!~~~~~~~~~~~~~~~~~~~~~~~~~ << ASSIGNED SUPERADMIN/ADMIN ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~!!//
     // nilabas koto dahil ewan koba ayaw pag nasa loob e

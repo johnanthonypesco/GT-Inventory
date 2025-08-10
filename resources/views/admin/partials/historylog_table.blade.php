@@ -35,12 +35,19 @@
         </tbody>
     </table>
 </div>
+{{-- Pagination Links --}}
+<div class="pagination mt-6">
+    {{ $historylogs->links() }}
+</div>
 
-<div class="pagination">
+{{-- to fix the bugs filter and paginate dont use this --}}
+
+
+{{-- <div class="pagination">
     <x-pagination 
         currentPage="{{ $historylogs->currentPage() }}" 
         totalPage="{{ $historylogs->lastPage() }}" 
         prev="{{ $historylogs->previousPageUrl() }}" 
         next="{{ $historylogs->nextPageUrl() }}" 
     />
-</div>
+</div> --}}
