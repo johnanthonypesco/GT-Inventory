@@ -227,7 +227,7 @@
     </footer>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader/>
     {{-- loader --}}
 </body>
 <script src="{{ asset('js/landingpage/index.js') }}"></script>
