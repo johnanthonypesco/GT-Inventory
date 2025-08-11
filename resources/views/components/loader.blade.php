@@ -1,4 +1,4 @@
-<section id="loader" class="fixed w-full h-screen top-0 left-0 bg-white flex gap-4 justify-center items-center z-100">
+<section id="loader" class="fixed w-full h-screen top-0 left-0 bg-white flex gap-4 justify-center items-center z-[100]">
     <div class="box w-[30px] h-[30px] bg-blue-600 rounded-md"></div>
     <div class="box w-[30px] h-[30px] bg-blue-600 rounded-md"></div>
     <div class="box w-[30px] h-[30px] bg-blue-600 rounded-md"></div>
