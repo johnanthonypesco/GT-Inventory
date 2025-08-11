@@ -152,10 +152,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     {{-- AJAX script for PDF download remains the same --}}
     <script>
     $(document).ready(function() {
@@ -206,5 +202,9 @@
         });
     });
     </script>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

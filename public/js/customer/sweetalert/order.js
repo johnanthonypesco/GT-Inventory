@@ -1,31 +1,35 @@
-const checkoutBtn = document.getElementById("checkoutbtn");
-const ordersummary = document.getElementById("ordersummaryform");
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#checkoutbtn')) {
+        e.preventDefault();
+        const form = e.target.closest('#ordersummaryform');
+        showsweetalert(form);
+    }
+});
 
 
-checkoutBtn.addEventListener("click", (event) => {
-    event.preventDefault(); 
-
+function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You're about to checkout your order!",
+        text: "You won't be able to revert this!",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, checkout it!'
+        confirmButtonText: 'Yes, submit it!',
+        allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title:'Processing...',
+                title: 'Processing...',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
-            ordersummary.submit();
+            form.submit();
         }
-    });    
-});
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const successMessage = window.successMessage;

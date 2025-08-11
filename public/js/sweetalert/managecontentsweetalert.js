@@ -1,12 +1,21 @@
-updateButton.addEventListener('click', function() {
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#updateButton')) {
+        e.preventDefault();
+        const form = e.target.closest('#editForm');
+        showsweetalert(form);
+    }
+});
+
+function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You are about to update the content.",
-        icon: 'warning',
+        text: "You won't be able to revert this!",
+        icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, update it!'
+        confirmButtonText: 'Yes, submit it!',
+        allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
@@ -16,10 +25,10 @@ updateButton.addEventListener('click', function() {
                     Swal.showLoading();
                 }
             });
-            editForm.submit();
+            form.submit();
         }
     });
-});
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const successMessage = window.successMessage;

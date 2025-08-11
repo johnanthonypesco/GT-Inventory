@@ -283,26 +283,10 @@
                 </div> 
             </div> 
         </div>
-
-        @if (session ('success'))
-            <div id="successAlert" class="fixed top-4 right-4 bg-green-500 rounded-lg px-6 py-3 flex items-center gap-3">
-                <i class="fa-solid fa-circle-check text-2xl text-white"></i>
-                <div>
-                    <p class="font-semibold text-white">Success!</p>
-                    <p id="successMessage" class="text-white font-semibold"></p>
-                </div>
-            </div>
-        @elseif (session ('error'))
-            <div id="errorAlert" class="fixed top-4 right-4 bg-red-500 rounded-lg px-6 py-3 flex items-center gap-3">
-                <i class="fa-solid fa-circle-xmark text-2xl text-white"></i>
-                <div>
-                    <p class="font-semibold text-white">Error!</p>
-                    <p id="errorMessage" class="text-white font-semibold">{{ session('error') }}</p>
-                </div>
-            </div>
-        @endif
+  
     </main> 
 
+    <x-successmessage />
     {{-- loader --}}
     <x-loader />
     {{-- loader --}}

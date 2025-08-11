@@ -423,10 +423,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Global variables
@@ -1255,5 +1251,9 @@ document.addEventListener('DOMContentLoaded', function() {
         updateDashboardCards();
     });
 </script>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>
