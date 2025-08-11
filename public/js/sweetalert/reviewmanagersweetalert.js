@@ -1,15 +1,24 @@
-const approveButton = document.getElementById('approve-button');
-const approveForm = document.getElementById('approve-form');
+// const approveButton = document.getElementById('approve-button');
+// const approveForm = document.getElementById('approve-form');
 
-approveButton.addEventListener('click', function() {
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#approve-button')) {
+        e.preventDefault();
+        const form = e.target.closest('#approve-form');
+        showsweetalert(form);
+    }
+});
+
+function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You are about to change the review status.",
-        icon: 'warning',
+        text: "You want to proceed?",
+        icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, proceed!'
+        confirmButtonText: 'Yes, submit it!',
+        allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
@@ -19,11 +28,10 @@ approveButton.addEventListener('click', function() {
                     Swal.showLoading();
                 }
             });
-            approveForm.submit();
+            form.submit();
         }
     });
-
-});
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const successMessage = window.successMessage;

@@ -9,7 +9,7 @@
         <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
 
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Super Admin Login</title>
 </head>

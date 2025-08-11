@@ -33,7 +33,8 @@ class InventoryController extends Controller
 
         // PARA SA REGISTERED PRODUCTS IF MAY SEARCH
         if ($search_type === "product") {
-            $form_data = Product::where('generic_name', '=', $searched_name[0])
+            $form_data = Product::where('is_archived', false)
+            ->where('generic_name', '=', $searched_name[0])
             ->where('brand_name', '=', $searched_name[1])
             ->where('form', '=', $searched_name[2])
             ->where('strength', '=', $searched_name[3])
@@ -64,12 +65,23 @@ class InventoryController extends Controller
         // Para sa pagination display and length
         $perPage = 10;
         $inventoriesByLocation = [];
+        $archivedInventoriesByLocation = [];
         // dd($search_type);
         foreach ($locations as $loc) {
             // makes a unique page param for this location
             $pageKey = 'page_in_' . $loc->id;
+            $archivePageKey = 'archive_page_in_' . $loc->id;
 
-            $inventoriesByLocation[$loc->province] = Inventory::with(['product','location'])
+            $inventoriesByLocation[$loc->province] = Inventory::
+            whereHas('product', fn ($query) => $query->where('is_archived', false))
+            ->with(['product','location'])
+            ->where('location_id', $loc->id)
+            ->orderBy('expiry_date', 'desc');
+
+            // for archiving purposes
+            $archivedInventoriesByLocation[$loc->province] = Inventory::
+            whereHas('product', fn ($query) => $query->where('is_archived', true))
+            ->with(['product','location'])
             ->where('location_id', $loc->id)
             ->orderBy('expiry_date', 'desc');
             
@@ -81,23 +93,36 @@ class InventoryController extends Controller
                     ->where('form', '=', $searched_name[2])
                     ->where('strength', '=', $searched_name[3]);
                 });
+
+                // BALIK KO TO PAG READY NAKO MAG DAGDAG NG SEARCH FUNC SA ARCHIVING
+                // $archivedInventoriesByLocation[$loc->province] = $archivedInventoriesByLocation[$loc->province]->whereHas('product', function ($query) use ($searched_name) {
+                //     $query->where('generic_name', '=', $searched_name[0])
+                //     ->where('brand_name', '=', $searched_name[1])
+                //     ->where('form', '=', $searched_name[2])
+                //     ->where('strength', '=', $searched_name[3]);
+                // });
             }
             
             // makes the query paginatable now
             $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]->paginate($perPage, ['*'], $pageKey)
             ->appends($request->except([$pageKey, "registered_product_page"])); // keep other filters/search params sa URL 
+            
+            $archivedInventoriesByLocation[$loc->province] = $archivedInventoriesByLocation[$loc->province]->paginate($perPage, ['*'], $archivePageKey)
+            ->appends($request->except([$archivePageKey, "registered_product_page"])); // keep other filters/search params sa URL 
         }
 
-        // POPUP SEARCH SUGGESTIONS FOR SPECIFC PROVINCES
-        $suggestionsForTarlac = Inventory::where('location_id', Location::where('province', 'Tarlac')->first()->id)->get();
-        $suggestionsForNueva = Inventory::where('location_id', Location::where('province', 'Nueva Ecija')->first()->id)->get();
-
         // THE TOTAL INFORMATION FOR EXPIRY
-        $totalExpiredStock = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        $totalExpiredStock = Inventory::whereHas('product', function ($query) {
+            $query->where('is_archived', false);
+        })
+        ->with(['location', 'product'])->where('quantity', '>', 0)
         ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
         ->orderBy('expiry_date', 'desc')->get();
 
-        $totalNearExpiry = Inventory::with(['location', 'product'])->where('quantity', '>', 0)
+        $totalNearExpiry = Inventory::whereHas('product', function ($query) {
+            $query->where('is_archived', false);
+        })
+        ->with(['location', 'product'])->where('quantity', '>', 0)
         ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
         ->orderBy('expiry_date', 'desc')->get();
 
@@ -111,15 +136,21 @@ class InventoryController extends Controller
         });
         
         return view('admin.inventory', [
-            'products' => Product::all()->sortBy('generic_name'),
+            // for search suggestions
+            'products' => Product::where('is_archived', false)->get()->sortBy('generic_name'),
 
             // if the user searches in the registered products table, it will provide the data from the searched result instead
-            'registeredProducts' => $search_type === 'product' ? $form_data : Product::query()
+            'registeredProducts' => $search_type === 'product' ? $form_data : Product::where('is_archived', false)
             ->paginate(10, ['*'], "registered_product_page")
             ->appends($request->except("registered_product_pages")),
 
+            'archivedProducts' => Product::where('is_archived', true)
+            ->paginate(10, ['*'], "archived_product_page")
+            ->appends($request->except("archived_product_pages")),
+
             // if the user searches something it will provide the data from the searched result instead
             'inventories' =>  $inventoriesByLocation,
+            'archivedInventories' =>  $archivedInventoriesByLocation,
             'displayed_inventory_locations' => $locations,
 
             'current_inventory' => $location_filter,
@@ -130,12 +161,10 @@ class InventoryController extends Controller
             // The current state of the page (Dito sinesetup lahat ng filters)
             'currentSearch' => ['query' => $searched_name, 'type' => $search_type, 'location' => $location_filter],
 
-            // SEARCH SUGGESTIONS FOR THE STOCK SEARCH BAR
-            'tarlacSuggestions' => $suggestionsForTarlac,
-            'nuevaSuggestions' => $suggestionsForNueva,
-
             // for the inventory stock notifications
-            'stockMonitor' => $inventory = Inventory::has('product')
+            'stockMonitor' => $inventory = Inventory::whereHas('product', function ($query) {
+                $query->where('is_archived', false);
+            })
             ->with('product', 'location') // Ensure 'location' is eager-loaded
             ->get() // Get all inventory records
             ->groupBy('location.province') // First, group by province
@@ -472,11 +501,31 @@ class InventoryController extends Controller
         return to_route('admin.inventory')->with('success', 'Stock(s) added successfully.');
     }
 
-    public function destroyProduct(Product $product) {
-        $product->inventories()->delete(); //SHOULDNT REMOVE STOCK FROM INVENTORY. dont know a solution yet \ (.-.) /
-        $product->delete();
+    public function archiveProduct(Request $request, Product $product, $type = "archive") { 
+        switch ($type) {
+            case 'archive':
+                $product->update([
+                    'is_archived' => true
+                ]);
 
-        HistorylogController::deleteproductlog('Delete', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been deleted.');
+                HistorylogController::deleteproductlog('Archive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been archived.');
+
+                session()->flash('prod-arhived');
+                session()->flash('success', 'Product archived successfully.');                
+                break;
+
+            case 'undo':
+                $product->update([
+                    'is_archived' => false
+                ]);
+
+                HistorylogController::deleteproductlog('Unarchive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been unarchived.');
+
+                session()->flash('prod-unarchived');
+                session()->flash('success', 'Product unarchived successfully.');
+                break;
+        }
+
         return to_route("admin.inventory");
     }
 

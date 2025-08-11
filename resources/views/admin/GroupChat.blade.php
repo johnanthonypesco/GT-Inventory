@@ -21,10 +21,6 @@
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
     
     <div class="w-full max-w-2xl bg-white shadow-2xl rounded-xl flex flex-col h-[700px]">
         <div class="bg-slate-800 text-white p-4 font-bold flex items-center justify-between rounded-t-xl">
@@ -215,5 +211,8 @@
             document.getElementById('imageModal').classList.add('hidden');
         }
     </script>
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

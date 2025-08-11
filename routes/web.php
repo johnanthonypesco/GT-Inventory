@@ -115,7 +115,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::post('admin/inventory/register/product', [InventoryController::class, 'registerNewProduct'])->name('admin.register.product');
         Route::put('admin/inventory/product/', [InventoryController::class, 'editRegisteredProduct'])->name('admin.edit.product');
-        Route::delete('admin/inventory/delete/product/{product}', [InventoryController::class, 'destroyProduct'])->name('admin.destroy.product');
+        Route::put('admin/inventory/archive/product/{product}/{type?}', [InventoryController::class, 'archiveProduct'])->name('admin.archive.product');
 
         Route::put('admin/inventory/', [InventoryController::class, 'editStock'])->name('admin.edit.stock');
 

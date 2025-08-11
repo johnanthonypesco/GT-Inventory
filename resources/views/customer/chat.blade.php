@@ -314,6 +314,10 @@
             startContactsRefresh();
         });
     </script>
+    
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 
 <script>

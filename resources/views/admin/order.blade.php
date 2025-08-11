@@ -578,6 +578,9 @@
     </div>
     
     {{-- FOR ACTION MAPS --}}
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>
 

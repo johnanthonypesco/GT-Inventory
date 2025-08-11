@@ -1255,5 +1255,9 @@ document.addEventListener('DOMContentLoaded', function() {
         updateDashboardCards();
     });
 </script>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

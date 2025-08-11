@@ -17,6 +17,7 @@ class Product extends Model
         'img_file_path',
         'season_peak',
         'trend_score',
+        'is_archived',
     ];
 
     /**

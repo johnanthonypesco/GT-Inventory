@@ -18,10 +18,6 @@
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
     
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-    
     <div class="w-full md:w-[80%] lg:w-[60%] bg-white shadow-md rounded-lg flex flex-col h-[90vh]">
         <div class="text-white p-4 text-center text-lg font-bold flex justify-between px-5 items-center
             @if($receiverType === 'super_admin') bg-red-600
@@ -155,5 +151,9 @@
         });
     });
     </script>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

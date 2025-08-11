@@ -175,11 +175,6 @@
             </div>
         </div>
     </main>
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     <script>
         function selectChat(userId, userName) {
             alert(`Chat selected with ${userName} (ID: ${userId})`);
@@ -263,5 +258,10 @@
             });
         });
     </script>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 </body>
 </html>

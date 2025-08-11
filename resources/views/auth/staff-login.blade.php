@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Staff Login</title>
 </head>

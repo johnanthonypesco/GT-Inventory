@@ -46,5 +46,9 @@
             <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5">Login</button>
         </form>
     </div>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

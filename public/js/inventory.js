@@ -305,3 +305,42 @@ function openStockEditModal(datas) {
     }
 }
 // SIGRAE EDIT STOCK FUNCTINO
+
+// SIGRAE ARCHIVE JS
+function viewArchivedMenu() {
+    const state = document.getElementById('viewArchiveMenuModal');
+   
+    if (state.classList.contains('hidden')) {
+        state.classList.replace('hidden', 'flex');
+
+        return true;
+    } else {
+        state.classList.replace('flex', 'hidden');
+    }
+}
+
+function viewArchivedProducts() {
+    const state = document.getElementById('viewAllArchivedProducts');
+   
+    if (state.classList.contains('hidden')) {
+        state.classList.replace('hidden', 'flex');
+
+        return true;
+    } else {
+        state.classList.replace('flex', 'hidden');
+    }
+}
+
+function viewArchivedStocks() {
+    const state = document.getElementById('viewAllArchivedStocks');
+
+    if (state.classList.contains('hidden')) {
+        state.classList.replace('hidden', 'flex');
+
+        return true;
+    } else {
+        state.classList.replace('flex', 'hidden');
+    }
+}
+
+// SIGRAE ARCHIVE JS

@@ -135,17 +135,7 @@
     <x-loader />
     {{-- loader --}}
 
-
-
-    @if (session("success"))
-    <div id="successAlert" class="fixed bg-green-600 px-6 py-3 top-5 right-3 rounded-lg flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-2xl text-white"></i>
-        <div>
-            <p class="text-white font-semibold">Success!</p>
-            <p id="successMessage" class="text-white font-semibold"></p>
-        </div>
-    </div>
-    @endif
+    <x-successmessage />
 </body>
 
 

@@ -364,5 +364,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
+
 </body>
 </html>
