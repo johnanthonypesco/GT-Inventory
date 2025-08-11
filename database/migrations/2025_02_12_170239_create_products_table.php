@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('form');
             $table->string('strength');
             $table->string('img_file_path')->nullable()->default('image/default-product-pic.png');
+            $table->string('is_archived')->nullable()->default('false');
             $table->timestamps();
 
             $table->unique([

@@ -25,6 +25,19 @@
             </form>
         @endif
         @break
+    
+    @case("archive")
+        <form action="{{ route($route, $routeid) }}" method="POST" {{ $attributes }}>
+            @csrf
+            @if (strtoupper($method) !== 'POST')
+                @method(strtoupper($method))
+            @endif
+            <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 font-bold cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+                <i class="fa-solid fa-database"></i> Archive
+            </button>
+        </form>
+
+        @break
 
     @default
         @if ($routeid)

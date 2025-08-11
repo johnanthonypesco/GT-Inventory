@@ -118,9 +118,18 @@
                 </select>
             </form>
 
+            @php
+                $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
+            @endphp
+
             <div class="flex gap-3 mt-2">
-                <button class="bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
-                <button class="bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
+                <button class="px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+                    <i class="fa-solid fa-box-archive"></i>
+                    View Archived Data  
+                </button>
+                
+                <button class="bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
+                <button class="bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
             </div>
         </div>
         {{-- Filters Location --}}
@@ -176,12 +185,22 @@
                     {{-- Search --}}
 
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                       <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1"><i class="fa-solid fa-plus"></i>Scan Receipt</button>
+                       <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
+                            <span class="group-hover:text-white">
+                                <i class="fa-solid fa-plus"></i>
+                                Scan Receipt
+                            </span>
+                        </button>
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export</button>
+                            <button type="submit" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
+                                <span class="group-hover:text-white">
+                                    <i class="fa-solid fa-download"></i>
+                                    Export
+                                </span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -196,7 +215,7 @@
                 {{-- Pagination --}}
                 {{-- <x-pagination/> --}}
 
-                <div id="stock-pagination-container" class="mt-6">
+                <div id="stock-pagination-container" data-location="{{ $provinceName }}" class="mt-6">
                     {{ $groupedStocks->links() }}
                 </div>
                 {{-- Pagination --}}
@@ -214,13 +233,16 @@
     {{-- loader --}}
 
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
             
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
-                <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-plus"></i>Add Multiple Stocks</button>
+                <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
+                    <i class="fa-solid fa-plus"></i>
+                    Add Multiple Stocks
+                </button>
                 
                 <div class="flex gap-2 w-full lg:w-[420px]">
                     @if (session('registeredProductSearch'))
@@ -267,7 +289,7 @@
                                 <td>{{ $brand_name }}</td>
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
-                                <td class="flex items-center gap-4 justify-center">
+                                <td class="flex items-center gap-4 justify-center font-bold">
                                     <button onclick="addstock('{{ $product->id }}', '{{ $generic_name }} - {{ $brand_name }}')" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
                                     <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', '{{$generic_name}}', '{{$brand_name}}', '{{$product->form}}', '{{$product->strength}}', '{{ url('/') }}/', '{{ $product->img_file_path }}')">
@@ -275,7 +297,7 @@
                                         Edit
                                     </button>
 
-                                    <x-delete-button route="admin.destroy.product" routeid="{{$product->id}}" method="DELETE" id="delete"/>
+                                    <x-delete-button route="admin.archive.product" routeid="{{$product->id}}" method="PUT" id="delete" deleteType="archive" />
                                 </td>
                             </tr>
                         @endforeach
@@ -285,13 +307,146 @@
             {{-- Table for all products --}}
 
             {{-- Pagination --}}
-            <div class="mt-5">
+            <div id="regis-product-paginate-div" class="mt-5">
                 {{ $registeredProducts->links() }}
             </div>
             {{-- Pagination --}}
         </div>
     </div>
     {{-- Modal for View All Products --}}
+
+    {{-- Modal for View All ARCHIVED Products --}}
+    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full z-51 bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewAllArchivedProducts">
+        <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose id="viewallproductclose" click="viewArchivedProducts"/>
+            <h1 class="font-bold text-2xl text-[#005382]">All Archived Products</h1>
+            
+            {{-- DAGDAG KONALANG ITO PAG TRIP KO MAG ADD NG SEARCH DITO 
+                -- by: SIGRAE
+            --}}
+            {{-- <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
+                <div class="flex gap-2 w-full lg:w-[420px]">
+                    @if (session('registeredProductSearch'))
+                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                            Reset 
+                        </button>
+                    @endif
+
+                    <x-input name="search"
+                    placeholder="Search Product by Name"
+                    classname="fa fa-magnifying-glass"
+                    divclass="w-full lg:w-[100%] bg-white relative rounded-lg"
+                    id="search-product"
+                    searchType="product"
+                    :dataList="$uniqueProducts"
+                    :autofill="true"
+                    :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
+                </div>
+            </div> --}}
+
+            {{-- Table for all ARCHIVED products --}}
+            <div id="real-timer-archived-products-table" class="table-container mt-5 overflow-auto h-[300px]">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Generic Name</th>
+                            <th>Brand Name</th>
+                            <th>Form</th>
+                            <th>Strength</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data">
+                        @foreach ($archivedProducts as $product)
+                            @php
+                                $generic_name = $product->generic_name ? $product->generic_name : "none";
+                                $brand_name = $product->brand_name ? $product->brand_name : "none";
+                            @endphp
+
+                            <tr>
+                                <td>{{ $product->id}}</td>
+                                <td>{{ $generic_name }}</td>
+                                <td>{{ $brand_name }}</td>
+                                <td>{{ $product->form }}</td>
+                                <td>{{ $product->strength }}</td>
+                                <td class="flex items-center gap-4 justify-center font-bold">
+                                    <form action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">
+                                        @csrf
+                                        @method('PUT')
+
+                                        <button class="flex gap-2 items-center text-[#005382] cursor-pointer">
+                                            <i class="fa-solid fa-undo"></i>
+                                            Unarchive
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            {{-- Table for all ARCIHVED products --}}
+
+            {{-- Pagination --}}
+            <div id="archived-paginate" class="mt-5">
+                {{ $archivedProducts->links() }}
+            </div>
+            {{-- Pagination --}}
+        </div>
+    </div>
+    {{-- Modal for View All ARCHIVED Products --}}
+
+    {{-- Modal for View All ARCHIVED Stocks --}}
+    <div class="w-full {{ str_contains(request()->fullUrl(), 'archive_page_in') ? 'flex' : 'hidden'}} h-full z-51 bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewAllArchivedStocks">
+        <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose id="viewallproductclose" click="viewArchivedStocks"/>
+            <h1 class="font-bold text-2xl text-[#005382]">All Archived Stocks</h1>
+            
+            <div class="flex-col overflow-scroll w-full h-[450px]">
+                @foreach ($locations as $loc)
+                    @php
+                        $provinceName = $loc->province;
+    
+                        // Grab the paginator for this location
+                        $groupedStocks = $archivedInventories[$loc->province];
+    
+                        // dd($groupedStocks->items());
+    
+                    @endphp
+    
+                <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
+                    <h1 class="text-xl font-bold mb-5">
+                        Belonged To: {{ $provinceName }}
+                    </h1>
+    
+                        {{-- Table for Inventory --}}
+                        <div id="real-timer-archived-stock" data-location="{{ $provinceName }}" class="overflow-auto h-fit mt-5">
+                            {{-- <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date', 'Action']" :variable="$currentSearch['query'] !== null && $currentSearch['location'] !== 'All' ? $inventories : $inventory" category="inventory"/> --}}
+                            <x-table :headings="['Batch No.', 'Generic Name', 'Brand Name', 'Form', 'Stregth', 'Quantity', 'Expiry Date']" :variable="$groupedStocks->items()" category="archive-inventory"/>
+                        </div>
+                        {{-- Table for Inventory --}}
+    
+                        {{-- Pagination --}}
+                        {{-- <x-pagination/> --}}
+    
+                        <div id="archived-stock-pagination-container" data-location="{{ $provinceName }}" class="mt-6">
+                            {{ $groupedStocks->links() }}
+                        </div>
+                        {{-- Pagination --}}
+                    </div>
+    
+                    <hr>
+
+                    @if ($currentSearch['location'] !== 'All')
+                        @break
+                    @endif
+                @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- Modal for View All ARCHIVED Stocks --}}
 
     {{-- Modal for Register New Product --}}
     @php
@@ -642,6 +797,30 @@
     </div>
 </div>
 
+{{-- VIEW ARCHIVE MENU MODAL --}}
+<div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
+    <div class="modal w-[430px] h-fit max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
+        <x-modalclose click="viewArchivedMenu" />
+
+        <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-6">Archive Menu</h1>
+
+        <div class="flex-col pb-4">
+            <button class="outline-2 outline-[#005382]  w-full px-4 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedProducts()">
+                <i class="fa-solid fa-cubes"></i>
+                View Archived Products  
+            </button>
+            
+            <br>
+
+            <button class="outline-2 outline-[#005382]  w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedStocks()">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                View Archived Stocks
+            </button>
+        </div>
+    </div>
+</div>
+{{-- VIEW ARCHIVE MENU MODAL --}}
+
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
 
@@ -651,11 +830,19 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const stockTableID = '#real-timer-stock';
+        const archivedStockTableID = '#real-timer-archived-stock';
+        const stockSearchListID = '.realTimerStockSearch';
+
         const stockCountersID = '#real-timer-stock-count';
         const stockNotifModalID = '#real-timer-notifs-modals';
+
         const productTableID = '#real-timer-products-table';
+        const productTablePaginateID = '#regis-product-paginate-div';
         const productSearchListID = '#search-options-product';
-        const stockSearchListID = '.realTimerStockSearch';
+
+        const productArchivedTableID = '#real-timer-archived-products-table'
+        const productTableArchivedPaginateID = '#archived-paginate'
+
 
         // every 5 secs mag update yung main section
         setInterval(() => {
@@ -671,18 +858,36 @@
 
                 // DITO YUNG MULTI REPLACE SECTION
                 const currentTables = document.querySelectorAll(stockTableID);
+                const currentArchivedTables = document.querySelectorAll(archivedStockTableID);
                 const currentCounts = document.querySelectorAll(stockCountersID);
                 const currentNotifTables = document.querySelectorAll(stockNotifModalID);
                 const currentStockSearchLists = document.querySelectorAll(stockSearchListID);
 
                 currentTables.forEach(currentTable => {
                     const location = currentTable.dataset.location;
-
+                    const currentPaginate = document.querySelector(`#stock-pagination-container[data-location="${location}"]`);
+                    
                     // Update the current iter with the updated version
                     const updatedTable = updatedPage.querySelector(`#real-timer-stock[data-location="${location}"]`);
+                    const updatedPaginate = updatedPage.querySelector(`#stock-pagination-container[data-location="${location}"]`);
                     
                     if (updatedTable) {
                         currentTable.innerHTML = updatedTable.innerHTML;
+                        currentPaginate.innerHTML = updatedPaginate.innerHTML;
+                    }
+                })
+                
+                currentArchivedTables.forEach(currentTable => {
+                    const location = currentTable.dataset.location;
+                    const currentPaginate = document.querySelector(`#archived-stock-pagination-container[data-location="${location}"]`);
+                    
+                    // Update the current iter with the updated version
+                    const updatedTable = updatedPage.querySelector(`#real-timer-archived-stock[data-location="${location}"]`);
+                    const updatedPaginate = updatedPage.querySelector(`#archived-stock-pagination-container[data-location="${location}"]`);
+                    
+                    if (updatedTable) {
+                        currentTable.innerHTML = updatedTable.innerHTML;
+                        currentPaginate.innerHTML = updatedPaginate.innerHTML;
                     }
                 })
                 
@@ -726,13 +931,29 @@
                         console.log("stock search updated")
                     }
                 })
-                // DITO YUNG MULTI REPLACE SECTION
+                // DITO YUNG END NG MULTI REPLACE SECTION
 
-                // DITO YUNG SINGULAR REPLACE SECTION    
+                // DITO YUNG SINGULAR REPLACE SECTION
+
+                // PARA SA PRODUCT TABLE
                 const currentProductTable = document.querySelector(productTableID);
+                const currentProdTablePaginate =document.querySelector(productTablePaginateID);
                 const updatedProductTable = updatedPage.querySelector(productTableID);
-                currentProductTable.innerHTML = updatedProductTable.innerHTML;
+                const updatedProductTablePaginate = updatedPage.querySelector(productTablePaginateID);
 
+                currentProductTable.innerHTML = updatedProductTable.innerHTML;
+                currentProdTablePaginate.innerHTML = updatedProductTablePaginate.innerHTML;
+                
+                // PARA SA ARCHIVE PRODUCT TABLE
+                const currentArchivedProductTable = document.querySelector(productArchivedTableID);
+                const currentArchivedProdTablePaginate = document.querySelector(productTableArchivedPaginateID);
+                const updatedArchivedProductTable = updatedPage.querySelector(productArchivedTableID);
+                const updatedArchivedProductTablePaginate = updatedPage.querySelector(productTableArchivedPaginateID);
+                
+                currentArchivedProductTable.innerHTML = updatedArchivedProductTable.innerHTML;
+                currentArchivedProdTablePaginate.innerHTML = updatedArchivedProductTablePaginate.innerHTML;
+
+                // PARA SA PROUCT SEARCH
                 const currentProductSearch = document.querySelector(productSearchListID);
                 const updatedProductSearch = updatedPage.querySelector(productSearchListID);
 
@@ -744,7 +965,7 @@
                     console.log("registered product search updated");
                 }
                 
-                // DITO YUNG SINGULAR REPLACE SECTION
+                // DITO YUNG END NG SINGULAR REPLACE SECTION
 
                 console.log("updated full page successfully");
             })

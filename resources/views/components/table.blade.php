@@ -64,6 +64,20 @@
                 @endforeach
             @break
 
+            @case($category === 'archive-inventory')
+                @foreach ($variable as $inv)
+                    <tr class="text-center">
+                        <td>{{ $inv->batch_number }}</td>
+                        <td>{{ $inv->product->generic_name }}</td>
+                        <td>{{ $inv->product->brand_name }}</td>
+                        <td>{{ $inv->product->form }}</td>
+                        <td>{{ $inv->product->strength }}</td>
+                        <td class="{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
+                        <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
+                    </tr>
+                @endforeach
+            @break
+
             {{-- productdeals --}}
             @case($category === 'productdeals')
                 @foreach ($variable as $company)
