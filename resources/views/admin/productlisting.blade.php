@@ -92,10 +92,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     @php
         $uniqueProducts = $products->unique(function ($product) {
             return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;

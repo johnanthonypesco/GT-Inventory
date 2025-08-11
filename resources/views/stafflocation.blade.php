@@ -140,5 +140,7 @@
         window.onload = initMap;
     </script>
 
+<x-loader />
+
 </body>
 </html>

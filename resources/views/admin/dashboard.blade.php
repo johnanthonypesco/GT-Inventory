@@ -423,10 +423,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Global variables
