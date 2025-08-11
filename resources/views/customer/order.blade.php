@@ -131,6 +131,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 
 
     @if (session("success"))
@@ -147,8 +151,5 @@
 
 <script src="{{ asset('js/customer/order.js') }}"></script>
 <script src="{{ asset('js/customer/sweetalert/order.js') }}"></script>
-
-<script>
-    window.successMessage = @json(session('success'));
-</script>
+<script>window.successMessage = @json(session('success'));</script>
 </html>

@@ -202,6 +202,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     <script>
         function markAsRead(senderId, senderType) {
             $.ajax({

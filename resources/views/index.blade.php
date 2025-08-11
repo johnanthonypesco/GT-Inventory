@@ -30,9 +30,9 @@
         </nav>
 
         <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>
-    </header>
+    </header>    
 
-    <main class="mt-20 mb-20">
+    <main class="mt-20 mb-20 main">
         <section id="home" class="flex flex-col-reverse px-5 lg:flex-row justify-center lg:px-24">
             <div class="flex flex-col gap-5 lg:w-1/2 lg:gap-10 lg:mt-20" id="content-left">
                 <h1 class="text-5xl font-bold">Connect with <span class="text-[#0097D3]">RCT Med Pharma</span> Anytime, Anywhere!</h1>
@@ -50,13 +50,13 @@
             </div>
         </section>
     
-        <div class="flex mt-20 lg:mt-10 justify-center gap-2">
+        <div class="flex mt-20 lg:mt-10 justify-center gap-2" id="content-left">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
             <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
         </div>
     
         <section id="about" class="scroll-mt-20 lg:scroll-mt-15">
-            <h1 class="text-xl text-[#084876] text-center font-bold mt-10">About Us</h1>
+            <h1 class="text-xl text-[#084876] text-center font-bold mt-10" id="content-right">About Us</h1>
 
             <div class="flex flex-col justify-center items-center mt-10 px-5 gap-5 lg:flex-row lg:px-24 lg:gap-10">
                 <div id="content-left">
@@ -76,22 +76,22 @@
             </div>
         </section>
 
-        <div class="flex mt-20 lg:mt-15 justify-center gap-2">
+        <div class="flex mt-20 lg:mt-15 justify-center gap-2" id="content-left">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
             <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
         </div>
 
         <section class="mt-10 relative flex flex-col items-center scroll-mt-24" id="products">
             <div class="bg-[#084876]/20 rounded-full w-[70%] h-[100%] blur-3xl absolute z-0"></div>
-            <h1 class="text-xl text-[#084876] text-center font-bold">Our Products</h1>
+            <h1 class="text-xl text-[#084876] text-center font-bold" id="content-right">Our Products</h1>
 
             <div class="flex gap-5 mt-10 z-1 relative">
-                <button onclick="setFilter('all')" class="text-[#084876] font-bold border-b border-[#084876] filter-btn" data-filter="all">All Products</button>
-                <button onclick="setFilter('injectables')" class="text-gray-600 font-bold filter-btn" data-filter="injectables">Injectables</button>
-                <button onclick="setFilter('oral')" class="text-gray-600 font-bold filter-btn" data-filter="oral">Oral</button>
+                <button onclick="setFilter('all')" class="text-[#084876] font-bold border-b border-[#084876] filter-btn" data-filter="all" id="content-right">All Products</button>
+                <button onclick="setFilter('injectables')" class="text-gray-600 font-bold filter-btn" data-filter="injectables" id="content-left">Injectables</button>
+                <button onclick="setFilter('oral')" class="text-gray-600 font-bold filter-btn" data-filter="oral" id="content-left">Oral</button>
             </div>
 
-            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center">
+            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center" id="content-right">
                 @forelse($enabledProducts as $product)
                     <div class="product-card" data-filter="{{ strtolower($product->form) }}">
                         <x-promotionalpage.product 
@@ -146,16 +146,16 @@
 
 
 
-        <div class="flex mt-24 justify-center gap-2">
+        <div class="flex mt-24 justify-center gap-2" id="content-left">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
             <hr class="bg-[#0097D3] rounded-lg w-[20px] h-1">
         </div>
 
         <section id="inquire" class="mt-10 flex flex-col items-center px-5 scroll-mt-12">
-            <h1 class="text-xl text-[#084876] text-center font-bold mt-5">Get in Touch</h1>
-            <h1 class="text-4xl text-[#084876] text-center font-bold mt-5">Reach Us</h1>
+            <h1 class="text-xl text-[#084876] text-center font-bold mt-5" id="content-right">Get in Touch</h1>
+            <h1 class="text-4xl text-[#084876] text-center font-bold mt-5" id="content-left">Reach Us</h1>
 
-            <div class="flex flex-col lg:flex-row gap-10 mt-10 border rounded-lg p-5 shadow-md w-full lg:w-[70%]">
+            <div class="flex flex-col lg:flex-row gap-10 mt-10 border rounded-lg p-5 shadow-md w-full lg:w-[70%]" id="content-right">
                 <div class="w-full max-w-[450px] aspect-square sm:aspect-video">
                     <iframe 
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6329.863448083731!2d120.5903826362913!3d15.430930184127268!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3396c7a8904c55af%3A0xcc636500bd6a58c4!2sFARMACIA%20SAN%20MIGUEL!5e1!3m2!1sen!2sph!4v1752755129585!5m2!1sen!2sph" 
@@ -185,9 +185,9 @@
         </section>
 
         <section id="reviews" class="mt-20 px-5 lg:px-24">
-            <h2 class="text-xl font-bold text-center text-[#084876]">What Our Customers Say</h2>
+            <h2 class="text-xl font-bold text-center text-[#084876]" id="content-right">What Our Customers Say</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10" id="content-left">
                 @forelse($reviews as $review)
                     <div class="bg-white p-4 border rounded shadow">
                         <div class="flex gap-1 mb-2">
@@ -225,6 +225,10 @@
 
         <p class="text-md text-center mt-5">Copyright © RCT MED PHARMA. All Rights Reserve</p>
     </footer>
+
+    {{-- loader --}}
+    <x-loader/>
+    {{-- loader --}}
 </body>
 <script src="{{ asset('js/landingpage/index.js') }}"></script>
 </html>

@@ -303,6 +303,10 @@
         @endif
     </main> 
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     <script> 
         document.addEventListener('DOMContentLoaded', function () { 
             // const reorderButton = document.getElementById('reorderBtn'); 
@@ -409,5 +413,6 @@
         window.successMessage = @json(session('success'));
     </script> 
     <script src="{{ asset('js/customer/sweetalert/dashboardsweetalert.js') }}"></script>
+    <script>window.successMessage = @json(session('success'));</script>
 </body> 
 </html>

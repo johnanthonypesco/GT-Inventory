@@ -192,6 +192,10 @@
         @endif
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const editModal = document.getElementById('editmodal');

@@ -321,6 +321,11 @@
             @endforeach
         @endforeach
     </main>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+    
 </body>
 </html>
 <script src="{{asset('js/history.js')}}"></script>

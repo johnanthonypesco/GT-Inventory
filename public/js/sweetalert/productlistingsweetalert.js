@@ -1,17 +1,18 @@
-const addproductlistingBtn = document.getElementById('addproductlistingBtn');
-const addproductlistngform = document.getElementById('addproductlistingform');
-
-const editproductlistingBtn = document.getElementById('editproductlistingBtn');
-const editproductlistingform = document.getElementById('editproductlistingform');
-
-addproductlistingBtn.addEventListener('click', () => {
-    sweetalert(addproductlistngform);
+// Add Product Listing
+document.querySelectorAll('#addproductlistingBtn').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        const form = document.querySelectorAll('#addproductlistingform')[index];
+        sweetalert(form);
+    });
 });
 
-editproductlistingBtn.addEventListener('click', () => {
-    sweetalert(editproductlistingform);
+// Edit Product Listing
+document.querySelectorAll('#editproductlistingBtn').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        const form = document.querySelectorAll('#editproductlistingform')[index];
+        sweetalert(form);
+    });
 });
-
 
 function sweetalert(form) {
     Swal.fire({

@@ -402,6 +402,10 @@
             </div>
         </div>
     </main>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
 </body>
 
 <script>
@@ -794,31 +798,33 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    const restoreForm = document.getElementById("restoreForm");
-    const restoreButton = document.getElementById("restoreButton");
+    document.querySelectorAll('#restoreButton').forEach((restoreButton, index) => {
+        const restoreForm = document.querySelectorAll('#restoreForm')[index];
 
-    restoreButton.addEventListener('click', () => {
-        Swal.fire({
-            title: "Restore Account?",
-            text: "Do you want to restore this account?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, restore it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Restoring...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                restoreForm.submit();
-            }
+        restoreButton.addEventListener('click', () => {
+            Swal.fire({
+                title: "Restore Account?",
+                text: "Do you want to restore this account?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, restore it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Restoring...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    restoreForm.submit();
+                }
+            });
         });
     });
+
 
 
     // --- Modal visibility on validation errors ---

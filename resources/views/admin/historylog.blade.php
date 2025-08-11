@@ -46,6 +46,10 @@
             </div>
         </div>
     </main>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
     
 </body>
 

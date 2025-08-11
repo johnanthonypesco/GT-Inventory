@@ -92,6 +92,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     @php
         $uniqueProducts = $products->unique(function ($product) {
             return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;
@@ -287,7 +291,7 @@
                         <x-label-input label="New Price:" name="price" type="number" for="price" divclass="mt-5" placeholder="1500"/>
 
                         {{-- <x-label-input label="Product Name" name="price" type="text" for="brandname" divclass="mt-5" placeholder="Enter Account Name"/> --}}
-                        <x-submit-button btnType="submit" id="editproductlistingBtn"/>
+                        <x-submit-button btnType="button" id="editproductlistingBtn"/>
                     </form> 
                     {{-- Form --}}
                 </div>

@@ -151,7 +151,11 @@
             @endisset
         </div>
     </main>
-    
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     {{-- AJAX script for PDF download remains the same --}}
     <script>
     $(document).ready(function() {

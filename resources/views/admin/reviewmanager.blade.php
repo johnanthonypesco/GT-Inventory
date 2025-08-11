@@ -94,6 +94,10 @@
         </div>
 
     </main>
+    
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
 
     <script src="{{ asset('js/sweetalert/reviewmanagersweetalert.js') }}"></script>
     <script>window.successMessage = @json(session('success'));</script>
