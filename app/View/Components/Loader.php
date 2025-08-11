@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Admin;
+namespace App\View\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
@@ -21,6 +21,6 @@ class Loader extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.admin.loader');
+        return view('components.loader');
     }
 }

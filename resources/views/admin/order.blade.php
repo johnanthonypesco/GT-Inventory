@@ -458,7 +458,7 @@
     </main>
     
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 
     {{-- FOR ACTION MAPS --}}

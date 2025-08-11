@@ -131,6 +131,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 
 
     @if (session("success"))

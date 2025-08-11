@@ -84,6 +84,11 @@
         </form>
     </div>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
+
 <script>
     // Elements
     const passwordInput = document.getElementById('password');

@@ -176,9 +176,9 @@
         </div>
     </main>
 
-    {{-- Loader --}}
-    <x-admin.loader/>
-    {{-- Loader --}}
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
 
     <script>
         function selectChat(userId, userName) {

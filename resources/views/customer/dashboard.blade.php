@@ -303,6 +303,10 @@
         @endif
     </main> 
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     <script> 
         document.addEventListener('DOMContentLoaded', function () { 
             // const reorderButton = document.getElementById('reorderBtn'); 

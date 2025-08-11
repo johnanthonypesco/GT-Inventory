@@ -79,6 +79,11 @@
             @endif
         </form>
     </div>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 </body>
 <script>
     function showpassword() {

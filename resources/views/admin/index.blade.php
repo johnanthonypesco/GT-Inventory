@@ -15,7 +15,7 @@
 <body>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
     <div class="flex flex-col lg:flex-row p-5 lg:gap-90 gap-5 items-center">
         <div>

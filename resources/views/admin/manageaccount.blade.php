@@ -404,7 +404,7 @@
     </main>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 </body>
 

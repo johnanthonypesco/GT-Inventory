@@ -139,6 +139,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
 <script src="{{ asset('js/customer/customeraccount.js') }}"></script>
 
 <script>

@@ -93,7 +93,7 @@
     </main>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 
     @php

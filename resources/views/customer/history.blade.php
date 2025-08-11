@@ -209,6 +209,10 @@
         @endforeach
         {{-- View Order Modal --}}
     </main>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
 </body>
 </html>
 

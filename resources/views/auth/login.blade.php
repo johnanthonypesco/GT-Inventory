@@ -60,6 +60,10 @@
     </div>
 </body>
 
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
+
 <script>
     function showpassword() {
         var password = document.getElementById('password');

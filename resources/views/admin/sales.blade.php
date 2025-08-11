@@ -153,7 +153,7 @@
     </main>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 
     {{-- AJAX script for PDF download remains the same --}}

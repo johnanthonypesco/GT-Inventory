@@ -10,14 +10,6 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* Simple loader for preloader */
-        .loader {
-            border-top-color: #3498db;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
         /* Custom scrollbar */
         #chatBox::-webkit-scrollbar { width: 6px; }
         #chatBox::-webkit-scrollbar-track { background: transparent; }
@@ -26,9 +18,9 @@
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen justify-center items-center p-5">
     
-    <div id="preloader" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-    </div>
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
     
     <div class="w-full md:w-[80%] lg:w-[60%] bg-white shadow-md rounded-lg flex flex-col h-[90vh]">
         <div class="text-white p-4 text-center text-lg font-bold flex justify-between px-5 items-center

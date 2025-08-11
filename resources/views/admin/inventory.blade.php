@@ -210,7 +210,7 @@
     </main>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 
     {{-- Modal for View All Products --}}

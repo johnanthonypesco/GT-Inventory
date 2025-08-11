@@ -56,5 +56,9 @@
             </div>
         </form>
     </div>
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
 </body>
 </html>

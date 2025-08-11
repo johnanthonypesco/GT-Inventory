@@ -323,8 +323,9 @@
     </main>
 
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
+    
 </body>
 </html>
 <script src="{{asset('js/history.js')}}"></script>

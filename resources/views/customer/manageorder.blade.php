@@ -136,6 +136,10 @@
         </div>
     </main>
 
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
     @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
         <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
             <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">

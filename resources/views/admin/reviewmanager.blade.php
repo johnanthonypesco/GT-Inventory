@@ -96,7 +96,7 @@
     </main>
     
     {{-- loader --}}
-    <x-admin.loader/>
+    <x-loader />
     {{-- loader --}}
 
     <script src="{{ asset('js/sweetalert/reviewmanagersweetalert.js') }}"></script>
