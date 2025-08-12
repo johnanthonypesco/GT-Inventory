@@ -232,6 +232,6 @@
     window.addEventListener('load', () => {
         setTimeout(() => {
             loader.style.display = 'none';
-        }, 2000);
+        }, 1000);
     });
 </script>
