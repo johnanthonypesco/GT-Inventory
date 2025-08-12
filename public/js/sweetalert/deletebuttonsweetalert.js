@@ -12,11 +12,11 @@ function deletesweetalert(button) {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'Deleted!',
-                text: 'The item has been deleted.',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1500
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
             button.closest('form').submit();
         }
