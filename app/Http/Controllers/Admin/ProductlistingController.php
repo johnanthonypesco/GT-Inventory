@@ -209,6 +209,8 @@ class ProductlistingController extends Controller
         );
         // gawa ni pesco
     
+        session()->flash('success', 'Deal deleted successfully.');
+
         return redirect()->to(url()->previous())->with('reSummon', $company->name);
     }
     

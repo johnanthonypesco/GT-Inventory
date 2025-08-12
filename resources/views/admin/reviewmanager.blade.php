@@ -22,24 +22,6 @@
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
-
-            @if (session ('success'))
-                <div id="successAlert" class="fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
-                    <i class="fa-solid fa-circle-check text-2xl"></i>
-                    <div>
-                        <p class="font-bold">Success!</p>
-                        <p id="successMessage"></p>
-                    </div>
-                </div>
-            @elseif (session ('error'))
-                <div id="errorAlert" class="fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
-                    <i class="fa-solid fa-circle-xmark text-2xl"></i>
-                    <div>
-                        <p class="font-bold">Error!</p>
-                        <p>{{ session('error') }}</p>
-                    </div>
-                </div>
-            @endif
             
             <div class="overflow-auto">
                 <table class="w-full table-auto text-left border border-gray-200">
@@ -98,6 +80,7 @@
     {{-- loader --}}
     <x-loader />
     {{-- loader --}}
+    <x-successmessage />
 
     <script src="{{ asset('js/sweetalert/reviewmanagersweetalert.js') }}"></script>
     <script>window.successMessage = @json(session('success'));</script>

@@ -1,30 +1,33 @@
-const reorderButton = document.getElementById('reorderBtn'); 
-const reorderForm = document.getElementById('reorderForm'); 
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#reorderBtn')) {
+        e.preventDefault();
+        const form = e.target.closest('#reorderForm');
+        showsweetalert(form);
+    }
+});
 
-if(reorderButton) { 
-    reorderButton.addEventListener('click', function () { 
-        Swal.fire({ 
-            title: 'Are you sure?', 
-            text: "This will create a new pending order with the items from your last purchase.", 
-            icon: 'question', 
-            showCancelButton: true, 
-            confirmButtonColor: '#005382', 
-            cancelButtonColor: '#d33', 
-            confirmButtonText: 'Yes, re-order it!' 
-        }).then((result) => { 
-            if (result.isConfirmed) { 
-                Swal.fire({
-                    title: 'Re-ordering...', 
-                    text: 'Please wait while we process your request.', 
-                    allowOutsideClick: false, 
-                    didOpen: () => { 
-                        Swal.showLoading(); 
-                    } 
-                }); 
-                reorderForm.submit(); 
-            } 
-        });
-    }); 
+function showsweetalert(form) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, submit it!',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            form.submit();
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

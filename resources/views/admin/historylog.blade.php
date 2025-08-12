@@ -47,9 +47,9 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
     
 </body>
 

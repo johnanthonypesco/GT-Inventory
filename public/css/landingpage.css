@@ -32,7 +32,7 @@ nav {
     }
 }
 #content-left {
-    animation: fromleft 0.5s ease-in-out;
+    animation: fromleft 3s ease-in-out;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
@@ -47,7 +47,7 @@ nav {
     }
 }
 #content-right {
-    animation: fromright 0.5s ease-in-out;
+    animation: fromright 3s ease-in-out;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }

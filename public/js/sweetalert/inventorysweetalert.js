@@ -3,6 +3,8 @@ const addmultiplestockBtn = document.getElementById('addmultiplestockBtn');
 const addproductBtn = document.getElementById('addproductBtn');
 const editstockBtn = document.getElementById('edit-stock-btn');
 const editproductBtn = document.getElementById('edit-prod-btn');
+const unarchiveBtn = document.getElementById('unarchivebtn');
+const unarchiveForm = document.getElementById('unarchiveform');
 
 const addproductform = document.getElementById('addproduct');
 const addSpecificStockForm = document.getElementById('addspecificstock');
@@ -10,24 +12,70 @@ const addmultiplestockform = document.getElementById('addmultiplestockform');
 const editStockForm = document.getElementById('edit-stock-form');
 const editProductForm = document.getElementById('edit-prod-reset');
 
-addproductBtn.addEventListener('click', () => {
-    showsweetalert(addproductform);
+// addproductBtn.addEventListener('click', () => {
+//     showsweetalert(addproductform);
+// });
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#addproductBtn')) {
+        e.preventDefault();
+        const form = e.target.closest('#addproduct');
+        showsweetalert(form);
+    }
 });
 
-addstockBtn.addEventListener('click', () => {
-    showsweetalert(addSpecificStockForm);
+// addstockBtn.addEventListener('click', () => {
+//     showsweetalert(addSpecificStockForm);
+// });
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#addstockBtn')) {
+        e.preventDefault();
+        const form = e.target.closest('#addspecificstock');
+        showsweetalert(form);
+    }
 });
 
-addmultiplestockBtn.addEventListener('click', () => {
-    showsweetalert(addmultiplestockform);
+// addmultiplestockBtn.addEventListener('click', () => {
+//     showsweetalert(addmultiplestockform);
+// });
+
+document.querySelectorAll('#addmultiplestockBtn').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        const form = document.querySelectorAll('#addmultiplestockform')[index];
+        showsweetalert(form);
+    });
 });
 
-editstockBtn.addEventListener('click', () => {
-    showsweetalert(editStockForm);
+// editstockBtn.addEventListener('click', () => {
+//     showsweetalert(editStockForm);
+// });
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#edit-stock-btn')) {
+        e.preventDefault();
+        const form = e.target.closest('#edit-stock-form');
+        showsweetalert(form);
+    }
 });
 
-editproductBtn.addEventListener('click', () => {
-    showsweetalert(editProductForm);
+// editproductBtn.addEventListener('click', () => {
+//     showsweetalert(editProductForm);
+// });
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#edit-prod-btn')) {
+        e.preventDefault();
+        const form = e.target.closest('#edit-prod-reset');
+        showsweetalert(form);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.unarchivebtn')) {
+        e.preventDefault();
+        const form = e.target.closest('.unarchiveform');
+        showsweetalert(form);
+    }
 });
 
 function showsweetalert(form) {

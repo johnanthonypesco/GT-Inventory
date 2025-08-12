@@ -92,10 +92,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     @php
         $uniqueProducts = $products->unique(function ($product) {
             return $product->generic_name . '|' . $product->brand_name . '|' . $product->form . '|' . $product->strength;
@@ -299,8 +295,8 @@
         @endforeach
     @endforeach
 
-    @if (session ('success'))
-        <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+    {{-- @if (session ('success'))
+        <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-2xl"></i>
             <div>
                 <p class="font-bold">Success!</p>
@@ -308,7 +304,7 @@
             </div>
         </div>
     @elseif (session ('error'))
-        <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
+        <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3">
             <i class="fa-solid fa-circle-xmark text-2xl"></i>
             <div>
                 <p class="font-bold">Error!</p>
@@ -316,6 +312,13 @@
             </div>
         </div>
     @endif
+     --}}
+
+    {{-- loader --}}
+    <x-loader />
+    {{-- loader --}}
+
+     <x-successmessage />
 </body>
 
 <script src="{{asset('js/productlisting.js')}}"></script>

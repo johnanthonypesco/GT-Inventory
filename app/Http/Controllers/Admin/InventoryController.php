@@ -511,6 +511,7 @@ class InventoryController extends Controller
                 HistorylogController::deleteproductlog('Archive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been archived.');
 
                 session()->flash('prod-arhived');
+                session()->flash('success', 'Product archived successfully.');                
                 break;
 
             case 'undo':
@@ -521,6 +522,7 @@ class InventoryController extends Controller
                 HistorylogController::deleteproductlog('Unarchive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been unarchived.');
 
                 session()->flash('prod-unarchived');
+                session()->flash('success', 'Product unarchived successfully.');
                 break;
         }
 

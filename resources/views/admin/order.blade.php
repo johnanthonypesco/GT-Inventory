@@ -456,10 +456,6 @@
             </div>
         </div>
     </main>
-    
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
 
     {{-- FOR ACTION MAPS --}}
     <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
@@ -578,6 +574,9 @@
     </div>
     
     {{-- FOR ACTION MAPS --}}
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>
 

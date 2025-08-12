@@ -13,10 +13,6 @@
     <title>Admin Login</title>
 </head>
 <body>
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
     <div class="flex flex-col lg:flex-row p-5 lg:gap-90 gap-5 items-center">
         <div>
             <img src="{{asset('image/Group 41.png')}}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
@@ -46,5 +42,9 @@
             <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5">Login</button>
         </form>
     </div>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 </html>

@@ -28,25 +28,6 @@
 
     <main class="md:w-full h-full lg:ml-[16%]">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
-
-        {{-- bg green of sweet alert success --}}
-        @if (session ('success'))
-            <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
-                <i class="fa-solid fa-circle-check text-2xl"></i>
-                <div>
-                    <p class="font-bold">Success!</p>
-                    <p id="successMessage"></p>
-                </div>
-            </div>
-        @elseif (session ('error'))
-            <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
-                <i class="fa-solid fa-circle-xmark text-2xl"></i>
-                <div>
-                    <p class="font-bold">Error!</p>
-                    <p id="errorMessage">{{ session('error') }}</p>
-                </div>
-            </div>
-        @endif
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 
         @php
@@ -227,11 +208,6 @@
         @endforeach
         </div>
     </main>
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     {{-- Modal for View All Products --}}
     <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
@@ -371,11 +347,11 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
-                                    <form action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">
+                                    <form class="unarchiveform" action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">
                                         @csrf
                                         @method('PUT')
 
-                                        <button class="flex gap-2 items-center text-[#005382] cursor-pointer">
+                                        <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer">
                                             <i class="fa-solid fa-undo"></i>
                                             Unarchive
                                         </button>
@@ -819,6 +795,12 @@
         </div>
     </div>
 </div>
+
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
+
+<x-successmessage />
 {{-- VIEW ARCHIVE MENU MODAL --}}
 
 <script src="{{ asset('js/inventory.js') }}"></script>

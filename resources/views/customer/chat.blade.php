@@ -202,10 +202,6 @@
         </div>
     </main>
 
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
     <script>
         function markAsRead(senderId, senderType) {
             $.ajax({
@@ -314,6 +310,10 @@
             startContactsRefresh();
         });
     </script>
+    
+{{-- loader --}}
+<x-loader />
+{{-- loader --}}
 </body>
 
 <script>
