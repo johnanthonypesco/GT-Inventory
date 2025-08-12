@@ -1,39 +1,50 @@
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#addproductBtn')) {
-        e.preventDefault();
-        const form = document.getElementById('addproduct');
-        showsweetalert(form);
-    }
 
-    if (e.target.closest('#addstockBtn')) {
-        e.preventDefault();
-        const form = document.getElementById('addspecificstock');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addproductBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addproduct');
+    if(form) showsweetalert(form);
+});
 
-    if (e.target.closest('#edit-stock-btn')) {
-        e.preventDefault();
-        const form = document.getElementById('edit-stock-form');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addstockBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addspecificstock');
+    if(form) showsweetalert(form);
+});
 
-    if (e.target.closest('#edit-prod-btn')) {
-        e.preventDefault();
-        const form = document.getElementById('edit-prod-reset');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#edit-stock-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#edit-stock-form');
+    if(form) showsweetalert(form);
+});
 
-    if (e.target.closest('.unarchivebtn')) {
-        e.preventDefault();
-        const form = document.querySelector('.unarchiveform');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#edit-prod-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#edit-prod-reset');
+    if(form) showsweetalert(form);    
+});
 
-    if (e.target.closest('#addmultiplestockBtn')) {
-        e.preventDefault();
-        const form = document.querySelector('#addmultiplestockform');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addmultiplestockBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addmultiplestockform');
+    if(form) showsweetalert(form);
+});
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unarchivebtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('.unarchiveform');
+    if(form) sweetalert(form);
 });
 
 function showsweetalert(form) {

@@ -1,9 +1,9 @@
 document.addEventListener('click', function(e) {
-    if (e.target.closest('#checkoutbtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#ordersummaryform');
-        showsweetalert(form);
-    }
+    const btn = e.target.closest('#checkoutbtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#ordersummaryform');
+    if(form) showsweetalert(form);
 });
 
 

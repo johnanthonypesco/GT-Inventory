@@ -1,53 +1,58 @@
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#deletedealbtn')) {
-        e.preventDefault();
-        const form = document.getElementById('deletedeal');
-        deletesweetalert(form);
-    }
-
-    if (e.target.closest('#deletedealelsebtn')) {
-        e.preventDefault();
-        const form = document.getElementById('deletedealelse');
-        deletesweetalert(form);
-    }
-
-    if (e.target.closest('#archivebtn')) {
-        e.preventDefault();
-        const form = document.getElementById('archiveform');
-        deletesweetalert(form);
-    }
-
-    if (e.target.closest('#deletebtndefault')) {
-        e.preventDefault();
-        const form = document.getElementById('deleteformdefault');
-        deletesweetalert(form);
-    }
-
-    if (e.target.closest('#deletebtndefaultelse')) {
-        e.preventDefault();
-        const form = document.getElementById('deleteformdefaultelse');
-        deletesweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-deal-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.delete-deal-form');
+    if(form) sweetalert(form);
 });
 
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-dealelse-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.delete-dealelse-form');
+    if(form) sweetalert(form);
+});
 
-function deletesweetalert(form) {
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.archive-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.archive-form');
+    if(form) sweetalert(form);
+});
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-default-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.delete-default-form');
+    if(form) sweetalert(form);
+});
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-default-else-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.delete-default-else-form');
+    if(form) sweetalert(form);
+});
+
+function sweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "This action cannot be undone!",
-        icon: 'warning',
+        text: "You won't be able to revert this!",
+        icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, save it!',
         allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,
-                showConfirmButton: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
@@ -57,3 +62,20 @@ function deletesweetalert(form) {
     });
 }
 
+// Optional: Auto-remove alerts (success / error)
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    }
+    else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
+});

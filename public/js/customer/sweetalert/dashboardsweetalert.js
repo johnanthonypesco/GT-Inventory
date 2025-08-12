@@ -1,9 +1,9 @@
 document.addEventListener('click', function(e) {
-    if (e.target.closest('#reorderBtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#reorderForm');
-        showsweetalert(form);
-    }
+    const btn = e.target.closest('#reorderBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = document.getElementById('reorderForm');
+    if(form) showsweetalert(form); 
 });
 
 function showsweetalert(form) {

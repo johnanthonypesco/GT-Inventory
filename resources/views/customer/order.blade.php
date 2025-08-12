@@ -7,7 +7,6 @@
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">

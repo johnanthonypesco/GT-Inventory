@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -356,7 +355,7 @@
                                                 @csrf
                                                 @method('PUT')
 
-                                                <button type="submit" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
+                                                <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
                                                     <i class="fa-solid fa-undo"></i>
                                                     Unarchive
                                                 </button>
@@ -418,6 +417,7 @@
 
 <script src="{{asset('js/productlisting.js')}}"></script>
 <script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
+<script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
 <script>
     window.successMessage = @json(session('success'));
 

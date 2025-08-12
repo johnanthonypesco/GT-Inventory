@@ -1,41 +1,25 @@
-// Add Product Listing
-// document.querySelectorAll('#addproductlistingBtn').forEach((btn, index) => {
-//     btn.addEventListener('click', () => {
-//         const form = document.querySelectorAll('#addproductlistingform')[index];
-//         sweetalert(form);
-//     });
-// });
-
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#addproductlistingBtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#addproductlistingform');
-        sweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addproductlistingBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addproductlistingform');
+    if(form) sweetalert(form);
 });
 
-// Edit Product Listing
-// document.querySelectorAll('#editproductlistingBtn').forEach((btn, index) => {
-//     btn.addEventListener('click', () => {
-//         const form = document.querySelectorAll('#editproductlistingform')[index];
-//         sweetalert(form);
-//     });
-// });
-
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#editproductlistingBtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#editproductlistingform');
-        sweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#editproductlistingBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#editproductlistingform');
+    if(form) sweetalert(form);
 });
 
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.unarchivebtn')) {
-        e.preventDefault();
-        const form = e.target.closest('.unarchiveform');
-        sweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unarchivebtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('.unarchiveform');
+    if(form) sweetalert(form);
 });
 
 

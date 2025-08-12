@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -346,11 +344,11 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
-                                    <form class="unarchiveform" action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">
+                                    <form id="unarchiveform" class="unarchiveform" action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">
                                         @csrf
                                         @method('PUT')
 
-                                        <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer">
+                                        <button type="button" id="unarchivebtn" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer">
                                             <i class="fa-solid fa-undo"></i>
                                             Unarchive
                                         </button>
@@ -804,6 +802,7 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+<script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
 <script>window.successMessage = @json(session('success'));</script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
