@@ -318,7 +318,7 @@
     <x-loader />
     {{-- loader --}}
 
-     <x-successmessage />
+    <x-successmessage />
 </body>
 
 <script src="{{asset('js/productlisting.js')}}"></script>
