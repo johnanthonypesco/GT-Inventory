@@ -18,7 +18,8 @@ function deletesweetalert(button) {
                     Swal.showLoading();
                 }
             });
-            button.closest('form').submit();
+            const form = button.closest('form');
+            form.submit();
         }
     });
 }
