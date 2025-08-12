@@ -35,7 +35,7 @@
                     $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
                 @endphp
 
-                <button class="px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedDeals()">
+                <button class="px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 whitespace-nowrap cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedDeals()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Deals 
                 </button>

@@ -388,8 +388,11 @@
                         $groupedStocks = $archivedInventories[$loc->province];
     
                         // dd($groupedStocks->items());
-    
                     @endphp
+
+                    @if ($groupedStocks->total() <= 0)
+                        @continue
+                    @endif
     
                 <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
                     <h1 class="text-xl font-bold mb-5">
