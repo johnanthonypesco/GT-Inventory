@@ -22,7 +22,8 @@ class OrderController extends Controller
         $searchFilter = $searchFilter ? explode(' - ', $searchFilter) : null;
 
         // onlu show the company's assigned deal
-        $deals = ExclusiveDeal::where('company_id', auth('web')->user()->company_id)->with('product');
+        $deals = ExclusiveDeal::where('is_archived', false)
+        ->where('company_id', auth('web')->user()->company_id)->with('product');
 
         if ($searchFilter && count($searchFilter) === 5) {
             $deals = $deals->whereHas('product', function ($query) use ($searchFilter) {

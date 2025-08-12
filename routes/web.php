@@ -164,7 +164,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::get('admin/productlisting/', [ProductlistingController::class, 'showProductListingPage'])->name('admin.productlisting');
         Route::post('admin/productlisting', [ProductlistingController::class, 'createExclusiveDeal'])->name('admin.productlisting.create');
         Route::put('admin/productlisting/{aidee}', [ProductlistingController::class, 'updateExclusiveDeal'])->name('admin.productlisting.update');
-        Route::delete('admin/productlisting/{deal_id}/{company}', [ProductlistingController::class, 'destroyExclusiveDeal'])->name('admin.productlisting.destroy');
+        Route::put('admin/productlisting/{deal_id}/{company}/{type?}', [ProductlistingController::class, 'archiveExclusiveDeal'])->name('admin.productlisting.archive');
         //3///////////////////////// << PRODUCT DEALS ROUTES >> //////////////////////////////3//
 
 

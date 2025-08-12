@@ -22,13 +22,15 @@ class ProductlistingController extends Controller
         $perPage = 10;
         $locations = [];
         $dealsDB = collect(); 
+        $archivedDealsDB = collect(); 
 
         Location::with(['companies'])->orderBy('province')->get()
         // if a var has & in it, it's referencing the variable id, 
         // without it its just getting the value from the OG
         ->each(function ($loc) use (
             &$locations,
-            &$dealsDB, 
+            &$dealsDB,
+            &$archivedDealsDB,
             $request, 
             $perPage, 
             $current_search, 
@@ -43,8 +45,12 @@ class ProductlistingController extends Controller
             foreach ($loc->companies as $company) {
                 // Need unique with no spaces ito para ma differentiate yung pages sa URL query (paginating paking shit)
                 $pageKey = 'pg_in_' . Str::slug($loc->province) . '_' . Str::slug($company->name);
+                $archivePageKey = 'archive_pg_in_' . Str::slug($loc->province) . '_' . Str::slug($company->name);
 
-                $deals = ExclusiveDeal::where('company_id', $company->id);
+                $deals = ExclusiveDeal::where('is_archived', false)
+                ->where('company_id', $company->id);
+                $archivedDeals = ExclusiveDeal::where('is_archived', true)
+                ->where('company_id', $company->id);
 
                 // may nag saearch ng product deal add another query condition
                 if ($current_search !== null && $search_type === "deal" && $specificCompany === $company->name) {
@@ -66,11 +72,18 @@ class ProductlistingController extends Controller
                     ['reSummon' => $company->name] // Force company modal to re-open
                 ));
                 
+                $archivedDeals = $archivedDeals->paginate($perPage, ['*'], $archivePageKey)
+                ->appends(array_merge(
+                    $request->except($archivePageKey), // Keep existing query params
+                    ['reSummon' => $company->name] // Force company modal to re-open
+                ));
+                
 
                 // Add current company to province's collection in $locations
                 $locations[$loc->province]->push($company);
 
                 $dealsDB[$company->name] = $deals;
+                $archivedDealsDB[$company->name] = $archivedDeals;
             }
         });
 
@@ -100,8 +113,9 @@ class ProductlistingController extends Controller
         return view('admin.productlisting', [
             'locations' => $locations,
             'dealsDB'   => $dealsDB,
+            'archivedDealsDB' => $archivedDealsDB,
             
-            'products'  => Product::all()->sortBy('generic_name'),
+            'products'  => Product::where('is_archived', false)->get()->sortBy('generic_name'),
             'companySearchSuggestions' => Company::get("name"),
 
             'current_search' => [
@@ -187,7 +201,7 @@ class ProductlistingController extends Controller
         ]);
     }
 
-    public function destroyExclusiveDeal($deal_id = null, $company = null) {
+    public function archiveExclusiveDeal($deal_id = null, $company = null, $type = 'archive') {
         $exclusiveDeal = ExclusiveDeal::findOrFail($deal_id);
         
         $product = Product::find($exclusiveDeal->product_id);
@@ -197,21 +211,45 @@ class ProductlistingController extends Controller
             return back()->withErrors(['error' => 'Product or company not found.']);
         }
     
-        $exclusiveDeal->delete();
-    
-        
+        switch($type) {
+            case "archive":
+                $exclusiveDeal->update([
+                    'is_archived' => true,
+                ]);
 
-        // gawa ni pesco
-        HistorylogController::deleteproductlog(
-            "Delete",
-            "Deleted product " . $product->generic_name . " in company " . $company->name,
-            $product->id
-        );
-        // gawa ni pesco
-    
-        session()->flash('success', 'Deal deleted successfully.');
+                // gawa ni pesco
+                HistorylogController::deleteproductlog(
+                    "Archive",
+                    "Archived product deal " . $product->generic_name . " that belongs to the company " . $company->name,
+                    $product->id
+                );
+                // gawa ni pesco
+            
+                session()->flash('success', 'Deal archived successfully.');
 
-        return redirect()->to(url()->previous())->with('reSummon', $company->name);
+                return redirect()->to(url()->previous())->with('reSummon', $company->name);
+            
+            case "undo":
+                $exclusiveDeal->update([
+                    'is_archived' => false,
+                ]);
+
+                HistorylogController::deleteproductlog(
+                    "Unarchive",
+                    "Unarchived product deal " . $product->generic_name . " that belongs to the company " . $company->name,
+                    $product->id
+                );
+                // gawa ni pesco
+            
+                session()->flash('success', 'Deal unarchived successfully.');
+
+                session()->flash('unarchived', true);
+
+                return redirect()->to(url()->previous());
+            
+            default:
+                return redirect()->to(url()->previous());
+        }
     }
     
 }

@@ -35,7 +35,9 @@
                             placeholder="Search Product By Name" 
                             class="w-full p-2 pr-12 border border-[#005382] rounded-lg focus:outline-none outline-[#005382]"
                             list="deal-search-suggestions"
-                            autocomplete="off">
+                            autocomplete="off"
+                            onkeypress="if(event.key === 'Enter') event.preventDefault()"
+                            >
 
                         <button type="button"
                             class="absolute right-3 top-2 text-xl text-[#005382] border-l-2 border-b-0 border-r-0 border-t-0 border-[#005382] px-1"

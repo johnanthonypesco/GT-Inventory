@@ -73,3 +73,17 @@ function isInSuggestionDeal (form_id, input_id) {
         return true;
     }
 }
+
+// SIGRAE ARCHIVE SECTION
+function viewArchivedDeals() {
+    const state = document.getElementById('view-archived-listings');
+
+    if (state.classList.contains('hidden')) {
+        state.classList.replace('hidden', 'block');
+
+        return true;
+    } else {
+        state.classList.replace('block', 'hidden');
+    }
+}
+// SIGRAE ARCHIVE SECTION

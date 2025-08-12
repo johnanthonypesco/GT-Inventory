@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->float("price");
             $table->string("deal_type")->default("None");
+            $table->string("is_archived")->nullable()->default(false);
             $table->timestamps();
         });
     }

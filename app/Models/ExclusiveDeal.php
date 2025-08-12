@@ -17,7 +17,8 @@ class ExclusiveDeal extends Model
         "company_id",
         "product_id",
         "deal_type",
-        "price"
+        "price",
+        "is_archived"
     ];
 
         public function company()

@@ -31,6 +31,15 @@
 
                 <div class="w-full lg:w-[50%] bg-white flex flex-col lg:flex-row gap-3 items-center rounded-lg p-2">
 
+                @php
+                    $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
+                @endphp
+
+                <button class="px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedDeals()">
+                    <i class="fa-solid fa-box-archive"></i>
+                    View Archived Deals 
+                </button>
+
                 {{-- Datalist --}}
                 <datalist id="company-search-suggestions">
                     @foreach ($companySearchSuggestions as $company)
@@ -75,6 +84,10 @@
                 @php
                     $hasSearchedADeal = $current_search['deal_company'];
                 @endphp
+
+                @if (count($companies) <= 0)
+                    @continue
+                @endif
 
                 {{-- Table for customer List --}}
                 <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
@@ -189,10 +202,10 @@
                                     <div class="flex gap-3 items-center justify-center text-xl">
                                         <x-editbutton onclick="editProductListing(`{{ $deal->id }}`)"/>
                                         <x-deletebutton :routeid="$deal->id" 
-                                            route="admin.productlisting.destroy" 
+                                            route="admin.productlisting.archive" 
                                             deleteType="deleteDeal"
                                             :variable="$deal->company->name"
-                                            method="DELETE"
+                                            method="PUT"
                                         />
                                     </div>
                                 </td>
@@ -204,7 +217,7 @@
                 {{-- Table for all products --}}
                 {{-- Pagination --}}
                 {{-- <x-pagination/> --}}
-                <div class="mt-5">
+                <div id="real-timer-paginate" data-company="{{ $companyName }}" class="mt-5">
                     {{ $deals->links() }}
                 </div>
                 {{-- Pagination --}}
@@ -295,6 +308,87 @@
         @endforeach
     @endforeach
 
+    {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}
+    <div class="w-full {{ session("unarchived")  ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-archived-listings">
+        
+        <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <x-modalclose click="viewArchivedDeals" closeType="customer-deals-archive"/>
+                <h1 class="text-4xl uppercase font-semibold text-[#005382] mb-9">
+                    Archived Exclusive Deals:
+                </h1>
+                
+                <div class="flex-col h-[420px] overflow-scroll border-y-4 border-opacity-60 border-[#005382] p-1 py-2" id="real-timer-archived-deals-modal">
+                    @foreach ($archivedDealsDB as $companyName => $deals)
+                        @if ($deals->total() <= 0)
+                            @continue
+                        @endif
+    
+    
+                        <h1 class="text-3xl font-semibold text-[#005382]">
+                            Deals From: {{ 
+                                $companyName
+                            }}
+                        </h1>
+    
+                        {{-- Table for all ARCHIVED DEALS --}}
+                        <div class="table-container mt-5 overflow-auto h-fit">
+                            <table>
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Generic Name</th>
+                                        <th>Brand Name</th>
+                                        <th>Form</th>
+                                        <th>Strength</th>
+                                        <th>Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($deals->items() as $deal)
+                                    <tr class="text-center">
+                                        <td>{{ $deal->product->generic_name }}</td>
+                                        <td>{{ $deal->product->brand_name }}</td>
+                                        <td>{{ $deal->product->form }}</td>
+                                        <td>{{ $deal->product->strength }}</td>
+                                        <td>₱ {{ number_format($deal->price) }}</td>
+                                        <td class="flex justify-center">
+                                            <form class="unarchiveform" action="{{ route('admin.productlisting.archive', [$deal->id, $deal->company->name, 'undo']) }}" method="post">
+                                                @csrf
+                                                @method('PUT')
+
+                                                <button type="submit" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
+                                                    <i class="fa-solid fa-undo"></i>
+                                                    Unarchive
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        {{-- Table for all ARCHIVED products --}}
+    
+                        {{-- Archive Pagination --}}
+                        <div class="mt-2">
+                            {{ $deals->links() }}
+                        </div>
+                        {{-- Aarchive Pagination --}}
+
+                        <div class="flex justify-center w-full gap-3 my-4">
+                            <hr class="bg-[#005382] h-2 rounded-full w-[5%]">
+                            <hr class="bg-[#005382] h-2 rounded-full w-[10%]">
+                            <hr class="bg-[#005382] h-2 rounded-2xl w-[70%]">
+                            <hr class="bg-[#005382] h-2 rounded-full w-[10%]">
+                            <hr class="bg-[#005382] h-2 rounded-full w-[5%]">
+                        </div>
+                    @endforeach
+                </div>
+        </div>
+    </div>
+    {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}
+
+
     {{-- @if (session ('success'))
         <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-2xl"></i>
@@ -328,15 +422,20 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const totalPersonalCounterID = '#real-timer-total-personal-counter';
-        const dealsTableID = '#real-timer-deals-table';
         const searchCompanyID = '#company-search-suggestions';
+        
+        const dealsTableID = '#real-timer-deals-table';
+        const paginationID = '#real-timer-paginate';
         const searchDealID = '#deal-search-suggestions';
         const editDealFormID = '#real-timer-deals-edit';
+
+        const archivedDealsModalID = '#real-timer-archived-deals-modal';
+        // const archivedPaginationID = '#real-timer-archive-paginate';
 
         // every 5 secs mag update yung main section
         setInterval(() => {
             updateListingPage(window.location.href);
-        }, 9500); 
+        }, 8500); 
 
         function updateListingPage(url) {
             fetch(url)
@@ -348,6 +447,7 @@
                 // DITO YUNG MULTI REPLACE SECTION
                 const currentCounters = document.querySelectorAll(totalPersonalCounterID);
                 const currentTables = document.querySelectorAll(dealsTableID);
+                const currentPaginate = document.querySelectorAll(paginationID);
                 const currentEditForms = document.querySelectorAll(editDealFormID);
                 
 
@@ -364,12 +464,15 @@
 
                 currentTables.forEach(currentTable => {
                     const company = currentTable.dataset.company;
+                    const currentPaginateBTNS = document.querySelector(`${paginationID}[data-company="${company}"]`);
 
                     // Update the current iter with the updated version
                     const updatedTable = updatedPage.querySelector(`${dealsTableID}[data-company="${company}"]`);
+                    const updatedPaginateBTNS = updatedPage.querySelector(`${paginationID}[data-company="${company}"]`);
                     
                     if (updatedTable) {
                         currentTable.innerHTML = updatedTable.innerHTML;
+                        currentPaginateBTNS.innerHTML = updatedPaginateBTNS.innerHTML;
                     }
                 });
                 
@@ -386,7 +489,11 @@
                 
                 // DITO YUNG MULTI REPLACE SECTION
 
-                // DITO YUNG SINGULAR REPLACE SECTION    
+                // DITO YUNG SINGULAR REPLACE SECTION
+                const currentArchivedModal = document.querySelector(archivedDealsModalID);
+                const updatedArchiveModal = updatedPage.querySelector(archivedDealsModalID);
+                currentArchivedModal.innerHTML = updatedArchiveModal.innerHTML;
+
                 const currentCompanySearch = document.querySelector(searchCompanyID);
                 const updatedCompanySearch = updatedPage.querySelector(searchCompanyID);
 
