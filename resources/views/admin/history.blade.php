@@ -175,7 +175,7 @@
                             <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                         </div>
                     </div>

@@ -9,7 +9,6 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -273,7 +272,7 @@
                                         Edit
                                     </button>
 
-                                    <x-delete-button route="admin.archive.product" routeid="{{$product->id}}" method="PUT" id="delete" deleteType="archive" />
+                                    <x-delete-button route="admin.archive.product" routeid="{{$product->id}}" method="PUT" deleteType="archive" />
                                 </td>
                             </tr>
                         @endforeach
@@ -805,6 +804,7 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
+<script>window.successMessage = @json(session('success'));</script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>

@@ -3,23 +3,23 @@
 @switch($deleteType)
     @case("deleteDeal")
         @if ($routeid)
-            <form action="{{ route($route, ['deal_id' => $routeid, 'company' => $variable, 'archive']) }}" 
+            <form id="deletedeal" action="{{ route($route, ['deal_id' => $routeid, 'company' => $variable, 'archive']) }}" 
             method="POST" {{ $attributes }}>
                 @csrf
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+                <button id="deletedealbtn" type="button" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
                     <i class="fa-solid fa-database"></i> Archive
                 </button>
             </form>
         @else
-            <form action="{{ route($route) }}" method="POST" {{ $attributes }}>
+            <form id="deletedealelse" action="{{ route($route) }}" method="POST" {{ $attributes }}>
                 @csrf
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+                <button id="deletedealelsebtn" type="button" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>
@@ -27,12 +27,12 @@
         @break
     
     @case("archive")
-        <form action="{{ route($route, $routeid) }}" method="POST" {{ $attributes }}>
+        <form id="archiveform" action="{{ route($route, $routeid) }}" method="POST" {{ $attributes }}>
             @csrf
             @if (strtoupper($method) !== 'POST')
                 @method(strtoupper($method))
             @endif
-            <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 font-bold cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+            <button id="archivebtn" type="button" class="m-auto text-red-500 font-bold cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
                 <i class="fa-solid fa-database"></i> Archive
             </button>
         </form>
@@ -41,22 +41,22 @@
 
     @default
         @if ($routeid)
-            <form action="{{ route($route, $routeid) }}" method="POST" {{ $attributes }}>
+            <form id="deleteformdefault" action="{{ route($route, $routeid) }}" method="POST" {{ $attributes }}>
                 @csrf
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+                <button id="deletebtndefault" type="button" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>
         @else
-            <form action="{{ route($route) }}" method="POST" {{ $attributes }}>
+            <form id="deleteformdefaultelse" action="{{ route($route) }}" method="POST" {{ $attributes }}>
                 @csrf
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" onclick="deletesweetalert(this)" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
+                <button id="deletebtndefaultelse" type="button" class="m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>

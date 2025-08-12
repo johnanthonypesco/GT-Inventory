@@ -1,4 +1,37 @@
-function deletesweetalert(button) {
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#deletedealbtn')) {
+        e.preventDefault();
+        const form = document.getElementById('deletedeal');
+        deletesweetalert(form);
+    }
+
+    if (e.target.closest('#deletedealelsebtn')) {
+        e.preventDefault();
+        const form = document.getElementById('deletedealelse');
+        deletesweetalert(form);
+    }
+
+    if (e.target.closest('#archivebtn')) {
+        e.preventDefault();
+        const form = document.getElementById('archiveform');
+        deletesweetalert(form);
+    }
+
+    if (e.target.closest('#deletebtndefault')) {
+        e.preventDefault();
+        const form = document.getElementById('deleteformdefault');
+        deletesweetalert(form);
+    }
+
+    if (e.target.closest('#deletebtndefaultelse')) {
+        e.preventDefault();
+        const form = document.getElementById('deleteformdefaultelse');
+        deletesweetalert(form);
+    }
+});
+
+
+function deletesweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
         text: "This action cannot be undone!",
@@ -14,11 +47,13 @@ function deletesweetalert(button) {
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,
+                showConfirmButton: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
-            button.closest('form').submit();
+            form.submit();
         }
     });
 }
+

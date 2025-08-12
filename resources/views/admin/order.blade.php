@@ -84,12 +84,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -109,7 +109,7 @@
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}

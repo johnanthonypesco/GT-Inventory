@@ -30,6 +30,16 @@ document.addEventListener('click', function(e) {
     }
 });
 
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.unarchivebtn')) {
+        e.preventDefault();
+        const form = e.target.closest('.unarchiveform');
+        sweetalert(form);
+    }
+});
+
+
+
 function sweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',

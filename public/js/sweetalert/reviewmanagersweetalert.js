@@ -1,6 +1,3 @@
-// const approveButton = document.getElementById('approve-button');
-// const approveForm = document.getElementById('approve-form');
-
 document.addEventListener('click', function(e) {
     if (e.target.closest('#approve-button')) {
         e.preventDefault();

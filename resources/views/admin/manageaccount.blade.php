@@ -76,18 +76,18 @@
 
         {{-- Filter & Add Account --}}
         <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
-            <select id="accountFilter" appearance="none" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
+            <select id="accountFilter" appearance="none" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
                 <option value="all">All Accounts</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
                 <option value="customer">Customer</option>
             </select>
 
-            <button onclick="openAddAccountModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
+            <button onclick="openAddAccountModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
                 <i class="fa-solid fa-plus"></i> Add Account
             </button>
 
-            <button onclick="openArchivedModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
+            <button onclick="openArchivedModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
                 View Archived Accounts
             </button>
         </div>
