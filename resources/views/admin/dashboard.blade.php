@@ -36,7 +36,7 @@
 <body class="flex flex-col md:flex-row gap-4 mx-auto">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">

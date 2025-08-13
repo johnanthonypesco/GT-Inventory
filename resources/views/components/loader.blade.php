@@ -230,8 +230,14 @@
 <script>
     const loader = document.getElementById('loader');
     window.addEventListener('load', () => {
+		const main = document.querySelector('main');
+		const navbar = document.querySelector('#sidebar');
+		const customernavbar = document.querySelector('#customernavbar');
         setTimeout(() => {
             loader.style.display = 'none';
+			main.classList.remove('opacity-0');
+			navbar.classList.remove('opacity-0');
+			customernavbar.classList.remove('opacity-0');
         }, 1000);
     });
 </script>

@@ -16,7 +16,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="History Log" icon="fa-solid fa-history"/>
         
         <div class="p-4 bg-white rounded-md mt-5">

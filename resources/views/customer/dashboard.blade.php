@@ -67,7 +67,7 @@
 <body class="flex p-5 gap-5"> 
     <x-customer.navbar/> 
 
-    <main class="w-full lg:ml-[17%]"> 
+    <main class="w-full lg:ml-[17%] opacity-0"> 
         <x-customer.header title="Dashboard" icon="fa-solid fa-gauge"/> 
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-5"> 

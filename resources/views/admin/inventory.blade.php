@@ -21,9 +21,9 @@
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
 
-    <x-admin.navbar/>
+    <x-admin.navbar class="opacity-0"/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 

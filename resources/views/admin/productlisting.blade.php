@@ -19,7 +19,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">

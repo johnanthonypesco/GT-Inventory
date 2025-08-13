@@ -61,7 +61,7 @@
 <body class="flex flex-col lg:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
 
         <div id="successToast" class="toast-notification fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">

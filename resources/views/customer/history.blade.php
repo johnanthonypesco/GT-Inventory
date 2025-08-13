@@ -22,23 +22,17 @@
 <body class="flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full lg:ml-[17%]">
+    <main class="w-full lg:ml-[17%] opacity-0">
         <x-customer.header title="Order History" icon="fa-solid fa-clock-rotate-left"/>
 
         {{-- Table for Order --}}
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
             <div class="flex flex-col lg:flex-row">
                 @php
-                // these variables are used to control the saving of filters in url query
-                $isSearchPresent = request()->query('search_filter');
-                $isStatusPresent = request()->query('status_filter');
-
-                $groupedOrdersByDate = $orders->groupBy(function($order) {
-                    return $order->date_ordered;
-                })->map(function($ordersByDate) {
-                    return $ordersByDate->groupBy('status');
-                });
-            @endphp
+                    // these variables are used to control the saving of filters in url query
+                    $isSearchPresent = request()->query('search_filter');
+                    $isStatusPresent = request()->query('status_filter');
+                @endphp
             
             <div class="flex flex-col">
                 {{-- Search --}}
@@ -138,7 +132,7 @@
                     </table>
                 </div>
                 {{-- Table --}}
-                {{ $orders->links() }}
+                {{ $groupedOrdersByDate->links() ?? '' }}
                 {{-- <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/> --}}
             </div>
         </div>
