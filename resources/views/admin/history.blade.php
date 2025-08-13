@@ -9,7 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
@@ -22,7 +21,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Order History" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter Section --}}
@@ -175,7 +174,7 @@
                             <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                         </div>
                     </div>

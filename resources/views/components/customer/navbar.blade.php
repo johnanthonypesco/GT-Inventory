@@ -1,7 +1,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
-<nav class="h-[96vh] hidden lg:flex flex-col p-5 w-[16%] bg-white rounded-xl fixed top-4 left-4">
+<nav id="customernavbar" class="h-[96vh] hidden lg:flex flex-col p-5 w-[16%] bg-white rounded-xl fixed top-4 left-4 opacity-0">
     <div class="flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[180px] self-center">
         <hr class="mt-2">

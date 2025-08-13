@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -17,7 +16,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="History Log" icon="fa-solid fa-history"/>
         
         <div class="p-4 bg-white rounded-md mt-5">

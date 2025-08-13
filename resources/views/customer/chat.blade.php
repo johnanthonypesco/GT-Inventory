@@ -49,7 +49,7 @@
 <body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
     <x-customer.navbar />
 
-    <main class="md:w-full h-full lg:ml-[18%] ml-0">
+    <main class="md:w-full h-full lg:ml-[18%] ml-0 opacity-0">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
 
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
@@ -162,13 +162,16 @@
         </div>
 
         {{-- Terms and Conditions Agreement --}}
-        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 hidden" id="terms&conditions">
+        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10" id="termsAndConditions">
             <div class="modal w-full md:w-[40%] bg-white rounded-lg p-5 flex flex-col gap-2 m-auto">
                 <h1 class="text-[#005382] text-2xl font-bold">Terms and Conditions</h1>
                 <hr class="border border-gray-200">
-                <p class="text-justify mt-5">Before you proceed, please take a moment to review our <span class="text-[#005382] underline cursor-pointer" onclick="opentermsandconditions()">Terms and Conditions.</span>
-                    By clicking "Accept", you acknowledge that you have read and agree to the terms and conditions.</p>
-                
+                <p class="text-justify mt-5">
+                    Before you proceed, please take a moment to review our 
+                    <span class="text-[#005382] underline cursor-pointer" onclick="opentermsandconditions()">Terms and Conditions</span>.
+                    By clicking "Accept", you acknowledge that you have read and agree to the terms and conditions.
+                </p>
+
                 <div class="flex items-center mt-5">
                     <input type="checkbox" name="agree" id="agree" class="mr-2 w-5 h-5" required>
                     <label for="agree">I have read and agree to the</label>
@@ -317,65 +320,54 @@
 </body>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkbox = document.getElementById("agree");
-        const proceedButton = document.getElementById("proceed");
-        const termsAndConditions = document.getElementById("terms&conditions");
+document.addEventListener("DOMContentLoaded", function () {
+    const checkbox = document.getElementById("agree");
+    const proceedButton = document.getElementById("proceed");
+    const declineButton = document.getElementById("decline");
+    const termsModal = document.getElementById("termsAndConditions");
 
-        // --- Check if terms have been accepted ---
-        if (localStorage.getItem('termsAccepted') === 'true') {
-            termsAndConditions.style.display = "none";
-        } else {
-            // Show the modal if terms not accepted
-            termsAndConditions.style.display = "block";
-        }
-        // --- END Check if terms have been accepted ---
+    if (localStorage.getItem('termsAccepted') !== 'true') {
+        termsModal.classList.remove("hidden");
+    }
 
-        checkbox.addEventListener("change", function () {
-            // Enable/disable the button based on checkbox state
-            proceedButton.disabled = !checkbox.checked;
-        });
-
-        proceedButton.addEventListener("click", function () {
-            if (checkbox.checked) {
-                // --- Save to localStorage that terms have been accepted ---
-                localStorage.setItem('termsAccepted', 'true');
-                // --- END Save to localStorage ---
-
-                termsAndConditions.style.display = "none";
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Sorry',
-                    text: 'Please agree to the terms and conditions to proceed!',
-                    confirmButtonColor: "#005382"
-                });
-            }
-        });
+    checkbox.addEventListener("change", function () {
+        proceedButton.disabled = !checkbox.checked;
+        
     });
 
-    function opentermsandconditions() {
-        const termsAndConditions = document.getElementById("terms&conditionsletter");
-        termsAndConditions.style.display = "block";
-    }
+    proceedButton.addEventListener("click", function () {
+        if (checkbox.checked) {
+            localStorage.setItem('termsAccepted', 'true');
+            termsModal.classList.add("hidden");
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Sorry',
+                text: 'Please agree to the terms and conditions to proceed!',
+                confirmButtonColor: "#005382"
+            });
+        }
+    });
 
-    function closetermsandconditions() {
-        const termsAndConditions = document.getElementById("terms&conditionsletter");
-        termsAndConditions.style.display = "none";
-    }
-
-    const decline = document.getElementById("decline");
-    decline.addEventListener("click", function () {
+    declineButton.addEventListener("click", function () {
         Swal.fire({
             icon: 'error',
             title: 'Sorry',
             text: 'You have declined the terms and conditions. You will be redirected.',
             confirmButtonColor: "#005382"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "{{ route('customer.order') }}";
-            }
-        })
+        }).then(() => {
+            window.location.href = "{{ route('customer.order') }}";
+        });
     });
+});
+
+function opentermsandconditions() {
+    const fullTerms = document.getElementById("terms&conditionsletter");
+    if (fullTerms) fullTerms.style.display = "block";
+}
+function closetermsandconditions() {
+    const fullTerms = document.getElementById("terms&conditionsletter");
+    if (fullTerms) fullTerms.style.display = "none";
+}
 </script>
 </html>

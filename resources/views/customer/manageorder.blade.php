@@ -24,7 +24,7 @@
 <body class="flex p-5 gap-5">
     <x-customer.navbar/>
 
-    <main class="w-full lg:ml-[17%]">
+    <main class="w-full lg:ml-[17%] opacity-0">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
 
         <div class="bg-white mt-5 p-5 rounded-lg ">

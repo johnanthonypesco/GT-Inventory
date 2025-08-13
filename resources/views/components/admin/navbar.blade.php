@@ -1,4 +1,4 @@
-<nav id="sidebar" class="md:w-[15%] w-full hidden lg:flex flex-col p-3 fixed top-4 left-4">
+<nav id="sidebar" class="md:w-[15%] w-full hidden lg:flex flex-col p-3 fixed top-4 left-4 opacity-0">
     <div class="p-3 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
         <hr class="mt-1">

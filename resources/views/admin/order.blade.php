@@ -9,7 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -23,7 +22,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
@@ -84,12 +83,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382]" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -109,7 +108,7 @@
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}
@@ -421,20 +420,6 @@
     </div>
 </div>
 
-            @if (session('update-success'))
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        Swal.fire({
-            icon: 'success',
-            title: 'Order Updated',
-            text: 'Status updated successfully and has been deducted',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
-        });
-    });
-</script>
-@endif
-
         </div>
         {{-- Update Order Status Modal --}}
 
@@ -577,6 +562,7 @@
 {{-- loader --}}
 <x-loader />
 {{-- loader --}}
+
 </body>
 </html>
 
@@ -751,28 +737,61 @@ async function changeStatus(form, statusType) {
     const orderId      = Number(orderIdInput.value);
 
     if (!orderId) {
-        alert('Order ID is missing or invalid.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Order ID is missing or invalid.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
     statusInput.value = statusType.toLowerCase();
 
-    // --- NEW LOGIC ---
-    // If the status is "out for delivery", show the staff assignment modal instead of submitting.
-    if (statusType.toLowerCase() === 'out for delivery') {
-        if (confirm(`Change order status to “OUT FOR DELIVERY”?`)) {
-            // Fetch staff and show the modal
-            await showAssignStaffModal(orderId);
-        }
-    } else {
-        // For all other statuses, submit the form as usual
-        const baseUrl = "{{ url('admin/orders') }}";
-        form.action   = `${baseUrl}/${orderId}`;
-        if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
+    Swal.fire({
+        title: 'Confirm Status Change',
+        text: `Change order status to “${statusType.toUpperCase()}”?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, change it!'
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        if (statusType.toLowerCase() === 'out for delivery') {
+            await showAssignStaffModal(orderId, () => {
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we update the order status.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const baseUrl = "{{ url('admin/orders') }}";
+                form.action   = `${baseUrl}/${orderId}`;
+                form.submit();
+            });
+        } else {
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Please wait while we update the order status.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const baseUrl = "{{ url('admin/orders') }}";
+            form.action   = `${baseUrl}/${orderId}`;
             form.submit();
         }
-    }
+    });
 }
+
 
 async function showAssignStaffModal(orderId) {
     const modal = document.getElementById('assign-staff-modal');

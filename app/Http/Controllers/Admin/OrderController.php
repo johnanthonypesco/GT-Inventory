@@ -306,6 +306,13 @@ foreach ($orderArray as $productName => $orders) {
 
             $order->update(['status' => $validate['status']]);
 
+            HistorylogController::changeorderstatuslog(
+                'Update',
+                "Order of {$validate['company']} from {$validate['province']} has been updated to status: " . ucfirst($validate['status'])
+            );
+
+
+
             // dd($validate['strength']);
 
             DB::commit();

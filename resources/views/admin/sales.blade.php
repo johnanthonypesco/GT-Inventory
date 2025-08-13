@@ -17,7 +17,7 @@
     
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[16%] ml-0">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0">
         <x-admin.header title="Sales Report" icon="fa-solid fa-print"/>
         
         <div class="flex flex-col h-full p-4">

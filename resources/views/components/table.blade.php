@@ -98,7 +98,7 @@
                                 name="View"
                                 />                                
                             @endif
-                            <button class="cursor-pointer py-1 rounded-lg" onclick="addproductlisting('{{ $company->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                            <button class="cursor-pointer py-1 rounded-lg text-md" onclick="addproductlisting('{{ $company->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
                         </td>
                     </tr>
                 @endforeach                

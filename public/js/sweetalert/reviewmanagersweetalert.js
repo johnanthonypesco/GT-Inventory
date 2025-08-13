@@ -1,12 +1,9 @@
-// const approveButton = document.getElementById('approve-button');
-// const approveForm = document.getElementById('approve-form');
-
 document.addEventListener('click', function(e) {
-    if (e.target.closest('#approve-button')) {
-        e.preventDefault();
-        const form = e.target.closest('#approve-form');
-        showsweetalert(form);
-    }
+    const btn = e.target.closest('#approve-button');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#approve-form');
+    if(form) showsweetalert(form);
 });
 
 function showsweetalert(form) {

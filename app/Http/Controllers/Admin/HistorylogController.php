@@ -211,6 +211,17 @@ class HistorylogController extends Controller
         ]);
     }
 
+    //display product log
+    public static function displayproductlog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
     //review manager log
     public static function reviewmanagerlog($event, $description)
     {
@@ -254,4 +265,16 @@ class HistorylogController extends Controller
             'created_at' => now()
         ]);
     }
+
+    // change order status log
+    public static function changeorderstatuslog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
 }

@@ -1,7 +1,5 @@
 const editButtons = document.getElementsByClassName('edit-btn');
 const editModal = document.getElementById('editmodal');
-const editForm = document.getElementById('editForm');
-const updateButton = document.getElementById('updateButton');
 
 Array.from(editButtons).forEach(button => {
     button.addEventListener('click', () => {
@@ -24,7 +22,15 @@ Array.from(editButtons).forEach(button => {
     });
 });
 
-updateButton.addEventListener('click', () => {
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#updateButton')) {
+        e.preventDefault();
+        const form = document.getElementById('editForm');
+        if (form) showsweetalert(form);
+    }
+});
+
+function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
         text: "You must be updating the content in the promotional page.",
@@ -36,22 +42,32 @@ updateButton.addEventListener('click', () => {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'Updated!',
-                text: 'Your content has been successfully updated.',
-                icon: 'success',
-                confirmButtonColor: '#3085d6'
-            }).then(() => {
-                editForm.submit();
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-        } else {
-            Swal.fire({
-                title: 'Cancelled',
-                text: 'Your content is safe.',
-                icon: 'info',
-                confirmButtonColor: '#3085d6'
-            });
+            form.submit();
         }
     });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    } else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
 });
 
 

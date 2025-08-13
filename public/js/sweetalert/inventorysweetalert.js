@@ -1,81 +1,50 @@
-const addstockBtn = document.getElementById('addstockBtn');
-const addmultiplestockBtn = document.getElementById('addmultiplestockBtn');
-const addproductBtn = document.getElementById('addproductBtn');
-const editstockBtn = document.getElementById('edit-stock-btn');
-const editproductBtn = document.getElementById('edit-prod-btn');
-const unarchiveBtn = document.getElementById('unarchivebtn');
-const unarchiveForm = document.getElementById('unarchiveform');
 
-const addproductform = document.getElementById('addproduct');
-const addSpecificStockForm = document.getElementById('addspecificstock');
-const addmultiplestockform = document.getElementById('addmultiplestockform');
-const editStockForm = document.getElementById('edit-stock-form');
-const editProductForm = document.getElementById('edit-prod-reset');
-
-// addproductBtn.addEventListener('click', () => {
-//     showsweetalert(addproductform);
-// });
-
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#addproductBtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#addproduct');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addproductBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addproduct');
+    if(form) showsweetalert(form);
 });
 
-// addstockBtn.addEventListener('click', () => {
-//     showsweetalert(addSpecificStockForm);
-// });
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#addstockBtn')) {
-        e.preventDefault();
-        const form = e.target.closest('#addspecificstock');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addstockBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addspecificstock');
+    if(form) showsweetalert(form);
 });
 
-// addmultiplestockBtn.addEventListener('click', () => {
-//     showsweetalert(addmultiplestockform);
-// });
-
-document.querySelectorAll('#addmultiplestockBtn').forEach((btn, index) => {
-    btn.addEventListener('click', () => {
-        const form = document.querySelectorAll('#addmultiplestockform')[index];
-        showsweetalert(form);
-    });
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#edit-stock-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#edit-stock-form');
+    if(form) showsweetalert(form);
 });
 
-// editstockBtn.addEventListener('click', () => {
-//     showsweetalert(editStockForm);
-// });
-
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#edit-stock-btn')) {
-        e.preventDefault();
-        const form = e.target.closest('#edit-stock-form');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#edit-prod-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#edit-prod-reset');
+    if(form) showsweetalert(form);    
 });
 
-// editproductBtn.addEventListener('click', () => {
-//     showsweetalert(editProductForm);
-// });
-
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#edit-prod-btn')) {
-        e.preventDefault();
-        const form = e.target.closest('#edit-prod-reset');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#addmultiplestockBtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addmultiplestockform');
+    if(form) showsweetalert(form);
 });
 
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.unarchivebtn')) {
-        e.preventDefault();
-        const form = e.target.closest('.unarchiveform');
-        showsweetalert(form);
-    }
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unarchivebtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('.unarchiveform');
+    if(form) sweetalert(form);
 });
 
 function showsweetalert(form) {
@@ -101,6 +70,7 @@ function showsweetalert(form) {
         }
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const successMessage = window.successMessage;

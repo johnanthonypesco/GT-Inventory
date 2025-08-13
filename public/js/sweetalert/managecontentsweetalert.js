@@ -1,9 +1,9 @@
 document.addEventListener('click', function(e) {
-    if (e.target.closest('#updateButton')) {
-        e.preventDefault();
-        const form = e.target.closest('#editForm');
-        showsweetalert(form);
-    }
+    const btn = e.target.closest('#updateButton');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#editForm');
+    if(form) showsweetalert(form);
 });
 
 function showsweetalert(form) {

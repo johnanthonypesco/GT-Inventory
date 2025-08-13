@@ -20,22 +20,31 @@ deleteButtons.forEach(button => {
         }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({
-                    title: 'Deleted!',
-                    text: 'Your account has been successfully deleted.',
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6'
-                }).then(() => {
-                    // Submit the corresponding form
-                    deleteaccountform.submit();
+                    title: 'Processing...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
-            } else {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: 'Your account is safe.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
+                deleteaccountform.submit();
             }
         });
     });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    }
+    else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
+    }
 });

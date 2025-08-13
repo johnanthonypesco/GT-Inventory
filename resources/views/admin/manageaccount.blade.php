@@ -8,7 +8,6 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -62,7 +61,7 @@
 <body class="flex flex-col lg:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
 
         <div id="successToast" class="toast-notification fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
@@ -76,18 +75,18 @@
 
         {{-- Filter & Add Account --}}
         <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
-            <select id="accountFilter" appearance="none" class="w-full md:text-[20px] text-xl md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
+            <select id="accountFilter" appearance="none" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
                 <option value="all">All Accounts</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
                 <option value="customer">Customer</option>
             </select>
 
-            <button onclick="openAddAccountModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
+            <button onclick="openAddAccountModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
                 <i class="fa-solid fa-plus"></i> Add Account
             </button>
 
-            <button onclick="openArchivedModal()" class="w-full md:text-[20px] h-fit text-xl md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer">
+            <button onclick="openArchivedModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
                 View Archived Accounts
             </button>
         </div>

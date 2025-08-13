@@ -1,15 +1,17 @@
-const addaccountBtn = document.getElementById('addaccountbutton');
-const editaccountBtn = document.getElementById('editsubmitbutton');
-
-const addaccountform = document.getElementById('addaccountform');
-const editaccountform = document.getElementById('editaccountform');
-
-addaccountBtn.addEventListener('click', () => {
-    sweetalert(addaccountform);
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#addaccountbutton');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#addaccountform');
+    if(form) sweetalert(form);
 });
 
-editaccountBtn.addEventListener('click', () => {
-    sweetalert(editaccountform);
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#editsubmitbutton');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#editaccountform');
+    if(form) sweetalert(form);
 });
 
 function sweetalert(form) {

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -20,7 +19,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%]">
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-5 bg-white p-5 rounded-lg">
@@ -35,7 +34,7 @@
                     $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
                 @endphp
 
-                <button class="px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 whitespace-nowrap cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedDeals()">
+                <button class="px-5 py-3 bg-white text-sm whitespace-nowrap w-fit font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedDeals()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Deals 
                 </button>
@@ -356,7 +355,7 @@
                                                 @csrf
                                                 @method('PUT')
 
-                                                <button type="submit" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
+                                                <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
                                                     <i class="fa-solid fa-undo"></i>
                                                     Unarchive
                                                 </button>
@@ -399,6 +398,7 @@
         </div>
     @elseif (session ('error'))
         <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3">
+        <div id="errorAlert" class="w3 fixed top-5 right-5 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3">
             <i class="fa-solid fa-circle-xmark text-2xl"></i>
             <div>
                 <p class="font-bold">Error!</p>
@@ -417,6 +417,7 @@
 
 <script src="{{asset('js/productlisting.js')}}"></script>
 <script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
+<script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
 <script>
     window.successMessage = @json(session('success'));
 
