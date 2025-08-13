@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\Admin\FileOcrController;
 
 
 // Staff Controller
@@ -187,7 +188,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::get('admin/contentmanagement', [ContentmanagementController::class, 'showContentmanagement'])->name('admin.contentmanagement');
         Route::put('/admin/contentmanagement/edit/{id}', [ContentmanagementController::class, 'editContent'])->name('admin.contentmanagement.edit');
         Route::put('/admin/product/{id}/enabledisable', [ContentmanagementController::class, 'enabledisable'])->name('admin.product.enabledisable');
-
+        Route::get('/admin/ocr-files', [FileOcrController::class, 'index'])->name('admin.file-ocr.index');
+        Route::get('/admin/ocr-files', [FileOcrController::class, 'index'])->name('admin.file-ocr.index');
+        Route::get('/admin/ocr-files/contents', [FileOcrController::class, 'getFolderContents'])->name('admin.file-ocr.contents');
 
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//

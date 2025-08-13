@@ -29,10 +29,10 @@
         <div class="table-container mt-5 bg-white p-5 rounded-lg">
             <div class="flex flex-col lg:flex-row">
                 @php
-                    // these variables are used to control the saving of filters in url query
-                    $isSearchPresent = request()->query('search_filter');
-                    $isStatusPresent = request()->query('status_filter');
-                @endphp
+                // these variables are used to control the saving of filters in url query
+                $isSearchPresent = request()->query('search_filter');
+                $isStatusPresent = request()->query('status_filter');
+            @endphp
             
             <div class="flex flex-col">
                 {{-- Search --}}
@@ -114,15 +114,15 @@
                             @foreach ($groupedOrdersByDate as $dateName => $statuses)
                                 @php
                                     $total = 0;
-                                    foreach ($statuses as $ordersGroup) {
-                                        foreach ($ordersGroup as $item) {
+                                    foreach ($statuses as $orders) {
+                                        foreach ($orders as $item) {
                                             $total += ($item->quantity * $item->price);
                                         }
                                     }
                                 @endphp
                                 <tr class="text-center">
-                                    <td>{{ Carbon::parse($statuses->first()->first()->date_ordered)->translatedFormat('M d, Y') }}</td>
-                                    <td>₱ {{ number_format($total) }}</td>
+                                    <td> {{ Carbon::parse($statuses->first()->first()->date_ordered)->translatedFormat('M d, Y') }} </td>
+                                    <td> ₱ {{ number_format($total) }} </td>
                                     <td>
                                         <x-vieworder onclick="viewOrder('{{ $dateName }}')" name="View Ordered Items"/>
                                     </td>
@@ -132,7 +132,7 @@
                     </table>
                 </div>
                 {{-- Table --}}
-                {{ $groupedOrdersByDate->links() ?? '' }}
+                {{ $groupedOrdersByDate->links() }}
                 {{-- <x-pagination currentPage="1" totalPage="1" prev="#" next="#"/> --}}
             </div>
         </div>

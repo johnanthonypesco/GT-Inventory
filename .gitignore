@@ -8,6 +8,8 @@
 /public/products/
 /public/group_chats/
 /public/profile_images/
+/public/profile_image/
+/public/receipts/
 /storage/*.key
 /storage/pail
 /vendor
