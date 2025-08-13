@@ -31,12 +31,17 @@ class ContentmanagementController extends Controller
         $product->is_displayed = !$product->is_displayed;
         $product->save();
 
+        HistorylogController::displayproductlog(
+            $product->is_displayed ? 'Enable' : 'Disable',
+            'Product ' . $product->generic_name . ' has been ' . ($product->is_displayed ? 'enabled' : 'disabled')
+        );
+
         return redirect()->back()->with('status', 'Product status updated!');
     }
 
 
     // public function editContent(Request $request, $id)
-    // {
+    // {    
     //     //add validation rules
     //     $request->validate([
     //         'aboutus1' => 'required|string|max:255',
@@ -88,7 +93,7 @@ class ContentmanagementController extends Controller
     $content->save();
     
     // Log the content update
-    HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated by ');
+    HistorylogController::addproductlog('Edit', 'Content ' . $id . ' has been updated ');
     
     return redirect()->route('admin.contentmanagement')->with('success', 'Content updated successfully.');
 }
