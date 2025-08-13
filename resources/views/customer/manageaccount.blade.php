@@ -84,7 +84,7 @@
                              @else
                                  <i id="profilePreview" class="fas fa-user w-32 h-32 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md text-2xl"></i>
                              @endif
-                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white opacity-100 transition-opacity">
                                  <div class="text-center">
                                      <i class="fa-solid fa-camera text-xl"></i>
                                      <span class="block text-sm">Change</span>

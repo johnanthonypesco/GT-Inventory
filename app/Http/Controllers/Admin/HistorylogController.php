@@ -277,4 +277,15 @@ class HistorylogController extends Controller
         ]);
     }
 
+    //scan qr code log
+    public static function scanqrcodelog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
+
 }

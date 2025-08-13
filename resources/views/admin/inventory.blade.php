@@ -217,10 +217,10 @@
                     Add Multiple Stocks
                 </button>
                 
-                <div class="flex gap-2 w-full lg:w-[420px]">
+                <div class="flex flex-col lg:flex-row gap-2 w-full lg:w-[420px]">
                     @if (session('registeredProductSearch'))
-                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                            Reset 
+                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-full sm:w-fit whitespace-nowrap text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                            Reset Search
                         </button>
                     @endif
 
@@ -812,7 +812,6 @@
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
-<script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>

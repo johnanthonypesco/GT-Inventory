@@ -72,7 +72,7 @@
                     </form>
 
                     @if ($current_search["query"] !== null)
-                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer w-full sm:w-[200px] text-sm">                         
+                        <button onclick="window.location.href = '{{route('admin.order')}}'" class="bg-red-500/80 text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer w-full sm:w-fit whitespace-nowrap text-sm">                         
                                 Reset Search
                         </button>
                     @endif
@@ -433,7 +433,7 @@
                 <!-- Upload Form -->
                 <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
                     <input type="file" name="qr_code" id="qr_code" accept="image/*" class="border border-gray-300 rounded-lg px-4 py-2 w-full text-gray-700 focus:ring focus:ring-blue-200 focus:outline-none" required>
-                    <button type="submit" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                         <i class="fa-solid fa-upload"></i>
                         <span>Upload</span>
                     </button>
@@ -569,30 +569,64 @@
 {{-- <script src="{{ asset('js/order.js') }}"></script> --}}
 
 <script>
-    document.getElementById('uploadForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+    document.getElementById('uploadqrbtn').addEventListener('click', function() {
+    const form = document.getElementById('uploadForm');
+    const qrCodeInput = document.getElementById('qr_code');
 
-    let formData = new FormData();
-    formData.append('qr_code', document.getElementById('qr_code').files[0]);
+    if (!qrCodeInput.files.length) {
+        Swal.fire({
+            icon: 'error',
+            title: 'No File Selected',
+            text: 'Please select a QR code file to upload.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
-    fetch("{{ route('upload.qr.code') }}", {
-        method: "POST",
-        body: formData,
-        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message.includes('Error')) {
-            Swal.fire("Error", data.message, "error");
-        } else {
-            Swal.fire("Success", data.message, "success");
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to upload a QR code.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, upload it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+
+                    let formData = new FormData();
+                    formData.append('qr_code', qrCodeInput.files[0]);
+
+                    fetch("{{ route('upload.qr.code') }}", {
+                        method: "POST",
+                        body: formData,
+                        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.close(); 
+                        if (data.message.includes('❌') || data.message.toLowerCase().includes('error')) {
+                            Swal.fire("Error", data.message, "error");
+                        } else {
+                            Swal.fire("Success", data.message, "success");
+                            form.reset();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire("Error", "Failed to process QR code upload.", "error");
+                    });
+                }
+            });
         }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        Swal.fire("Error", "Failed to process QR code upload.", "error");
     });
 });
+
 </script>
 <script>
 function showInsufficientProducts() {

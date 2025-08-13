@@ -33,10 +33,10 @@ if(auth('web')->check()) {
 @endif
 
     <div class="relative group inline-block">
-        <button class="flex gap-2 justify-center items-center font-bold text-xl rounded-md bg-green-600 hover:bg-green-700 text-white px-4 transition-all duration-150 shadow-sm border-none py-2"
+        <button class="flex flex-col justify-center items-center font-regular text-[10px] rounded-[50%] bg-blue-600/70 text-white w-fit px-3 py-1 hover:bg-blue-600 transition-all duration-150"
             onclick="showTutorial()"
         >
-            <i class="fa-regular fa-circle-question"></i>
+            <i class="fa-regular fa-circle-question text-xl"></i>
             HELP
         </button>
 
@@ -48,20 +48,21 @@ if(auth('web')->check()) {
 
     <div class="hidden lg:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-lg">
         
-        <label for="profile_image">
-            @if (Auth::user()->company && Auth::user()->company->profile_image)
-                <img 
-                    id="profilePreviewone"
-                    src="{{ asset(Auth::user()->company->profile_image) }}"  
-                    class="w-12 h-12 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
-                    alt="Company Profile Picture"
-                >
-            @else
-                <i 
-                    class="fas fa-user w-12 h-12 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
-                ></i>
-            @endif
-        </label>        
+        @if (Auth::user()->company && Auth::user()->company->profile_image)
+            <img 
+                id="profilePreviewone"
+                src="{{ asset(Auth::user()->company->profile_image) }}"  
+                class="w-12 h-12 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                alt="Company Profile Picture"
+            >
+        @else
+            <i 
+                class="fas fa-user w-12 h-12 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+            ></i>
+        @endif
+        {{-- niremove ko kasi may lumilitaw na form input type file  --}}
+        {{-- <label for="profile_image">
+        </label>         --}}
         <div>
             <div class="flex items-center gap-2">
                 <p class="text-sm uppercase">{{ $name }}</p>
