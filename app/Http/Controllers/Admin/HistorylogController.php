@@ -266,5 +266,15 @@ class HistorylogController extends Controller
         ]);
     }
 
+    // change order status log
+    public static function changeorderstatuslog($event, $description)
+    {
+        Historylogs::create([
+            'event' => $event,
+            'description' => $description,
+            'user_email'=> auth()->user()->email,
+            'created_at' => now()
+        ]);
+    }
 
 }

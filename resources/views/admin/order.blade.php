@@ -420,20 +420,6 @@
     </div>
 </div>
 
-            @if (session('update-success'))
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        Swal.fire({
-            icon: 'success',
-            title: 'Order Updated',
-            text: 'Status updated successfully and has been deducted',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
-        });
-    });
-</script>
-@endif
-
         </div>
         {{-- Update Order Status Modal --}}
 
@@ -576,6 +562,7 @@
 {{-- loader --}}
 <x-loader />
 {{-- loader --}}
+
 </body>
 </html>
 
@@ -750,28 +737,61 @@ async function changeStatus(form, statusType) {
     const orderId      = Number(orderIdInput.value);
 
     if (!orderId) {
-        alert('Order ID is missing or invalid.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Order ID is missing or invalid.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
     statusInput.value = statusType.toLowerCase();
 
-    // --- NEW LOGIC ---
-    // If the status is "out for delivery", show the staff assignment modal instead of submitting.
-    if (statusType.toLowerCase() === 'out for delivery') {
-        if (confirm(`Change order status to “OUT FOR DELIVERY”?`)) {
-            // Fetch staff and show the modal
-            await showAssignStaffModal(orderId);
-        }
-    } else {
-        // For all other statuses, submit the form as usual
-        const baseUrl = "{{ url('admin/orders') }}";
-        form.action   = `${baseUrl}/${orderId}`;
-        if (confirm(`Change order status to “${statusType.toUpperCase()}”?`)) {
+    Swal.fire({
+        title: 'Confirm Status Change',
+        text: `Change order status to “${statusType.toUpperCase()}”?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, change it!'
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        if (statusType.toLowerCase() === 'out for delivery') {
+            await showAssignStaffModal(orderId, () => {
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we update the order status.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const baseUrl = "{{ url('admin/orders') }}";
+                form.action   = `${baseUrl}/${orderId}`;
+                form.submit();
+            });
+        } else {
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Please wait while we update the order status.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const baseUrl = "{{ url('admin/orders') }}";
+            form.action   = `${baseUrl}/${orderId}`;
             form.submit();
         }
-    }
+    });
 }
+
 
 async function showAssignStaffModal(orderId) {
     const modal = document.getElementById('assign-staff-modal');

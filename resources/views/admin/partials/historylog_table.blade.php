@@ -17,14 +17,26 @@
                 @foreach($historylogs as $log)
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
+                        @php
+                        $bgcolor = [
+                            'Add'        => 'bg-blue-500/70',
+                            'Edit'       => 'bg-green-500/70',
+                            'Archive'    => 'bg-red-600/70',
+                            'Disapprove' => 'bg-red-600/70',
+                            'Approve'    => 'bg-blue-600/70',
+                            'Delete'     => 'bg-red-600/70',
+                            'Restore'    => 'bg-green-600/70',
+                            'Update'     => 'bg-green-600/70',
+                            'Enable'     => 'bg-green-600/70',
+                            'Disable'    => 'bg-red-600/70',
+                            'Unarchive'      => 'bg-blue-600/70',
+                        ];
+                        $events = $bgcolor[$log->event] ?? 'bg-gray-600/70';
+                        @endphp
                         <td class="flex justify-center">
-                            <p class="py-1 px-3 text-white rounded-md w-20 text-center text-[12px]
-                                {{ $log->event == 'Add' ? 'bg-blue-500/70' : 
-                                ($log->event == 'Edit' ? 'bg-green-500/70' : 
-                                ($log->event == 'Archive' ? 'bg-red-600/70' : 
-                                ($log->event == 'Disapprove' ? 'bg-red-600/70' :
-                                ($log->event == 'Approve' ? 'bg-green-600/70' : 'bg-gray-500/70 text-black')))) }}">
+                            <p class="py-1 px-3 text-white rounded-md w-20 text-center text-[12px] {{ $events }}">
                                 {{ $log->event }}
+
                             </p>
                         </td>
                         <td>{{ $log->description }}</td>
