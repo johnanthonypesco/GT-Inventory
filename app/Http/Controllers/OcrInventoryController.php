@@ -12,6 +12,11 @@ use App\Models\Product;
 use App\Models\Location;
 use App\Models\OcrInventoryLog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage; // Siguraduhing naka-import ito
+use App\Models\ArchivesOcrReceipt;      // I-import ang bagong model
+use Illuminate\Support\Facades\App; // Idagdag ito
+use Illuminate\Support\Facades\File; // Idagdag ito
+
 use App\Http\Controllers\Admin\HistorylogController;
 
 class OcrInventoryController extends Controller
@@ -20,87 +25,126 @@ class OcrInventoryController extends Controller
      * Handles the receipt upload, trying Gemini first and falling back to Mistral.
      */
     public function uploadReceipt(Request $request)
-    {
-        try {
-            // 1. Validate the uploaded image
-            $request->validate([
-                'receipt_image' => 'required|image|mimes:jpeg,png,jpg|max:4096',
-            ]);
+{
+    try {
+        // 1. Validate the uploaded image
+        $request->validate([
+            'receipt_image' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+        ]);
 
-            $file = $request->file('receipt_image');
-            $imageData = base64_encode(file_get_contents($file->getRealPath()));
-            $mimeType = $file->getMimeType();
+        $file = $request->file('receipt_image');
+        $originalFilename = $file->getClientOriginalName();
 
-            // 2. Define a universal prompt and JSON schema
-            $prompt = $this->getOcrPrompt();
-            $jsonSchema = $this->getJsonSchema();
-            $extractedJson = null;
+        // ======================================================================
+        // === HOSTINGER-COMPATIBLE FILE SAVING LOGIC ===
+        // ======================================================================
 
-            // 3. Try Gemini first
-            try {
-                Log::info('Attempting OCR with Gemini AI...');
-                $extractedJson = $this->callGeminiApi($prompt, $mimeType, $imageData, $jsonSchema);
-                Log::info('Successfully processed OCR with Gemini AI.');
-            } catch (Exception $geminiException) {
-                Log::warning('Gemini AI failed. Falling back to Mistral AI.', [
-                    'error' => $geminiException->getMessage()
-                ]);
+        // 1. Define the relative subfolder path based on the current date
+        $subfolder = 'receipts/' . Carbon::now()->format('Y/m/d');
+        $fileName = $file->hashName(); // Generate a unique, secure filename
 
-                // 4. If Gemini fails, try Mistral as a fallback
-                try {
-                    Log::info('Attempting OCR with Mistral AI...');
-                    $extractedJson = $this->callMistralApi($prompt, $mimeType, $imageData);
-                    Log::info('Successfully processed OCR with fallback Mistral AI.');
-                } catch (Exception $mistralException) {
-                    Log::error('Fallback Mistral AI also failed.', [
-                        'error' => $mistralException->getMessage()
-                    ]);
-                    // If both fail, throw a combined error message
-                    throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$mistralException->getMessage()}).");
-                }
-            }
-
-            // 5. Process the successful JSON response
-            OcrInventoryLog::create(['raw_text' => $extractedJson]);
-            $extractedData = json_decode($extractedJson, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception("Invalid JSON received from AI: " . json_last_error_msg());
-            }
-            if (empty($extractedData['data'])) {
-                throw new Exception("The AI successfully read the receipt but found no product data.");
-            }
-
-            // 6. Normalize and return the data
-            $products = array_map(function($item) {
-                 $productName = $this->cleanProductName($item['product_name'] ?? '');
-                 $brandName = isset($item['brand_name']) && trim($item['brand_name']) !== '' ? trim($item['brand_name']) : null;
-                 $form = $this->normalizeForm($item['form'] ?? 'N/A');
-                 $seasonPeak = $this->getSeasonPeakForProduct($productName);
-                 $strength = (!empty($item['strength']) && $item['strength'] !== 'N/A') ? $item['strength'] : $this->extractStrength($productName);
-                 return [
-                     'quantity' => (int)($item['quantity'] ?? 0),
-                     'brand_name' => $brandName,
-                     'product_name' => $productName,
-                     'form' => $form,
-                     'batch_number' => $item['batch_number'] ?? '',
-                     'expiry_date' => $this->normalizeDate($item['expiry_date'] ?? ''),
-                     'strength' => $strength,
-                     'season_peak' => $seasonPeak
-                 ];
-            }, $extractedData['data']);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => '✅ Data extracted successfully! Please review and save.',
-                'data' => $products
-            ]);
-
-        } catch (Exception $e) {
-            Log::error("OCR Processing Error", ['error' => $e->getMessage()]);
-            return response()->json(['status' => 'error', 'message' => 'An error occurred: ' . $e->getMessage()], 500);
+        // 2. Determine the absolute target directory based on the environment
+        if (App::environment('local')) {
+            // For local development, the target is inside the standard 'public' folder
+            $targetDir = public_path($subfolder);
+        } else {
+            // For production (like Hostinger), the target is inside 'public_html'
+            $targetDir = base_path('../public_html/' . $subfolder);
         }
+
+        // 3. Create the directory if it doesn't already exist
+        if (!File::exists($targetDir)) {
+            File::makeDirectory($targetDir, 0755, true, true);
+        }
+
+        // 4. Move the uploaded file to the final destination
+        $file->move($targetDir, $fileName);
+
+        // 5. Define the relative path to be saved in the database
+        $imagePath = $subfolder . '/' . $fileName;
+
+        // ======================================================================
+
+        // Save the file record to the database
+        ArchivesOcrReceipt::create([
+            'original_filename' => $originalFilename,
+            'image_path'        => $imagePath, // Save the new relative path
+        ]);
+        
+        // Prepare image for API call
+        $absolutePathForReading = $targetDir . '/' . $fileName;
+        $imageData = base64_encode(file_get_contents($absolutePathForReading));
+        $mimeType = $file->getMimeType();
+
+        // Define a universal prompt and JSON schema
+        $prompt = $this->getOcrPrompt();
+        $jsonSchema = $this->getJsonSchema();
+        $extractedJson = null;
+
+        // Try Gemini first
+        try {
+            Log::info('Attempting OCR with Gemini AI...');
+            $extractedJson = $this->callGeminiApi($prompt, $mimeType, $imageData, $jsonSchema);
+            Log::info('Successfully processed OCR with Gemini AI.');
+        } catch (Exception $geminiException) {
+            Log::warning('Gemini AI failed. Falling back to Mistral AI.', [
+                'error' => $geminiException->getMessage()
+            ]);
+
+            // If Gemini fails, try Mistral as a fallback
+            try {
+                Log::info('Attempting OCR with Mistral AI...');
+                $extractedJson = $this->callMistralApi($prompt, $mimeType, $imageData);
+                Log::info('Successfully processed OCR with fallback Mistral AI.');
+            } catch (Exception $mistralException) {
+                Log::error('Fallback Mistral AI also failed.', [
+                    'error' => $mistralException->getMessage()
+                ]);
+                // If both fail, throw a combined error message
+                throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$mistralException->getMessage()}).");
+            }
+        }
+
+        // Process the successful JSON response
+        $extractedData = json_decode($extractedJson, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception("Invalid JSON received from AI: " . json_last_error_msg());
+        }
+        if (empty($extractedData['data'])) {
+            throw new Exception("The AI successfully read the receipt but found no product data.");
+        }
+
+        // Normalize and return the data
+        $products = array_map(function($item) {
+            $productName = $this->cleanProductName($item['product_name'] ?? '');
+            $brandName = isset($item['brand_name']) && trim($item['brand_name']) !== '' ? trim($item['brand_name']) : null;
+            $form = $this->normalizeForm($item['form'] ?? 'N/A');
+            $seasonPeak = $this->getSeasonPeakForProduct($productName);
+            $strength = (!empty($item['strength']) && $item['strength'] !== 'N/A') ? $item['strength'] : $this->extractStrength($productName);
+            return [
+                'quantity' => (int)($item['quantity'] ?? 0),
+                'brand_name' => $brandName,
+                'product_name' => $productName,
+                'form' => $form,
+                'batch_number' => $item['batch_number'] ?? '',
+                'expiry_date' => $this->normalizeDate($item['expiry_date'] ?? ''),
+                'strength' => $strength,
+                'season_peak' => $seasonPeak
+            ];
+        }, $extractedData['data']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => '✅ Data extracted successfully! Please review and save.',
+            'data' => $products
+        ]);
+
+    } catch (Exception $e) {
+        Log::error("OCR Processing Error", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        return response()->json(['status' => 'error', 'message' => 'An error occurred: ' . $e->getMessage()], 500);
     }
+}
 
     /**
      * Calls the Gemini API to perform OCR.
@@ -486,4 +530,7 @@ class OcrInventoryController extends Controller
         }
         return 'N/A';
     }
+
+    // uploading images ocr scanned
+    
 }

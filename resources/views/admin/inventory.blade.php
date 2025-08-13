@@ -385,8 +385,11 @@
                         $groupedStocks = $archivedInventories[$loc->province];
     
                         // dd($groupedStocks->items());
-    
                     @endphp
+
+                    @if ($groupedStocks->total() <= 0)
+                        @continue
+                    @endif
     
                 <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
                     <h1 class="text-xl font-bold mb-5">
@@ -789,6 +792,13 @@
                 <i class="fa-solid fa-boxes-stacked"></i>
                 View Archived Stocks
             </button>
+
+            <br>
+            
+            <a href="{{ route('admin.file-ocr.index') }}" class="outline-2 outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
+                <i class="fa-solid fa-folder-open"></i>
+                View Scanned Receipts
+            </a>
         </div>
     </div>
 </div>
@@ -803,7 +813,6 @@
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script src="{{ asset('js/sweetalert/inventorysweetalert.js') }}"></script>
 <script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
-<script>window.successMessage = @json(session('success'));</script>
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>

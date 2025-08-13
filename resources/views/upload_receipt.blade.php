@@ -143,85 +143,73 @@
         // ===================================================================
         // === THE FINAL, CORRECTED EXPORT FUNCTION ===
         // ===================================================================
-        async function exportToDocx() {
-            // Step 1: Find all the product forms currently displayed on the page.
-            const productForms = document.querySelectorAll('.entry-container');
-            
-            if (productForms.length === 0) {
-                Swal.fire({ icon: 'warning', title: 'No Data', text: 'There are no products to export.' });
-                return;
-            }
+        // Replace the old exportToDocx function with this new version
 
-            Swal.fire({
-                title: 'Reading Form Data...',
-                html: 'Please wait while we collect the latest information.',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
+async function exportToDocx() {
+    const productForms = document.querySelectorAll('.entry-container');
+    if (productForms.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'No Data', text: 'There are no products to export.' });
+        return;
+    }
 
-            // Step 2: Create a fresh, empty array to hold the current data.
-            const exportData = [];
+    Swal.fire({
+        title: 'Archiving Document...',
+        html: 'Please wait while your file is being saved to the server.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
-            // Step 3: Loop through each form on the page and read the current value from every input field.
-            productForms.forEach(form => {
-                const product = {
-                    product_name: form.querySelector('[data-field="product_name"]').value,
-                    brand_name: form.querySelector('[data-field="brand_name"]').value,
-                    form: form.querySelector('[data-field="form"]').value,
-                    strength: form.querySelector('[data-field="strength"]').value,
-                    batch_number: form.querySelector('[data-field="batch_number"]').value,
-                    expiry_date: form.querySelector('[data-field="expiry_date"]').value,
-                    quantity: form.querySelector('[data-field="quantity"]').value,
-                    location: form.querySelector('[data-field="location"]').value,
-                    season_peak: form.querySelector('[data-field="season_peak"]').value,
-                };
-                // Step 4: Add the collected data to our fresh array.
-                exportData.push(product);
-            });
+    const exportData = [];
+    productForms.forEach(form => {
+        const product = {
+            product_name: form.querySelector('[data-field="product_name"]').value,
+            brand_name: form.querySelector('[data-field="brand_name"]').value,
+            form: form.querySelector('[data-field="form"]').value,
+            strength: form.querySelector('[data-field="strength"]').value,
+            batch_number: form.querySelector('[data-field="batch_number"]').value,
+            expiry_date: form.querySelector('[data-field="expiry_date"]').value,
+            quantity: form.querySelector('[data-field="quantity"]').value,
+            location: form.querySelector('[data-field="location"]').value,
+            season_peak: form.querySelector('[data-field="season_peak"]').value,
+        };
+        exportData.push(product);
+    });
 
-            Swal.update({
-                title: 'Generating Document...',
-                html: 'Please wait while your file is being created on the server.'
-            });
+    try {
+        // This is the updated fetch call logic
+        const response = await fetch("{{ route('inventory.export') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'Accept': 'application/json' // Important: We expect a JSON response
+            },
+            body: JSON.stringify({ products: exportData })
+        });
 
-            try {
-                // Step 5: Send this new, complete array to the server.
-                const response = await fetch("{{ route('inventory.export') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken()
-                    },
-                    body: JSON.stringify({ products: exportData }) // Use the new 'exportData' array
-                });
+        const data = await response.json(); // We parse the response as JSON, not a blob
 
-                if (!response.ok) { throw new Error(`Server responded with status ${response.status}`); }
-
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                
-                const contentDisposition = response.headers.get('content-disposition');
-                let fileName = 'inventory.docx';
-                if (contentDisposition) {
-                    const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-                    if (fileNameMatch && fileNameMatch.length === 2) fileName = fileNameMatch[1];
-                }
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                a.remove();
-                
-                Swal.close();
-
-            } catch (error) {
-                console.error('Export Error:', error);
-                Swal.fire({ icon: 'error', title: 'Export Failed', text: error.message });
-            }
+        if (!response.ok) {
+            // Throw an error if the server response is not successful
+            throw new Error(data.message || `Server responded with status ${response.status}`);
         }
+
+        // If successful, show a success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Export Successful!',
+            text: data.message,
+        });
+
+    } catch (error) {
+        console.error('Export Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Export Failed',
+            text: error.message || 'An unknown error occurred while saving the file.'
+        });
+    }
+}
 
         // === ALL OTHER FUNCTIONS (renderProducts, saveProducts, etc.) remain the same ===
         function updateItemCount() {

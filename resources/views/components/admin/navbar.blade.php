@@ -11,8 +11,8 @@
         </a>
 
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <a href="{{ route('admin.inventory') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/inventory') ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-boxes-stacked text-[#005382] text-sm {{ request()->is('admin/inventory') ? 'text-white' : ''  }}"></i><span class="sm:hidden lg:inline-block">Inventory</span>
+            <a href="{{ route('admin.inventory') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'active' : ''  }}">
+                <i class="fa-solid sm:text-2xl lg:text-sm fa-boxes-stacked text-[#005382] text-sm {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'text-white' : ''  }}"></i><span class="sm:hidden lg:inline-block">Inventory</span>
 
             </a>
             

@@ -230,5 +230,10 @@
     <x-loader/>
     {{-- loader --}}
 </body>
+<script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
+<script src="https://files.bpcontent.cloud/2025/08/11/15/20250811151855-NQYCVRWL.js" defer></script>
+    
+    <!--<script chatbot_id="6898c15e3362e02152ae1688" data-type="default" src="https://app.thinkstack.ai/bot/thinkstackai-loader.min.js"></script>-->
+<!--<script src="//code.tidio.co/smjz9pf1qeaxphqxmrdbw46qxzlpfv6s.js" async></script>-->
 <script src="{{ asset('js/landingpage/index.js') }}"></script>
 </html>

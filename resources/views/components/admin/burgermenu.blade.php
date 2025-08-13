@@ -18,7 +18,10 @@
     <a href="{{ route('admin.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge text-[#005382] text-md w-6"></i>Dashboard</a>
 
     @if (auth('superadmin')->check())
-        <a href="{{ route('admin.inventory') }}" class="text-md {{ request()->is('admin/inventory') ? 'active' : ''  }}"><i class="fa-solid fa-boxes-stacked {{ request()->is('admin/inventory') ? 'text-white' : 'text-[#005382]'  }} text-md w-6"></i>Inventory</a>
+        <a href="{{ route('admin.inventory') }}" class="text-md {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'active' : ''  }}">
+            <i class="fa-solid fa-boxes-stacked {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'text-white' : 'text-[#005382]'  }} text-md w-6"></i>
+            Inventory
+        </a>
 
         <a href="{{ route('admin.sales') }}" class="text-md {{ request()->is('admin/sales*') ? 'active' : '' }}"><i class="fa-solid fa-print {{ request()->is('admin/sales*') ? 'text-white' : 'text-[#005382]' }} text-md w-6"></i>Sales Reports</a>
 
