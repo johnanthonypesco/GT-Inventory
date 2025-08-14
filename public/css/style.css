@@ -75,13 +75,13 @@ header h1{
 header .user-container{
     border: 1px solid rgba(0, 0, 0, 0.453);
 }
-header button{
+/* header button{
     padding: 10px;
     border-radius:50%;
     border: 1px solid rgba(0, 0, 0, 0.453);
     cursor: pointer;
     height: fit-content;
-}
+} */
 input:focus{
     outline: 2px solid #005382;
 }

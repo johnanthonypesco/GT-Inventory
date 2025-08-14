@@ -50,7 +50,7 @@
                 @if ($current_search["query"] !== null && $current_search["type"] === "company")
                     <button 
                         onclick="window.location.href = '{{ route('admin.productlisting') }}'" 
-                        class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full text-sm sm:w-[200px]">
+                        class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full text-sm sm:w-fit whitespace-nowrap">
                         <i class="fa-solid fa-xmark"></i> Reset Search
                     </button>
                 @endif

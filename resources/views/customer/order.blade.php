@@ -28,7 +28,7 @@
 
                 {{-- Search --}}
                 <div class="w-full mt-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
-                    <form action="{{ route('customer.order') }}" method="GET" id="deal-search-form" class="relative flex w-full max-w-2xl">
+                    <form action="{{ route('customer.order') }}" method="GET" id="deal-search-form" class="relative flex w-full">
                         <input type="search" name="search_filter" 
                             id="deal_search"
                             placeholder="Search Product By Name" 

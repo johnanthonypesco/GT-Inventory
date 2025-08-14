@@ -144,7 +144,7 @@
             {{-- Reset Button --}}
             @if ($current_filters['search'] !== null)
                 <button onclick="window.location.href = '{{ route('admin.history') }}'"
-                    class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-[200px] text-sm">
+                    class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm">
                     <i class="fa-solid fa-xmark"></i> Reset Search
                 </button>
             @endif

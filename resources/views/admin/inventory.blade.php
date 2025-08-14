@@ -66,7 +66,7 @@
 
         <div class="h-[82vh] overflow-x-auto mt-4">
                 {{-- Total Container --}}
-                <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-2">
+                <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-2">
                     <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
                     <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
                     <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
@@ -85,7 +85,7 @@
                 <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
                 {{-- Shows An Overview Modal for Certain Product Categories --}}
                 {{-- Filters Location --}}
-        <div class="flex justify-between flex-col lg:flex-row mt-3">
+        <div class="flex justify-between flex-col lg:flex-row mt-5">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
 
@@ -217,10 +217,10 @@
                     Add Multiple Stocks
                 </button>
                 
-                <div class="flex gap-2 w-full lg:w-[420px]">
+                <div class="flex flex-col lg:flex-row gap-2 w-full lg:w-[420px]">
                     @if (session('registeredProductSearch'))
-                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-fit text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
-                            Reset 
+                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-full sm:w-fit whitespace-nowrap text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                            Reset Search
                         </button>
                     @endif
 
