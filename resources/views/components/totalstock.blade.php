@@ -5,12 +5,13 @@
     'buttonType' => 'in-stock',
 ])
 
-<div onclick="showStockModals('{{$buttonType}}')" id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl">
+<div onclick="showStockModals('{{$buttonType}}')" id="card" class="cursor-pointer shadow-lg bg-white w-full p-5 rounded-xl relative">
     <div class="flex items-center justify-between">
-        <p class="text-lg font-semibold text-gray-800">{{$title}}</p>
-        <img src="{{asset ('image/'. $image)}}" alt="" class="w-14 h-14 p-2 rounded-full bg-gray-200">
+        <p class="text-sm font-semibold text-gray-800">{{$title}}</p>
+        <img src="{{asset ('image/'. $image)}}" alt="" class="w-10 h-10 p-2 rounded-full bg-gray-200">
     </div>
     <p class="text-2xl font-semibold" id="real-timer-stock-count" data-type="{{ $buttonType }}">0{{$count}}</p>
+    <i class="fa-solid fa-hand-pointer text-white bg-[#005382] rounded-full p-2 absolute right-5 text-lg animate-bounce"></i>
 </div>
 
 <style>
@@ -21,5 +22,8 @@
         color: white;
         transform: scale(1.05);
         transition: all 0.3s;
+    }
+    #card:hover p{
+        color: white;
     }
 </style>

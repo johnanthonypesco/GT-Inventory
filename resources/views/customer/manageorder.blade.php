@@ -27,7 +27,7 @@
     <main class="w-full lg:ml-[17%] opacity-0">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
 
-        <div class="bg-white mt-5 p-5 rounded-lg ">
+        <div class="bg-white mt-5 p-5 rounded-lg">
             @php
                 // these variables are used to control the saving of filters in url query
                 $isSearchPresent = request()->query('search_filter');
@@ -102,7 +102,7 @@
             </form>
             {{-- STATUS FILTER --}}
             
-            <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[52vh]">
+            <div class="table-container overflow-auto mt-5 h-[70vh] lg:h-[57vh]">
                 <table>
                     <thead>
                         <th>Date Ordered</th>

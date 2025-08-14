@@ -33,7 +33,7 @@ if(auth('web')->check()) {
 @endif
 
     <div class="relative group inline-block">
-        <button class="flex flex-col justify-center items-center font-regular text-[10px] rounded-[50%] bg-blue-600/70 text-white w-fit px-3 py-1 hover:bg-blue-600 transition-all duration-150"
+        <button class="flex gap-2 justify-center items-center font-semibold text-md rounded-lg bg-green-600/80 text-white w-fit p-2 hover:bg-green-600 transition-all duration-150"
             onclick="showTutorial()"
         >
             <i class="fa-regular fa-circle-question text-xl"></i>
