@@ -87,7 +87,7 @@
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
 
-                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
                     <option value="all">All Location</option>
 
                     @foreach ($dropdownLocationOptions as $location)
@@ -171,7 +171,7 @@
                             </select> --}}
                             {{-- i will add this feature once client starts paying --}}
 
-                            <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
+                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
                             <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>

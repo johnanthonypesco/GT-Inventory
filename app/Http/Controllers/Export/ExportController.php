@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Export;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImmutableHistory;
 use App\Models\Inventory;
 use App\Models\Location;
 use Maatwebsite\Excel\Facades\Excel;
@@ -88,22 +89,27 @@ class ExportController extends Controller
                     'user.company.location',
                     'exclusive_deal.product'
                 ]);
-
-                if ($secondaryExportSpecification === 'past-tense') {
-                    $orders = $orders->whereIn('status', ['delivered', 'cancelled']);
-
-                } else {
-                    $orders = $orders->whereNotIn('status', ['delivered', 'cancelled']);
-                }
-
-                $orders = $orders->whereHas('user.company.location', function ($query) use ($exportSpecification) {
+                
+                $orders = $orders->whereNotIn('status', ['delivered', 'cancelled'])
+                ->whereHas('user.company.location', function ($query) use ($exportSpecification) {
                     $query->where('province', $exportSpecification);
                 })
                 ->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 
-                $word = $secondaryExportSpecification === 'past-tense' ? '[DELIVERED & CANCELLED]' : '[PENDING & PACKED & OUT FOR DELIVERY]';
+                $word = '[PENDING & PACKED & OUT FOR DELIVERY]';
+                $fileName = $exportSpecification . '-orders-[' . date('Y-m-d') . ' - ' . $word . '.xlsx';  
+                break;
+            
+            case "immutable-export":
+                $historyOrders = ImmutableHistory::whereIn('status', ['delivered', 'cancelled'])
+                ->where('province', $exportSpecification)
+                ->orderByDesc('date_ordered')
+                ->get()
+                ->groupBy('status');
+
+                $word = '[DELIVERED & CANCELLED]';
                 $fileName = $exportSpecification . '-orders-[' . date('Y-m-d') . ' - ' . $word . '.xlsx';  
                 break;
 
@@ -121,7 +127,13 @@ class ExportController extends Controller
         } 
 
         else if ($exportType === "order-export" && $exportSpecification !== null) {
+            // dd("normal orders here");
             $export = new InventoryExport($orders, "orders", $exportType);
+        }
+        
+        else if ($exportType === "immutable-export" && $exportSpecification !== null) {
+            // dd("immutable stuff here");
+            $export = new InventoryExport($historyOrders, "immutable-orders", $exportType);
         }
 
         // dd($exportType);

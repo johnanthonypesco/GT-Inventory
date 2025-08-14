@@ -70,17 +70,9 @@ class InventoryController extends Controller
         foreach ($locations as $loc) {
             // makes a unique page param for this location
             $pageKey = 'page_in_' . $loc->id;
-            $archivePageKey = 'archive_page_in_' . $loc->id;
 
             $inventoriesByLocation[$loc->province] = Inventory::
             whereHas('product', fn ($query) => $query->where('is_archived', false))
-            ->with(['product','location'])
-            ->where('location_id', $loc->id)
-            ->orderBy('expiry_date', 'desc');
-
-            // for archiving purposes
-            $archivedInventoriesByLocation[$loc->province] = Inventory::
-            whereHas('product', fn ($query) => $query->where('is_archived', true))
             ->with(['product','location'])
             ->where('location_id', $loc->id)
             ->orderBy('expiry_date', 'desc');
@@ -93,23 +85,39 @@ class InventoryController extends Controller
                     ->where('form', '=', $searched_name[2])
                     ->where('strength', '=', $searched_name[3]);
                 });
-
-                // BALIK KO TO PAG READY NAKO MAG DAGDAG NG SEARCH FUNC SA ARCHIVING
-                // $archivedInventoriesByLocation[$loc->province] = $archivedInventoriesByLocation[$loc->province]->whereHas('product', function ($query) use ($searched_name) {
-                //     $query->where('generic_name', '=', $searched_name[0])
-                //     ->where('brand_name', '=', $searched_name[1])
-                //     ->where('form', '=', $searched_name[2])
-                //     ->where('strength', '=', $searched_name[3]);
-                // });
             }
             
             // makes the query paginatable now
             $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]->paginate($perPage, ['*'], $pageKey)
             ->appends($request->except([$pageKey, "registered_product_page"])); // keep other filters/search params sa URL 
-            
+        }
+
+        $personalLocationsForArchive = Location::all();
+
+        foreach ($personalLocationsForArchive as $loc) {
+            // makes a unique page param for this location
+            $archivePageKey = 'archive_page_in_' . $loc->id;
+
+            // for archiving purposes
+            $archivedInventoriesByLocation[$loc->province] = Inventory::
+            whereHas('product', fn ($query) => $query->where('is_archived', true))
+            ->with(['product','location'])
+            ->where('location_id', $loc->id)
+            ->orderBy('expiry_date', 'desc');
+
+            // BALIK KO TO PAG READY NAKO MAG DAGDAG NG SEARCH FUNC SA ARCHIVING
+            // $archivedInventoriesByLocation[$loc->province] = $archivedInventoriesByLocation[$loc->province]->whereHas('product', function ($query) use ($searched_name) {
+            //     $query->where('generic_name', '=', $searched_name[0])
+            //     ->where('brand_name', '=', $searched_name[1])
+            //     ->where('form', '=', $searched_name[2])
+            //     ->where('strength', '=', $searched_name[3]);
+            // });
+
             $archivedInventoriesByLocation[$loc->province] = $archivedInventoriesByLocation[$loc->province]->paginate($perPage, ['*'], $archivePageKey)
             ->appends($request->except([$archivePageKey, "registered_product_page"])); // keep other filters/search params sa URL 
         }
+
+
 
         // THE TOTAL INFORMATION FOR EXPIRY
         $totalExpiredStock = Inventory::whereHas('product', function ($query) {
