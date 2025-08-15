@@ -115,36 +115,8 @@
                 </button>
             @endif
         </section>
-
-        <div class="hidden fixed bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-10" id="productsmodal">
-            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5 ">
-                <x-modalclose id="closeproductsmodal"/>
-                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
-
-                <div class="mt-5 flex gap-4 justify-center lg:justify-start">
-                    <button class="text-[#084876] font-md text-xl border-b border-[#084876] filter-btn" data-filter="all" onclick="applyModalFilter('all')">All Products</button>
-                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="injectables" onclick="applyModalFilter('injectables')">Injectables</button>
-                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
-                </div>
-
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
-                    @forelse($enabledProducts as $product)
-                        <div class="product-card" data-filter="{{ strtolower($product->form) }}">
-                            <x-promotionalpage.product 
-                                :image="$product->img_file_path"
-                                genericname="{{ $product->generic_name }}"
-                                brandname="{{ $product->brand_name }}"
-                                form="{{ $product->form }}"
-                            />
-                        </div>
-                    @empty
-                        <p class="text-center text-gray-500">No products available.</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-
+        
+        
 
         <div class="flex mt-24 justify-center gap-2" id="content-left">
             <hr class="bg-[#0097D3] rounded-lg w-[50px] h-1">
@@ -210,6 +182,34 @@
             </div>
         </section>
     </main>
+
+    <div class="fixed hidden bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-50" id="productsmodal">
+            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5 ">
+                <x-modalclose id="closeproductsmodal"/>
+                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
+
+                <div class="mt-5 flex gap-4 justify-center lg:justify-start">
+                    <button class="text-[#084876] font-md text-xl border-b border-[#084876] filter-btn" data-filter="all" onclick="applyModalFilter('all')">All Products</button>
+                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="injectables" onclick="applyModalFilter('injectables')">Injectables</button>
+                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
+                </div>
+
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
+                    @forelse($enabledProducts as $product)
+                        <div class="product-card" data-filter="{{ strtolower($product->form) }}">
+                            <x-promotionalpage.product 
+                                :image="$product->img_file_path"
+                                genericname="{{ $product->generic_name }}"
+                                brandname="{{ $product->brand_name }}"
+                                form="{{ $product->form }}"
+                            />
+                        </div>
+                    @empty
+                        <p class="text-center text-gray-500">No products available.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
 
     <footer class="bg-[#084876] text-white p-5 w-full">
         <div class="flex gap-1 items-center justify-center">

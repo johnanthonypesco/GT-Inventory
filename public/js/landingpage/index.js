@@ -61,31 +61,31 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-    const navLinks = document.querySelectorAll('nav a');
-    const sections = document.querySelectorAll('section');
+document.addEventListener('DOMContentLoaded', function () {
+const navLinks = document.querySelectorAll('nav a');
+const sections = document.querySelectorAll('section');
 
-    function setActiveLink() {
-        let currentSectionId = '';
+function setActiveLink() {
+    let currentSectionId = '';
 
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100; 
-            const sectionHeight = section.offsetHeight;
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100; 
+        const sectionHeight = section.offsetHeight;
 
-            if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
-                currentSectionId = section.getAttribute('id');
-            }
-        });
+        if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+        }
+    });
 
-        navLinks.forEach(link => {
-            link.classList.remove('text-[#0097D3]', 'border-b-[2px]', 'border-[#084876]');
-            if (link.getAttribute('href') === `#${currentSectionId}`) {
-                link.classList.add('text-[#0097D3]', 'border-b-[2px]', 'border-[#084876]');
-            }
-        });
-    }
+    navLinks.forEach(link => {
+        link.classList.remove('text-[#0097D3]', 'border-b-[2px]', 'border-[#084876]');
+        if (link.getAttribute('href') === `#${currentSectionId}`) {
+            link.classList.add('text-[#0097D3]', 'border-b-[2px]', 'border-[#084876]');
+        }
+    });
+}
 
-    window.addEventListener('scroll', setActiveLink);
+window.addEventListener('scroll', setActiveLink);
 
-    setActiveLink();
+setActiveLink();
 });
