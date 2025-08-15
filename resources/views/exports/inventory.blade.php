@@ -51,6 +51,12 @@
             All Orders:
         </h1>
         @break
+    @case('immutable-orders')
+        <h1>
+            All Delivered & Cancelled Orders:
+        </h1>
+        @break
+
     @default
         
 @endswitch
@@ -212,6 +218,68 @@
                         <td>₱ {{ number_format($pending->exclusive_deal->price) }}</td>
                         <td></td>
                         <td>₱ {{ number_format($pending->exclusive_deal->price * $pending->quantity) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endforeach
+@endif
+
+@if ($type === "immutable-orders")
+    @foreach ($inventory as $statusName => $immutables)
+        <h1> All in {{ ucfirst($statusName) }} Status:</h1>
+        <table>
+            <thead>
+                <tr>
+                    {{-- WAG AALISIN YUNG BLANK <td> IT IS VERY IMPORTANT --}}
+                    <td>DATE</td>
+                    <td></td> 
+                    <td>COMPANY</td>
+                    <td></td>
+                    <td>EMPLOYEE NAME</td>
+                    <td></td>
+                    <td>GENERIC NAME</td>
+                    <td></td>
+                    <td>BRAND NAME</td>
+                    <td></td>
+                    <td>FORM</td>
+                    <td></td>
+                    <td>STRENGTH</td>
+                    <td></td>
+                    <td>QUANTITY</td>
+                    <td></td>
+                    <td>BASE PRICE</td>
+                    <td></td>
+                    <td>TOTAL PRICE</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach ($immutables as $order)
+                    @php
+                        $readableDate = Carbon::parse($order->date_ordered)->format('F j, Y');
+                    @endphp
+
+                    <tr>
+                        <td>{{$readableDate }}</td>
+                        <td></td>
+                        <td>{{ $order->company }}</td>
+                        <td></td>
+                        <td>{{ $order->employee }}</td>
+                        <td></td>
+                        <td>{{ $order->generic_name }}</td>
+                        <td></td>
+                        <td>{{ $order->brand_name }}</td>
+                        <td></td>
+                        <td>{{ $order->form }}</td>
+                        <td></td>
+                        <td>{{ $order->strength }}</td>
+                        <td></td>
+                        <td>{{ number_format($order->quantity) }}</td>
+                        <td></td>
+                        <td>₱ {{ number_format($order->price) }}</td>
+                        <td></td>
+                        <td>₱ {{ number_format($order->subtotal) }}</td>
                     </tr>
                 @endforeach
             </tbody>

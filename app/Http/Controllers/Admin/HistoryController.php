@@ -51,7 +51,7 @@ class HistoryController extends Controller
         }
 
         // dd(session('order-type'));
-        $orders = $orders->orderBy('date_ordered','desc')
+        $orders = $orders->orderBy('date_ordered')
         ->get();
 
         // Explanation ng Hierchy: Province>Company>(we’ll slice per-company here)>employee+date>status>order
