@@ -107,7 +107,7 @@
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container bg-white p-5 rounded-lg mb-5">
+            <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}">
                 <div class="flex flex-wrap justify-between items-center">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
@@ -449,7 +449,7 @@
                         </tr>
                     </thead>
                     
-                    <tbody>
+                    <tbody id="real-timer-unfulfillable-orders-table">
                         @foreach ($insufficients as $orderName => $orders)
                             @foreach ($orders as $order)
                                 @php
@@ -490,7 +490,7 @@
                 Summary of Products That Cannot Fulfill the Total Orders:
             </h1>
     
-            <div class="h-[70vh] overflow-auto">
+            <div class="h-[70vh] overflow-auto" id="real-timer-insufficients-table">
                 @php
                     $groupedSummary = collect($insufficientSummary)
                     ->groupBy(function ($item) {
@@ -543,19 +543,8 @@
 {{-- loader --}}
 <x-loader />
 {{-- loader --}}
-@if (session ('success'))
-    <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3 z-[101]">
-        <i class="fa-solid fa-circle-check text-2xl"></i>
-        <div>
-            <p class="font-bold">Success!</p>
-            <p>Update successful</p>
-        </div>
-    </div>
-    <script>
-        const audio = new Audio('{{ asset('sounds/Fart sound effect 4.mp3') }}');
-        audio.play();
-    </script>
-@endif
+
+    <x-successmessage />
 </body>
 </html>
 
@@ -867,4 +856,107 @@ function closeAssignStaffModal() {
     document.getElementById('assign-staff-modal').classList.replace('flex', 'hidden');
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+
+// REAL TIMER STUFF BY SIGRAE
+
+document.addEventListener('DOMContentLoaded', function () {
+    const totalCountersID = '#real-timer-counters';
+    const unfulfillableTableID = '#real-timer-unfulfillable-orders-table';
+    const insufficientTableID = '#real-timer-insufficients-table';
+    // const provincesID = '#real-timer-provinces';
+    // const employeeOrdersTableID = '#real-timer-employee-orders-table';
+
+    // every 8.5 secs mag update yung main section
+    setInterval(() => {
+        updateOrderPage(window.location.href);
+    }, 8500); 
+
+    function updateOrderPage(url) {
+        fetch(url)
+        .then(response => response.text()) // convert blade view to text
+        .then(html => {
+            const parser = new DOMParser();
+            const updatedPage = parser.parseFromString(html, 'text/html');
+
+            // DITO YUNG MULTI REPLACE SECTION
+            const currentCounters = document.querySelectorAll(totalCountersID);            
+            // const currentProvinces = document.querySelectorAll(provincesID);            
+            // const currentEmployeeOrderTables = document.querySelectorAll(employeeOrdersTableID);            
+
+            currentCounters.forEach(currentCounter => {
+                const type = currentCounter.dataset.type;
+
+                // Update the current iter with the updated version
+                const updatedCounter = updatedPage.querySelector(`${totalCountersID}[data-type="${type}"]`);
+                
+                if (updatedCounter) {
+                    currentCounter.innerHTML = updatedCounter.innerHTML;
+                }
+            });
+
+            // currentProvinces.forEach(currentProvince => {
+            //     const location = currentProvince.dataset.location;
+
+            //     // Update the current iter with the updated version
+            //     const updatedProvince = updatedPage.querySelector(`${provincesID}[data-location="${location}"]`);
+                
+            //     if (updatedProvince) {
+            //         currentProvince.innerHTML = updatedProvince.innerHTML;
+            //     }
+            // });
+            
+            // currentEmployeeOrderTables.forEach(currentTable => {
+            //     const nameDate = currentTable.dataset.namedate;
+            //     const currentNameDate = document.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
+            //     const currentClose = document.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
+            //     const currentGrandTotal = document.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+
+            //     // Update the current iter with the updated version
+            //     const updatedTable = updatedPage.querySelector(`${employeeOrdersTableID}[data-namedate="${nameDate}"]`);
+            //     const updatedNameDate = updatedPage.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
+            //     const updatedClose = updatedPage.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
+            //     const updatedGrandTotal = updatedPage.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+                
+            //     if (updatedTable) {
+            //         currentTable.innerHTML = updatedTable.innerHTML;
+            //         currentNameDate.innerHTML = updatedNameDate.innerHTML;
+            //         currentClose.innerHTML = updatedClose.innerHTML;
+            //         currentGrandTotal.innerHTML = updatedGrandTotal.innerHTML;
+            //     }
+            // });
+            
+            // DITO YUNG MULTI REPLACE SECTION
+
+            // DITO YUNG SINGULAR REPLACE SECTION    
+            const currentUnfulfillable = document.querySelector(unfulfillableTableID);
+            const updatedUnfulfillable = updatedPage.querySelector(unfulfillableTableID);
+
+            currentUnfulfillable.innerHTML = updatedUnfulfillable.innerHTML;
+
+            const currentInsufficient = document.querySelector(insufficientTableID);
+            const updatedInsufficient = updatedPage.querySelector(insufficientTableID);
+
+            currentInsufficient.innerHTML = updatedInsufficient.innerHTML;
+
+            // const currentCompanyOptions = Array.from(currentCompanySearch.options).map(opt => opt.value).join(',');
+            // const updatedCompanyOptions = Array.from(updatedCompanySearch.options).map(opt => opt.value).join(',');
+
+            // if (currentCompanyOptions !== updatedCompanyOptions) {
+            //     currentCompanySearch.innerHTML = updatedCompanySearch.innerHTML;
+            //     console.log("company search updated");
+            // }
+            
+
+            // DITO YUNG SINGULAR REPLACE SECTION
+
+            console.log("updated full page successfully");
+        })
+        .catch(error => {
+            console.error("The realtime update para sa order page is not working ya bitch! ", error);
+        });
+    }
+});
+
+// REAL TIMER STUFF BY SIGRAE
 </script>
+
