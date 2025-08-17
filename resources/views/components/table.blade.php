@@ -30,14 +30,16 @@
                             </button> --}}
 
                             <div class="relative group inline-block">
-                                <button class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl flex justify-center items-center" onclick="openStockEditModal({ 
-                                    id: '{{$inv->inventory_id}}',
-                                    batch_number: '{{$inv->batch_number}}',
-                                    generic_name: '{{$inv->product->generic_name}}',
-                                    brand_name: '{{$inv->product->brand_name}}',
-                                    quantity: '{{$inv->quantity}}',
-                                    expiry_date: '{{$inv->expiry_date}}',
-                                })">
+                                <button class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl flex justify-center items-center" onclick="openStockEditModal(@js(
+                                    [ 
+                                        "id" => $inv->inventory_id,
+                                        "batch_number" => $inv->batch_number,
+                                        "generic_name" => $inv->product->generic_name,
+                                        "brand_name" => $inv->product->brand_name,
+                                        "quantity" => $inv->quantity,
+                                        "expiry_date" => $inv->expiry_date,
+                                    ])
+                                )">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </button>
                                 
@@ -51,10 +53,10 @@
                           <button 
                             class="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
                             onclick="openTransferModal(
-                                '{{ $inv->inventory_id }}', 
-                                '{{ $inv->batch_number }}', 
-                                '{{ $inv->product->name }}', 
-                                '{{ $inv->location->province }}'
+                                @js($inv->inventory_id), 
+                                @js($inv->batch_number), 
+                                @js($inv->product->name), 
+                                @js($inv->location->province)
                             )"
                         >
                             Transfer
@@ -84,7 +86,7 @@
                     <tr class="text-center">
                         <td>{{ $company->id }}</td>
                         <td> {{ $company->name }} </td>
-                        <td id="real-timer-total-personal-counter" data-company="{{ $company->name }}"> 
+                        <td id="real-timer-total-personal-counter" data-company="{{ $company->id }}"> 
                             {{ isset($secondaryVariable[$company->name]) ? 
                             $secondaryVariable[$company->name]->total() 
                             : 'No' }} {{ $dealSearchCompany === $company->name ? "Searched" : "" }} Personalized Products
@@ -94,7 +96,7 @@
                         <td class="m-auto flex gap-4 justify-center font-semibold">
                             @if ($secondaryVariable->get($company->name))
                                 <x-vieworder 
-                                onclick="viewproductlisting('{{ $company->name }}')" 
+                                onclick="viewproductlisting('{{ $company->id }}')" 
                                 name="View"
                                 />                                
                             @endif
@@ -112,13 +114,16 @@
                     @endphp
                     
                     <tr class="text-center">
-                        <td> {{ $separatedNameAndDate[0] }} </td>
+                        <td> {{ $separatedNameAndDate[1] }} </td>
                         <td> 
-                            {{ Carbon::parse($separatedNameAndDate[1])->translatedFormat('M d, Y') }}
+                            {{ Carbon::parse($separatedNameAndDate[2])->translatedFormat('M d, Y') }}
                         </td>
                         
                         <td>
-                            <x-vieworder onclick="viewOrder('{{ $employeeNameAndDate }}')" name="View Order"/>
+                            {{-- @foreach ($separatedNameAndDate as $item)
+                                {{ $item }}
+                            @endforeach --}}
+                            <x-vieworder onclick="viewOrder('{{ $separatedNameAndDate[0] . '-' . $separatedNameAndDate[2]}}')" name="View Order"/>
                         </td>
                     </tr>
                 @endforeach
@@ -153,7 +158,7 @@
                         <td>{{ Carbon::parse($separated[1])->translatedFormat('M d, Y') }}</td>
                         <td>₱ {{ number_format($totalPrice) }}</td>
                         <td>
-                            <x-vieworder onclick="viewOrder('{{ $employeeName }}')" name="View Order"/>
+                            <x-vieworder onclick="viewOrder('{{ e($employeeName) }}')" name="View Order"/>
                         </td>
                     </tr> 
                 @endforeach

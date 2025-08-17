@@ -165,23 +165,21 @@
                 @foreach ($employees as $employeeNameAndDate => $groupedStatuses)
                     @php
                         $total = 0;
+                        $explodedIDNameDate = explode('|', $employeeNameAndDate);
                     @endphp
                     <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
                                 items-center justify-center px-4"
-                        id="order-modal-{{ $employeeNameAndDate }}">
+                        id="order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}">
                         <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
                             {{-- Close button, etc. --}}
-                            <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
+                            <x-modalclose closeType="orders-admin-view" click="closeOrderModal" :variable="$explodedIDNameDate[0] . '-' . $explodedIDNameDate[2]" />
 
                             <h1 class="text-xl font-bold uppercase mb-6">
-                                @php
-                                    $separatedInModal = explode('|', $employeeNameAndDate);
-                                @endphp
                                 Orders By:
                                 <span class="text-blue-800">
-                                    {{ $separatedInModal[0] }} -
-                                    [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
+                                    {{ $explodedIDNameDate[1] }} -
+                                    [ {{ Carbon::parse($explodedIDNameDate[2])->translatedFormat('M d, Y') }} ]
                                 </span>
                             </h1>
 
@@ -248,20 +246,10 @@
                                                         
                                                         @else
                                                             <div class="flex gap-1 items-center justify-center">
-                                                                <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
-                                                                'order-modal-{{ $employeeNameAndDate }}', {
-                                                                province: '{{$provinceName}}',
-                                                                company: '{{$companyName}}',
-                                                                employee: '{{$separatedInModal[0]}}',         // ✅ FIXED
-                                                                date_ordered: '{{$separatedInModal[1]}}',
-                                                                generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
-                                                                brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
-                                                                form: '{{$productInfo->form}}',
-                                                                strength: '{{$productInfo->strength}}',
-                                                                quantity: {{$order->quantity}},
-                                                                price: {{$order->exclusive_deal->price}},
-                                                                subtotal: {{$order_calc}},
-                                                            })">
+                                                                <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal(
+                                                                    {{ $order->id }}, 
+                                                                    'order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}', 
+                                                                )">
                                                                     Change Status
                                                                 </button>
 
@@ -357,18 +345,6 @@
     @method("PUT")
 
     <input type="hidden" name="order_id" id="id-container">
-    <input type="hidden" id="archive-province" name="province">
-    <input type="hidden" id="archive-company" name="company">
-    <input type="hidden" id="archive-employee" name="employee">
-    <input type="hidden" id="archive-date-ordered" name="date_ordered">
-    <input type="hidden" id="archive-generic-name" name="generic_name">
-    <input type="hidden" id="archive-brand-name" name="brand_name">
-    <input type="hidden" id="archive-form" name="form">
-    <input type="hidden" id="archive-strength" name="strength">
-    <input type="hidden" id="archive-quantity" name="quantity">
-    <input type="hidden" id="archive-price" name="price">
-    <input type="hidden" id="archive-subtotal" name="subtotal">
-
     <input type="hidden" id="status-id" name="status">
     <input type="hidden" id="mother-id" name="mother_div">
 
@@ -572,7 +548,7 @@
         <i class="fa-solid fa-circle-check text-2xl"></i>
         <div>
             <p class="font-bold">Success!</p>
-            <p id="successMessage">Update successful</p>
+            <p>Update successful</p>
         </div>
     </div>
     <script>
@@ -644,22 +620,6 @@
     });
 });
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const successMessage = window.successMessage;
-//     const errorMessage = window.errorMessage;
-//     if (document.getElementById('successAlert')) {
-//         document.getElementById('successMessage').innerHTML = successMessage;
-//         setTimeout(() => {
-//             document.getElementById('successAlert').remove();
-//         }, 3000);
-//     }
-//     else if (document.getElementById('errorAlert')) {
-//         document.getElementById('errorMessage').textContent = errorMessage;
-//         setTimeout(() => {
-//             document.getElementById('errorAlert').remove();
-//         }, 3000);
-//     }
-// });
 
 </script>
 <script>
@@ -721,31 +681,16 @@ function showInsufficients() {
  *          quantity, price, subtotal
  *        }
  */
-function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
+function showChangeStatusModal(id, motherDiv) {
 
     const modal        = document.getElementById('change-status-modal');
     const orderIdInput = document.getElementById('id-container');
     const motherInput  = document.getElementById('mother-id');
 
-    /* Map every hidden field only once */
-    const fields = {
-        province     : document.getElementById('archive-province'),
-        company      : document.getElementById('archive-company'),
-        employee     : document.getElementById('archive-employee'),
-        date_ordered : document.getElementById('archive-date-ordered'),
-        generic_name : document.getElementById('archive-generic-name'),
-        brand_name   : document.getElementById('archive-brand-name'),
-        form         : document.getElementById('archive-form'),
-        strength         : document.getElementById('archive-strength'),
-        quantity     : document.getElementById('archive-quantity'),
-        price        : document.getElementById('archive-price'),
-        subtotal     : document.getElementById('archive-subtotal')
-    };
-
     /* Helper – assign every expected key, fallback to empty string */
-    const assignValues = data => {
-        Object.keys(fields).forEach(k => fields[k].value = data[k] ?? '');
-    };
+    // const assignValues = data => {
+    //     Object.keys(fields).forEach(k => fields[k].value = data[k] ?? '');
+    // };
 
     /* ----- OPEN ----- */
     if (modal.classList.contains('hidden')) {
@@ -755,8 +700,6 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
         orderIdInput.value      = id;
         orderIdInput.dataset.id = id;
         motherInput.value       = motherDiv;
-
-        assignValues(archivingDetails);
 
         // Remove after confirming everything works
         console.log('Change-Status modal opened:', { id, archivingDetails });
@@ -769,8 +712,6 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
     orderIdInput.value      = 0;
     orderIdInput.dataset.id = 0;
     motherInput.value       = '';
-
-    assignValues({});   // clear all hidden inputs
 }
 
 

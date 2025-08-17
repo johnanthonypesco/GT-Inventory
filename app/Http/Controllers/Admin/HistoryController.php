@@ -51,7 +51,7 @@ class HistoryController extends Controller
         }
 
         // dd(session('order-type'));
-        $orders = $orders->orderBy('date_ordered')
+        $orders = $orders->orderByDesc('date_ordered')
         ->get();
 
         // Explanation ng Hierchy: Province>Company>(we’ll slice per-company here)>employee+date>status>order
@@ -110,7 +110,8 @@ class HistoryController extends Controller
                 'location' => $orderProvinceFilter,
                 'status' => $orderStatusFilter,
             ],
-            'customersSearchSuggestions' => User::with('company')->get(),
+            
+            'customersSearchSuggestions' => ImmutableHistory::select(['employee', 'company'])->distinct()->get(),
         ]);
     }
 }

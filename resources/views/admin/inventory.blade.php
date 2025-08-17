@@ -88,6 +88,11 @@
         <div class="flex justify-between flex-col lg:flex-row mt-5">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
+                
+                @if (request()->has('searched_name'))
+                    <input type="hidden" name="current_search" value="{{ $currentSearch['query'][0] . " - " . $currentSearch['query'][1] . " - " . $currentSearch['query'][2] . " - " . $currentSearch['query'][3] }}">    
+                @endif
+
 
                 <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
                     <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
@@ -138,7 +143,7 @@
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
+                Delivery Location: {{ $currentSearch['location'] !== "All" ? html_entity_decode($currentSearch['location']) : $provinceName }}
             </h1>
 
             <div  class="flex flex-wrap justify-between items-center">
@@ -263,9 +268,9 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
-                                    <button onclick="addstock('{{ $product->id }}', '{{ $generic_name }} - {{ $brand_name }}')" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
+                                    <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
-                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', '{{$generic_name}}', '{{$brand_name}}', '{{$product->form}}', '{{$product->strength}}', '{{ url('/') }}/', '{{ $product->img_file_path }}')">
+                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
                                         <i class="fa-regular fa-pen-to-square mr-2"></i>
                                         Edit
                                     </button>

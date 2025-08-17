@@ -106,7 +106,7 @@
         {{-- Datalist for suggestions --}}
             <datalist id="employee-search-suggestions">
                 @foreach ($customersSearchSuggestions as $customer)
-                    <option value="{{ $customer->name }} - {{ $customer->company->name }}">
+                    <option value="{{ $customer->employee }} - {{ $customer->company }}">
                 @endforeach
             </datalist>
 
@@ -171,7 +171,7 @@
                             </select> --}}
                             {{-- i will add this feature once client starts paying --}}
 
-                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
+                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-exportx', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
                             <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
@@ -203,9 +203,9 @@
         @foreach ($provinces as $companies)
             @foreach ($companies as $employees)
                 @foreach ($employees as $employeeNameAndDate => $statuses)
-                    <div id="order-modal-{{ $employeeNameAndDate }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center px-4 z-50">
+                    <div id="order-modal-{{ e($employeeNameAndDate) }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center px-4 z-50">
                         <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                            <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
+                            <x-modalclose closeType="order-history" :variable="$employeeNameAndDate"/>
                             <h1 class="text-xl font-bold uppercase mb-6">
                                 @php
                                     $separatedInModal = explode('|', $employeeNameAndDate);

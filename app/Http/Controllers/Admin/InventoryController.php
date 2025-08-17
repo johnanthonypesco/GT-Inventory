@@ -209,16 +209,30 @@ class InventoryController extends Controller
     public function showInventoryLocation(Request $request) {
         $validated = $request->validate([
             'location' => 'required|string',
+            'current_search' => 'nullable|string',
         ]);
 
         $validated = array_map('strip_tags', $validated);
-        
+        $searchPresent = isset($validated['current_search']);
+
+        if ($searchPresent) {
+            $validatedSearch = explode(' - ',$validated['current_search']);
+        }
+
         switch ($validated['location']){
             case 'Tarlac':
-                return redirect()->route('admin.inventory', ['location_filter' => "Tarlac"]);
+                return redirect()->route('admin.inventory', [
+                    'location_filter' => "Tarlac",
+                    'searched_name' => $searchPresent ? $validatedSearch : null,
+                    'search_type' => $searchPresent ? 'stock' : null,
+            ]);
 
             case 'Nueva Ecija':
-                return redirect()->route('admin.inventory', ['location_filter' => "Nueva Ecija"]);
+                return redirect()->route('admin.inventory', [
+                    'location_filter' => "Nueva Ecija",
+                    'searched_name' => $searchPresent ? $validatedSearch : null,
+                    'search_type' => $searchPresent ? 'stock' : null,
+                ]);
             default:
                 return redirect()->route('admin.inventory');
         }

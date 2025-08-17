@@ -66,7 +66,7 @@ class OrderController extends Controller
                     // nag manual paginate nalang ako, masyado limited built-in ni Laravel na paginate().
                     // Now panong gumagana bawat part neto? Ewan, siguradong makakalimutan koto 
                     // in a few weeks kaya i-ChatGPT mo nalang explanation.
-                    // -- by: MOTHER FUCKIN' SIGRAE
+                    // -- by: MOTHER BUCKIN' SIGRAE
                     $paginator = new LengthAwarePaginator(
                         $slice->values(), 
                         $companyOrders->count(),
@@ -79,9 +79,9 @@ class OrderController extends Controller
                         ]
                     );
 
-                    // dito na ginogroup yung companies by employee+date & grouped by statuses
+                    // dito na ginogroup yung companies by employeeID+date & grouped by statuses
                     $grouped = $slice
-                        ->groupBy(fn($o) => $o->user->name.'|'.$o->date_ordered)
+                        ->groupBy(fn($o) => $o->user->id . '|' . $o->user->name .'|'.$o->date_ordered)
                         ->map(fn($empOrders) => $empOrders->groupBy(fn($o) => $o->status));
 
                     $grouped->paginator = $paginator;
@@ -89,7 +89,7 @@ class OrderController extends Controller
                     return [$companyName => $grouped];
                 });
         });
-
+// dd($provinces->toArray());
 
     $currentStocks = Inventory::with(["product", "location"])
     ->get()
@@ -214,41 +214,33 @@ foreach ($orderArray as $productName => $orders) {
         ]);
     }
 
-     public function updateOrder(Request $request, Order $order) 
+    public function updateOrder(Request $request, Order $order) 
     {
         DB::beginTransaction();
 
         try {
             $validate = $request->validate([
+                'status' => 'required|string',
                 'mother_div' => 'required|string',
                 'order_id' => 'required|integer', 
-                'province' => 'required|string',
-                'company' => 'required|string',
-                'employee' => 'required|string',
-                'date_ordered' => 'required|date',
-                'status' => 'required|string',
-                'generic_name' => 'required|string',
-                'brand_name' => 'required|string',
-                'form' => 'required|string',
-                'strength' => 'required|string',
-                'quantity' => 'required|integer',
-                'price' => 'required|numeric',
-                'subtotal' => 'required|numeric',
                 'staff_id' => 'nullable|integer|exists:staff,id'
-
             ]);
 
             $orderId = $validate['order_id'];
             $orderDeets = Order::with(['user.company.location', 'exclusive_deal.product'])->findOrFail($orderId);
 
-              if ($validate['status'] === 'out for delivery' && !empty($validate['staff_id'])) {
-            $order->staff_id = $validate['staff_id'];
-        }
+            $orderProd = $orderDeets->exclusive_deal->product;
+            $orderUser = $orderDeets->user;
+            // dd($orderUser->toArray());
+
+            if ($validate['status'] === 'out for delivery' && !empty($validate['staff_id'])) {
+                $order->staff_id = $validate['staff_id'];
+            }
 
             if (in_array($validate['status'], ['delivered', 'cancelled'])) {
                 $locationId = $orderDeets->user->company->location->id;
-                $productId = $orderDeets->exclusive_deal->product->id;
-                $quantity = $validate['quantity'];
+                $productId = $orderProd->id;
+                $quantity = $orderDeets['quantity'];
 
                 $inventories = Inventory::where('location_id', $locationId)
                     ->where('product_id', $productId)
@@ -279,28 +271,28 @@ foreach ($orderArray as $productName => $orders) {
 
                 ScannedQrCode::create([
                     'order_id' => $orderId,
-                    'product_name' => $validate['generic_name'],
+                    'product_name' => $orderProd->generic_name,
                     'location' => $orderDeets->user->company->location->province,
                     'quantity' => $quantity,
                     'affected_batches' => $affectedBatches,
                     'scanned_at' => now(),
                     'signature' => null,
                 ]);
-                
+
                 ImmutableHistory::create([
                     'order_id' => $orderId, 
-                    'province' => $validate['province'],
-                    'company' => $validate['company'],
-                    'employee' => $validate['employee'],
-                    'date_ordered' => $validate['date_ordered'],
+                    'province' => $orderUser->company->location->province,
+                    'company' => $orderUser->company->name,
+                    'employee' => $orderUser->name,
+                    'date_ordered' => $orderDeets->date_ordered,
                     'status' => $validate['status'],
-                    'generic_name' => $validate['generic_name'],
-                    'brand_name' => $validate['brand_name'],
-                    'form' => $validate['form'],
-                    'strength' => $validate['strength'],
-                    'quantity' => $validate['quantity'],
-                    'price' => $validate['price'],
-                    'subtotal' => $validate['subtotal'],
+                    'generic_name' => $orderProd->generic_name,
+                    'brand_name' => $orderProd->brand_name,
+                    'form' => $orderProd->form,
+                    'strength' => $orderProd->strength,
+                    'quantity' => $orderDeets->quantity,
+                    'price' => $orderDeets->exclusive_deal->price,
+                    'subtotal' => $orderDeets->quantity * $orderDeets->exclusive_deal->price,
                 ]);
             }
 
@@ -308,7 +300,7 @@ foreach ($orderArray as $productName => $orders) {
 
             HistorylogController::add(
                 'Edit',
-                "Order of {$validate['company']} from {$validate['province']} has been updated to status: " . ucfirst($validate['status'])
+                "An order from {$orderUser->company->name} in {$orderUser->company->location->province} has been updated to status: " . ucfirst($validate['status'])
             );
 
 
@@ -317,9 +309,11 @@ foreach ($orderArray as $productName => $orders) {
 
             DB::commit();
             session()->flash("success", true);
+
             return to_route('admin.order')->with("update-success", $validate['mother_div']);
 
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             Log::error("Manual order update failed for Order ID {$request->input('order_id', 'N/A')}: " . $e->getMessage());
             return back()->with("manualUpdateFailed", "Update failed: " . $e->getMessage());

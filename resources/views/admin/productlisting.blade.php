@@ -115,12 +115,17 @@
         @endforeach
     </datalist>
 
+    {{-- VIew Product Listing --}}
     @foreach ($dealsDB as $companyName => $deals)
+        @php
+            $companyID = $deals->items()[0]['company_id'];
+        @endphp
+
         {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
-        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyID }}">
             
             <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
+                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyID"/>
                 <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
@@ -189,7 +194,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="real-timer-deals-table" data-company="{{ $companyName }}">
+                        <tbody id="real-timer-deals-table" data-company="{{ $companyID }}">
                             @foreach ($deals->items() as $deal)
                             <tr class="text-center">
                                 <td>{{ $deal->product->generic_name }}</td>
@@ -216,7 +221,7 @@
                 {{-- Table for all products --}}
                 {{-- Pagination --}}
                 {{-- <x-pagination/> --}}
-                <div id="real-timer-paginate" data-company="{{ $companyName }}" class="mt-5">
+                <div id="real-timer-paginate" data-company="{{ $companyID }}" class="mt-5">
                     {{ $deals->links() }}
                 </div>
                 {{-- Pagination --}}
