@@ -17,7 +17,7 @@ use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\FileOcrController;
-
+use App\Http\Controllers\ProductSeasonalityController;
 
 // Staff Controller
 use App\Http\Controllers\ReviewManagerController;
@@ -220,11 +220,12 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::post('/process-receipt', [OcrInventoryController::class, 'uploadReceipt'])->name('process.receipt');
         Route::post('/save-receipt', [OcrInventoryController::class, 'saveInventory'])->name('save.receipt');
+        Route::post('/api/check-product', [OcrInventoryController::class, 'checkProduct'])->name('product.check');
         Route::get('/get-locations', function () {
             $locations = Location::pluck('province')->toArray();
             return response()->json(['locations' => $locations]);
         })->name('get.locations');
-
+        Route::post('/products/analyze-recent-sales', [ProductSeasonalityController::class, 'analyzeRecentSales'])->name('products.analyzeRecentSales');
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//

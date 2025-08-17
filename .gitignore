@@ -10,6 +10,7 @@
 /public/profile_images/
 /public/profile_image/
 /public/receipts/
+/public/receipts/**
 /storage/*.key
 /storage/pail
 /vendor

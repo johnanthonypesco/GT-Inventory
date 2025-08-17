@@ -1282,6 +1282,56 @@
     </script>
     @endif
 
+        @if(auth()->guard('superadmin')->check() || auth()->guard('admin')->check())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const runReactiveAnalysis = async () => {
+                    console.log('Running automatic reactive seasonality analysis...');
+                    try {
+                        const response = await fetch("{{ route('products.analyzeRecentSales') }}", { // <-- ETO YUNG BINAGO
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error('Automatic analysis failed. Server responded with an error.');
+                            return;
+                        }
+
+                        const result = await response.json();
+                        console.log('Auto-Update Result:', result.message);
+
+                        if (result.products_with_new_classification > 0) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            Toast.fire({
+                                icon: 'info',
+                                title: `${result.products_with_new_classification} products re-classified based on recent sales!`
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Failed to run automatic analysis:', error);
+                    }
+                };
+
+                // Tatakbo ito kada 15 minuto para i-check ang benta ng nakaraang araw.
+                // Pwede mo itong gawing mas matagal (e.g., kada isang oras: 3600000)
+                setInterval(runReactiveAnalysis, 10000); // 15 minutes
+            });
+        </script>
+        @endif
     {{-- realtime --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
