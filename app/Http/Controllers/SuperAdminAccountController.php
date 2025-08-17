@@ -25,6 +25,8 @@ class SuperAdminAccountController extends Controller
     {
         $search = $request->input('search', '');
         $filter = $request->input('filter', 'all');
+        $archivedCompanies = \App\Models\Company::onlyTrashed()->get();
+
 
         // 1. Build the base queries for each role with company_id
         $adminsQuery = Admin::whereNull('archived_at')
@@ -103,6 +105,9 @@ class SuperAdminAccountController extends Controller
             'isSuperAdmin' => $isSuperAdmin,
             'isAdmin' => $isAdmin,
             'staffs' => $allStaff,
+            'archivedCompanies' => $archivedCompanies, 
+
+
         ]);
     }
 
@@ -220,7 +225,7 @@ class SuperAdminAccountController extends Controller
                 Mail::to($user->email)->send(new NewAccountMail($user, $plainPassword, $loginUrl));
             }
 
-            HistorylogController::addaccountlog(
+            HistorylogController::add(
                 "Add",
                 ucfirst($validated['role']) . " account ({$validated['email']}) created successfully by "
             );
@@ -307,7 +312,7 @@ class SuperAdminAccountController extends Controller
                 ]),
             };
 
-            HistorylogController::editaccountlog('Edit', ucfirst($role) . ' account (' . $model->name . ') was updated');
+            HistorylogController::add('Edit', ucfirst($role) . ' account (' . $model->name . ') was updated');
             return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account updated successfully.');
         } 
         catch (\Illuminate\Validation\ValidationException $e) {
@@ -331,24 +336,43 @@ class SuperAdminAccountController extends Controller
     
         $model->archive();
     
-        HistorylogController::editaccountlog('Archive', ucfirst($role) . ' account (' . $model->email . ') was archived');
+        HistorylogController::add('Archive', ucfirst($role) . ' account (' . $model->email . ') was archived');
     
         return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account archived successfully.');
     }
 
-    public function restore($role, $id)
-    {
-        $model = match ($role) {
-            'admin' => Admin::findOrFail($id),
-            'staff' => Staff::findOrFail($id),
-            'customer' => User::findOrFail($id),
-            default => abort(404),
-        };
+  public function restore($role, $id)
+{
+    // Find the correct model based on the role
+    $model = match ($role) {
+        'admin' => \App\Models\Admin::findOrFail($id),
+        'staff' => \App\Models\Staff::findOrFail($id),
+        // For customers, find them from the User model, including trashed records
+        'customer' => \App\Models\User::where('id', $id)->firstOrFail(),
+        default => abort(404),
+    };
 
-        $model->update(['archived_at' => null]);
-        HistorylogController::editaccountlog('Restore', ucfirst($role) . ' account (' . $model->email . ') was restored');
-        return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
+    // --- START: New Logic Block for Customer Role ---
+    if ($role === 'customer') {
+        // Eager load the company relationship, including trashed companies
+        $model->load(['company' => function ($query) {
+            $query->withTrashed();
+        }]);
+
+        // Check if the user has a company and if that company is soft-deleted
+        if ($model->company && $model->company->trashed()) {
+            return redirect()->back()->with('error', 'Cannot restore this user because their assigned company is archived.');
+        }
     }
+    // --- END: New Logic Block ---
+
+    // If the check passes (or isn't needed), proceed with restoring the account
+    $model->update(['archived_at' => null]);
+    
+    // Add history log and redirect with success message
+    HistorylogController::add('Restore', ucfirst($role) . ' account (' . $model->email . ') was restored');
+    return redirect()->route('superadmin.account.index')->with('success', ucfirst($role) . ' account restored successfully.');
+}
 
     public function checkEmail(Request $request)
     {

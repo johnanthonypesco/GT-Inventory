@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Staff;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Mail\TwoFactorCodeMail;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Events\Failed;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Admin\HistorylogController;
 
 class StaffAuthenticatedSessionController extends Controller
 {
@@ -26,55 +29,70 @@ class StaffAuthenticatedSessionController extends Controller
      */
    
     
-    public function store(Request $request): RedirectResponse
-    {
-        $sanitizedData = array_map('strip_tags', $request->only(['email', 'password']));
+   public function store(Request $request): RedirectResponse
+{
+    // 1. 🛑 REMOVED: Do not sanitize/modify passwords with strip_tags.
+    //    Validate the raw request data directly.
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        // ✅ Validate sanitized input
-        $credentials = validator($sanitizedData, [
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ])->validate();
-        if (Auth::guard('staff')->attempt($credentials, $request->filled('remember'))) {
-            $staff = Auth::guard('staff')->user();
-    
-            // ✅ Generate a 6-digit 2FA code
-            $twoFactorCode = (string) rand(100000, 999999);
-    
-            // ✅ Save the 2FA code and expiration time
-            $staff->two_factor_code = $twoFactorCode;
-            $staff->two_factor_expires_at = now()->addMinutes(10);
-    
-            if (!$staff->save()) {
-                return back()->withErrors(['error' => 'Failed to generate a two-factor authentication code. Please try again.']);
-            }
-    
-            // ✅ Send the 2FA code via email
-            try {
-                Mail::to($staff->email)->send(new TwoFactorCodeMail($twoFactorCode));
-            } catch (\Exception $e) {
-                return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
-            }
-    
-            // ✅ Log out the staff after generating the code
-            Auth::guard('staff')->logout();
-    
-            // ✅ Store staff ID in session for 2FA verification
-            session(['two_factor_staff_id' => $staff->id]);
-    
-            return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
+    // 2. ✅ ADDED: Create a new array for the auth check that includes
+    //    the condition to only find non-archived staff.
+    $authCredentials = [
+        'email' => $credentials['email'],
+        'password' => $credentials['password'],
+        'archived_at' => null, // 💡 This is the crucial fix
+    ];
+
+    if (Auth::guard('staff')->validate($authCredentials)) {
+        
+        // 3. ✅ IMPROVED: Use getLastAttempted() to efficiently get the
+        //    staff member without running a second database query.
+        $staff = Auth::guard('staff')->getLastAttempted();
+
+        // Save the 2FA code and expiration time
+        $twoFactorCode = (string) rand(100000, 999999);
+        $staff->two_factor_code = $twoFactorCode;
+        $staff->two_factor_expires_at = now()->addMinutes(10);
+        $staff->save();
+
+        // Send the 2FA code via email
+        try {
+            Mail::to($staff->email)->send(new TwoFactorCodeMail($twoFactorCode));
+        } catch (\Exception $e) {
+            // It's good practice to log the actual error for debugging
+            // Log::error('2FA email failed to send: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
         }
-    
-        return back()->withErrors([
-            'email' => 'Invalid credentials.',
-        ])->onlyInput('email');
+
+        session(['remember' => $request->boolean('remember')]);
+        session(['two_factor_staff_id' => $staff->id]);
+
+        return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
     }
+
+    // --- Handle Failed Login ---
+    $user = Staff::where('email', $credentials['email'])->first();
+    event(new Failed('staff', $user, $credentials));
+
+    return back()->withErrors([
+        'email' => 'Invalid credentials.',
+    ])->onlyInput('email');
+}
     
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
+
+         $staff = Auth::guard('staff')->user(); // <-- Get user BEFORE logout
+
+    if ($staff) { // <-- Check if user exists
+        HistorylogController::logoutLog($staff); // <-- Add this line
+    }
         Auth::guard('staff')->logout();
 
         // ✅ Remove only Staff session details

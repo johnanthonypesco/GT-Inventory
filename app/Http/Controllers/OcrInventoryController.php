@@ -352,7 +352,7 @@ class OcrInventoryController extends Controller
                     'location_id' => $location->id
                 ]);
 
-                HistorylogController::addstocklog(
+                HistorylogController::add(
                     'add',
                     "Added new stock via OCR: {$data['quantity']} unit(s) of {$product->generic_name} {$product->strength} (Batch: {$data['batch_number']}) was added to {$location->province}."
                 );

@@ -567,7 +567,19 @@
 {{-- loader --}}
 <x-loader />
 {{-- loader --}}
-
+@if (session ('success'))
+    <div id="successAlert" class="w3 fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3 z-[101]">
+        <i class="fa-solid fa-circle-check text-2xl"></i>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p id="successMessage">Update successful</p>
+        </div>
+    </div>
+    <script>
+        const audio = new Audio('{{ asset('sounds/Fart sound effect 4.mp3') }}');
+        audio.play();
+    </script>
+@endif
 </body>
 </html>
 
@@ -631,6 +643,23 @@
         }
     });
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     const successMessage = window.successMessage;
+//     const errorMessage = window.errorMessage;
+//     if (document.getElementById('successAlert')) {
+//         document.getElementById('successMessage').innerHTML = successMessage;
+//         setTimeout(() => {
+//             document.getElementById('successAlert').remove();
+//         }, 3000);
+//     }
+//     else if (document.getElementById('errorAlert')) {
+//         document.getElementById('errorMessage').textContent = errorMessage;
+//         setTimeout(() => {
+//             document.getElementById('errorAlert').remove();
+//         }, 3000);
+//     }
+// });
 
 </script>
 <script>

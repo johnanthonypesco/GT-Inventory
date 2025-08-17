@@ -74,22 +74,39 @@
         </div>
 
         {{-- Filter & Add Account --}}
-        <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-5">
-            <select id="accountFilter" appearance="none" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
-                <option value="all">All Accounts</option>
-                <option value="admin">Admin</option>
-                <option value="staff">Staff</option>
-                <option value="customer">Customer</option>
-            </select>
+{{-- This is the corrected container div --}}
+<div class="flex items-center md:flex-row flex-col lg:flex-row justify-end gap-2 mt-5">
 
-            <button onclick="openAddAccountModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
-                <i class="fa-solid fa-plus"></i> Add Account
-            </button>
+    <select id="accountFilter" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
+        <option value="all">All Accounts</option>
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+        <option value="customer">Customer</option>
+    </select>
 
-            <button onclick="openArchivedModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
-                View Archived Accounts
-            </button>
-        </div>
+    <button onclick="openAddAccountModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
+        <i class="fa-solid fa-plus"></i> Add Account
+    </button>
+
+    <button onclick="openArchivedModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
+        View Archived Accounts
+    </button>
+
+    <button 
+        type="button"
+        onclick="openCompanyListModal()"
+        class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
+        <i class="fa-solid fa-building"></i> Manage Companies
+    </button>
+
+    <button 
+        type="button"
+        onclick="openArchivedCompaniesModal()"
+        class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
+        <i class="fa-solid fa-archive"></i> View Archived Companies
+    </button>
+    
+</div>
         {{-- End Filter & Add Account --}}
 
         {{-- Table for Account List --}}
@@ -360,6 +377,171 @@
             </div>
         </div>
         
+
+{{-- Company List Modal (Step 1) --}}
+<div id="companyListModal" class="hidden fixed inset-0 bg-black/60 p-5 md:p-20 items-center justify-center overflow-auto z-50">
+    <div class="modal w-full lg:w-1/2 h-fit bg-white rounded-lg relative m-auto p-10">
+        <x-modalclose click="closeCompanyListModal()"/>
+        
+        <h1 class="text-3xl text-[#005382] font-bold text-center mb-6">Select a Company to Edit</h1>
+
+        <div class="overflow-y-auto max-h-[60vh]">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">Company Name</th>
+                        <th class="py-2 px-4 border-b">Status</th>
+                        <th class="py-2 px-4 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($companies as $company)
+                        <tr>
+                            <td class="py-2 px-4 border-b text-center">{{ $company->name }}</td>
+                            <td class="py-2 px-4 border-b text-center">
+                                <span class="px-2 py-1 font-semibold leading-tight rounded-full {{ $company->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                    {{ ucfirst($company->status) }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-4 border-b text-center">
+                                <button 
+                                    type="button" 
+                                    onclick="selectCompanyToEdit(this)"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                                    data-id="{{ $company->id }}"
+                                    data-name="{{ $company->name }}"
+                                    data-address="{{ $company->address }}"
+                                    data-location-id="{{ $company->location_id }}"
+                                    data-status="{{ $company->status }}">
+                                    <i class="fa-solid fa-pencil"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center py-4">No companies found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{{-- Edit/Archive Company Modal --}}
+<div id="editCompanyModal" class="hidden fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto z-50">
+    <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
+        <x-modalclose click="closeEditCompanyModal()"/>
+        
+        <h1 class="text-3xl text-[#005382] font-bold text-center mb-6">Edit Company Details</h1>
+
+        {{-- Form for UPDATING company details --}}
+        <form method="POST" id="editCompanyForm">
+            @csrf
+            @method('PUT')
+            
+            <input type="hidden" name="company_id" id="editCompanyId">
+
+            <div class="space-y-4">
+                <div>
+                    <label for="editCompanyName" class="block text-sm font-medium text-gray-700">Company Name</label>
+                    <input type="text" name="name" id="editCompanyName" required class="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <div>
+                    <label for="editCompanyAddress" class="block text-sm font-medium text-gray-700">Company Address</label>
+                    <input type="text" name="address" id="editCompanyAddress" required class="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <div>
+                    <label for="editCompanyLocation" class="block text-sm font-medium text-gray-700">Assigned Delivery Province</label>
+                    <select name="location_id" id="editCompanyLocation" required class="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">-- Select Location --</option>
+                        @foreach($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->province }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="editCompanyStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select name="status" id="editCompanyStatus" required class="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-between items-center">
+                {{-- Save Changes Button --}}
+                <button type="submit" class="flex items-center gap-2 bg-blue-500 text-white shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer hover:bg-blue-600">
+                    <i class="fa-solid fa-save"></i> Save Changes
+                </button>
+
+                {{-- Archive Button --}}
+                <button type="button" onclick="confirmCompanyArchive()" class="flex items-center gap-2 bg-red-500 text-white shadow-sm shadow-red-500 px-5 py-2 rounded-lg cursor-pointer hover:bg-red-600">
+                    <i class="fa-solid fa-archive"></i> Archive Company
+                </button>
+            </div>
+            
+        </form>
+
+        {{-- Hidden form just for ARCHIVING the company --}}
+        <form method="POST" id="archiveCompanyForm" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
+</div>
+
+{{-- Archived Companies Modal --}}
+<div id="archivedCompaniesModal" class="hidden fixed inset-0 bg-black/60 p-5 md:p-20 items-center justify-center overflow-auto z-50">
+    <div class="modal w-full lg:w-1/2 h-fit bg-white rounded-lg relative m-auto p-10">
+        <x-modalclose click="closeArchivedCompaniesModal()"/>
+        
+        <h1 class="text-3xl text-[#005382] font-bold text-center mb-6">Archived Companies</h1>
+
+        <div class="overflow-y-auto max-h-[60vh]">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">Company Name</th>
+                        <th class="py-2 px-4 border-b">Date Archived</th>
+                        <th class="py-2 px-4 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($archivedCompanies as $company)
+                        <tr>
+                            <td class="py-2 px-4 border-b text-center">{{ $company->name }}</td>
+                            <td class="py-2 px-4 border-b text-center">{{ $company->deleted_at->format('M d, Y') }}</td>
+                            <td class="py-2 px-4 border-b text-center">
+                                
+                                {{-- Form to handle the restore action --}}
+                                <form method="POST" action="{{ route('admin.companies.restore', $company->id) }}" class="restore-company-form">
+                                    @csrf
+                                    <button 
+                                        type="submit" 
+                                        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded">
+                                        <i class="fa-solid fa-undo"></i> Restore
+                                    </button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-gray-500">No archived companies found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
         {{-- Archived Modal --}}
         <div id="archivedModal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 p-5 flex justify-center z-50">
             <div class="modal absolute mt-10 bg-white w-[80%] rounded-lg p-5 shadow-lg">
@@ -568,6 +750,132 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
+      @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Action Failed',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#d33'
+        });
+    @endif
+    // Add these new functions inside your script tag, preferably near the other modal functions
+
+// Function to open the company edit modal and populate its fields
+window.openEditCompanyModal = (button) => {
+    // Get data from the button's data-* attributes
+    const id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+    const address = button.getAttribute('data-address');
+    const locationId = button.getAttribute('data-location-id');
+    const status = button.getAttribute('data-status');
+
+    // Populate the form fields
+    document.getElementById('editCompanyId').value = id;
+    document.getElementById('editCompanyName').value = name;
+    document.getElementById('editCompanyAddress').value = address;
+    document.getElementById('editCompanyLocation').value = locationId;
+    document.getElementById('editCompanyStatus').value = status;
+    
+    // Set the dynamic action URL for both forms
+    const updateActionUrl = `/companies/${id}`; // Example URL, adjust to your actual route
+    document.getElementById('editCompanyForm').action = updateActionUrl;
+    document.getElementById('archiveCompanyForm').action = updateActionUrl;
+
+    // Show the modal
+    document.getElementById('editCompanyModal').classList.replace('hidden', 'flex');
+};
+
+// Function to close the modal
+window.closeEditCompanyModal = () => {
+    document.getElementById('editCompanyModal').classList.replace('flex', 'hidden');
+};
+
+// Function to confirm archiving with SweetAlert
+window.confirmCompanyArchive = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Archiving this company will also archive all of its associated user accounts. This action can be reversed.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, archive it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, submit the hidden archive form
+            document.getElementById('archiveCompanyForm').submit();
+        }
+    });
+};
+
+// Add a submit handler for the edit form for a better user experience
+document.getElementById('editCompanyForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Save Company Changes?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, save changes!'
+    }).then((result) => { 
+        if (result.isConfirmed) { 
+            this.submit(); 
+        } 
+    });
+});
+
+// Function to open the new company list modal
+window.openCompanyListModal = () => {
+    document.getElementById('companyListModal').classList.replace('hidden', 'flex');
+};
+
+// Function to close the company list modal
+window.closeCompanyListModal = () => {
+    document.getElementById('companyListModal').classList.replace('flex', 'hidden');
+};
+
+// This is the key function that connects the two modals
+window.selectCompanyToEdit = (button) => {
+    // First, close the list modal
+    closeCompanyListModal();
+
+    // Then, open the edit modal with the data from the button that was clicked
+    // This reuses the 'openEditCompanyModal' function we already made
+    openEditCompanyModal(button);
+};
+
+
+// Function to open the archived companies modal
+window.openArchivedCompaniesModal = () => {
+    document.getElementById('archivedCompaniesModal').classList.replace('hidden', 'flex');
+};
+
+// Function to close the archived companies modal
+window.closeArchivedCompaniesModal = () => {
+    document.getElementById('archivedCompaniesModal').classList.replace('flex', 'hidden');
+};
+
+// Add a confirmation dialog to all restore forms
+document.querySelectorAll('.restore-company-form').forEach(form => {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Stop the form from submitting immediately
+        
+        Swal.fire({
+            title: 'Restore this company?',
+            text: "This will also restore all of its users and exclusive deals.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, restore it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit(); // If confirmed, submit the form
+            }
+        });
+    });
+});
     // --- Add Account Form Logic ---
     const addForm = document.getElementById('addaccountform');
     if (addForm) {

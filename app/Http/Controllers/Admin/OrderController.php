@@ -306,8 +306,8 @@ foreach ($orderArray as $productName => $orders) {
 
             $order->update(['status' => $validate['status']]);
 
-            HistorylogController::changeorderstatuslog(
-                'Update',
+            HistorylogController::add(
+                'Edit',
                 "Order of {$validate['company']} from {$validate['province']} has been updated to status: " . ucfirst($validate['status'])
             );
 
@@ -316,6 +316,7 @@ foreach ($orderArray as $productName => $orders) {
             // dd($validate['strength']);
 
             DB::commit();
+            session()->flash("success", true);
             return to_route('admin.order')->with("update-success", $validate['mother_div']);
 
         } catch (\Exception $e) {

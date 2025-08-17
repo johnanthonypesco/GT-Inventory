@@ -57,10 +57,39 @@
             @endif
         </a>
     @endif
-    <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
+  @if (Auth::guard('superadmin')->check())
+    <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
         @csrf
-        <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full"><i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout</button>
+        <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full">
+            <i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout
+        </button>
     </form>
+
+@elseif (Auth::guard('admin')->check())
+    <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" class="mt-auto">
+        @csrf
+        <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full">
+            <i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout
+        </button>
+    </form>
+
+@elseif (Auth::guard('staff')->check())
+    <form id="logout-form" method="POST" action="{{ route('staff.logout') }}" class="mt-auto">
+        @csrf
+        <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full">
+            <i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout
+        </button>
+    </form>
+
+@elseif (Auth::guard('web')->check())
+    {{-- This handles the regular 'user' --}}
+    <form id="logout-form" method="POST" action="{{ route('logout') }}" class="mt-auto">
+        @csrf
+        <button type="submit" class="text-md text-left flex items-center gap-2 logout w-full">
+            <i class="fa-solid fa-right-from-bracket text-white text-md"></i>Logout
+        </button>
+    </form>
+@endif
 </div>
 <div id="sidebar-overlay"
      class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-10"

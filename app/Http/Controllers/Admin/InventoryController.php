@@ -304,7 +304,7 @@ class InventoryController extends Controller
 
         $newProduct = $product->create($validated);
 
-        HistorylogController::addproductlog('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
+        HistorylogController::add('Add', 'Product ' . $newProduct->generic_name . ' ' . $newProduct->brand_name . ' has been registered.');
 
         return to_route('admin.inventory')->with('success', 'Product registered successfully.');
     }
@@ -374,7 +374,7 @@ class InventoryController extends Controller
 
         $prod->update($validated);
 
-        HistorylogController::addproductlog('Edit', 'Product ' . $prod->generic_name . ' ' . $prod->brand_name . ' has been updated by ');
+        HistorylogController::add('Edit', 'Product ' . $prod->generic_name . ' ' . $prod->brand_name . ' has been updated by ');
 
         // dd("updated");
         session()->flash('success', 'Edited Product Successfuly');
@@ -442,13 +442,13 @@ class InventoryController extends Controller
 
         // Log changes with product name in the description
         if ($originalQuantity != $validated['quantity']) {
-            HistorylogController::editstocklog('Edit', "Stock quantity for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
+            HistorylogController::add('Edit', "Stock quantity for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         elseif ($originalExpiryDate != $validated['expiry_date']) {
-            HistorylogController::editstocklog('Edit', "Stock expiry date for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
+            HistorylogController::add('Edit', "Stock expiry date for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         elseif ($originalBatchNumber != $validated['batch_number']) {
-            HistorylogController::editstocklog('Edit', "Stock batch number for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
+            HistorylogController::add('Edit', "Stock batch number for {$genericName} in {$location}", $stock->product_id, $stock->location->province);
         } 
         else {
             return redirect()->to(url()->previous())->with('noChanges', true);
@@ -503,7 +503,7 @@ class InventoryController extends Controller
             $product->inventories()->create($datas);
         }
 
-        HistorylogController::addstocklog('Add', ' ' . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
+        HistorylogController::add('Add', ' ' . ' ' . 'stock(s) for ' . $product->generic_name . ' ' . $product->brand_name . ' has been added.');
 
 
         return to_route('admin.inventory')->with('success', 'Stock(s) added successfully.');
@@ -516,7 +516,7 @@ class InventoryController extends Controller
                     'is_archived' => true
                 ]);
 
-                HistorylogController::deleteproductlog('Archive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been archived.');
+                HistorylogController::add('Archive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been archived.');
 
                 session()->flash('prod-arhived');
                 session()->flash('success', 'Product archived successfully.');                
@@ -527,7 +527,7 @@ class InventoryController extends Controller
                     'is_archived' => false
                 ]);
 
-                HistorylogController::deleteproductlog('Unarchive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been unarchived.');
+                HistorylogController::add('Unarchive', 'Product ' . $product->generic_name . ' ' . $product->brand_name . ' has been unarchived.');
 
                 session()->flash('prod-unarchived');
                 session()->flash('success', 'Product unarchived successfully.');
@@ -668,6 +668,8 @@ class InventoryController extends Controller
             'signature' => $signaturePath,
         ]);
         
+    HistorylogController::add('QR Scanned', 'QR code processed and inventory deducted for Order #' . $orderId . ', Product: "' . $productName . '", Location: "' . $location . '".');
+
         // ✅ Step 6: Finalize the transaction
         DB::commit();
 
@@ -825,7 +827,7 @@ class InventoryController extends Controller
             'scanned_at' => now(),
         ]);
 
-        HistorylogController::scanqrcodelog('QR Upload & Deduct', 'QR code processed and inventory deducted for Order #' . $orderId . ', Product: "' . $productName . '", Location: "' . $location . '".');
+        HistorylogController::add('QR Upload & Deduct', 'QR code processed and inventory deducted for Order #' . $orderId . ', Product: "' . $productName . '", Location: "' . $location . '".');
 
         DB::commit();
 
@@ -883,7 +885,7 @@ class InventoryController extends Controller
                 $inventory->update(['location_id' => $validated['new_location']]);
 
                 // ✅ Log the transfer with correct parameters
-                HistorylogController::transferproductlog(
+                HistorylogController::add(
                     'Transfer',
                     'Inventory for ' . $inventory->product->generic_name . ' has been transferred from ' . $oldLocation . ' to ' . $locationName . '.',
                     $inventory->product_id,

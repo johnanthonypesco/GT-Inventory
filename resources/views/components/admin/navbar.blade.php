@@ -78,12 +78,30 @@
             </a>
         @endif
 
-        <form id="logout-form" method="POST" action="{{ route('user.logout') }}" class="mt-auto">
+       @if (Auth::guard('superadmin')->check())
+        <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">
                 <i class="fa-solid sm:text-2xl lg:text-sm fa-right-from-bracket text-white text-sm"></i><span class="sm:hidden lg:inline-block">Logout</span>
             </button>
-        </form>    
+        </form>
+
+        @elseif (Auth::guard('admin')->check())
+            <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" class="mt-auto">
+                @csrf
+                <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">
+                    <i class="fa-solid sm:text-2xl lg:text-sm fa-right-from-bracket text-white text-sm"></i><span class="sm:hidden lg:inline-block">Logout</span>
+                </button>
+            </form>
+
+        @elseif (Auth::guard('staff')->check())
+            <form id="logout-form" method="POST" action="{{ route('staff.logout') }}" class="mt-auto">
+                @csrf
+                <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">
+                    <i class="fa-solid sm:text-2xl lg:text-sm fa-right-from-bracket text-white text-sm"></i><span class="sm:hidden lg:inline-block">Logout</span>
+                </button>
+            </form>
+        @endif
     </li>
 </nav>
 

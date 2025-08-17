@@ -25,7 +25,7 @@
                 <x-input id="search" name="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search logs by description, event, or user..." classname="fa fa-magnifying-glass"/>
                 
                 {{-- Added name="event" and included all event types --}}
-                <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
+                <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit pr-8 bg-white outline-none" style="box-shadow: 0 0 2px #003582 ;">
                     <option value="All">--All Events--</option>
                     <option value="Add">Add</option>
                     <option value="Edit">Edit</option>
@@ -35,6 +35,11 @@
                     <option value="Archive">Archive</option>
                     <option value="Approve">Approve</option>
                     <option value="Disapprove">Disapprove</option>
+                     <option value="Login">Login</option>
+                    <option value="Logout">Logout</option>
+                    <option value="Failed Login">Failed Login</option>
+
+
                 </select>
             </div>
 

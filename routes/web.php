@@ -8,50 +8,50 @@ use Illuminate\Support\Facades\Route;
 
 // Admin Controller
 use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\OcrInventoryController;
-use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Admin\FileOcrController;
 use App\Http\Controllers\ProductSeasonalityController;
 
 // Staff Controller
+use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\ReviewManagerController;
 use App\Http\Controllers\StaffLocationController;
 use App\Http\Controllers\Admin\ChattingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
+
+// Customer Controller
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Customer\ReviewController;
 
-// Customer Controller
-use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\Customer\TrackingController;
-
 
 //Super Admin Login
+use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\PromotionalPageController;
 use App\Http\Controllers\Admin\HistorylogController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Customer\ChatRepsController;
-use App\Http\Controllers\SuperAdminAccountController;
-use App\Http\Controllers\Auth\TwoFactorAuthController;
+use App\Http\Controllers\Customer\TrackingController;
 // use app\http\Controllers\ExportController as ExportDocxController;
-use App\Http\Controllers\ExportController as ExportDocxController;
+use App\Http\Controllers\SuperAdminAccountController;
+
+
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 
 use App\Http\Controllers\Admin\ManageaccountController;
 
-
-use App\Http\Controllers\SuperAdminDashboardController;
-
 // chat
+use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\Admin\ProductlistingController;
-use App\Http\Controllers\Admin\ContentmanagementController;
 
 
 
@@ -60,27 +60,28 @@ use App\Http\Controllers\Customer\ManageorderController;
 use App\Http\Controllers\Customer\CustomerloginController;
 
 // GroupChat
+use App\Http\Controllers\Admin\ContentmanagementController;
+
+
+
+
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
-
-
-
-
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
+use App\Http\Controllers\ExportController as ExportDocxController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
+
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
-
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
+// download apk for registration.
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
-// download apk for registration.
-use App\Http\Controllers\FileDownloadController;
 
 // Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
 // Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
@@ -498,6 +499,17 @@ Route::middleware('auth:admin,superadmin')->group(function () {
 });
 
 
+
+Route::middleware(['auth:superadmin,admin'])->group(function () {
+    // Route for updating company details
+    Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('company.update');
+
+    // Route for archiving (soft deleting) a company
+    Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('company.destroy');
+
+    // In routes/web.php
+Route::post('/manage-companies/{id}/restore', [CompanyController::class, 'restore'])->name('admin.companies.restore');
+});
 
 
 // To Keep Laravel Auth Routes
