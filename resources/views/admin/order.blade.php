@@ -346,7 +346,7 @@
     <input type="hidden" id="status-id" name="status">
     <input type="hidden" id="mother-id" name="mother_div">
 
-    <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
+    {{-- <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
         PENDING
     </button>
     <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'packed')" type="button">
@@ -552,7 +552,7 @@
 <x-loader />
 {{-- loader --}}
 
-    <x-successmessage />
+    {{-- <x-successmessage /> --}}
 </body>
 </html>
 
