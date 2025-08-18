@@ -9,28 +9,28 @@
             </tr>
         </thead>
        <tbody>
-    @if($historylogs->isEmpty())
-        <tr>
-            <td colspan="4" class="text-center p-4">No matching history logs found.</td>
-        </tr>
-    @else
+        @if($historylogs->isEmpty())
+            <tr>
+                <td colspan="4" class="text-center p-4">No matching history logs found.</td>
+            </tr>
+        @else
         @foreach($historylogs as $log)
             <tr>
                 <td>{{ \Carbon\Carbon::parse($log->created_at)->format('F d, Y') }} <span class="font-light ml-2">{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</span></td>
                 @php
                 // This array now defines the text color and the stripe (before:) color
                 $stripeColors = [
-                    'Add'          => 'text-blue-700 before:bg-blue-500',
-                    'Edit'         => 'text-yellow-700 before:bg-yellow-500',
-                    'Archive'      => 'text-orange-700 before:bg-orange-500',
-                    'Disapprove'   => 'text-red-700 before:bg-red-500',
-                    'Approve'      => 'text-sky-700 before:bg-sky-500',
-                    'Delete'       => 'text-red-700 before:bg-red-500',
-                    'Restore'      => 'text-lime-700 before:bg-lime-600',
-                    'Update'       => 'text-green-700 before:bg-green-500',
-                    'Failed Login' => 'text-red-700 before:bg-red-500',
-                    'Login'        => 'text-green-700 before:bg-green-500',
-                    'Logout'       => 'text-slate-600 before:bg-slate-500',
+                    'Add'          => 'text-blue-700 before:bg-blue-500 bg-blue-100/50',
+                    'Edit'         => 'text-yellow-700 before:bg-yellow-500 bg-yellow-100/50',
+                    'Archive'      => 'text-orange-700 before:bg-orange-500 bg-orange-100/50',
+                    'Disapprove'   => 'text-red-700 before:bg-red-500 bg-red-100/50',
+                    'Approve'      => 'text-sky-700 before:bg-sky-500 bg-sky-100/50',
+                    'Delete'       => 'text-red-700 before:bg-red-500 bg-red-100/50',
+                    'Restore'      => 'text-lime-700 before:bg-lime-600 bg-lime-100/50',
+                    'Update'       => 'text-green-700 before:bg-green-500 bg-green-100/50',
+                    'Failed Login' => 'text-red-700 before:bg-red-500 bg-red-100/50',
+                    'Login'        => 'text-green-700 before:bg-green-500 bg-green-100/50',
+                    'Logout'       => 'text-slate-600 before:bg-slate-500 bg-slate-100/50',
                 ];
                 $eventClasses = $stripeColors[$log->event] ?? 'text-gray-700 before:bg-gray-500';
                 @endphp
