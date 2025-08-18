@@ -49,7 +49,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button type="submit" class="text-xl font-semibold {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
+                    <button type="submit" class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -61,7 +61,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
+                    <button class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -73,7 +73,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
+                    <button class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
                 </form>
             </div>
             {{-- STATUS FILTER --}}
@@ -160,7 +160,7 @@
                     </span>
                 </h1>
                 <div class="table-container mt-2 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                    <div class="flex flex-wrap justify-between items-center">
+                    <div class="flex justify-end items-center">
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
                             {{-- i will add this feature once client starts paying --}}
                             {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
@@ -174,7 +174,7 @@
                             <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-exportx', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                         </div>
                     </div>

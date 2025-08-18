@@ -86,12 +86,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -106,12 +106,12 @@
                 </span>
             </h1>
             <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                <div class="flex flex-wrap justify-between items-center">
+                <div class="flex items-center justify-end">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}

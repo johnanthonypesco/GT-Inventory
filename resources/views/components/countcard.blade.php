@@ -2,10 +2,10 @@
 
 <div {{ $attributes ->merge(['class' => 'bg-white w-full p-5 rounded-xl relative']) }}  id="card" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
     <div class="flex items-center justify-between">
-        <p class="text-3xl" id="real-timer-counters" data-type="{{ $title }}">0{{$count}}</p>
-        <img src="{{asset ('image/'. $image)}}" alt="">
+        <p class="text-md font-semibold text-black/70">{{$title}}</p>
+        <img src="{{asset ('image/'. $image)}}" alt="" class="w-10">
     </div>
-    <p class="text-md font-semibold">{{$title}}</p>
+    <p class="text-xl font-semibold" id="real-timer-counters" data-type="{{ $title }}">0{{$count}}</p>
     
     @if(trim($slot))
         <div class="{{ $classname }}">
