@@ -41,12 +41,12 @@
                     at your fingertips, no matter where you are.
                 </p>
                 <div class="flex gap-5">
-                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</a>
-                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold">About Us</a>
+                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white hover:-translate-y-1 transition-transform duration-300">Reach Us</a>
+                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold hover:-translate-y-1 transition-transform duration-300">About Us</a>
                 </div>
             </div>
-            <div id="content-right" class="flex justify-center items-center lg:w-1/2">
-                <img src="{{ asset('image/Medecine Bg.png') }}" alt="Landing Page" class="w-[450px] h-[450px] lg:w-[600px] lg:h-[600px]">
+            <div id="bouncy" class="flex justify-center items-center lg:w-1/2">
+                <img src="{{ asset('image/Medecine Bg.png') }}" alt="Landing Page" class="w-[450px] h-[400px] lg:w-[600px] lg:h-[550px]">
             </div>
         </section>
     
@@ -91,15 +91,15 @@
                 <button onclick="setFilter('oral')" class="text-gray-600 font-bold filter-btn" data-filter="oral" id="content-left">Oral</button>
             </div>
 
-            <div class="flex w-[100%] z-1 relative gap-5 overflow-x-auto p-5 justify-center" id="content-right">
+            <div class="flex w-full lg:w-[70%] z-1 relative gap-5 overflow-hidden p-5 justify-center" id="content-right">
                 @forelse($enabledProducts as $product)
-                    <div class="product-card" data-filter="{{ strtolower($product->form) }}">
+                    <div id="product-scroll" class="product-card" data-filter="{{ strtolower($product->form) }}">
                         <x-promotionalpage.product 
                             :image="$product->img_file_path"
                             genericname="{{ $product->generic_name }}"
                             brandname="{{ $product->brand_name }}"
                             form="{{ $product->form }}"
-                        />
+                        />  
                     </div>
                 @empty
                     <p class="text-center text-gray-500">No products available.</p>
@@ -183,7 +183,7 @@
         </section>
     </main>
 
-    <div class="fixed hidden bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-8 z-50" id="productsmodal">
+    <div class="fixed hidden bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-5 z-50" id="productsmodal">
             <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5 ">
                 <x-modalclose id="closeproductsmodal"/>
                 <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
@@ -194,9 +194,9 @@
                     <button class="text-gray-600 font-md text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
                 </div>
 
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[500px] lg:h-[400px] justify-center">
+                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[600px] lg:h-[400px] justify-center">
                     @forelse($enabledProducts as $product)
-                        <div class="product-card" data-filter="{{ strtolower($product->form) }}">
+                        <div class="product-card" data-filter="{{ strtolower($product->for) }}">
                             <x-promotionalpage.product 
                                 :image="$product->img_file_path"
                                 genericname="{{ $product->generic_name }}"

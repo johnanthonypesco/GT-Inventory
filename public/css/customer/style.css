@@ -6,8 +6,11 @@ body{
     height: 100vh;
     background-color: #eaeaea;
 }
+header{
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1);
+}
 nav{
-    border-radius: 20px;
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1);
 }
 ul a,a{
     padding: 10px;
@@ -21,9 +24,10 @@ ul a,a{
     transition: all 0.3s;
     overflow: hidden;
     z-index: 0;
+    color: #555;
 }
 ul a i, a i{
-    color: #005382;
+    color: #555;
 }
 ul a::before, a::before{
     content: "";
@@ -48,6 +52,7 @@ ul a:hover i, a:hover i{
 .active{
     background-color: #005382;
     color: white;
+    box-shadow: 0 10px 8px rgba(0, 0, 0, 0.266);
 }
 .active i{
     color: white;

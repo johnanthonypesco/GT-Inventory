@@ -13,46 +13,46 @@
 
     <title>Review Manager</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Manage Reviews" icon="fa-solid fa-star" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="w-full mt-5 bg-white p-5 rounded-lg">
+        <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
             
             <div class="overflow-auto">
-                <table class="w-full table-auto text-left border border-gray-200">
-                    <thead class="bg-[#005382] text-white">
+                <table >
+                    <thead>
                         <tr>
-                            <th class="p-2">Customer Name</th>
-                            <th class="p-2">Company Name</th>
+                            <th>Customer Name</th>
+                            <th>Company Name</th>
 
-                            <th class="p-2">Rating</th>
-                            <th class="p-2">Comment</th>
-                            <th class="p-2">Public</th>
-                            <th class="p-2">Status</th>
-                            <th class="p-2">Action</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Public</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($reviews as $review)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $review->user->name }}</td>
-                            <td class="p-2">{{ $review->user->company->name }}</td>
+                        <tr >
+                            <td>{{ $review->user->name }}</td>
+                            <td>{{ $review->user->company->name }}</td>
 
-                            <td class="p-2">{{ $review->rating }}</td>
-                            <td class="p-2">{{ $review->comment }}</td>
-                            <td class="p-2">{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
-                            <td class="p-2">
+                            <td>{{ $review->rating }}</td>
+                            <td>{{ $review->comment }}</td>
+                            <td>{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
+                            <td>
                                 @if ($review->is_approved)
                                     <span class="text-green-600 font-semibold">Approved</span>
                                 @else
                                     <span class="text-yellow-600 font-semibold">Pending</span>
                                 @endif
                             </td>
-                            <td class="p-2">
+                            <td>
                                 <form action="{{ $review->is_approved 
                                     ? route('superadmin.reviews.disapprove', $review) 
                                     : route('superadmin.reviews.approve', $review) }}" id="approve-form" method="POST">

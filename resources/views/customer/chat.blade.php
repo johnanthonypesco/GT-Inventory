@@ -46,15 +46,15 @@
     </style>
 </head>
 
-<body class="flex flex-col md:flex-row gap-4 h-[100vh] p-5">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-customer.navbar />
 
-    <main class="md:w-full h-full lg:ml-[18%] ml-0 opacity-0">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0 px-4">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
 
-        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
+        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-24 rounded-lg"/>
 
-        <div id="contactsList" class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col">
+        <div id="contactsList" class="flex gap-2 bg-white w-full overflow-auto h-[70vh] p-2 rounded-xl mt-3 flex-col" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             @for ($i = 0; $i < 5; $i++) {{-- Display 5 skeleton loaders as placeholders --}}
                 <div class="flex gap-2 p-2 rounded-lg animate-pulse">
                     <div class="skeleton-loader circle"></div>
@@ -162,7 +162,7 @@
         </div>
 
         {{-- Terms and Conditions Agreement --}}
-        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10" id="termsAndConditions">
+        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 z-50" id="termsAndConditions">
             <div class="modal w-full md:w-[40%] bg-white rounded-lg p-5 flex flex-col gap-2 m-auto">
                 <h1 class="text-[#005382] text-2xl font-bold">Terms and Conditions</h1>
                 <hr class="border border-gray-200">
@@ -179,14 +179,14 @@
                 </div>
 
                 <div class="flex items-center gap-3 mt-5">
-                    <button id="proceed" class="flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit" disabled>Proceed</button>
-                    <button id="decline" class="bg-red-500 text-white flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit">Decline</button>
+                    <button id="proceed" class="flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-transform duration-300" disabled>Proceed</button>
+                    <button id="decline" class="bg-red-500 text-white flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer w-fit hover:-translate-y-1 transition-transform duration-300">Decline</button>
                 </div>
             </div>
         </div>
 
         {{-- Terms and Conditions Modal --}}
-        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 hidden" id="terms&conditionsletter">
+        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 hidden z-50" id="terms&conditionsletter">
             <div class="modal w-full md:w-[60%] bg-white rounded-lg p-5 flex flex-col gap-2 m-auto relative">
                 <x-modalclose click="closetermsandconditions"/>
                 <h1 class="text-[#005382] text-2xl font-bold">Terms and Conditions</h1>

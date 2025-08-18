@@ -19,14 +19,14 @@
 
     <title>Orders</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div class="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
             <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
@@ -41,9 +41,7 @@
         </div>
         {{-- Total Container --}}
 
-
-
-        <div class="h-[60vh] overflow-auto mt-8">
+        <div class="mt-8">
             <div class="table-button flex flex-col lg:flex-row justify-between gap-4 p-1 float-end w-full">
                 {{-- Search --}}
                 <div class="flex flex-col lg:flex-row gap-1 justify-between items-center w-full lg:w-[40%] relative rounded-lg">
@@ -107,7 +105,7 @@
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container bg-white p-5 rounded-lg mb-5">
+            <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <div class="flex flex-wrap justify-between items-center">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
@@ -136,7 +134,7 @@
                         {{ $companyName }}
                     </h1>
 
-                    <div class="overflow-auto max-h-[200px] h-fit mt-5">
+                    <div class="overflow-auto mt-5">
                         {{-- Table --}}
                         <x-table
                             :headings="['Employee Name', 'Date Ordered', 'Action']"
@@ -165,23 +163,21 @@
                 @foreach ($employees as $employeeNameAndDate => $groupedStatuses)
                     @php
                         $total = 0;
+                        $explodedIDNameDate = explode('|', $employeeNameAndDate);
                     @endphp
                     <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
-                                items-center justify-center px-4"
-                        id="order-modal-{{ $employeeNameAndDate }}">
+                                items-center justify-center px-4 z-50"
+                        id="order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}">
                         <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
                             {{-- Close button, etc. --}}
-                            <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
+                            <x-modalclose closeType="orders-admin-view" click="closeOrderModal" :variable="$explodedIDNameDate[0] . '-' . $explodedIDNameDate[2]" />
 
                             <h1 class="text-xl font-bold uppercase mb-6">
-                                @php
-                                    $separatedInModal = explode('|', $employeeNameAndDate);
-                                @endphp
                                 Orders By:
                                 <span class="text-blue-800">
-                                    {{ $separatedInModal[0] }} -
-                                    [ {{ Carbon::parse($separatedInModal[1])->translatedFormat('M d, Y') }} ]
+                                    {{ $explodedIDNameDate[1] }} -
+                                    [ {{ Carbon::parse($explodedIDNameDate[2])->translatedFormat('M d, Y') }} ]
                                 </span>
                             </h1>
 
@@ -248,20 +244,10 @@
                                                         
                                                         @else
                                                             <div class="flex gap-1 items-center justify-center">
-                                                                <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal({{ $order->id }}, 
-                                                                'order-modal-{{ $employeeNameAndDate }}', {
-                                                                province: '{{$provinceName}}',
-                                                                company: '{{$companyName}}',
-                                                                employee: '{{$separatedInModal[0]}}',         // ✅ FIXED
-                                                                date_ordered: '{{$separatedInModal[1]}}',
-                                                                generic_name: '{{$productInfo->generic_name}}', // ✅ FIXED
-                                                                brand_name: '{{$productInfo->brand_name}}',   // ✅ FIXED
-                                                                form: '{{$productInfo->form}}',
-                                                                strength: '{{$productInfo->strength}}',
-                                                                quantity: {{$order->quantity}},
-                                                                price: {{$order->exclusive_deal->price}},
-                                                                subtotal: {{$order_calc}},
-                                                            })">
+                                                                <button class="bg-blue-600 text-white px-2 py-1 rounded-md" onclick="showChangeStatusModal(
+                                                                    {{ $order->id }}, 
+                                                                    'order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}', 
+                                                                )">
                                                                     Change Status
                                                                 </button>
 
@@ -345,7 +331,7 @@
         var errorMessage = @json(session('manualUpdateFailed'));
         alert(errorMessage);
     </script>
-@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
                 <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
@@ -357,18 +343,6 @@
     @method("PUT")
 
     <input type="hidden" name="order_id" id="id-container">
-    <input type="hidden" id="archive-province" name="province">
-    <input type="hidden" id="archive-company" name="company">
-    <input type="hidden" id="archive-employee" name="employee">
-    <input type="hidden" id="archive-date-ordered" name="date_ordered">
-    <input type="hidden" id="archive-generic-name" name="generic_name">
-    <input type="hidden" id="archive-brand-name" name="brand_name">
-    <input type="hidden" id="archive-form" name="form">
-    <input type="hidden" id="archive-strength" name="strength">
-    <input type="hidden" id="archive-quantity" name="quantity">
-    <input type="hidden" id="archive-price" name="price">
-    <input type="hidden" id="archive-subtotal" name="subtotal">
-
     <input type="hidden" id="status-id" name="status">
     <input type="hidden" id="mother-id" name="mother_div">
 
@@ -390,6 +364,16 @@
 
         CANCELLED
     </button>
+
+    {{-- <label for="status-select" class="font-semibold">Select Status:</label>
+    <select id="status-select" name="status" onchange="changeStatus(this.closest('form'), this.value)" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 hover:bg-white hover:cursor-pointer">
+        <option value="pending" selected style="background-color: orange; color: white">PENDING</option>
+        <option value="packed" style="background-color: purple; color: white">PACKED</option>
+        <option value="out for delivery" style="background-color: green; color: white">OUT FOR DELIVERY</option>
+        <option value="delivered" style="background-color: blue; color: white">DELIVERED</option>
+        <option value="cancelled" style="background-color: red; color: white">CANCELLED</option>
+    </select> --}}
+
 
    
 </form>
@@ -429,7 +413,7 @@
         {{-- Update Order Status Modal --}}
 
         {{-- Upload qr code modal --}}
-        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
             <div class="modal bg-white w-full lg:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="uploadqrmodalclose" click="closeuploadqrmodal"/>
                 <!-- Title -->
@@ -448,7 +432,7 @@
     </main>
 
     {{-- FOR ACTION MAPS --}}
-    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
         <div class="modal bg-white w-full md:w-[80%] mx-auto p-5 rounded-lg relative shadow-lg">
             <x-modalclose click="showInsufficients"/>
 
@@ -473,7 +457,7 @@
                         </tr>
                     </thead>
                     
-                    <tbody>
+                    <tbody id="real-timer-unfulfillable-orders-table">
                         @foreach ($insufficients as $orderName => $orders)
                             @foreach ($orders as $order)
                                 @php
@@ -514,7 +498,7 @@
                 Summary of Products That Cannot Fulfill the Total Orders:
             </h1>
     
-            <div class="h-[70vh] overflow-auto">
+            <div class="h-[70vh] overflow-auto" id="real-timer-insufficients-table">
                 @php
                     $groupedSummary = collect($insufficientSummary)
                     ->groupBy(function ($item) {
@@ -568,6 +552,7 @@
 <x-loader />
 {{-- loader --}}
 
+    <x-successmessage />
 </body>
 </html>
 
@@ -632,6 +617,7 @@
     });
 });
 
+
 </script>
 <script>
 function showInsufficientProducts() {
@@ -692,31 +678,16 @@ function showInsufficients() {
  *          quantity, price, subtotal
  *        }
  */
-function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
+function showChangeStatusModal(id, motherDiv) {
 
     const modal        = document.getElementById('change-status-modal');
     const orderIdInput = document.getElementById('id-container');
     const motherInput  = document.getElementById('mother-id');
 
-    /* Map every hidden field only once */
-    const fields = {
-        province     : document.getElementById('archive-province'),
-        company      : document.getElementById('archive-company'),
-        employee     : document.getElementById('archive-employee'),
-        date_ordered : document.getElementById('archive-date-ordered'),
-        generic_name : document.getElementById('archive-generic-name'),
-        brand_name   : document.getElementById('archive-brand-name'),
-        form         : document.getElementById('archive-form'),
-        strength         : document.getElementById('archive-strength'),
-        quantity     : document.getElementById('archive-quantity'),
-        price        : document.getElementById('archive-price'),
-        subtotal     : document.getElementById('archive-subtotal')
-    };
-
     /* Helper – assign every expected key, fallback to empty string */
-    const assignValues = data => {
-        Object.keys(fields).forEach(k => fields[k].value = data[k] ?? '');
-    };
+    // const assignValues = data => {
+    //     Object.keys(fields).forEach(k => fields[k].value = data[k] ?? '');
+    // };
 
     /* ----- OPEN ----- */
     if (modal.classList.contains('hidden')) {
@@ -726,8 +697,6 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
         orderIdInput.value      = id;
         orderIdInput.dataset.id = id;
         motherInput.value       = motherDiv;
-
-        assignValues(archivingDetails);
 
         // Remove after confirming everything works
         console.log('Change-Status modal opened:', { id, archivingDetails });
@@ -740,8 +709,6 @@ function showChangeStatusModal(id, motherDiv, archivingDetails = {}) {
     orderIdInput.value      = 0;
     orderIdInput.dataset.id = 0;
     motherInput.value       = '';
-
-    assignValues({});   // clear all hidden inputs
 }
 
 
@@ -897,4 +864,107 @@ function closeAssignStaffModal() {
     document.getElementById('assign-staff-modal').classList.replace('flex', 'hidden');
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+
+// REAL TIMER STUFF BY SIGRAE
+
+document.addEventListener('DOMContentLoaded', function () {
+    const totalCountersID = '#real-timer-counters';
+    const unfulfillableTableID = '#real-timer-unfulfillable-orders-table';
+    const insufficientTableID = '#real-timer-insufficients-table';
+    // const provincesID = '#real-timer-provinces';
+    // const employeeOrdersTableID = '#real-timer-employee-orders-table';
+
+    // every 8.5 secs mag update yung main section
+    setInterval(() => {
+        updateOrderPage(window.location.href);
+    }, 8500); 
+
+    function updateOrderPage(url) {
+        fetch(url)
+        .then(response => response.text()) // convert blade view to text
+        .then(html => {
+            const parser = new DOMParser();
+            const updatedPage = parser.parseFromString(html, 'text/html');
+
+            // DITO YUNG MULTI REPLACE SECTION
+            const currentCounters = document.querySelectorAll(totalCountersID);            
+            // const currentProvinces = document.querySelectorAll(provincesID);            
+            // const currentEmployeeOrderTables = document.querySelectorAll(employeeOrdersTableID);            
+
+            currentCounters.forEach(currentCounter => {
+                const type = currentCounter.dataset.type;
+
+                // Update the current iter with the updated version
+                const updatedCounter = updatedPage.querySelector(`${totalCountersID}[data-type="${type}"]`);
+                
+                if (updatedCounter) {
+                    currentCounter.innerHTML = updatedCounter.innerHTML;
+                }
+            });
+
+            // currentProvinces.forEach(currentProvince => {
+            //     const location = currentProvince.dataset.location;
+
+            //     // Update the current iter with the updated version
+            //     const updatedProvince = updatedPage.querySelector(`${provincesID}[data-location="${location}"]`);
+                
+            //     if (updatedProvince) {
+            //         currentProvince.innerHTML = updatedProvince.innerHTML;
+            //     }
+            // });
+            
+            // currentEmployeeOrderTables.forEach(currentTable => {
+            //     const nameDate = currentTable.dataset.namedate;
+            //     const currentNameDate = document.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
+            //     const currentClose = document.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
+            //     const currentGrandTotal = document.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+
+            //     // Update the current iter with the updated version
+            //     const updatedTable = updatedPage.querySelector(`${employeeOrdersTableID}[data-namedate="${nameDate}"]`);
+            //     const updatedNameDate = updatedPage.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
+            //     const updatedClose = updatedPage.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
+            //     const updatedGrandTotal = updatedPage.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+                
+            //     if (updatedTable) {
+            //         currentTable.innerHTML = updatedTable.innerHTML;
+            //         currentNameDate.innerHTML = updatedNameDate.innerHTML;
+            //         currentClose.innerHTML = updatedClose.innerHTML;
+            //         currentGrandTotal.innerHTML = updatedGrandTotal.innerHTML;
+            //     }
+            // });
+            
+            // DITO YUNG MULTI REPLACE SECTION
+
+            // DITO YUNG SINGULAR REPLACE SECTION    
+            const currentUnfulfillable = document.querySelector(unfulfillableTableID);
+            const updatedUnfulfillable = updatedPage.querySelector(unfulfillableTableID);
+
+            currentUnfulfillable.innerHTML = updatedUnfulfillable.innerHTML;
+
+            const currentInsufficient = document.querySelector(insufficientTableID);
+            const updatedInsufficient = updatedPage.querySelector(insufficientTableID);
+
+            currentInsufficient.innerHTML = updatedInsufficient.innerHTML;
+
+            // const currentCompanyOptions = Array.from(currentCompanySearch.options).map(opt => opt.value).join(',');
+            // const updatedCompanyOptions = Array.from(updatedCompanySearch.options).map(opt => opt.value).join(',');
+
+            // if (currentCompanyOptions !== updatedCompanyOptions) {
+            //     currentCompanySearch.innerHTML = updatedCompanySearch.innerHTML;
+            //     console.log("company search updated");
+            // }
+            
+
+            // DITO YUNG SINGULAR REPLACE SECTION
+
+            console.log("updated full page successfully");
+        })
+        .catch(error => {
+            console.error("The realtime update para sa order page is not working ya bitch! ", error);
+        });
+    }
+});
+
+// REAL TIMER STUFF BY SIGRAE
 </script>
+

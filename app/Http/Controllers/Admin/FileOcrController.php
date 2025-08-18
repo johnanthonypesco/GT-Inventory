@@ -23,15 +23,10 @@ class FileOcrController extends Controller
                 return dirname($path);
             })
             ->unique()
-            // ==========================================================
-            // === ITO ANG IDINAGDAG NA SOLUSYON ===
-            // ==========================================================
+            // I-filter out ang directory kung ito ay 'receipts' lamang.
             ->filter(function ($directory) {
-                // I-filter out ang directory kung ito ay 'receipts' lamang.
-                // Papayagan lang nito ang mga sub-directories.
                 return $directory !== 'receipts';
             })
-            // ==========================================================
             ->sort()
             ->values();
 
@@ -52,11 +47,9 @@ class FileOcrController extends Controller
 
     /**
      * Kunin ang laman ng isang specific folder via AJAX.
-     * (This method is already correct and does not need changes)
      */
     public function getFolderContents(Request $request)
     {
-        // ... ang code dito ay tama na, walang babaguhin ...
         $validated = $request->validate([
             'path' => 'required|string',
             'type' => 'required|in:image,docx',
@@ -73,8 +66,11 @@ class FileOcrController extends Controller
 
         if ($type === 'image') {
             $imagePaths = ArchivesOcrReceipt::where('image_path', 'like', $path . '/%')->pluck('image_path');
-            $urls = $imagePaths->map(fn($file) => Storage::url($file));
+            // ✅ FIX: Use the asset() helper to generate the correct public URL
+            // instead of Storage::url().
+            $urls = $imagePaths->map(fn($file) => asset($file));
         } elseif ($type === 'docx') {
+            // This part is likely correct if DOCX files are still managed via the storage disk
             $files = Storage::disk('public')->files($path);
             $urls = collect($files)->map(fn($file) => Storage::url($file));
         }
@@ -82,3 +78,4 @@ class FileOcrController extends Controller
         return response()->json(['files' => $urls]);
     }
 }
+// 9e04c8a636c02bec62f8e0b4d14d49cdc5f50453

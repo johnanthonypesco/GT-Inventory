@@ -19,14 +19,14 @@
 
     <title>History</title>
 </head>
-<body class="flex p-5 gap-5">
+<body class="flex p-0 m-0">
     <x-customer.navbar/>
 
-    <main class="w-full lg:ml-[17%] opacity-0">
+    <main class="w-full lg:ml-[16%] opacity-0 px-4">
         <x-customer.header title="Order History" icon="fa-solid fa-clock-rotate-left"/>
 
         {{-- Table for Order --}}
-        <div class="table-container mt-5 bg-white p-5 rounded-lg">
+        <div class="table-container mt-24 bg-white p-5 rounded-lg">
             <div class="flex flex-col lg:flex-row">
                 @php
                     // these variables are used to control the saving of filters in url query
@@ -140,7 +140,7 @@
 
         {{-- View Order Modal --}}
         @foreach ($groupedOrdersByDate as $dateName => $statuses)
-            <div id="view-order-modal-{{ $dateName }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
+            <div id="view-order-modal-{{ $dateName }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
                 <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
                     <span onclick="closeOrderModal('{{ $dateName }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                     <h1 class="text-xl font-semibold text-[#005382]">

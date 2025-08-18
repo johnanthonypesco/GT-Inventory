@@ -17,13 +17,13 @@
 
     <title>Manage Content</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Manage Content" icon="fa-solid fa-file" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="table-container p-4 bg-white shadow-md rounded-md mt-5">
+        <div class="table-container p-4 bg-white rounded-md mt-24" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="text-2xl font-bold text-[#005382] mb-4">About us Content</h1>
             <div class="overflow-x-auto">
                 <table>
@@ -136,9 +136,9 @@
             </div>
         </div>
 
-        <div class="table-container bg-white shadow-md rounded-md mt-5 p-4">
+        <div class="table-container bg-white rounded-md mt-5 p-4" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="text-2xl font-bold text-[#005382] mb-4">Shown Product in Promotional Page</h1>
-            <div class="h-[34vh] overflow-auto">
+            <div class="overflow-auto">
                 <table>
                     <thead>
                         <tr>

@@ -20,19 +20,20 @@
     }
 @endphp
 
-<header class="flex justify-between items-center w-full md:py-2 py-4 px-5">
+{{-- <div class="bg-[#eaeaea] h-1 fixed top-0 left-[16%] right-2 z-[51]"></div> --}}
+<header class="flex justify-between items-center md:py-2 py-2 px-5 fixed top-0 left-0 lg:left-[15%] right-0 z-50 bg-white shadow-md">
     <div class="flex items-center gap-2">
         <i {{ $attributes->merge(['class'=> 'text-[#005382] text-2xl '. $icon]) }}></i>
-        <h1 class="font-bold text-lg uppercase">{{$title}}</h1>
+        <h1 class="font-bold text-md uppercase">{{$title}}</h1>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
         <div class="relative group">
-            <button class="flex gap-2 justify-center items-center font-semibold text-xl rounded-lg bg-green-600/80 text-white w-fit p-2 hover:bg-green-600 transition-all duration-150"
-                onclick="showTutorial()"
+            <button id="help" class="flex gap-2 justify-center items-center font-semibold text-xl rounded-full py-1 bg-green-600/80 text-white w-fit px-2 hover:bg-green-600 transition-all duration-150"
+                onclick="showTutorial()" style="box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.4)"
             >
                 <i class="fa-regular fa-circle-question text-xl"></i>
-                HELP
+                {{-- HELP --}}
             </button>
 
             <!-- Tooltip -->
@@ -42,11 +43,24 @@
         </div>
 
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
-        <div class="hidden lg:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-md">
-            <i class="fa-solid fa-user text-2xl bg-[#005382] text-white p-2 rounded-full"></i>
+        <div class="hidden group lg:flex gap-2 items-center px-5 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
+            <i class="fa-solid fa-user text-xl bg-[#005382] text-white py-2 px-3 rounded-full"></i>
             <div>
                 <p class="font-semibold text-sm">{{ $name }}</p>
-                <p class="text-[12px]">{{ $email }}</p>
+                <p class="text-[12px] font-semibold text-black/60">{{ $email }}</p>
+            </div>
+            <i class='fa-solid fa-angle-down text-black/70 absolute right-2'></i>
+
+            {{-- dropdown menu --}}
+            <div class="absolute right-0 top-full mt-1 w-32 bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <a href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                class="px-4 py-2 text-sm text-white flex items-center justify-center gap-5 hover:bg-gray-700 rounded-md transition-colors duration-150">
+                    Logout <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+                <form id="logout-form" action="{{ route('user.logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
             </div>
         </div>
 

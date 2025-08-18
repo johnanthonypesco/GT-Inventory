@@ -2,57 +2,117 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Historylogs;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Company;
-use App\Models\Product;
-use App\Models\ManageContents;
+use Illuminate\Support\Facades\Http; 
+
 
 class HistorylogController extends Controller
 {
     /**
-     * Display the main history log page for the initial load.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * ✅ PRIVATE HELPER: A single, private method to create any log entry.
+     * All other public methods will call this one. This ensures no code is repeated.
      */
-     public function showHistorylog(Request $request)
+    private static function log($event, $description, $userEmail)
     {
-        // Get the initial set of logs for the first page load.
-        $historylogs = Historylogs::orderBy('created_at', 'desc')->paginate(10);
-
-        // *** THIS IS THE FIX ***
-        // Manually set the path for pagination links to point to the AJAX route.
-        // Make sure 'admin.historylog.search' is the correct name of your route in web.php.
-        $historylogs->withPath(route('admin.historylog.search'));
-        
-        // Pass the paginated data to the main view.
-        return view('admin.historylog', [
-            'historylogs' => $historylogs,
-            'currentPage' => $historylogs->currentPage(),
-            'totalPage' => $historylogs->lastPage(),
-            'prevPageUrl' => $historylogs->previousPageUrl(),
-            'nextPageUrl' => $historylogs->nextPageUrl(),
+        Historylogs::create([
+            'event'       => $event,
+            'description' => $description,
+            'user_email'  => $userEmail,
+            'created_at'  => now(),
         ]);
     }
 
     /**
-     * Handle AJAX requests for searching, filtering, and paginating history logs.
-     * Returns a partial view containing only the table data.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * ✅ NEW: Logs a successful user login.
+     * Call this from your TwoFactorController after successful authentication.
      */
+    public static function loginLog($user)
+    {
+        $role = ucfirst($user->role ?? 'user');
+        $description = "$role '{$user->email}' logged in successfully.";
+        self::log('Login', $description, $user->email);
+    }
+
+    /**
+     * ✅ NEW: Logs a user logout.
+     * Call this from the destroy() method in your auth controllers.
+     */
+    public static function logoutLog($user)
+    {
+        $role = ucfirst($user->role ?? 'user');
+        $description = "$role '{$user->email}' logged out.";
+        self::log('Logout', $description, $user->email);
+    }
+
+     public static function failedLoginLog($email)
+    {
+
+         if (App::environment('local')) {
+        // --- FOR LOCAL DEVELOPMENT ---
+        // This block runs only when APP_ENV in your .env file is 'local'.
+        // It asks an external service for your public IP for testing.
+        $ipAddress = Http::get('https://api.ipify.org')->body();
+    } else {
+        // --- FOR PRODUCTION / LIVE SERVER ---
+        // This block runs for any other environment (e.g., 'production').
+        // It gets the real IP address of the website visitor.
+        $ipAddress = request()->ip();
+    }
+        $locationString = 'Location lookup failed'; // Default value
+
+        // ✅ 2. MAKE THE DIRECT API CALL
+        // Note: For local development with IP 127.0.0.1, this will fail, which is normal.
+        $response = Http::get("http://ip-api.com/json/{$ipAddress}");
+
+        // ✅ 3. CHECK THE RESPONSE AND FORMAT THE LOCATION STRING
+        if ($response->successful() && $response->json('status') === 'success') {
+            // The API call was successful.
+            $data = $response->json();
+            $locationString = "{$data['city']}, {$data['country']}";
+        }
+        
+        // ✅ 4. CREATE THE LOG ENTRY WITH THE LOCATION DATA
+        $description = "Failed login attempt for email '{$email}'.";
+        $actionBy = "Attempt by: {$ipAddress} ({$locationString})";
+        
+        self::log('Failed Login', $description, $actionBy); 
+    }
+    /**
+     * ✅ REPLACEMENT METHOD: This one public method replaces ALL your old repetitive methods.
+     * (replaces addproductlog, editproductlog, addaccountlog, etc.)
+     *
+     * Example Usage:
+     * HistorylogController::add('Add', 'User added a new product: XYZ');
+     * HistorylogController::add('Approve', 'Review for ABC was approved.');
+     */
+    public static function add($event, $description)
+    {
+        // Gets the currently authenticated user's email, defaults to 'System' if none found.
+        $userEmail = auth()->user()->email ?? 'System';
+        self::log($event, $description, $userEmail);
+    }
+
+    // --- Your display and search functions remain the same ---
+
+    public function showHistorylog(Request $request)
+    {
+        $historylogs = Historylogs::orderBy('created_at', 'desc')->paginate(10);
+        $historylogs->withPath(route('admin.historylog.search'));
+        
+        // Using compact() is a cleaner way to pass data to a view
+        return view('admin.historylog', compact('historylogs'));
+    }
+
     public function searchHistorylog(Request $request)
     {
         $query = Historylogs::query();
 
-        // Apply search filter if a search term is provided.
         if ($request->filled('search')) {
             $search = $request->input('search');
-            // Search across multiple relevant columns for better results.
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', '%' . $search . '%')
                   ->orWhere('event', 'like', '%' . $search . '%')
@@ -60,232 +120,14 @@ class HistorylogController extends Controller
             });
         }
 
-        // Apply event type filter if a specific event is selected.
         if ($request->filled('event') && $request->input('event') != 'All') {
             $event = $request->input('event');
             $query->where('event', $event);
         }
 
-        // Order results by the newest first and paginate.
         $historylogs = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        // IMPORTANT: Append the search and filter parameters to pagination links
-        // so that filters are maintained when navigating pages.
         $historylogs->appends($request->all());
 
-        // Return the partial view with the filtered and paginated data.
-        return view('admin.partials.historylog_table', [
-            'historylogs' => $historylogs,
-            'currentPage' => $historylogs->currentPage(),
-            'totalPage' => $historylogs->lastPage(),
-            'prevPageUrl' => $historylogs->previousPageUrl(),
-            'nextPageUrl' => $historylogs->nextPageUrl(),
-        ]);
+        return view('admin.partials.historylog_table', compact('historylogs'));
     }
-
-    // add Product log   
-    public static function addproductlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // edit Product log
-    public static function editproductlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // add Stock log
-    public static function addstocklog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // delete Product log
-    public static function deleteproductlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // add deals log
-    public static function adddealslog($event, $description, $companyId, $productId)
-    {
-        $company = Company::find($companyId);
-        $product = Product::find($productId);
-
-        if (!$company || !$product) {
-            return; 
-        }
-        
-        Historylogs::create([
-            'event' => $event,
-            'description' => "$description Product: {$product->generic_name} in Company: {$company->name}",
-            'user_email' => auth()->user()->email ?? 'System',
-            'created_at' => now(),
-        ]);
-    }
-
-    // edit deals log
-    public static function editdealslog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email' => auth()->user()->email ?? 'System',
-            'created_at' => now(),
-        ]);
-    }
-
-    // delete deals log
-    public static function deletedealslog($event, $description, $companyId, $productId)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email' => auth()->user()->email ?? 'System',
-            'created_at' => now(),
-        ]);
-    }
-
-    // add account log
-    public static function addaccountlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // edit account log
-    public static function editaccountlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // delete account log
-    public static function deleteaccountlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // add content log
-    public static function addcontentlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //display product log
-    public static function displayproductlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //review manager log
-    public static function reviewmanagerlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //disapprove review log
-    public static function disapprovereviewlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //transfer product log
-    public static function transferproductlog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //edit stock log
-    public static function editstocklog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    // change order status log
-    public static function changeorderstatuslog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
-    //scan qr code log
-    public static function scanqrcodelog($event, $description)
-    {
-        Historylogs::create([
-            'event' => $event,
-            'description' => $description,
-            'user_email'=> auth()->user()->email,
-            'created_at' => now()
-        ]);
-    }
-
 }

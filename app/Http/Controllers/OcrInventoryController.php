@@ -12,10 +12,8 @@ use App\Models\Product;
 use App\Models\Location;
 use App\Models\OcrInventoryLog;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage; // Siguraduhing naka-import ito
-use App\Models\ArchivesOcrReceipt;      // I-import ang bagong model
-use Illuminate\Support\Facades\App; // Idagdag ito
-use Illuminate\Support\Facades\File; // Idagdag ito
+use Illuminate\Support\Facades\App;
+use App\Models\ArchivesOcrReceipt;
 
 use App\Http\Controllers\Admin\HistorylogController;
 
@@ -25,126 +23,115 @@ class OcrInventoryController extends Controller
      * Handles the receipt upload, trying Gemini first and falling back to Mistral.
      */
     public function uploadReceipt(Request $request)
-{
-    try {
-        // 1. Validate the uploaded image
-        $request->validate([
-            'receipt_image' => 'required|image|mimes:jpeg,png,jpg|max:4096',
-        ]);
-
-        $file = $request->file('receipt_image');
-        $originalFilename = $file->getClientOriginalName();
-
-        // ======================================================================
-        // === HOSTINGER-COMPATIBLE FILE SAVING LOGIC ===
-        // ======================================================================
-
-        // 1. Define the relative subfolder path based on the current date
-        $subfolder = 'receipts/' . Carbon::now()->format('Y/m/d');
-        $fileName = $file->hashName(); // Generate a unique, secure filename
-
-        // 2. Determine the absolute target directory based on the environment
-        if (App::environment('local')) {
-            // For local development, the target is inside the standard 'public' folder
-            $targetDir = public_path($subfolder);
-        } else {
-            // For production (like Hostinger), the target is inside 'public_html'
-            $targetDir = base_path('../public_html/' . $subfolder);
-        }
-
-        // 3. Create the directory if it doesn't already exist
-        if (!File::exists($targetDir)) {
-            File::makeDirectory($targetDir, 0755, true, true);
-        }
-
-        // 4. Move the uploaded file to the final destination
-        $file->move($targetDir, $fileName);
-
-        // 5. Define the relative path to be saved in the database
-        $imagePath = $subfolder . '/' . $fileName;
-
-        // ======================================================================
-
-        // Save the file record to the database
-        ArchivesOcrReceipt::create([
-            'original_filename' => $originalFilename,
-            'image_path'        => $imagePath, // Save the new relative path
-        ]);
-        
-        // Prepare image for API call
-        $absolutePathForReading = $targetDir . '/' . $fileName;
-        $imageData = base64_encode(file_get_contents($absolutePathForReading));
-        $mimeType = $file->getMimeType();
-
-        // Define a universal prompt and JSON schema
-        $prompt = $this->getOcrPrompt();
-        $jsonSchema = $this->getJsonSchema();
-        $extractedJson = null;
-
-        // Try Gemini first
+    {
         try {
-            Log::info('Attempting OCR with Gemini AI...');
-            $extractedJson = $this->callGeminiApi($prompt, $mimeType, $imageData, $jsonSchema);
-            Log::info('Successfully processed OCR with Gemini AI.');
-        } catch (Exception $geminiException) {
-            Log::warning('Gemini AI failed. Falling back to Mistral AI.', [
-                'error' => $geminiException->getMessage()
+            // 1. Validate the uploaded image
+            $request->validate([
+                'receipt_image' => 'required|image|mimes:jpeg,png,jpg|max:4096',
             ]);
 
-            // If Gemini fails, try Mistral as a fallback
-            try {
-                Log::info('Attempting OCR with Mistral AI...');
-                $extractedJson = $this->callMistralApi($prompt, $mimeType, $imageData);
-                Log::info('Successfully processed OCR with fallback Mistral AI.');
-            } catch (Exception $mistralException) {
-                Log::error('Fallback Mistral AI also failed.', [
-                    'error' => $mistralException->getMessage()
-                ]);
-                // If both fail, throw a combined error message
-                throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$mistralException->getMessage()}).");
+            $file = $request->file('receipt_image');
+            $imageData = base64_encode(file_get_contents($file->getRealPath()));
+            $mimeType = $file->getMimeType();
+
+            // Store the image
+            $originalFilename = $file->getClientOriginalName();
+            $fileExtension = $file->getClientOriginalExtension();
+            $newFilename = uniqid('receipt_', true) . '_' . time() . '.' . $fileExtension;
+            $datePath = Carbon::now()->format('Y/m/d');
+            $subfolder = 'receipts/' . $datePath;
+
+            if (App::environment('local')) {
+                $destinationPath = public_path($subfolder);
+            } else {
+                $destinationPath = base_path('../public_html/' . $subfolder);
             }
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0775, true);
+            }
+
+            $file->move($destinationPath, $newFilename);
+            $imagePath = $subfolder . '/' . $newFilename;
+
+            ArchivesOcrReceipt::create([
+                'original_filename' => $originalFilename,
+                'image_path'        => $imagePath,
+            ]);
+
+            $prompt = $this->getOcrPrompt();
+            $jsonSchema = $this->getJsonSchema();
+            $extractedJson = null;
+
+            // Try Gemini first, then Mistral as fallback
+            try {
+                Log::info('Attempting OCR with Gemini AI...');
+                $extractedJson = $this->callGeminiApi($prompt, $mimeType, $imageData, $jsonSchema);
+                Log::info('Successfully processed OCR with Gemini AI.');
+            } catch (Exception $geminiException) {
+                Log::warning('Gemini AI failed. Falling back to Mistral AI.', ['error' => $geminiException->getMessage()]);
+                try {
+                    Log::info('Attempting OCR with Mistral AI...');
+                    $extractedJson = $this->callMistralApi($prompt, $mimeType, $imageData);
+                    Log::info('Successfully processed OCR with fallback Mistral AI.');
+                } catch (Exception $mistralException) {
+                    Log::error('Fallback Mistral AI also failed.', ['error' => $mistralException->getMessage()]);
+                    throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$mistralException->getMessage()}).");
+                }
+            }
+
+            OcrInventoryLog::create(['raw_text' => $extractedJson]);
+            Log::info('Raw JSON response from AI:', ['json' => $extractedJson]);
+            $extractedData = json_decode($extractedJson, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception("Invalid JSON received from AI: " . json_last_error_msg());
+            }
+            if (empty($extractedData['data'])) {
+                throw new Exception("The AI successfully read the receipt but found no product data.");
+            }
+
+            // Normalize, VALIDATE, and return the data
+            $products = array_map(function ($item) {
+                $productName = $this->cleanProductName($item['generic_name'] ?? $item['product_name'] ?? '');
+                $brandName = isset($item['brand_name']) && trim($item['brand_name']) !== '' ? trim($item['brand_name']) : null;
+                $form = $this->normalizeForm($item['form'] ?? 'N/A');
+                $strength = (!empty($item['strength']) && $item['strength'] !== 'N/A') ? $item['strength'] : $this->extractStrength($productName);
+
+                // Validate if the product exists, INCLUDING BRAND NAME
+                $existingProduct = Product::where('generic_name', $productName)
+                    ->where('strength', $strength)
+                    ->where('form', $form)
+                    ->where('brand_name', $brandName)
+                    ->first();
+
+                // MODIFIED: Set season_peak to null directly
+                $seasonPeak = null; 
+
+                return [
+                    'quantity' => (int)($item['quantity'] ?? 0),
+                    'brand_name' => $brandName,
+                    'product_name' => $productName,
+                    'form' => $form,
+                    'batch_number' => $item['batch_number'] ?? '',
+                    'expiry_date' => $this->normalizeDate($item['expiry_date'] ?? ''),
+                    'strength' => $strength,
+                    'season_peak' => $seasonPeak, // This will now be null
+                    'is_registered' => !is_null($existingProduct)
+                ];
+            }, $extractedData['data']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => '✅ Data extracted successfully! Please review and save.',
+                'data' => $products
+            ]);
+
+        } catch (Exception $e) {
+            Log::error("OCR Processing Error", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['status' => 'error', 'message' => 'An error occurred: ' . $e->getMessage()], 500);
         }
-
-        // Process the successful JSON response
-        $extractedData = json_decode($extractedJson, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception("Invalid JSON received from AI: " . json_last_error_msg());
-        }
-        if (empty($extractedData['data'])) {
-            throw new Exception("The AI successfully read the receipt but found no product data.");
-        }
-
-        // Normalize and return the data
-        $products = array_map(function($item) {
-            $productName = $this->cleanProductName($item['product_name'] ?? '');
-            $brandName = isset($item['brand_name']) && trim($item['brand_name']) !== '' ? trim($item['brand_name']) : null;
-            $form = $this->normalizeForm($item['form'] ?? 'N/A');
-            $seasonPeak = $this->getSeasonPeakForProduct($productName);
-            $strength = (!empty($item['strength']) && $item['strength'] !== 'N/A') ? $item['strength'] : $this->extractStrength($productName);
-            return [
-                'quantity' => (int)($item['quantity'] ?? 0),
-                'brand_name' => $brandName,
-                'product_name' => $productName,
-                'form' => $form,
-                'batch_number' => $item['batch_number'] ?? '',
-                'expiry_date' => $this->normalizeDate($item['expiry_date'] ?? ''),
-                'strength' => $strength,
-                'season_peak' => $seasonPeak
-            ];
-        }, $extractedData['data']);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => '✅ Data extracted successfully! Please review and save.',
-            'data' => $products
-        ]);
-
-    } catch (Exception $e) {
-        Log::error("OCR Processing Error", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-        return response()->json(['status' => 'error', 'message' => 'An error occurred: ' . $e->getMessage()], 500);
     }
-}
 
     /**
      * Calls the Gemini API to perform OCR.
@@ -238,7 +225,27 @@ class OcrInventoryController extends Controller
      */
     private function getOcrPrompt(): string
     {
-        return "You are a highly intelligent and detail-oriented OCR system specializing in pharmaceutical receipts. Your primary goal is to analyze the provided 'Vitalis Pharma Phil. Corp. Acknowledgement Receipt' and extract ALL product data from the table with exceptional accuracy, interpreting and correcting text where appropriate to provide clean, standardized data. RULES FOR EXTRACTION AND INTELLIGENT INTERPRETATION: 1. **Quantity**: Extract the exact numeric quantity. 2. **Brand Name**: Extract the *exact text* from the 'Brand Name' column. If the cell is BLANK on the receipt, return an empty string. DO NOT GUESS or infer from the generic name. 3. **Generic Name**: Extract the generic name. If there are any misspellings or abbreviations, provide the most common and correct spelling. CRITICALLY, DO NOT include the strength (e.g., '500mg') in this field. 4. **Strength**: Extract the precise strength, dosage, or concentration (e.g., '500mg', '10mg/5mL', '10%'). This is often written next to the generic name. If it is not available, you MUST provide 'N/A'. 5. **Form**: Extract the product's form. This is critical. If there are misspellings (e.g., 'injction'), abbreviations (e.g., 'tab'), or unclear handwriting, you MUST interpret and provide the **standard, singular pharmaceutical form** (e.g., 'Tablet', 'Capsule', 'Syrup', 'Injection'). If unidentifiable, respond with 'N/A'. 6. **Batch Number**: Extract the alphanumeric batch number *exactly* as written. 7. **Expiry Date**: Extract the expiry date and convert it to a strict YYYY-MM-DD format. 8. **Output**: Return ONLY the JSON object conforming strictly to the specified schema. Do not add any introductory or concluding text. Ensure all required fields are present and accurately populated based on these rules.";
+        return "You are a highly intelligent OCR system for pharmaceutical receipts. Extract ALL product data with these rules:
+    
+    1. **Product Name (Generic Name)**:
+        - Extract the generic drug name (e.g., 'Paracetamol')
+        - Remove any strength/dosage information (e.g., '500mg')
+        - Correct common misspellings
+        - If multiple names appear, use the most standard one
+    
+    2. **Brand Name**:
+        - Extract exactly as written
+        - Leave blank if not present
+    
+    ... [keep other rules the same] ...
+    
+    Example output for a product:
+    {
+        \"generic_name\": \"Paracetamol\",
+        \"brand_name\": \"Biogesic\",
+        \"strength\": \"500mg\",
+        ... [other fields]
+    }";
     }
 
     /**
@@ -286,27 +293,23 @@ class OcrInventoryController extends Controller
             'validation_errors' => [],
             'errors' => []
         ];
-
         $hasValidationErrors = false;
 
         foreach ($products as $index => $data) {
             try {
+                // MODIFIED: Updated the validation rule for season_peak
                 $rules = [
                     'product_name' => 'required|string|max:255',
                     'brand_name' => 'nullable|string|max:255',
                     'form' => 'required|string|max:50',
                     'strength' => 'required|string|max:50',
-                    'season_peak' => 'required|string|in:Tag-init,Tag-ulan,All-Year',
+                    'season_peak' => 'nullable|string', // Changed to nullable
                     'batch_number' => 'required|string|max:50',
                     'expiry_date' => 'required|date|after_or_equal:today',
                     'quantity' => 'required|integer|min:1',
                     'location' => 'required|string|max:255',
                 ];
-
-                $messages = [
-                    'expiry_date.after_or_equal' => 'The expiry date is outdated. Please use a future date.'
-                ];
-
+                $messages = ['expiry_date.after_or_equal' => 'The expiry date is outdated. Please use a future date.'];
                 $validator = Validator::make($data, $rules, $messages);
 
                 if ($validator->fails()) {
@@ -315,14 +318,19 @@ class OcrInventoryController extends Controller
                     continue;
                 }
 
-                $productName = $data['product_name'];
-                $strength = $data['strength'];
-                $form = $data['form'];
+                // Find the product, INCLUDING BRAND NAME for final validation
+                $product = Product::where('generic_name', $data['product_name'])
+                    ->where('strength', $data['strength'])
+                    ->where('form', $data['form'])
+                    ->where('brand_name', $data['brand_name'])
+                    ->first();
 
-                $product = Product::firstOrCreate(
-                    ['generic_name' => $productName, 'strength' => $strength, 'form' => $form],
-                    ['brand_name' => $data['brand_name'] ?? null, 'season_peak' => $data['season_peak'], 'is_auto_created' => true]
-                );
+                if (!$product) {
+                    $productIdentifier = $data['brand_name'] ? "{$data['product_name']} ({$data['brand_name']})" : $data['product_name'];
+                    $results['validation_errors'][$index]['product'] = ["Product '{$productIdentifier} {$data['strength']} {$data['form']}' is not registered."];
+                    $hasValidationErrors = true;
+                    continue;
+                }
 
                 $location = Location::firstOrCreate(['province' => $data['location']]);
 
@@ -344,7 +352,7 @@ class OcrInventoryController extends Controller
                     'location_id' => $location->id
                 ]);
 
-                HistorylogController::addstocklog(
+                HistorylogController::add(
                     'add',
                     "Added new stock via OCR: {$data['quantity']} unit(s) of {$product->generic_name} {$product->strength} (Batch: {$data['batch_number']}) was added to {$location->province}."
                 );
@@ -374,7 +382,7 @@ class OcrInventoryController extends Controller
 
         return response()->json($response);
     }
-    
+
     /**
      * Retrieves a list of available locations.
      */
@@ -386,69 +394,14 @@ class OcrInventoryController extends Controller
         }
         return response()->json(['locations' => $locations]);
     }
-
-    /**
-     * Determines the season peak for a given product using an AI call.
-     */
-    private function getSeasonPeakForProduct(string $productName): string
-    {
-        try {
-            $apiKey = env('GEMINI_API_KEY');
-            if (!$apiKey) {
-                Log::warning('Gemini API Key is missing, cannot determine season peak.');
-                return 'All-Year';
-            }
-
-            $prompt = "As a pharmaceutical expert in the Philippines, for a medicine with the generic name '{$productName}', is its peak demand during the 'Tag-init' (hot/dry season), 'Tag-ulan' (rainy season), or is it needed 'All-Year'? Respond with only one of these three options: Tag-init, Tag-ulan, or All-Year.";
-
-            $response = Http::timeout(20)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$apiKey}",
-                [
-                    "contents" => [["parts" => [["text" => $prompt]]]],
-                    "safetySettings" => [
-                        ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
-                        ["category" => "HARM_CATEGORY_HATE_SPEECH", "threshold" => "BLOCK_NONE"],
-                        ["category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold" => "BLOCK_NONE"],
-                        ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"]
-                    ]
-                ]
-            );
-
-            if ($response->failed()) {
-                Log::warning('Gemini API call for season peak failed.', ['status' => $response->status()]);
-                return 'All-Year';
-            }
-
-            $result = $response->json();
-            $responseText = trim($result['candidates'][0]['content']['parts'][0]['text'] ?? '');
-
-            if (empty($responseText)) {
-                 Log::warning('Gemini response for season peak was empty.');
-                return 'All-Year';
-            }
-
-            $lowerResponse = strtolower($responseText);
-            if (str_contains($lowerResponse, 'tag-init') || str_contains($lowerResponse, 'dry') || str_contains($lowerResponse, 'summer') || str_contains($lowerResponse, 'hot')) {
-                return 'Tag-init';
-            } elseif (str_contains($lowerResponse, 'tag-ulan') || str_contains($lowerResponse, 'rainy') || str_contains($lowerResponse, 'wet')) {
-                return 'Tag-ulan';
-            } else {
-                return 'All-Year';
-            }
-
-        } catch (Exception $e) {
-            Log::error('Error in getSeasonPeakForProduct: ' . $e->getMessage());
-            return 'All-Year';
-        }
-    }
+    
+    // MODIFIED: The getSeasonPeakForProduct function has been completely removed.
 
     /**
      * Normalizes a given pharmaceutical form string to a standard term.
      */
     private function normalizeForm(string $form): string
     {
-        // This function is very long, so it's omitted here for brevity.
-        // Assume the full function from the previous context is present.
         $form = strtolower(trim($form));
         $map = [
             'Tablets' => ['tablet', 'tablets', 'pill', 'pills', 'cap', 'caps', 'tab', 'tabs', 'table', 'tblt', 'tbl', 'tabl', 'tb', 'tblet', 'tablt', 'tabblet', 'tabllet', 'tabet', 'tablt', 'tblt', 'tblet', 'tabs', 'tabs.', 'tab.', 'capsule', 'capsules', 'cpsl', 'cap.', 'caps.', 'cp', 'cps', 'kaps', 'kapsul', 'kapsule', 'kapsules', 'pil', 'pils', 'píl', 'píls'],
@@ -510,13 +463,15 @@ class OcrInventoryController extends Controller
             return '2025-01-01'; // Fallback
         }
     }
-    
+
     /**
      * Cleans up a product name string.
      */
     private function cleanProductName(string $name): string
     {
-        return trim(preg_replace('/\s+/', ' ', $name));
+        // Remove strength information (e.g., "500mg") if present
+        $cleaned = preg_replace('/(\d+\s*(mg|mcg|g|ml|%|iu|units).*)/i', '', $name);
+        return trim(preg_replace('/\s+/', ' ', $cleaned));
     }
 
     /**
@@ -531,6 +486,33 @@ class OcrInventoryController extends Controller
         return 'N/A';
     }
 
-    // uploading images ocr scanned
-    
+    public function checkProduct(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'required|string|max:255',
+            'brand_name'   => 'nullable|string|max:255',
+            'form'         => 'required|string|max:50',
+            'strength'     => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['exists' => false, 'error' => 'Incomplete data provided.'], 422);
+        }
+
+        $data = $validator->validated();
+
+        $product = Product::where('generic_name', $data['product_name'])
+            ->where('strength', $data['strength'])
+            ->where('form', $data['form'])
+            ->where(function ($query) use ($data) {
+                if (is_null($data['brand_name']) || $data['brand_name'] === '') {
+                    $query->whereNull('brand_name')->orWhere('brand_name', '');
+                } else {
+                    $query->where('brand_name', $data['brand_name']);
+                }
+            })
+            ->first();
+
+        return response()->json(['exists' => !is_null($product)]);
+    }
 }

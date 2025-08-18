@@ -21,7 +21,7 @@
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Order History" icon="fa-solid fa-clock-rotate-left" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Filter Section --}}
@@ -32,7 +32,7 @@
             $isStatusPresent = request()->query('status_filter');
         @endphp
 
-        <div class="mt-5 flex flex-col items-center lg:flex-row justify-between">
+        <div class="mt-24 flex flex-col items-center lg:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
@@ -101,12 +101,12 @@
         {{-- Filter Section --}}
 
         {{-- Search --}}
-        <div class="w-full lg:w-[50%] flex flex-col lg:flex-row gap-1 items-center rounded-lg p-2">
+        <div class="w-full lg:w-[50%] flex flex-col lg:flex-row gap-1 items-center rounded-lg">
 
         {{-- Datalist for suggestions --}}
             <datalist id="employee-search-suggestions">
                 @foreach ($customersSearchSuggestions as $customer)
-                    <option value="{{ $customer->name }} - {{ $customer->company->name }}">
+                    <option value="{{ $customer->employee }} - {{ $customer->company }}">
                 @endforeach
             </datalist>
 
@@ -152,14 +152,14 @@
         {{-- Search --}}
 
         {{-- Main Content Area --}}
-        <div class="h-[70vh] mt-5 overflow-auto">
+        <div class="mt-5 overflow-auto" >
             @foreach ($provinces as $provinceName => $companies)
                 <h1 class="font-bold mt-4">
                     <span class="text-[#005382] text-2xl font-bold mr-2">
                         Ordered In: {{ $provinceName }}
                     </span>
                 </h1>
-                <div class="table-container mt-2 bg-white p-5 rounded-lg">
+                <div class="table-container mt-2 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                     <div class="flex flex-wrap justify-between items-center">
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
                             {{-- i will add this feature once client starts paying --}}
@@ -171,7 +171,7 @@
                             </select> --}}
                             {{-- i will add this feature once client starts paying --}}
 
-                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
+                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-exportx', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
                             <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
@@ -181,10 +181,10 @@
 
                     @foreach ($companies as $companyName => $employees)
                         <h1 class="text-[20px] sm:text-[20px] font-regular mt-8 font-bold">
-                            <span class="text-[#005382] text-[20px] font-bold mr-2">Ordered By:</span>
+                            <span class="text-[#005382] text-[20px] font-bold mr-2">Orders From:</span>
                             {{ $companyName }}
                         </h1>
-                        <div class="overflow-auto max-h-[200px] h-fit mt-5">
+                        <div class="overflow-auto mt-5">
                             <x-table :headings="['Employee Name', 'Date', 'Total Amount', 'Action']" :variable="$employees" category="history" />
                         </div>
 
@@ -203,9 +203,9 @@
         @foreach ($provinces as $companies)
             @foreach ($companies as $employees)
                 @foreach ($employees as $employeeNameAndDate => $statuses)
-                    <div id="order-modal-{{ $employeeNameAndDate }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center px-4 z-50">
+                    <div id="order-modal-{{ e($employeeNameAndDate) }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center px-4 z-50">
                         <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
-                            <x-modalclose click="closeOrderModal('{{ $employeeNameAndDate }}')"/>
+                            <x-modalclose closeType="order-history" :variable="$employeeNameAndDate"/>
                             <h1 class="text-xl font-bold uppercase mb-6">
                                 @php
                                     $separatedInModal = explode('|', $employeeNameAndDate);

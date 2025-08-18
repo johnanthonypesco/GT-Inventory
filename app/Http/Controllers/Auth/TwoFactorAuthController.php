@@ -93,6 +93,8 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\SuperAdmin;
 use App\Models\Staff;
+use Illuminate\Auth\Events\Login; // ✅ 1. IMPORT THE LOGIN EVENT CLASS
+
 
 class TwoFactorAuthController extends Controller
 {
@@ -131,10 +133,12 @@ class TwoFactorAuthController extends Controller
             if (!$user || $user->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
+        $remember = session()->pull('remember', false);
 
             $user->update(['two_factor_code' => null, 'two_factor_expires_at' => null]);
-            Auth::login($user);
+            Auth::login($user, $remember);
             session()->forget('two_factor_user_id');
+            // event(new Login('web', $user, false)); // ✅ 2. ADD THIS LINE
 
             return redirect()->route('customer.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -148,10 +152,12 @@ class TwoFactorAuthController extends Controller
             if (!$admin || $admin->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
+        $remember = session()->pull('remember', false);
 
             $admin->update(['two_factor_code' => null, 'two_factor_expires_at' => null]);
-            Auth::guard('admin')->login($admin);
+        Auth::guard('admin')->login($admin, $remember); 
             session()->forget('two_factor_admin_id');
+            // event(new Login('admin', $admin, false)); // ✅ 2. ADD THIS LINE
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -165,10 +171,13 @@ class TwoFactorAuthController extends Controller
             if (!$superAdmin || $superAdmin->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
+        $remember = session()->pull('remember', false);
 
             $superAdmin->update(['two_factor_code' => null, 'two_factor_expires_at' => null]);
-            Auth::guard('superadmin')->login($superAdmin);
+            Auth::guard('superadmin')->login($superAdmin, $remember);
             session()->forget('two_factor_superadmin_id');
+
+                        // event(new Login('superadmin', $superAdmin, false)); // ✅ 2. ADD THIS LINE
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -182,10 +191,12 @@ class TwoFactorAuthController extends Controller
             if (!$staff || $staff->two_factor_code !== $sanitizedCode) {
                 return back()->withErrors(['two_factor_code' => 'Invalid or expired 2FA code.']);
             }
+        $remember = session()->pull('remember', false);
 
             $staff->update(['two_factor_code' => null, 'two_factor_expires_at' => null]);
-            Auth::guard('staff')->login($staff);
+            Auth::guard('staff')->login($staff, $remember);
             session()->forget('two_factor_staff_id');
+            // event(new Login('staff', $staff, false)); // ✅ 2. ADD THIS LINE
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }

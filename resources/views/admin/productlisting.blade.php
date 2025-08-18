@@ -16,13 +16,13 @@
 
     <title>Product Listing</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row p-0 m-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="w-full mt-5 bg-white p-5 rounded-lg">
+        <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             {{-- Customer List Search Function --}}
             <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
@@ -90,7 +90,7 @@
 
                 {{-- Table for customer List --}}
                 <h1 class="text-xl font-bold uppercase"> companies in {{ $locationName }}: </h1>
-                <div class="table-container mb-8 overflow-auto h-fit h-max-[190px]">
+                <div class="table-container mb-8 overflow-auto">
                     <x-table
                     :headings="['Company ID', 'Company Name', 'Total Personalized Products', 'Action']" :variable="$companies" :secondaryVariable="$dealsDB"
                     :dealSearchCompany="$hasSearchedADeal"
@@ -115,12 +115,20 @@
         @endforeach
     </datalist>
 
+    {{-- VIew Product Listing --}}
     @foreach ($dealsDB as $companyName => $deals)
+        @php
+            // SIGURADONG MAG LOLOKO REAL-TIME NETO IF MULTIPLE COMPANIES HAVE NO ASSIGNED DEALS.
+            // NEED KO I-PROTECT ITO AGAINST ", ', AND `. FOR NOW HINDI KO MUNA AAYUSIN.
+            // by: Inaantok na Sigrae
+            $companyID = $deals->total() > 0 ? $deals->items()[0]['company_id'] : 'no-deals';
+        @endphp
+
         {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
-        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-listings-{{ $companyName }}">
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="view-listings-{{ $companyID }}">
             
             <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyName"/>
+                <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyID"/>
                 <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
@@ -189,8 +197,14 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="real-timer-deals-table" data-company="{{ $companyName }}">
+                        <tbody id="real-timer-deals-table" data-company="{{ $companyID }}">
                             @foreach ($deals->items() as $deal)
+                            @if ($deals->isEmpty())
+                                <tr class="text-center">
+                                    <td colspan="6 text-black/80">No results found.</td>
+                                </tr>
+                            @endif
+                            
                             <tr class="text-center">
                                 <td>{{ $deal->product->generic_name }}</td>
                                 <td>{{ $deal->product->brand_name }}</td>
@@ -216,7 +230,7 @@
                 {{-- Table for all products --}}
                 {{-- Pagination --}}
                 {{-- <x-pagination/> --}}
-                <div id="real-timer-paginate" data-company="{{ $companyName }}" class="mt-5">
+                <div id="real-timer-paginate" data-company="{{ $companyID }}" class="mt-5">
                     {{ $deals->links() }}
                 </div>
                 {{-- Pagination --}}
@@ -226,7 +240,7 @@
     {{-- VIew Product Listing --}}
 
     {{-- Modal for Add Product Listing --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="addproductlisting">
+    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="addproductlisting">
         <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
@@ -277,7 +291,7 @@
                 $strength = $deal->product->strength ?? 'No Strenth';
             @endphp
 
-            <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="edit-listing-{{ $deal->id }}">
+            <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="edit-listing-{{ $deal->id }}">
                 <div class="modal w-full lg:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
                     <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
                     {{-- Form --}}
@@ -308,7 +322,7 @@
     @endforeach
 
     {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}
-    <div class="w-full {{ session("unarchived")  ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20" id="view-archived-listings">
+    <div class="w-full {{ session("unarchived")  ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="view-archived-listings">
         
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="viewArchivedDeals" closeType="customer-deals-archive"/>

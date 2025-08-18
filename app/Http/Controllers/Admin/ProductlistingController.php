@@ -161,7 +161,7 @@ class ProductlistingController extends Controller
                 ]);
             
 
-            HistorylogController::adddealslog(
+            HistorylogController::add(
                 "Add",
                 "Add deals " . $company->name,
                 $company->id,
@@ -188,7 +188,7 @@ class ProductlistingController extends Controller
         $exclusiveDeal = ExclusiveDeal::findOrFail($aidee);
         $exclusiveDeal->update($validated);
         
-        HistorylogController::editdealslog("Edit", "Edit deals of product:" . $exclusiveDeal->product->generic_name . " in company " . $exclusiveDeal->company->name, $exclusiveDeal->product_id);
+        HistorylogController::add("Edit", "Edit deals of product:" . $exclusiveDeal->product->generic_name . " in company " . $exclusiveDeal->company->name, $exclusiveDeal->product_id);
         //gawa ni anthony
 
         session()->flash('success', 'Deal updated successfully.');
@@ -215,7 +215,7 @@ class ProductlistingController extends Controller
                 ]);
 
                 // gawa ni pesco
-                HistorylogController::deleteproductlog(
+                HistorylogController::add(
                     "Archive",
                     "Archived product deal " . $product->generic_name . " that belongs to the company " . $company->name,
                     $product->id
@@ -231,7 +231,7 @@ class ProductlistingController extends Controller
                     'is_archived' => false,
                 ]);
 
-                HistorylogController::deleteproductlog(
+                HistorylogController::add(
                     "Unarchive",
                     "Unarchived product deal " . $product->generic_name . " that belongs to the company " . $company->name,
                     $product->id

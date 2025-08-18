@@ -23,7 +23,7 @@
 
     <x-admin.navbar class="opacity-0"/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 
@@ -64,15 +64,15 @@
         @endphp
 
 
-        <div class="h-[82vh] overflow-x-auto mt-4">
+        <div class="mt-24">
                 {{-- Total Container --}}
                 <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-2">
-                    <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" />
-                    <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" />
-                    <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" />
+                    <x-totalstock :count="count($inStockProducts)" title="Currently In Stock" image="image.png" buttonType="in-stock" classmate="w-10 h-10 p-2 rounded-full bg-green-200/50"/>
+                    <x-totalstock :count="count($lowStockProducts)" title="Currently Low on Stock" image="stocks.png" buttonType="low-stock" classmate="w-10 h-10 p-2 rounded-full bg-yellow-200/50"/>
+                    <x-totalstock :count="count($noStockProducts)" title="Currently Out of Stock" image="outofstocks.png" buttonType="out-stock" classmate="w-10 h-10 p-2 rounded-full bg-red-200/50"/>
                     
-                    <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" />
-                    <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" />
+                    <x-totalstock :count="$expiryTotalCounts['nearExpiry']" title="Currently Near Expiration" image="stocks.png" buttonType="near-expiry-stock" classmate="w-10 h-10 p-2 rounded-full bg-yellow-200/50"/>
+                    <x-totalstock :count="$expiryTotalCounts['expired']" title="Currently Expired Stocks" image="outofstocks.png" buttonType="expired-stock" classmate="w-10 h-10 p-2 rounded-full bg-red-200/50"/>
                 </div>
                 {{-- Total Container --}}
                 
@@ -88,6 +88,11 @@
         <div class="flex justify-between flex-col lg:flex-row mt-5">
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
+                
+                @if (request()->has('searched_name'))
+                    <input type="hidden" name="current_search" value="{{ $currentSearch['query'][0] . " - " . $currentSearch['query'][1] . " - " . $currentSearch['query'][2] . " - " . $currentSearch['query'][3] }}">    
+                @endif
+
 
                 <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
                     <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
@@ -136,9 +141,9 @@
 
             @endphp
 
-        <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg">
+        <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
+                Delivery Location: {{ $currentSearch['location'] !== "All" ? html_entity_decode($currentSearch['location']) : $provinceName }}
             </h1>
 
             <div  class="flex flex-wrap justify-between items-center">
@@ -206,7 +211,7 @@
         </div>
     </main>
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewallproductmodal">
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewallproductmodal">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
@@ -263,9 +268,9 @@
                                 <td>{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
-                                    <button onclick="addstock('{{ $product->id }}', '{{ $generic_name }} - {{ $brand_name }}')" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
+                                    <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-[#005382]"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
-                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', '{{$generic_name}}', '{{$brand_name}}', '{{$product->form}}', '{{$product->strength}}', '{{ url('/') }}/', '{{ $product->img_file_path }}')">
+                                    <button class="flex items-center text-[#005382] cursor-pointer" onclick="editRegisteredProduct('{{$product->id}}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
                                         <i class="fa-regular fa-pen-to-square mr-2"></i>
                                         Edit
                                     </button>
@@ -288,8 +293,38 @@
     </div>
     {{-- Modal for View All Products --}}
 
+    {{-- VIEW ARCHIVE MENU MODAL --}}
+    <div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
+        <div class="modal w-[430px] h-fit max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
+            <x-modalclose click="viewArchivedMenu" />
+
+            <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-6">Archive Menu</h1>
+
+            <div class="flex-col pb-4">
+                <button class="outline-2 outline-[#005382]  w-full px-4 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedProducts()">
+                    <i class="fa-solid fa-cubes"></i>
+                    View Archived Products  
+                </button>
+                
+                <br>
+
+                <button class="outline-2 outline-[#005382]  w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedStocks()">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    View Archived Stocks
+                </button>
+
+                <br>
+                
+                <a href="{{ route('admin.file-ocr.index') }}" class="outline-2 outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
+                    <i class="fa-solid fa-folder-open"></i>
+                    View Scanned Receipts
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- Modal for View All ARCHIVED Products --}}
-    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full z-51 bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewAllArchivedProducts">
+    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewAllArchivedProducts">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="viewArchivedProducts"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Archived Products</h1>
@@ -371,7 +406,7 @@
     {{-- Modal for View All ARCHIVED Products --}}
 
     {{-- Modal for View All ARCHIVED Stocks --}}
-    <div class="w-full {{ str_contains(request()->fullUrl(), 'archive_page_in') ? 'flex' : 'hidden'}} h-full z-51 bg-black/70 fixed top-0 left-0 p-10 md:p-20" id="viewAllArchivedStocks">
+    <div class="w-full {{ str_contains(request()->fullUrl(), 'archive_page_in') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewAllArchivedStocks">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="viewArchivedStocks"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Archived Stocks</h1>
@@ -476,7 +511,7 @@
         $failedToAddStock = session('stockFailType') === 'single' ? true : false;
     @endphp
 
-    <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 z-10 p-10">
+    <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 p-10 z-50">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
             <x-modalclose click="closeaddstock"/>
             <h1 class="text-[#005382] text-xl font-bold">
@@ -510,7 +545,7 @@
         $addMultiStockFailed = session('stockFailType') === 'multiple' ? true : false;
     @endphp
 
-    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed overflow-auto">
+    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed overflow-auto z-50">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
             <x-modalclose click="closeaddmultiplestock"/>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
@@ -647,7 +682,7 @@
     @php
         $errorPresentInEdit = old('form_type') === 'edit-product';
     @endphp
-    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-registered">        
+    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll z-50" id="edit-registered">        
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="editRegisteredProduct" />
 
@@ -704,7 +739,7 @@
     @php
         $errorPresentInStockEdit = old('form_type') === 'edit-stock';
     @endphp
-    <div class="w-full {{ $errorPresentInStockEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]'}}   transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll" id="edit-stock">        
+    <div class="w-full {{ $errorPresentInStockEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]'}}   transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll z-50" id="edit-stock">        
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="openStockEditModal" />
 
@@ -747,7 +782,7 @@
 
 
    {{-- Transfer Inventory Modal --}}
-<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 ">
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 z-50">
     <div class="modal bg-white p-6 rounded-lg w-full max-w-md m-auto mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
@@ -770,36 +805,6 @@
                 <button type="submit" id="confirmtransferbutton" class="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer">Confirm Transfer</button>
             </div>
         </form>
-    </div>
-</div>
-
-{{-- VIEW ARCHIVE MENU MODAL --}}
-<div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
-    <div class="modal w-[430px] h-fit max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
-        <x-modalclose click="viewArchivedMenu" />
-
-        <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-6">Archive Menu</h1>
-
-        <div class="flex-col pb-4">
-            <button class="outline-2 outline-[#005382]  w-full px-4 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedProducts()">
-                <i class="fa-solid fa-cubes"></i>
-                View Archived Products  
-            </button>
-            
-            <br>
-
-            <button class="outline-2 outline-[#005382]  w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedStocks()">
-                <i class="fa-solid fa-boxes-stacked"></i>
-                View Archived Stocks
-            </button>
-
-            <br>
-            
-            <a href="{{ route('admin.file-ocr.index') }}" class="outline-2 outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
-                <i class="fa-solid fa-folder-open"></i>
-                View Scanned Receipts
-            </a>
-        </div>
     </div>
 </div>
 

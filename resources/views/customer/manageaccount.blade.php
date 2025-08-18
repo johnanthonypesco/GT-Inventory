@@ -25,14 +25,14 @@
 
     <title>Manage Account</title>
 </head>
-<body class="flex p-5 gap-5">
+<body class="flex p-0 m-0">
     <x-customer.navbar/>
 
-    <main class="w-full lg:ml-[17%] opacity-0">
+    <main class="w-full lg:ml-[16%] opacity-0 px-4">
         <x-customer.header title="Manage Account" icon="fa-solid fa-bars-progress"/>
         
-        <div class="mt-5 h-[80vh] overflow-auto">
-            <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl">
+        <div class="mt-24 overflow-auto">
+            <div class="bg-white p-5 relative flex flex-col justify-center gap-5 rounded-xl" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <div class="absolute top-0 left-0 h-[30%] bg-[#005382] w-full z-1" style="border-radius: 10px 10px 0 0;"></div>
                 <div class="relative w-fit">
                     <label>
@@ -51,13 +51,13 @@
                     </label>
                 </div>
                 <p class="text-xl font-semibold">{{ Auth::user()->name }}</p>
-                <button onclick="editAccount()" class="bg-white text-black w-fit px-3 py-2 rounded-lg flex items-center gap-2" style="box-shadow: 0 0 5px #00528288">
+                <button onclick="editAccount()" class="bg-white text-black w-fit px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-transform duration-300" style="box-shadow: 0 0 5px #00528288">
                     <i class="fa-solid fa-pen"></i> Edit Profile
                 </button>
             </div>
 
             {{-- Account Information Section --}}
-            <div class="bg-white mt-5 p-5 rounded-xl">
+            <div class="bg-white mt-5 p-5 rounded-xl" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <p class="text-xl font-semibold">Account Information</p>
 
                 <x-label-input label="Account Name" type="text" value="{{ Auth::user()->name }}" divclass="mt-3" disabled/>
@@ -70,7 +70,7 @@
         </div>
 
         {{-- Edit Account Modal --}}
-        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 z-10 p-5 overflow-auto" id="editAccountModal">
+        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 p-5 overflow-auto z-50" id="editAccountModal">
             <div class="modal bg-white p-8 rounded-lg w-[80%] lg:w-[60%] m-auto mt-5 relative">
                 <x-modalclose click="closeEditAccount"/>
                 <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>

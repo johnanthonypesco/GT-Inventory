@@ -24,13 +24,13 @@ class UserSeeder extends Seeder
             'contact_number' => '09287337991',
         ]);
         User::create([
-            'id' => 2000,
+            'id' => 70,
             'company_id' => 2,
             'name' => 'John Pesgo',
             'email' => 'pescojohnanthony@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
-            'contact_number' => '09287337991',
+            'contact_number' => '09287337992',
         ]);
         // bawasan customer user for testing :)
 

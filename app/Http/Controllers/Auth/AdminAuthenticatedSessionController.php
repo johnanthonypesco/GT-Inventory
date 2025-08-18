@@ -1,4 +1,8 @@
 <?php
+
+
+
+
     namespace App\Http\Controllers\Auth;
 
     use Illuminate\View\View;
@@ -9,6 +13,11 @@
     use Illuminate\Support\Facades\Mail;
     use Illuminate\Http\RedirectResponse;
     use Illuminate\Support\Facades\Session;
+    use App\Http\Controllers\Admin\HistorylogController;
+    use Illuminate\Auth\Events\Failed;
+    
+    use App\Models\Admin;
+
 
     class AdminAuthenticatedSessionController extends Controller
     {
@@ -23,50 +32,54 @@
         /**
          * Handle an incoming authentication request.
          */
-        public function store(Request $request): RedirectResponse
-        {
-            $sanitizedData = array_map('strip_tags', $request->only(['email', 'password']));
+      public function store(Request $request): RedirectResponse
+{
+    // 1. 🛑 Validate the raw request data. Do not use strip_tags.
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-            // ✅ Validate sanitized input
-            $credentials = validator($sanitizedData, [
-                'email' => ['required', 'email'],
-                'password' => ['required'],
-            ])->validate();
+    // 2. ✅ Create a new array for the auth check that includes
+    //    the condition to only find non-archived admins.
+    $authCredentials = [
+        'email' => $credentials['email'],
+        'password' => $credentials['password'],
+        'archived_at' => null, // 💡 The direct fix for the issue
+    ];
+
+    if (Auth::guard('admin')->validate($authCredentials)) {
         
-            if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
-                $admin = Auth::guard('admin')->user();
-        
-                // ✅ Generate a 6-digit 2FA code
-                $twoFactorCode = (string) rand(100000, 999999);
-        
-                // ✅ Save the 2FA code and expiration time
-                $admin->two_factor_code = $twoFactorCode;
-                $admin->two_factor_expires_at = now()->addMinutes(10);
-        
-                if (!$admin->save()) {
-                    return back()->withErrors(['error' => 'Failed to generate a two-factor authentication code. Please try again.']);
-                }
-        
-                // ✅ Send the 2FA code via email
-                try {
-                    Mail::to($admin->email)->send(new TwoFactorCodeMail($twoFactorCode));
-                } catch (\Exception $e) {
-                    return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
-                }
-        
-                // ✅ Log out the admin after generating the code
-                Auth::guard('admin')->logout();
-        
-                // ✅ Store admin ID in session for 2FA verification
-                session(['two_factor_admin_id' => $admin->id]);
-        
-                return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
-            }
-        
-            return back()->withErrors([
-                'email' => 'Invalid credentials.',
-        ])->onlyInput('email');
+        // 3. ✅ Use getLastAttempted() for efficiency instead of a new query.
+        $admin = Auth::guard('admin')->getLastAttempted();
+
+        // Generate and save 2FA code
+        $twoFactorCode = (string) rand(100000, 999999);
+        $admin->two_factor_code = $twoFactorCode;
+        $admin->two_factor_expires_at = now()->addMinutes(10);
+        $admin->save();
+
+        // Send 2FA email
+        try {
+            Mail::to($admin->email)->send(new TwoFactorCodeMail($twoFactorCode));
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Failed to send the 2FA email. Please try again later.']);
         }
+
+        session(['remember' => $request->boolean('remember')]);
+        session(['two_factor_admin_id' => $admin->id]);
+
+        return redirect()->route('2fa.verify')->with('message', 'A 2FA code has been sent to your email.');
+    }
+
+    // --- Handle Failed Login ---
+    $user = Admin::where('email', $credentials['email'])->first();
+    event(new Failed('admin', $user, $credentials));
+
+    return back()->withErrors([
+        'email' => 'Invalid credentials.',
+    ])->onlyInput('email');
+}
         
 
         /**
@@ -74,6 +87,13 @@
          */
         public function destroy(Request $request): RedirectResponse
         {
+
+    //          $admin = Auth::guard('admin')->user(); // <-- Get user BEFORE logout
+    
+    // if ($admin) { // <-- Check if user exists
+    //     HistorylogController::logoutLog($admin); // <-- Add this line to log the event
+    // }
+
             Auth::guard('admin')->logout();
 
             // ✅ Remove only Admin session details
@@ -81,7 +101,7 @@
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('admin.login'); // ✅ Redirects to Admin login
+            return redirect()->route('admins.login'); // ✅ Redirects to Admin login
         }
     }
 

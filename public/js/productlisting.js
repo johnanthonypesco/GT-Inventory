@@ -1,7 +1,33 @@
 // View Product Listing
-function viewproductlisting(username) {
-    var viewproductlisting = document.getElementById("view-listings-" + username);
-    viewproductlisting.style.display = "block";
+function viewproductlisting(username, btn) {
+    const row = btn.closest("tr");
+    const countTD = row.querySelector("[id^='tbl-count']");
+    const dealQuantity = countTD.textContent.trim();
+
+    // extract first number from the string
+    const match = dealQuantity.match(/\d+/);
+    const num = match ? parseInt(match[0], 10) : null;
+
+    // pang check lang if may nag iba sa real-time update. if meron habang 0 siya before, then mag rerefresh siya
+    if (num === 0) {
+        if (confirm("There is nothing to view here. Do you want to reload the page if there are any changes?")) {
+            location.reload();
+        } 
+    } else {
+        var viewproductlisting = document.getElementById("view-listings-" + username);
+    
+        // if wala siyang nahanap, which only happens if the original count niya is 0, tas nag actiavte 
+        // yung real-time update making it no longer 0,
+        // then mag rereload yung page, para maupdate yung id ng popup modal :)
+        
+        if (!viewproductlisting) {
+            alert("Looks like the table for this company is no longer empty, updating the page!");
+            location.reload();
+            return;
+        }
+
+        viewproductlisting.style.display = "block";
+    }
 }
 function closeproductlisting(username) {
     var viewproductlisting = document.getElementById("view-listings-" + username);

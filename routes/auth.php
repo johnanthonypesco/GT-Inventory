@@ -10,7 +10,10 @@ use App\Http\Controllers\Auth\PasswordResetMailController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -134,8 +137,8 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    // Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    //     ->name('logout');
        
    
 
@@ -143,6 +146,31 @@ Route::middleware('auth')->group(function () {
        
         
 });
+
+
+Route::middleware('auth:web')->group(function () {
+    // ... your other user routes
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+
+// For Admins
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+    // ... your other admin routes
+    Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
+});
+
+// For Staff
+Route::prefix('staff')->middleware('auth:staff')->group(function () {
+    // ... your other staff routes
+    Route::post('logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('staff.logout');
+});
+
+// For Super Admins
+Route::prefix('superadmin')->middleware('auth:superadmin')->group(function () {
+    // ... your other superadmin routes
+    Route::post('logout', [SuperAdminAuthenticatedSessionController::class, 'destroy'])->name('superadmin.logout');
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('/beta-register', [\App\Http\Controllers\BetaRegistrationController::class, 'showForm'])->name('beta.register');
     Route::post('/beta-register', [\App\Http\Controllers\BetaRegistrationController::class, 'store'])->name('beta.register.store');

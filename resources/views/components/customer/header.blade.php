@@ -14,7 +14,7 @@ if(auth('web')->check()) {
 }
 @endphp
 <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
-<header class="flex justify-between items-center w-full py-2 px-5 bg-white rounded-lg">
+<header class="flex justify-between items-center py-2 px-5 bg-white fixed top-0 left-0 lg:left-[16%] right-0 z-50">
 <div class="flex items-center gap-2">
     <i {{ $attributes->merge(['class'=> 'text-[#005382] text-2xl '. $icon]) }}></i>
     <h1 class="font-bold text-2xl uppercase">{{$title}}</h1>
@@ -46,30 +46,42 @@ if(auth('web')->check()) {
         </span>
     </div>
 
-    <div class="hidden lg:flex gap-2 items-center px-5 py-1 border border-[#005382] rounded-lg">
+    <div class="hidden lg:flex gap-2 items-center cursor-pointer hover:bg-gray-200/50 hover:scale-105 transition-all duration-150 px-2 py-1 rounded-lg group">
         
         @if (Auth::user()->company && Auth::user()->company->profile_image)
             <img 
                 id="profilePreviewone"
                 src="{{ asset(Auth::user()->company->profile_image) }}"  
-                class="w-12 h-12 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
+                class="w-10 h-10 object-cover border-4 border-[#005382] rounded-full bg-white p-1 shadow-md"
                 alt="Company Profile Picture"
             >
         @else
             <i 
-                class="fas fa-user w-12 h-12 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
+                class="fas fa-user w-10 h-10 flex items-center justify-center border-4 border-[#005382] rounded-full bg-white p-1 shadow-md" 
             ></i>
         @endif
         {{-- niremove ko kasi may lumilitaw na form input type file  --}}
         {{-- <label for="profile_image">
         </label>         --}}
-        <div>
-            <div class="flex items-center gap-2">
+        <div class="relative">
+            <div class="flex items-center gap-1">
                 <p class="text-sm uppercase">{{ $name }}</p>
-                <p class="font-md font-semibold">{{ $company }}</p>
+                <p class="text-sm font-semibold">{{ $company }}</p>
             </div>
-            <p class="text-sm">{{ $email }}</p>
+            <p class="text-[12px] font-semibold text-gray-600">{{ $email }}</p>
             
+            <i class="fa-solid fa-angle-down absolute right-2 bottom-0"></i>
+        </div>
+
+        <div id="grouplogout" class="absolute top-11 right-0 bg-slate-800 p-2 rounded-lg shadow-md hidden group-hover:block">
+            <span window.location.href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                class="text-white text-sm flex items-center justify-center gap-5 rounded-md">
+                    Logout <i class="fa-solid fa-right-from-bracket"></i>
+            </span>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                @csrf
+            </form>
         </div>
     </div>
 </div>

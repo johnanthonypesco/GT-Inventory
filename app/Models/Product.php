@@ -16,7 +16,7 @@ class Product extends Model
         'strength',
         'img_file_path',
         'season_peak',
-        'trend_score',
+        // 'trend_score',
         'is_archived',
     ];
 
@@ -52,20 +52,20 @@ class Product extends Model
                      ->orWhere('season_peak', 'all-year');
     }
 
-    public function calculateTrendScore($currentSeason)
-    {
-        $score = $this->orders()->where('status', 'delivered')->count();
+    // public function calculateTrendScore($currentSeason)
+    // {
+    //     $score = $this->orders()->where('status', 'delivered')->count();
         
-        // Bonus if selling off-season
-        if ($this->season_peak !== $currentSeason && $this->season_peak !== 'all-year') {
-            $score *= 1.25;
-        }
+    //     // Bonus if selling off-season
+    //     if ($this->season_peak !== $currentSeason && $this->season_peak !== 'all-year') {
+    //         $score *= 1.25;
+    //     }
         
-        $this->trend_score = $score;
-        $this->save();
+    //     $this->trend_score = $score;
+    //     $this->save();
         
-        return $score;
-    }
+    //     return $score;
+    // }
 
     public function orders()
     {

@@ -12,8 +12,8 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'season_peak' => fake()->randomElement(['tag-ulan', 'tag-init', 'all-year']),
-            'trend_score' => fake()->numberBetween(0, 1000),
+            // 'season_peak' => fake()->randomElement(['tag-ulan', 'tag-init', 'all-year']),
+            // 'trend_score' => fake()->numberBetween(0, 1000),
         ];
     }
 
@@ -61,30 +61,30 @@ class ProductFactory extends Factory
     }
 
     // State methods for specific seasons
-    public function rainySeason()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'season_peak' => 'tag-ulan',
-            ];
-        });
-    }
+    // public function rainySeason()
+    // {
+    //     return $this->state(function (array $attributes) {
+    //         return [
+    //             'season_peak' => 'tag-ulan',
+    //         ];
+    //     });
+    // }
 
-    public function summerSeason()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'season_peak' => 'tag-init',
-            ];
-        });
-    }
+    // public function summerSeason()
+    // {
+    //     return $this->state(function (array $attributes) {
+    //         return [
+    //             'season_peak' => 'tag-init',
+    //         ];
+    //     });
+    // }
 
-    public function allYear()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'season_peak' => 'all-year',
-            ];
-        });
-    }
+    // public function allYear()
+    // {
+    //     return $this->state(function (array $attributes) {
+    //         return [
+    //             'season_peak' => 'all-year',
+    //         ];
+    //     });
+    // }
 }

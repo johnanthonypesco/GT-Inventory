@@ -98,6 +98,10 @@ class OrderController extends Controller
                 $orderDetails[] = [
                     'user' => $user->name,
                     'product' => $deal->product->generic_name,
+                    'brand_name' =>$deal->product->brand_name,
+                    'generic_name' => $deal->product->generic_name,
+                    'form' => $deal->product->form, // e.g., 'Tablet', 'Syrup'
+                    'strength' => $deal->product->strength, // e.g., '500mg', '250mg/5ml'
                     'quantity_requested' => $validated['quantity'][$index],
                     'available' => $isAvailable,
                     'available_quantity' => $availableQty,
@@ -192,6 +196,10 @@ class OrderController extends Controller
             $orderDetailsForEmail[] = [
                 'user' => $user->name,
                 'product' => $deal->product->generic_name,
+                'brand_name' =>$deal->product->brand_name,
+        'generic_name' => $deal->product->generic_name,
+        'form' => $deal->product->form, // e.g., 'Tablet', 'Syrup'
+        'strength' => $deal->product->strength, // e.g., '500mg', '250mg/5ml'
                 'quantity_requested' => $item->quantity,
                 'available' => true,
                 'available_quantity' => $availableQty,

@@ -683,6 +683,14 @@ class DashboardController extends Controller
 
             // Calculate order counts
             $totalOrders = ImmutableHistory::where('status', 'delivered')->count();
+
+            // $startDate = '2025-01-01';
+            // $endDate   = '2025-07-31';
+
+            // $tagulan = ImmutableHistory::whereBetween('created_at', [$startDate, $endDate])->get();
+
+            // dd('Tag-ulan data:', $tagulan);
+
             $pendingOrders = Order::where('status', 'pending')->count();
             $cancelledOrders = ImmutableHistory::where('status', 'cancelled')->count();
 

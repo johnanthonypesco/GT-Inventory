@@ -60,20 +60,29 @@
 
         @foreach($orderDetails as $order)
             <div class="order-box">
-                <p><strong>Customer:</strong> {{ $order['user'] }}</p>
-                <p><strong>Product:</strong> {{ $order['product'] }}</p>
-                <p><strong>Quantity Requested:</strong> {{ $order['quantity_requested'] }}</p>
-                <p><strong>Available in Inventory:</strong> {{ $order['available_quantity'] }}</p>
-                <p><strong>Location:</strong> {{ $order['location'] }}</p>
-                <p class="status {{ $order['available'] ? 'ok' : 'fail' }}">
-                    <strong>Status:</strong>
-                    {{ $order['available'] ? 'Enough stock' : 'Not enough stock' }}
-                </p>
-            </div>
+        <p><strong>Customer:</strong> {{ $order['user'] }}</p>
+
+        {{-- Product Details --}}
+        <p><strong>Brand Name:</strong> {{ $order['brand_name'] }}</p>
+        <p><strong>Generic Name:</strong> {{ $order['generic_name'] }}</p>
+        <p><strong>Form:</strong> {{ $order['form'] }}</p>
+        <p><strong>Strength:</strong> {{ $order['strength'] }}</p>
+
+        {{-- Order and Stock Info --}}
+        <p><strong>Quantity Requested:</strong> {{ $order['quantity_requested'] }}</p>
+        <p><strong>Available in Inventory:</strong> {{ $order['available_quantity'] }}</p>
+        <p><strong>Location:</strong> {{ $order['location'] }}</p>
+
+        {{-- Status --}}
+        <p class="status {{ $order['available'] ? 'ok' : 'fail' }}">
+            <strong>Status:</strong>
+            {{ $order['available'] ? 'Enough stock' : 'Not enough stock' }}
+        </p>
+    </div>
         @endforeach
 
         <p class="footer">This is an automated email notification. Please do not reply.<br>
-        — {{ config('app.name') }}</p>
+        — 'RMPOIMS'</p>
     </div>
 </body>
 </html>

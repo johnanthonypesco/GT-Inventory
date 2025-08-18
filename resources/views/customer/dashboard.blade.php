@@ -64,13 +64,13 @@
         } 
     </style> 
 </head> 
-<body class="flex p-5 gap-5"> 
+<body class="flex "> 
     <x-customer.navbar/> 
 
-    <main class="w-full lg:ml-[17%] opacity-0"> 
+    <main class="w-full lg:ml-[16%] opacity-0 px-4"> 
         <x-customer.header title="Dashboard" icon="fa-solid fa-gauge"/> 
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-5"> 
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-24"> 
             @php 
                 $cards = [ 
                     ['label' => 'Total Orders', 'count' => $totalorder, 'icon' => 'fa-list', 'bg' => 'bg-gray-100', 'text' => 'text-gray-600'], 
@@ -83,7 +83,7 @@
             @endphp 
 
             @foreach ($cards as $card) 
-                <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition-shadow duration-200"> 
+                <div class="bg-white p-5 rounded-xl shadow hover:scale-105 transition-all duration-300 hover:cursor-pointer" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)"> 
                     <div class="flex items-center gap-4"> 
                         <div class="p-3 rounded-full {{ $card['bg'] }}"> 
                             <i class="fa-solid {{ $card['icon'] }} text-xl {{ $card['text'] }}"></i> 
@@ -98,7 +98,7 @@
         </div> 
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5"> 
-            <div class="lg:col-span-2 bg-white p-5 rounded-lg shadow-md"> 
+            <div class="lg:col-span-2 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)"> 
                 <h2 class="text-xl font-bold mb-4">Recent Orders</h2> 
                 <div id="recentOrdersContent" class="hidden"> 
                     {{--  MODIFICATION: Added max-h-96 and overflow-y-auto for scrolling --}}
@@ -177,7 +177,7 @@
             </div> 
 
             <div class="flex flex-col gap-6"> 
-                <div class="bg-white p-5 rounded-lg shadow-md"> 
+                <div class="bg-white p-5 rounded-lg " style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)"> 
                     <h2 class="text-xl font-bold mb-4">Quick Actions</h2> 
                     <div class="flex flex-col gap-4"> 
                         <a href="{{ route('customer.order') }}" class="w-full text-center bg-[#005382] text-white p-3 rounded-lg hover:bg-opacity-90 transition-colors"> 
@@ -193,7 +193,7 @@
                     </div> 
                 </div> 
 
-                <div class="bg-white p-5 rounded-lg shadow-md"> 
+                <div class="bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)"> 
                     <h3 class="text-lg font-bold text-gray-800 mb-3">Last Delivered Order</h3> 
                     <div id="lastDeliveredOrderContent" class="hidden"> 
                         {{-- MODIFICATION: Added a wrapper div with max-h-72 and overflow-y-auto for scrolling --}}
@@ -246,7 +246,7 @@
                     </div> 
                 </div> 
 
-                <div class="bg-white p-5 rounded-lg shadow-md"> 
+                <div class="bg-white p-5 rounded-lg " style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)"> 
                     <h3 class="font-bold text-gray-800 mb-3">Exclusive Deals</h3> 
                     <div id="exclusiveDealsContent" class="hidden"> 
                         <div class="flex flex-col gap-2"> 

@@ -32,12 +32,12 @@
         #refreshAiBtn:disabled { cursor: not-allowed; }
     </style>
 </head>
-<body class="flex flex-col md:flex-row gap-4 mx-auto">
+<body class="flex flex-col md:flex-row mx-auto m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
-        <div class="h-full mt-5 overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="h-full mt-24 overflow-y-autop-4 rounded-lg">
             @php
                 $cardCount = 3;
                 if (!$currentUser instanceof \App\Models\Staff) { $cardCount++; }
@@ -98,7 +98,7 @@
 
             {{-- *** START: MODIFIED AI ANALYSIS SECTION *** --}}
             @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
-            <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg shadow-md border-t-4 border-purple-600">
+            <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg border-t-4 border-purple-600" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
                     <h2 class="text-xl font-bold text-gray-800 flex items-center">
                         <i class="fas fa-brain mr-3 text-purple-600"></i>
@@ -157,7 +157,7 @@
             {{-- *** END: MODIFIED AI ANALYSIS SECTION *** --}}
 
             @if(!$currentUser instanceof \App\Models\Staff)
-                <div class="mt-5 bg-white p-4 rounded-lg shadow">
+                <div class="mt-5 bg-white p-4 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                     <h3 class="text-lg font-semibold mb-3">Low Stock Alerts</h3>
                     <ul>
                         @forelse($lowStockProducts as $product)
@@ -170,8 +170,8 @@
             @endif
 
             @if(!$currentUser instanceof \App\Models\Staff)
-            <div class="mt-5 bg-white p-4 rounded-lg shadow-md">
-                <div class="flex flex-col md:flex-row md:items-center gap-3">
+            <div class="mt-5 bg-white p-4 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
+                <div class="flex flex-col md:flex-row md:items-center gap-3" >
                     <h3 class="text-lg font-semibold text-gray-800">Chart Display Options</h3>
                     <div class="flex-1 flex flex-col gap-4">
                         <select id="chartFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
@@ -221,7 +221,7 @@
             @if(!$currentUser instanceof \App\Models\Staff)
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6" id="chartsContainer">
                 <div class="space-y-4 md:space-y-6" id="leftCharts">
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 revenue-chart" data-chart-id="revenue">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 border border-gray-100 revenue-chart" data-chart-id="revenue" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
                             <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Revenue Over Time<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="revenue-info-icon"></i></h3>
                             <span class="text-xs sm:text-sm text-gray-500">Delivered Orders (by Order Date)</span>
@@ -266,7 +266,7 @@
                         </div>
                         <div class="h-60 xs:h-64 sm:h-72 md:h-80 bg-white rounded-lg chart-canvas" id="revenueChartContainer"></div>
                     </div>
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 deductions-chart" data-chart-id="deductions">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 border border-gray-100 deductions-chart" data-chart-id="deductions" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4 gap-2">
                             <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="deductions-info-icon"></i></h3>
                             <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
@@ -300,7 +300,7 @@
                         </div>
                         <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
                     </div>
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 inventory-chart" data-chart-id="inventory">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6border border-gray-100 inventory-chart" data-chart-id="inventory" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="inventory-info-icon"></i></h3>
                         <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
                             <div>
@@ -317,7 +317,7 @@
                     </div>
                 </div>
                 <div class="space-y-4 md:space-y-6" id="rightCharts">
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 trends-chart" data-chart-id="trends">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 border border-gray-100 trends-chart" data-chart-id="trends" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Product Trends & Predictions<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="trends-info-icon"></i></h3>
                         <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
                             <div>
@@ -344,7 +344,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="predictionCardsContainer"></div>
                         </div>
                     </div>
-                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-sm md:shadow-md border border-gray-100 performance-chart" data-chart-id="performance">
+                    <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 border border-gray-100 performance-chart" data-chart-id="performance" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="performance-info-icon"></i></h3>
                         <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
                             <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
@@ -1282,6 +1282,56 @@
     </script>
     @endif
 
+        @if(auth()->guard('superadmin')->check() || auth()->guard('admin')->check())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const runReactiveAnalysis = async () => {
+                    console.log('Running automatic reactive seasonality analysis...');
+                    try {
+                        const response = await fetch("{{ route('products.analyzeRecentSales') }}", { // <-- ETO YUNG BINAGO
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error('Automatic analysis failed. Server responded with an error.');
+                            return;
+                        }
+
+                        const result = await response.json();
+                        console.log('Auto-Update Result:', result.message);
+
+                        if (result.products_with_new_classification > 0) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            Toast.fire({
+                                icon: 'info',
+                                title: `${result.products_with_new_classification} products re-classified based on recent sales!`
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Failed to run automatic analysis:', error);
+                    }
+                };
+
+                // Tatakbo ito kada 15 minuto para i-check ang benta ng nakaraang araw.
+                // Pwede mo itong gawing mas matagal (e.g., kada isang oras: 3600000)
+                setInterval(runReactiveAnalysis, 10000); // 15 minutes
+            });
+        </script>
+        @endif
     {{-- realtime --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
