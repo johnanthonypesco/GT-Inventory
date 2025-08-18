@@ -101,7 +101,7 @@
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('admin.login'); // ✅ Redirects to Admin login
+            return redirect()->route('admins.login'); // ✅ Redirects to Admin login
         }
     }
 
