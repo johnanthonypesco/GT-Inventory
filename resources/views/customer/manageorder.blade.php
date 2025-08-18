@@ -21,13 +21,13 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Manage Order</title>
 </head>
-<body class="flex p-5 gap-5">
+<body class="flex m-0 p-0">
     <x-customer.navbar/>
 
-    <main class="w-full lg:ml-[17%] opacity-0">
+    <main class="w-full lg:ml-[16%] opacity-0 px-4">
         <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
 
-        <div class="bg-white mt-5 p-5 rounded-lg">
+        <div class="bg-white mt-24 p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             @php
                 // these variables are used to control the saving of filters in url query
                 $isSearchPresent = request()->query('search_filter');
@@ -110,6 +110,11 @@
                         <th>Action</th>
                     </thead>
                     <tbody>
+                        @if ($groupedOrdersByDate->isEmpty())
+                            <tr>
+                                <td colspan="3" class="p-5 text-center text-gray-500">No matching orders found.</td>
+                            </tr>
+                        @endif
                             @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
                                 @php
                                     $total = 0;
@@ -141,7 +146,7 @@
     {{-- loader --}}
 
     @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
-        <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20">
+        <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
             <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
                 <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
                 <h1 class="text-xl font-semibold text-[#005382]">

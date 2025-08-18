@@ -1,88 +1,138 @@
-<nav id="sidebar" class="md:w-[15%] w-full hidden lg:flex flex-col p-3 fixed top-4 left-4 opacity-0">
-    <div class="p-3 flex flex-col">
-        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
-        <hr class="mt-1">
+<nav id="sidebar" class="md:w-[15%] w-full hidden lg:flex flex-col p-2 fixed opacity-0 h-screen shadow-sm">
+    <div class="p-2 flex flex-col">
+        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[110px] self-center">
     </div>
 
-    <li class="list-none flex flex-col px-2 py-0 gap-[3px] h-full">
-        <a href="{{ route('admin.dashboard') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-            <i class="fa-solid fa-gauge text-[#005382] text-sm sm:text-2xl lg:text-sm"></i>
-            <span class="sm:hidden lg:inline-block">Dashboard</span>
-        </a>
+    <ul class="list-none flex flex-col px-1 py-0 gap-[1px]">
 
+        {{-- DASHBOARD (ALL ROLES) --}}
+        <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold flex items-center justify-between">Home <i class="fa-solid fa-angle-down text-black/70"></i></div>
+        <li>
+            <a href="{{ route('admin.dashboard') }}" class="mt-1 flex items-center gap-1 p-2">
+                <i class="fa-solid fa-gauge"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        {{-- ADMIN & SUPERADMIN MENUS --}}
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <a href="{{ route('admin.inventory') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-boxes-stacked text-[#005382] text-sm {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'text-white' : ''  }}"></i><span class="sm:hidden lg:inline-block">Inventory</span>
+            <li class="{{ request()->is('admin/sales*') }}">
+                <a href="{{ route('admin.sales') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Sales Reports</span>
+                </a>
+            </li>
 
-            </a>
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Communication <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <li class="{{ request()->is('admin/chat*') }}">
+                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-1 p-2">
+                    <i class="fa-brands fa-rocketchat"></i>
+                    <span>Chat</span>
+                    @if ($adminsidebar_counter > 0)
+                        <span class="absolute -top-1 right-1 bg-red-500 px-1 rounded-full text-[12px]">
+                            {{ $adminsidebar_counter }}
+                        </span>
+                    @endif
+                </a>
+            </li>
+
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Management <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <li class="{{ request()->is(['admin/inventory', 'admin/ocr-files']) }}">
+                <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Inventory</span>
+                </a>
+            </li>
             
-            <a href="{{ route('admin.sales') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/sales*') ? 'active' : '' }}">
-                <i class="fa-solid fa-print sm:text-2xl lg:text-sm text-sm {{ request()->is('admin/sales*') ? 'text-white' : 'text-[#005382]' }}"></i>
-                <span class="sm:hidden lg:inline-block">Sales Reports</span>
-            </a>
-            
-            <a href="{{ route('admin.productlisting') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/productlisting') ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-list-check text-[#005382] text-sm {{ request()->is('admin/productlisting') ? 'text-white' : ''  }}"></i>
-                <span class="sm:hidden lg:inline-block">Product Deals</span>
-            </a>
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i class="fa-brands fa-rocketchat text-[#005382]"></i>
-                <span class="sm:hidden lg:inline-block">Chat</span>
-                @if ($adminsidebar_counter > 0)
-                    <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
-                        {{ $adminsidebar_counter }}
-                    </span>
-                @endif
-            </a>
-            
-            <a href="{{ route('superadmin.account.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('manageaccounts*') ? 'active' : '' }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-bars-progress text-sm {{ request()->is('manageaccounts*') ? 'text-white' : 'text-[#005382]' }}"></i>
-                <span class="sm:hidden lg:inline-block">Manage Accounts</span>
-            </a>
-            
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/order') ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping {{ request()->is('admin/order') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
-                <span class="sm:hidden lg:inline-block">Orders</span>
+            <li class="{{ request()->is('admin/productlisting') }}">
+                <a href="{{ route('admin.productlisting') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Product Deals</span>
+                </a>
+            </li>
 
-            </a>
+            <li class="{{ request()->is('admin/order*') }}">
+                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
 
-            <a href="{{ route('admin.history') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('admin/history') ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-clock-rotate-left {{ request()->is('admin/history') ? 'text-white' : 'text-[#005382]'  }} text-sm"></i>
-                <span class="sm:hidden lg:inline-block">Order History</span>
+            <li class="{{ request()->is('manageaccounts*') }}">
+                <a href="{{ route('superadmin.account.index') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-bars-progress"></i>
+                    <span>Manage Accounts</span>
+                </a>
+            </li>
 
-            </a>
-            
+            <li>
+                <a href="{{ route('admin.contentmanagement') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-file"></i>
+                    <span>Manage Content</span>
+                </a>
+            </li>
 
-            <a href="{{ route ('admin.historylog')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-magnifying-glass-chart text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">History Log</span></a>
+            <li>
+                <a href="{{ route('superadmin.reviews.index') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Review Manager</span>
+                </a>
+            </li>
 
-            <a href="{{ route ('admin.stafflocation')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-map-location-dot text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Staff Location</span></a>
-            <a href="{{ route ('admin.contentmanagement')}}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-file text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Manage Content</span></a>
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <li class="{{ request()->is('admin/history*') }}">
+                <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Order History</span>
+                </a>
+            </li>
 
+            <li>
+                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    <span>History Log</span>
+                </a>
+            </li>
 
-            <a href="{{ route('superadmin.reviews.index') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2"><i class="fa-solid sm:text-2xl lg:text-sm fa-star text-[#005382] text-sm"></i><span class="sm:hidden lg:inline-block">Review Manager</span></a>
+            <li>
+                <a href="{{ route('admin.stafflocation') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>Staff Location</span>
+                </a>
+            </li>
         @endif
 
+        {{-- STAFF MENUS --}}
         @if (auth('staff')->check())
-            <a href="{{ route('admin.order') }}" class="text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2 {{ request()->is('staff/order') ? 'active' : ''  }}">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-cart-shopping text-sm {{ request()->is('staff/order') ? 'text-white' : 'text-[#005382]'  }}"></i>
-                <span class="sm:hidden lg:inline-block">Orders</span>
-            </a>
+            <li class="{{ request()->is('staff/order') }}">
+                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
 
-            <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative text-sm sm:flex sm:justify-center lg:flex lg:justify-start items-center gap-2">
-                <i id="navBarCounter" class="fa-brands fa-rocketchat text-sm sm:text-2xl lg:text-sm"></i><span class="sm:hidden lg:inline-block">Chat</span>
-                @if ($adminsidebar_counter > 0)
-                    <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
-                        {{ $adminsidebar_counter }}
-                    </span>
-                @endif
-            </a>
+            <li class="{{ request()->is('admin/chat*') }}">
+                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative flex items-center gap-1 p-2">
+                    <i class="fa-brands fa-rocketchat"></i>
+                    <span>Chat</span>
+                    @if ($adminsidebar_counter > 0)
+                        <span class="absolute -top-1 right-1 bg-red-500 px-1 rounded-full text-[12px]">
+                            {{ $adminsidebar_counter }}
+                        </span>
+                    @endif
+                </a>
+            </li>
         @endif
+    </ul>
 
        @if (Auth::guard('superadmin')->check())
-        <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
+    {{-- LOGOUT --}}
+    <div class="mt-auto px-1">
+        <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}">
             @csrf
-            <button type="submit" class="text-sm text-left flex items-center gap-2 logout w-full sm:justify-center lg:justify-start">
-                <i class="fa-solid sm:text-2xl lg:text-sm fa-right-from-bracket text-white text-sm"></i><span class="sm:hidden lg:inline-block">Logout</span>
+            <button type="submit" class="logout text-sm text-left flex items-center gap-1 p-2 w-full">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
             </button>
         </form>
 
@@ -103,6 +153,7 @@
             </form>
         @endif
     </li>
+    </div>
 </nav>
 
 <script src="{{ asset('js/navbar.js') }}"></script>

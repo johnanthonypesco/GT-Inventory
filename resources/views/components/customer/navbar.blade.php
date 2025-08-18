@@ -1,43 +1,55 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
-<nav id="customernavbar" class="h-[96vh] hidden lg:flex flex-col p-5 w-[16%] bg-white rounded-xl fixed top-4 left-4 opacity-0">
+<nav id="customernavbar" class="h-[100vh] hidden lg:flex flex-col p-5 w-0 lg:w-[16%] bg-white fixed top-0 left-0 opacity-0">
     <div class="flex flex-col">
-        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[180px] self-center">
-        <hr class="mt-2">
+        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
     </div>
 
-    <ul class="flex flex-col gap-5 flex-1 pt-5">
-        <a href="{{ route('customer.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge"></i>Dashboard</a>
-
-        <a href="{{ route('customer.order') }}" class="text-md {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
+    <ul class="flex flex-col pt-5">
+        <div class="flex flex-col gap-2">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.dashboard') }}" class="text-sm"><i class="fa-solid fa-gauge"></i>Dashboard</a>
+            <a href="{{ route('customer.order') }}" class="text-sm {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
+        </div>
         
-        <a href="{{ route('customer.manageorder') }}" class="text-md {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Communication <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-sm relative">
+                <i class="fa-brands fa-rocketchat"></i>Chat
+    
+                @if ($totalUnreadMessages > 0)
+                    <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
+                        {{ $totalUnreadMessages }}
+                    </span>
+                @endif
+            </a>
+        </div>
 
-        <a href="{{ route('customer.history') }}" class="text-md {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Management <i class="fa-solid fa-angle-down text-gray-400"></i></span>            
+            <a href="{{ route('customer.manageorder') }}" class="text-sm {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
+            <a href="{{ route('customer.manageaccount') }}" class="text-sm"><i class="fa-solid fa-gear"></i>Manage Account</a>
+        </div>
 
-        <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-md relative">
-            <i class="fa-brands fa-rocketchat"></i>Chat
 
-            @if ($totalUnreadMessages > 0)
-                <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
-                    {{ $totalUnreadMessages }}
-                </span>
-            @endif
-        </a>
-        <a href="{{ route('customer.manageaccount') }}" class="text-md"><i class="fa-solid fa-gear"></i>Manage Account</a>
-        <a href="#" id="openReviewModal" class="text-md"><i class="fa-solid fa-star"></i>Leave a Review</a>
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">History & Review <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.history') }}" class="text-sm {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
+            <a href="#" id="openReviewModal" class="text-sm"><i class="fa-solid fa-star"></i>Leave a Review</a>
+        </div>
+
     </ul>
 
-    <form action="{{ route('logout') }}" method="POST">
+    <form action="{{ route('logout') }}" method="POST" class="mt-auto">
         @csrf
-        <button type="submit" class="flex items-center gap-2 text-md uppercase bg-[#005382] p-2 text-white rounded-lg w-full">
+        <button type="submit" class="flex items-center gap-2 text-sm uppercase bg-[#005382] p-2 text-white rounded-lg w-full">
             <i class="fa-solid fa-right-from-bracket"></i> Logout
         </button>
     </form>
 </nav>
 
- <div id="reviewModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+ <div id="reviewModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-[51] flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
         <h2 class="text-2xl font-bold mb-4">Leave a Review</h2>
         <form id="reviewForm">

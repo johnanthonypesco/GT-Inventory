@@ -13,24 +13,23 @@
 
     <title>History Log</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="History Log" icon="fa-solid fa-history"/>
         
-        <div class="p-4 bg-white rounded-md mt-5">
-            <div class="flex flex-col md:flex-row justify-between">
-                {{-- Added name="search" for easier access in JS --}}
-                <x-input id="search" name="search" class="w-full md:w-[40%] relative" type="text" placeholder="Search logs by description, event, or user..." classname="fa fa-magnifying-glass"/>
-                
-                {{-- Added name="event" and included all event types --}}
-                <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit pr-8 bg-white outline-none" style="box-shadow: 0 0 2px #003582 ;">
-                    <option value="All">--All Events--</option>
-                    <option value="Add">Add</option>
-                    <option value="Edit">Edit</option>
-                    <option value="Delete">Delete</option>
-                    <option value="Restore">Restore</option>
+        <div class="flex flex-col md:flex-row justify-between mt-24">
+            {{-- Added name="search" for easier access in JS --}}
+            <x-input id="search" name="search" class="w-full md:w-[40%] relative bg-white rounded-lg" type="text" placeholder="Search logs by description, event, or user..." classname="fa fa-magnifying-glass"/>
+            
+            {{-- Added name="event" and included all event types --}}
+            <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
+                <option value="All">--All Events--</option>
+                <option value="Add">Add</option>
+                <option value="Edit">Edit</option>
+                <option value="Delete">Delete</option>
+                <option value="Restore">Restore</option>
 
                     <option value="Archive">Archive</option>
                     <option value="Approve">Approve</option>

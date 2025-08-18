@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 // Admin Controller
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\SampleController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
@@ -85,6 +86,7 @@ use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccou
 
 // Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
 // Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
+Route::get('loginpage', [SampleController::class, 'showlogin'])->name('loginpage');
 
 // Existing Route for Staff/Admin App
 Route::get('/download/app', [FileDownloadController::class, 'downloadApk'])->name('apk.download');

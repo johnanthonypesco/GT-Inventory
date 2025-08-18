@@ -1,4 +1,4 @@
-<div class="overflow-x-auto mt-5 h-[60vh]">
+<div class="overflow-auto mt-5">
     <table>
         <thead>
             <tr>

@@ -19,14 +19,14 @@
 
     <title>Orders</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div class="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
             <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
@@ -41,9 +41,7 @@
         </div>
         {{-- Total Container --}}
 
-
-
-        <div class="h-[60vh] overflow-auto mt-8">
+        <div class="mt-8">
             <div class="table-button flex flex-col lg:flex-row justify-between gap-4 p-1 float-end w-full">
                 {{-- Search --}}
                 <div class="flex flex-col lg:flex-row gap-1 justify-between items-center w-full lg:w-[40%] relative rounded-lg">
@@ -107,7 +105,7 @@
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}">
+            <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <div class="flex flex-wrap justify-between items-center">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
@@ -136,7 +134,7 @@
                         {{ $companyName }}
                     </h1>
 
-                    <div class="overflow-auto max-h-[200px] h-fit mt-5">
+                    <div class="overflow-auto mt-5">
                         {{-- Table --}}
                         <x-table
                             :headings="['Employee Name', 'Date Ordered', 'Action']"
@@ -168,7 +166,7 @@
                         $explodedIDNameDate = explode('|', $employeeNameAndDate);
                     @endphp
                     <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
-                                items-center justify-center px-4"
+                                items-center justify-center px-4 z-50"
                         id="order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}">
                         <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
@@ -333,7 +331,7 @@
         var errorMessage = @json(session('manualUpdateFailed'));
         alert(errorMessage);
     </script>
-@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
                 <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
@@ -366,6 +364,16 @@
 
         CANCELLED
     </button>
+
+    {{-- <label for="status-select" class="font-semibold">Select Status:</label>
+    <select id="status-select" name="status" onchange="changeStatus(this.closest('form'), this.value)" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 hover:bg-white hover:cursor-pointer">
+        <option value="pending" selected style="background-color: orange; color: white">PENDING</option>
+        <option value="packed" style="background-color: purple; color: white">PACKED</option>
+        <option value="out for delivery" style="background-color: green; color: white">OUT FOR DELIVERY</option>
+        <option value="delivered" style="background-color: blue; color: white">DELIVERED</option>
+        <option value="cancelled" style="background-color: red; color: white">CANCELLED</option>
+    </select> --}}
+
 
    
 </form>
@@ -405,7 +413,7 @@
         {{-- Update Order Status Modal --}}
 
         {{-- Upload qr code modal --}}
-        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
             <div class="modal bg-white w-full lg:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="uploadqrmodalclose" click="closeuploadqrmodal"/>
                 <!-- Title -->
@@ -424,7 +432,7 @@
     </main>
 
     {{-- FOR ACTION MAPS --}}
-    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
         <div class="modal bg-white w-full md:w-[80%] mx-auto p-5 rounded-lg relative shadow-lg">
             <x-modalclose click="showInsufficients"/>
 

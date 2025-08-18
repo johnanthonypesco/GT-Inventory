@@ -4,14 +4,18 @@
 }
 body{
     background-color: #eaeaea;
-    padding: 20px;
+}
+main{
+    padding-bottom: 10px;
 }
 /* iniba ko pesco yung nav css dahil naapektuhan yung pagination buttons
 -- sigrae */
 nav#sidebar{ 
     background-color: white;
-    border-radius: 20px;
-    height: 97vh;
+    height: 100vh;
+}
+li{
+    padding: 0 9px 0 9px;
 }
 li a, .sidebar a{
     display: flex;
@@ -23,8 +27,11 @@ li a, .sidebar a{
     transition: all 0.3s;
     overflow: hidden;
     text-transform: uppercase;
+    letter-spacing: 1px;
     z-index: 0;
     transition: duration 0.3s;
+    font-size: 12.5px;
+    color: rgba(0, 0, 0, 0.732);
 }
 li a::before, .sidebar a::before{
     content: "";
@@ -60,11 +67,11 @@ li a:hover i, .sidebar a:hover i{
     background-color: #005382;
     padding: 8px;
     border-radius: 10px;
-    color: white;
+    color: white !important;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
 }
 header{
     background-color: white;
-    border-radius: 15px;
 }
 header h1 i{
     color: #005382;
@@ -119,14 +126,14 @@ table thead th{
     font-weight: semibold;
     text-transform: uppercase;
     padding: 10px;
-    font-size: 17px;
+    font-size: 16px;
 }
 table{
     width: 100%;
 }
 table tbody td{
-    padding: 10px;
-    font-size: 16px;
+    padding: 7px;
+    font-size: 14px;
 }
 table tbody tr{
     border-bottom: 2px solid #0052825e;
@@ -182,5 +189,22 @@ table tbody tr:hover{
 @keyframes rotate {
     50% {
         transform: rotate(180deg);
+    }
+}
+#help{
+    animation: bounce 2s infinite;
+}
+#help:hover{
+    animation: none;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-15px);
     }
 }

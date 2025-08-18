@@ -59,6 +59,7 @@
                                 @js($inv->location->province)
                             )"
                         >
+                        <i class="fa-solid fa-share"></i>
                             Transfer
                         </button>
                         </td>
@@ -83,10 +84,10 @@
             {{-- productdeals --}}
             @case($category === 'productdeals')
                 @foreach ($variable as $company)
-                    <tr class="text-center">
+                    <tr id="real-timer-total-personal-counter" data-company="{{ $company->id }}" class="text-center">
                         <td>{{ $company->id }}</td>
                         <td> {{ $company->name }} </td>
-                        <td id="real-timer-total-personal-counter" data-company="{{ $company->id }}"> 
+                        <td id="tbl-count"> 
                             {{ isset($secondaryVariable[$company->name]) ? 
                             $secondaryVariable[$company->name]->total() 
                             : 'No' }} {{ $dealSearchCompany === $company->name ? "Searched" : "" }} Personalized Products
@@ -96,7 +97,7 @@
                         <td class="m-auto flex gap-4 justify-center font-semibold">
                             @if ($secondaryVariable->get($company->name))
                                 <x-vieworder 
-                                onclick="viewproductlisting('{{ $company->id }}')" 
+                                onclick="viewproductlisting('{{ $company->id }}', this)" 
                                 name="View"
                                 />                                
                             @endif

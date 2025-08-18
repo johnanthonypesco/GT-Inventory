@@ -14,15 +14,15 @@
 
     <title>Order</title>
 </head>
-<body class="flex p-5 gap-5">
+<body class="flex p-0 m-0">
     <x-customer.navbar />
 
-    <main class="w-full lg:ml-[17%] opacity-0">
+    <main class="w-full lg:ml-[16%] opacity-0 px-4">
         <x-customer.header title="Make an Order" icon="fa-solid fa-cart-shopping"/>
 
-        <div class="flex flex-col lg:flex-row gap-5 mt-5">
+        <div class="flex flex-col lg:flex-row gap-5 mt-24">
            <!-- Available Products -->
-            <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl">
+            <div class="w-full lg:w-[70%] bg-white p-5 rounded-xl" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <h1 class="font-semibold text-2xl">Available Products</h1>
                 
 
@@ -85,7 +85,7 @@
                                 <div class="flex gap-2 mt-2">
                                     <input type="number" class="quantity w-[100px] p-2 border border-[#005382] rounded-xl" value="1" min="1" id="quantity-{{$deal->id}}">
 
-                                    <button type="button" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl"
+                                    <button type="button" class="add-to-cart bg-[#005382] text-white p-2 rounded-xl hover:-translate-y-1 transition-transform duration-300"
                                     onclick="
                                         //the deal ID
                                         updatePurchaseOrder({{$deal->id}},
@@ -107,7 +107,7 @@
             </div>
 
             <!-- Summary of Orders -->
-            <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl">
+            <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 @csrf
                 <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}">
                 <div class="flex justify-between items-center pb-2">
@@ -126,7 +126,7 @@
                     <h1 class="text-xl font-semibold text-right mt-5">Subtotal: <span id="subtotal">₱0</span></h1>
 
                     {{-- will only submit if the form has contents in it --}}
-                    <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5">Checkout</button>
+                    <button onclick="Object.keys(purchaseFormState).length <= 0 ? event.preventDefault() : null" type="button" id="checkoutbtn" class="bg-[#005382] text-white p-2 rounded-lg lg:w-full mt-5 hover:-translate-y-1 transition-transform duration-300">Checkout</button>
                 </div>
             </form>
         </div>

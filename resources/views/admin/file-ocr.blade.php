@@ -19,11 +19,11 @@
         }
     </style>
 </head>
-<body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+<body class="flex flex-col md:flex-row m-0 p-0">
     
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[16%] ml-0">
+    <main class="md:w-full h-full lg:ml-[15%] ml-0 px-4">
         <x-admin.header title="OCR Archives" icon="fa-solid fa-folder-open"/>
         
         <div class="bg-white rounded-lg shadow p-6 mt-4">

@@ -13,15 +13,15 @@
 
     <title>Sales Report</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+<body class="flex flex-col md:flex-row m-0 p-0">
     
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] ml-0 opacity-0 px-4">
         <x-admin.header title="Sales Report" icon="fa-solid fa-print"/>
         
-        <div class="flex flex-col h-full p-4">
-            <div class="bg-white rounded-lg shadow-md mb-8">
+        <div class="flex flex-col h-full mt-24">
+            <div class="bg-white rounded-lg mb-8" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <div class="px-6 py-4 border-b">
                     <h3 class="text-lg font-medium text-gray-800">Generate Sales Report</h3>
                 </div>

@@ -13,13 +13,13 @@
 
     <title>Review Manager</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4">
+<body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Manage Reviews" icon="fa-solid fa-star" name="John Anthony Pesco" gmail="admin@gmail"/>
 
-        <div class="w-full mt-5 bg-white p-5 rounded-lg">
+        <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
             
             <div class="overflow-auto">

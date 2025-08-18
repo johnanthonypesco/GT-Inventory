@@ -13,16 +13,16 @@
 
     <title>Chat</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4 h-[100vh]">
+<body class="flex flex-col md:flex-row m-o p-0">
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0">
+    <main class="md:w-full h-full lg:ml-[15%] ml-0 opacity-0 px-4">
         <x-admin.header title="Chat" icon="fa-solid fa-message"/>
 
         <!-- Blade component for search added here -->
-        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-5 rounded-lg"/>
+        <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-24 rounded-lg"/>
 
-        <div class="flex flex-col bg-white mt-5 p-5 rounded-lg">
+        <div class="flex flex-col bg-white mt-5 p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <div class="flex flex-col gap-2">
                 <div class="mb-2">
                     <div class="flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"

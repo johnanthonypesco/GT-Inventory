@@ -58,10 +58,10 @@
         }
     </style>
 </head>
-<body class="flex flex-col lg:flex-row gap-4">
+<body class="flex flex-col lg:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[16%] opacity-0">
+    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
 
         <div id="successToast" class="toast-notification fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
@@ -74,15 +74,13 @@
         </div>
 
         {{-- Filter & Add Account --}}
-{{-- This is the corrected container div --}}
-<div class="flex items-center md:flex-row flex-col lg:flex-row justify-end gap-2 mt-5">
-
-    <select id="accountFilter" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
-        <option value="all">All Accounts</option>
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
-        <option value="customer">Customer</option>
-    </select>
+        <div class="flex flex-wrap items-center md:flex-row justify-end gap-2 mt-24">
+            <select id="accountFilter" appearance="none" class="w-full text-md md:w-fit shadow-sm shadow-[#005382] p-2 rounded-lg text-center bg-white outline-none pr-9">
+                <option value="all">All Accounts</option>
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+                <option value="customer">Customer</option>
+            </select>
 
     <button onclick="openAddAccountModal()" class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] trasition-all duration-500 ease-in-out">
         <i class="fa-solid fa-plus"></i> Add Account
@@ -110,7 +108,7 @@
         {{-- End Filter & Add Account --}}
 
         {{-- Table for Account List --}}
-        <div class="w-full bg-white mt-3 rounded-lg p-5">
+        <div class="w-full bg-white mt-3 rounded-lg p-5" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             {{-- Account List Header --}}
             <div class="flex justify-between items-center flex-col md:flex-row gap-2">
                 <h1 class="font-bold text-3xl text-[#005382]">Account List</h1>
@@ -132,7 +130,7 @@
         {{-- MODALS --}}
 
         {{-- Add Account Modal --}}
-        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
+        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto z-50 {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
             <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-10 rounded-lg shadow-xl relative">
                 <x-modalclose click="closeAddAccountModal"/>
 
@@ -293,7 +291,7 @@
         </div>
 
         {{-- Edit Account Modal --}}
-        <div id="editAccountModal" class="fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
+        <div id="editAccountModal" class="fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto z-50 {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
             <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
                 {{-- <form method="POST" id="editaccountform"> error show if we use this "The PUT method is not supported for route manageaccounts. Supported methods: GET, HEAD, POST."--}}

@@ -15,18 +15,18 @@
 
     <title>Staff Location Tracking</title>
 </head>
-<body class="flex flex-col md:flex-row gap-4 mx-auto">
+<body class="flex flex-col md:flex-row m-0 p-0">
 
     {{-- Sidebar/Navbar --}}
     <x-admin.navbar/>
 
     {{-- Main Content --}}
-    <main class="md:w-full h-full md:ml-[16%]">
+    <main class="md:w-full h-full md:ml-[15%] opacity-0 px-4">
         {{-- Header --}}
         <x-admin.header title="Staff Locations" icon="fa-solid fa-map-marker-alt" name="{{ auth()->user()->name }}" gmail="{{ auth()->user()->email }}"/>
 
         {{-- Staff List --}}
-        <div class="bg-white shadow-md rounded-lg p-4 mt-5">
+        <div class="bg-white rounded-lg p-4 mt-24" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h2 class="text-lg font-semibold mb-2">Select Staff</h2>
             <ul id="staff-list" class="flex flex-wrap gap-3">
                 {{-- Staff buttons will be inserted by JS --}}
@@ -34,7 +34,7 @@
         </div>
 
         {{-- Map Section --}}
-        <div class="bg-white shadow-md rounded-lg p-4 mt-5">
+        <div class="bg-white rounded-lg p-4 mt-5" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h2 class="text-xl font-bold mb-3">Live Staff Locations</h2>
             <div id="map" style="height: 500px; width: 100%;" class="rounded-lg shadow"></div>
         </div>

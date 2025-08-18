@@ -5,37 +5,52 @@
 <div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-50 p-5 list-none transition-all duration-500" id="sidebar">
     <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
-        <hr class="mt-2">
         <div onclick="closeSidebar()" class="w-10 h-10 bg-[#005382] shadow-md flex items-center justify-center absolute -top-5 -right-10 rounded-md hover:cursor-pointer">
             <span class="text-6xl text-white font-bold">&times;</span>
         </div>
     </div>
-    <ul class="flex-1 flex flex-col gap-5 pt-5">
-        <li><a href="{{ route('customer.dashboard') }}" class="text-md"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-        <li><a href="{{ route('customer.order') }}" class="text-md"><i class="fa-solid fa-cart-shopping"></i> Make an Order</a></li>
-        <li><a href="{{ route('customer.manageorder') }}" class="text-md"><i class="fa-solid fa-list-check"></i> Manage Order</a></li>
-        <li><a href="{{ route('customer.history') }}" class="text-md"><i class="fa-regular fa-clock"></i> Order History</a></li>
-        <li>
-            <a href="{{ route('customer.chat.index') }}" id="chatSidebar" class="text-md relative">
-                <i class="fa-brands fa-rocketchat"></i> Chat
+    <ul class="flex flex-col pt-5">
+        <div class="flex flex-col gap-2">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.dashboard') }}" class="text-sm"><i class="fa-solid fa-gauge"></i>Dashboard</a>
+            <a href="{{ route('customer.order') }}" class="text-sm {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
+
+        </div>
+        
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Communication <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-sm relative">
+                <i class="fa-brands fa-rocketchat"></i>Chat
+    
                 @if ($totalUnreadMessages > 0)
                     <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
                         {{ $totalUnreadMessages }}
                     </span>
                 @endif
             </a>
-        </li>
-        <li><a href="{{ route('customer.manageaccount') }}" class="text-md"><i class="fa-solid fa-gear"></i> Account</a></li>
-        <li><a href="#" id="openReviewModalsidebar" class="text-md"><i class="fa-solid fa-star"></i> Leave a Review</a></li>
-        <li class="mt-auto">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="flex items-center gap-2 text-md uppercase bg-[#005382] p-2 text-white rounded-lg w-full">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
-            </form>
-        </li>
+        </div>
+
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Management <i class="fa-solid fa-angle-down text-gray-400"></i></span>            
+            <a href="{{ route('customer.manageorder') }}" class="text-sm {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
+            <a href="{{ route('customer.manageaccount') }}" class="text-sm"><i class="fa-solid fa-gear"></i>Manage Account</a>
+        </div>
+
+
+        <div class="flex flex-col gap-2 mt-4">
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">History & Review <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <a href="{{ route('customer.history') }}" class="text-sm {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
+            <a href="#" id="openReviewModal" class="text-sm"><i class="fa-solid fa-star"></i>Leave a Review</a>
+        </div>
+
     </ul>
+
+    <form action="{{ route('logout') }}" method="POST" class="mt-auto">
+        @csrf
+        <button type="submit" class="flex items-center gap-2 text-sm uppercase bg-[#005382] p-2 text-white rounded-lg w-full">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+    </form>
 </div>
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden" onclick="closeSidebar()"></div>
 
@@ -91,15 +106,14 @@
         }
     });
 
-    // This function is now called by your header's burger menu
     window.openSidebar = function() {
-        sidebar.classList.add('left-0', 'w-[300px]');
+        sidebar.classList.add('left-[0.1px]', 'w-[300px]');
         overlay.classList.remove('hidden');
     }
 
     // This function is called by the close button and the overlay
     window.closeSidebar = function() {
-        sidebar.classList.remove('left-0', 'w-[300px]');
+        sidebar.classList.remove('left-[0.1px]', 'w-[300px]');
         overlay.classList.add('hidden');
     }
 
