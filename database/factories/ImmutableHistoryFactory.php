@@ -23,6 +23,7 @@ class ImmutableHistoryFactory extends Factory
         $user = User::with('company.location')->get();
         $userID = $user->pluck('id')->random();
         $usableUser = $user->find($userID);
+        $companyID = $usableUser->company->id;
         $province = $usableUser->company->location->province;
         $companyName = $usableUser->company->name;
         $employeeName = $usableUser->name;
@@ -50,6 +51,8 @@ class ImmutableHistoryFactory extends Factory
 
         return [
             'order_id' => $orderID,
+            'company_id' => $companyID,
+            'user_id' => $userID,
             'province' => $province,
             'company' => $companyName,
             'employee' => $employeeName,

@@ -23,6 +23,8 @@ class ImmutableHistory extends Model
         'price',
         'subtotal',
         'order_id',
+        'user_id',
+        'company_id'
     ];
 
     protected $casts = [

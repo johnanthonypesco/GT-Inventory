@@ -42,6 +42,8 @@ class QrCodeController extends Controller
                 // ✅ Prepare JSON data for the QR code
                 $qrData = [
                     'order_id'      => $order->id,
+                    'company_id'      => $order->user->company->id,
+                    'user_id'      => $order->user->id,
                     'user_name'     => $order->user->name,
                     'company_name'  => $order->user->company->name ?? 'No Company',
                     'company_address' => $order->user->company->address ?? 'No Address',
@@ -60,6 +62,8 @@ class QrCodeController extends Controller
             } else {
                 $qrData = [
                     'order_id'      => $order->id,
+                    'company_id'      => $order->user->company->id,
+                    'user_id'      => $order->user->id,
                     'user_name'     => $order->user->name,
                     'company_name'  => $order->user->company->name ?? 'No Company',
                     'company_address' => $order->user->company->address ?? 'No Address',
