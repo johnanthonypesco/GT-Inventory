@@ -27,20 +27,27 @@
         <h1 class="font-bold text-md uppercase">{{$title}}</h1>
     </div>
 
-    <div class="flex items-center gap-2">
-        <div class="relative group">
-            <button id="help" class="flex gap-2 justify-center items-center font-semibold text-xl rounded-full py-1 bg-green-600/80 text-white w-fit px-2 hover:bg-green-600 transition-all duration-150"
-                onclick="showTutorial()" style="box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.4)"
-            >
-                <i class="fa-regular fa-circle-question text-xl"></i>
-                {{-- HELP --}}
-            </button>
 
-            <!-- Tooltip -->
-            <span class="absolute -left-4 -bottom-28 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none animate-bounce z-50 w-[140px] text-center">
-                Will show a user manual video for this page.
-            </span>
-        </div>
+    <div class="flex items-center gap-2">
+        @if (auth('superadmin')->check() || auth('admin')->check() || (auth('staff')->check() && !request()->routeIs('admin.dashboard')))
+            @if (!request()->routeIs('admin.chat.*'))
+                <div class="relative group">
+                    <button id="help" class="flex gap-2 justify-center items-center font-semibold text-xl rounded-full py-1 bg-green-600/80 text-white w-fit px-2 cursor-pointer hover:bg-green-600 transition-all duration-150"
+                        onclick="showTutorial()" style="box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.4)"
+                    >
+                        <i class="fa-regular fa-circle-question text-xl"></i>
+                        HELP
+                        {{-- HELP --}}
+                    </button>
+
+                    <!-- Tooltip -->
+                    <span class="absolute -left-4 -bottom-28 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none animate-bounce z-50 w-[140px] text-center">
+                        Will show a tutorial video for this page.
+                    </span>
+                </div>
+            @endif
+        @endif
+
 
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
         <div class="hidden group lg:flex gap-2 items-center px-5 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
@@ -67,18 +74,51 @@
         <x-admin.burgermenu/>
     </div>
 
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="tutorialModal">
-        <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative">
+    {{-- TUTORIAL POPUP MODAL --}}
+    {{-- BTW KUNG NAG TATAKA KAYO KUNG BAKIT AYAW GUMANA NG TIME SCROLLER HINDI KASI SUPPORTED
+    NG php artisan serve YUNG PAG HANDLE NG GANUNG REQUEST. BAKA GUMANA SYA SA HOSTINGER? --}}
+    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
+        <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
-            <div class="w-full h-full overflow-scroll flex-col justify-center items-center">
+            <div class="w-full h-fit overflow-scroll flex-col justify-center items-center">
                 <h1 class="text-2xl uppercase font-semibold text-[#005382] text-center mb-3">
-                        Wala pa akong ginagawa dito
-                    </h1>
-                <img src="{{ asset("image/yahoo-baby.png") }}" alt="byahoo" class="w-[100%] h-[100%] object-fill">
+                    Tutorial For This Page:
+                </h1>
+
+                @php
+                    $routeIs = fn ($req) =>  request()->routeIs($req);
+                    $routesForVids = [
+                        'admin.dashboard' => 'admin-dashboard.mp4',
+                        'admin.sales' => 'sales-report.mp4',
+                        'admin.inventory' => 'inventory.mp4',
+                        'admin.file-ocr.index' => 'inventory.mp4',
+                        'admin.productlisting' => 'product-deals.mp4',
+                        'admin.order' => 'admin-order.mp4',
+                        'superadmin.account.index' => 'admin-manage-acc.mp4',
+                        'admin.contentmanagement' => 'content-management.mp4',
+                        'superadmin.reviews.index' => 'review.mp4',
+                        'admin.history' => 'admin-order-history.mp4',
+                        'admin.historylog' => 'history-logs.mp4',
+                        'admin.stafflocation' => 'staff-location.mp4',
+                    ];
+                @endphp
+
+                <video id="tutorialVideo" 
+                controls
+                class="w-full h-auto rounded-lg shadow-md">
+                    @foreach ($routesForVids as $routeName => $fileName)
+                        @if ($routeIs($routeName))
+                            <source src="{{ asset('videos/' . $fileName) }}" type="video/mp4">
+                        @endif
+                    @endforeach
+                    Your browser does not support the video tag.
+                </video>
             </div>
         </div>
     </div>
+    {{-- TUTORIAL POPUP MODAL --}}
+
 
     <script>
         function showTutorial() {

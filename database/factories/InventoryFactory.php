@@ -27,7 +27,7 @@ class InventoryFactory extends Factory
                 ->bothify('BATCH-NO-#??#?#')
             ),
             'expiry_date' => fake()->dateTimeBetween('-3 months', '+2 years'),
-            'quantity' => fake()->numberBetween(1, 500),
+            'quantity' => fake()->numberBetween(0, 1000),
         ];
     }
 }

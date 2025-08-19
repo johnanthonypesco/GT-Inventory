@@ -649,7 +649,9 @@ class InventoryController extends Controller
         
         ImmutableHistory::createOrFirst([
             'province' => $province,
+            'company_id' => $companyDeets["id"],
             'company' => $companyDeets["name"],
+            'user_id' => $employeeDeets["id"],
             'employee' => $employeeDeets["name"],
             'date_ordered' => Carbon::parse($orderArchiveArray["date_ordered"])->addDay()->toDateString(), // i added 1 more day because the QR data is somehow behind by 1 day???
             'status' => $orderArchiveArray["status"],
@@ -813,6 +815,8 @@ class InventoryController extends Controller
         
         ImmutableHistory::createOrFirst([
             'order_id' => $orderId,
+            'company_id' => $companyDeets['id'],
+            'user_id' => $employeeDeets['id'],
             'province' => $province,
             'company' => $companyDeets["name"],
             'employee' => $employeeDeets["name"],

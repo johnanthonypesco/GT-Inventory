@@ -32,7 +32,7 @@
             $isStatusPresent = request()->query('status_filter');
         @endphp
 
-        <div class="mt-24 flex flex-col items-center lg:flex-row justify-between">
+        <div class="mt-24 flex flex-col items-start lg:items-center lg:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
@@ -49,7 +49,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button type="submit" class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
+                    <button type="submit" class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -61,7 +61,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
+                    <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -73,7 +73,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold relative hover:text-[#005382]/50 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:w-0 before:bg-[#005382] before:transition-width before:duration-300 hover:before:w-full {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
+                    <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
                 </form>
             </div>
             {{-- STATUS FILTER --}}
@@ -87,7 +87,7 @@
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
 
-                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none mb-2">
                     <option value="all">All Location</option>
 
                     @foreach ($dropdownLocationOptions as $location)

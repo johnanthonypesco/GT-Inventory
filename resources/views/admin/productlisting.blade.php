@@ -271,7 +271,7 @@
                 </div>
 
                 <div class="flex justify-between absolute bottom-0 w-full left-0 pb-5 h-fit px-10">
-                    <button class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer" onclick="addmoreproductlisting()"><i class="fa-solid fa-plus"></i>Add More</button>
+                    <button class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-all duration-500 ease-in-out" onclick="addmoreproductlisting()"><i class="fa-solid fa-plus"></i>Add More</button>
                     <x-submit-button id="addproductlistingBtn"/>
                 </div>
             </form>
@@ -369,7 +369,7 @@
                                                 @csrf
                                                 @method('PUT')
 
-                                                <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold">
+                                                <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200">
                                                     <i class="fa-solid fa-undo"></i>
                                                     Unarchive
                                                 </button>

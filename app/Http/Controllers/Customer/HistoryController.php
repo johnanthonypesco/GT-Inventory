@@ -22,7 +22,7 @@ class HistoryController extends Controller
         
         $user = auth('web')->user();
 
-        $orders = ImmutableHistory::where('employee', $user->name);
+        $orders = ImmutableHistory::where('user_id', $user->id);
 
         // Apply search filters if present and valid
         if ($searchFilter && count($searchFilter) === 5) {

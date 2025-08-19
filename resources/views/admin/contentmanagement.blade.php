@@ -49,7 +49,7 @@
                             <td class="text-left text-[10px]">{{ $contentItem->address }}</td>
                             <td>
                                 <button 
-                                    class="edit-btn flex items-center justify-center text-[#005382] cursor-pointer gap-2"
+                                    class="edit-btn flex items-center justify-center text-[#005382] cursor-pointer gap-2 bg-[#005382]/[0.1] hover:bg-[#005382] hover:text-white hover:-mt-[10px] p-2 rounded-lg hover:-translate-y-1 transition-all duration-200"
                                     data-id="{{ $contentItem->id }}"
                                     data-aboutus1="{{ $contentItem->aboutus1 }}"
                                     data-aboutus2="{{ $contentItem->aboutus2 }}"
@@ -131,7 +131,7 @@
                         @enderror
                     </div>
         
-                    <button type="button" id="updateButton" class="w-fit px-6 py-4 bg-[#005382] text-white rounded-lg hover:bg-[#00456a] transition-colors">Update Content</button>
+                    <button type="button" id="updateButton" class="w-fit px-6 py-4 bg-[#005382]/30 text-[#005382] hover:text-white rounded-lg hover:bg-[#00456a] hover:-translate-y-1 transition-all duration-200">Update Content</button>
                 </form>
             </div>
         </div>
@@ -161,7 +161,7 @@
                                         @csrf
                                         @method('PUT')
                                         <button 
-                                            type="submit" class="{{ $productItem->is_displayed ? 'bg-[#005382]' : 'bg-red-500' }} text-white px-4 py-2 rounded hover:-translate-y-1 transition-all duration-500 ease-in-out">{{ $productItem->is_displayed ? 'Enabled' : 'Disabled' }}
+                                            type="submit" class="{{ $productItem->is_displayed ? 'bg-[#005382]/30 text-[#005382] hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200' : 'bg-red-500/30 text-red-500 hover:text-white hover:bg-red-500 hover:-translate-y-1 transition-all duration-200' }} px-4 py-2 rounded">{{ $productItem->is_displayed ? 'Enabled' : 'Disabled' }}
                                         </button>
                                     </form>
                                 </td>

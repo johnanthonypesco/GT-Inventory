@@ -22,6 +22,16 @@ document.addEventListener('click', (e) => {
     if(form) sweetalert(form);
 });
 
+// dinagdag koto pesco, nagoloko sweetalert mo sa unarchive
+// by: galit na sirgae >:(
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unarchivebtn');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('form.unarchiveform');
+    if(form) sweetalert(form);
+});
+
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('.delete-default-btn');
     if (!btn) return;

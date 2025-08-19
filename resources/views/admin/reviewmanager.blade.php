@@ -23,7 +23,7 @@
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
             
             <div class="overflow-auto">
-                <table >
+                <table>
                     <thead>
                         <tr>
                             <th>Customer Name</th>
@@ -38,7 +38,7 @@
                     </thead>
                     <tbody>
                         @forelse($reviews as $review)
-                        <tr >
+                        <tr>
                             <td>{{ $review->user->name }}</td>
                             <td>{{ $review->user->company->name }}</td>
 
@@ -58,7 +58,7 @@
                                     : route('superadmin.reviews.approve', $review) }}" id="approve-form" method="POST">
                                     @csrf
                                     <button type="button" id="approve-button" class="px-4 py-2 rounded text-white
-                                        {{ $review->is_approved ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700' }}">
+                                        {{ $review->is_approved ? 'bg-red-600/30 text-red-600 hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200' : 'bg-blue-600/30 text-blue-600 hover:text-white hover:bg-blue-600 hover:-translate-y-1 transition-all duration-200' }}">
                                         {{ $review->is_approved ? 'Disapprove' : 'Approve' }}
                                     </button>
                                 </form>

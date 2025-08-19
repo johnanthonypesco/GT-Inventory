@@ -422,7 +422,7 @@
                 <!-- Upload Form -->
                 <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
                     <input type="file" name="qr_code" id="qr_code" accept="image/*" class="border border-gray-300 rounded-lg px-4 py-2 w-full text-gray-700 focus:ring focus:ring-blue-200 focus:outline-none" required>
-                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:-translate-y-1 transition-all duration-200">
                         <i class="fa-solid fa-upload"></i>
                         <span>Upload</span>
                     </button>

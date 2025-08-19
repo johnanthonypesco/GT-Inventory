@@ -281,6 +281,8 @@ foreach ($orderArray as $productName => $orders) {
 
                 ImmutableHistory::create([
                     'order_id' => $orderId, 
+                    'company_id' => $orderUser->company->id,
+                    'user_id' => $orderUser->id,
                     'province' => $orderUser->company->location->province,
                     'company' => $orderUser->company->name,
                     'employee' => $orderUser->name,
