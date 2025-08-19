@@ -86,12 +86,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -111,7 +111,7 @@
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}
@@ -422,7 +422,7 @@
                 <!-- Upload Form -->
                 <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
                     <input type="file" name="qr_code" id="qr_code" accept="image/*" class="border border-gray-300 rounded-lg px-4 py-2 w-full text-gray-700 focus:ring focus:ring-blue-200 focus:outline-none" required>
-                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:-translate-y-1 transition-all duration-200">
                         <i class="fa-solid fa-upload"></i>
                         <span>Upload</span>
                     </button>

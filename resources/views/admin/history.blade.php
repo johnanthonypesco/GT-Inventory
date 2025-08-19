@@ -32,7 +32,7 @@
             $isStatusPresent = request()->query('status_filter');
         @endphp
 
-        <div class="mt-24 flex flex-col items-center lg:flex-row justify-between">
+        <div class="mt-24 flex flex-col items-start lg:items-center lg:flex-row justify-between">
             <div class="flex gap-5 m-auto lg:m-0">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
@@ -49,7 +49,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button type="submit" class="text-xl font-semibold {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
+                    <button type="submit" class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -61,7 +61,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
+                    <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
                 </form>
 
                 <form action="{{ route('admin.history') }}" method="GET">
@@ -73,7 +73,7 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
-                    <button class="text-xl font-semibold {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
+                    <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
                 </form>
             </div>
             {{-- STATUS FILTER --}}
@@ -87,7 +87,7 @@
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
 
-                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none mb-2">
                     <option value="all">All Location</option>
 
                     @foreach ($dropdownLocationOptions as $location)
@@ -174,7 +174,7 @@
                             <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-exportx', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                         </div>
                     </div>

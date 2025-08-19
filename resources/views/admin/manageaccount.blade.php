@@ -565,7 +565,7 @@
                                     <td class="py-2 px-4 border-b">
                                         <form id="restoreForm" action="{{ route('superadmin.account.restore', ['role' => $account->role, 'id' => $account->id]) }}" method="POST">
                                             @csrf
-                                            <button id="restoreButton" type="button" class="bg-green-500 text-white px-4 py-2 rounded">Restore</button>
+                                            <button id="restoreButton" type="button" class="bg-[#005382]/20 text-[#005382] hover:text-white font-semibold p-2 rounded  hover:bg-[#005382] hover:-translate-y-1 transtion-all duration-200"><i class="fa-solid fa-undo mr-2"></i>Restore</button>
                                         </form>
                                     </td>
                                 </tr>

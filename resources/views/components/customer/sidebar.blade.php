@@ -9,7 +9,7 @@
             <span class="text-6xl text-white font-bold">&times;</span>
         </div>
     </div>
-    <ul class="flex flex-col pt-5">
+    <ul class="flex flex-col pt-5 overflow-y-auto">
         <div class="flex flex-col gap-2">
             <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
             <a href="{{ route('customer.dashboard') }}" class="text-sm"><i class="fa-solid fa-gauge"></i>Dashboard</a>

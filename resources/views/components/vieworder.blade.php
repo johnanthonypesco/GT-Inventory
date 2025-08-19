@@ -1,1 +1,1 @@
-<button {{$attributes}} class="text-md hover:text-[#005382] cursor-pointer"><i class="fa-regular fa-eye mr-2"></i>{{$name}}</button>
+<button {{$attributes}} class="text-md bg-green-600/20 p-2 rounded-lg hover:bg-green-600 hover:text-white hover:-translate-y-1 transition-all duration-200 cursor-pointer"><i class="fa-regular fa-eye mr-2"></i>{{$name}}</button>

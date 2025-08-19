@@ -93,7 +93,8 @@ input:focus{
     outline: 2px solid #005382;
 }
 ::-webkit-scrollbar {
-    width: 4px; 
+    width: 4px;
+    height: 3px; 
 }
 ::-webkit-scrollbar-track {
     background: #f1f1f1;

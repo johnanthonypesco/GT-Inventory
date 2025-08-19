@@ -101,7 +101,7 @@
                                 name="View"
                                 />                                
                             @endif
-                            <button class="cursor-pointer py-1 rounded-lg text-md" onclick="addproductlisting('{{ $company->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
+                            <button class="cursor-pointer p-2 rounded-lg text-md bg-[#005382]/20 hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-all duration-200" onclick="addproductlisting('{{ $company->id }}')"><i class="fa-regular fa-plus mr-1"></i>Add</button>
                         </td>
                     </tr>
                 @endforeach                

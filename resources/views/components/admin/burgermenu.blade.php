@@ -10,7 +10,7 @@
     <span class="text-6xl text-white ">&times;</span>
 </div>
     </div>
-    <ul class="list-none flex flex-col px-1 py-0 gap-[1px]">
+    <ul class="list-none flex flex-col px-1 py-0 gap-[1px] overflow-y-scroll">
 
         {{-- DASHBOARD (ALL ROLES) --}}
         <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b-2 font-semibold">Home</div>

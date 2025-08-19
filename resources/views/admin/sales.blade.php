@@ -30,14 +30,32 @@
                     <form method="post" action="{{ route('admin.sales.generate') }}" class="space-y-4" id="report-form">
                         @csrf
                         <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                            <div class="flex space-x-2">
-                                <input type="date" name="start_date" class="form-input rounded-md shadow-sm w-full border border-gray-300" 
-                                       value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
-                                <span class="flex items-center px-3 bg-gray-100 text-gray-500"><i class="fas fa-arrow-right"></i></span>
-                                <input type="date" name="end_date" class="form-input rounded-md shadow-sm w-full border border-gray-300" 
-                                       value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                            
+                            <div class="flex flex-col md:flex-row items-stretch md:items-end gap-4 w-full">
+                                <!-- From Date -->
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">From:</label>
+                                    <input type="date" name="start_date"
+                                        class="form-input rounded-md shadow-sm w-full border border-gray-300"
+                                        value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
+                                </div>
+
+                                <!-- Arrow -->
+                                <div class="flex justify-center items-center md:pb-1">
+                                    <span class="flex items-center justify-center p-2 bg-gray-100 text-gray-500 rounded-md rotate-90 md:rotate-0">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </span>
+                                </div>
+
+                                <!-- To Date -->
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">To:</label>
+                                    <input type="date" name="end_date"
+                                        class="form-input rounded-md shadow-sm w-full border border-gray-300"
+                                        value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                                </div>
                             </div>
+
                         </div>
                         
                         <div class="form-group">
