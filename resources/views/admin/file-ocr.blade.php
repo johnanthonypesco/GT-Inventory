@@ -26,7 +26,7 @@
     <main class="md:w-full h-full lg:ml-[15%] ml-0 px-4">
         <x-admin.header title="OCR Archives" icon="fa-solid fa-folder-open"/>
         
-        <div class="bg-white rounded-lg shadow p-6 mt-4">
+        <div class="bg-white rounded-lg shadow p-6 mt-24">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <button id="back-button" class="hidden px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">

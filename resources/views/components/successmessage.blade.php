@@ -7,7 +7,7 @@
         </div>
     </div>
     <script>
-        const audio = new Audio('{{ asset('sounds/Fart sound effect 4.mp3') }}');
+        const audio = new Audio('{{ asset('sounds/success1.mp3') }}');
         audio.play();
     </script>
 @elseif (session ('error'))
