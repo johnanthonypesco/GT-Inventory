@@ -6,7 +6,7 @@
     <ul class="list-none flex flex-col px-1 py-0 gap-[1px]">
 
         {{-- DASHBOARD (ALL ROLES) --}}
-        <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold flex items-center justify-between">Home <i class="fa-solid fa-angle-down text-black/70"></i></div>
+        <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold flex items-center justify-between">Home</div>
         <li>
             <a href="{{ route('admin.dashboard') }}" class="mt-1 flex items-center gap-1 p-2">
                 <i class="fa-solid fa-gauge"></i>
@@ -23,7 +23,7 @@
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Communication <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Communication</div>
             <li class="">
                 <a href="{{ route('admin.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-1 p-2 {{ request()->is('admin/chat*') ? 'active' : '' }}">
                     <i class="fa-brands fa-rocketchat"></i>
@@ -36,7 +36,7 @@
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Management <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Management</div>
             <li class="">
                 <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-1 p-2 {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'active' : '' }}">
                     <i class="fa-solid fa-boxes-stacked"></i>
@@ -79,7 +79,7 @@
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff <i class="fa-solid fa-angle-down text-black/70"></i></div>
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff</div>
             <li class="">
                 <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2 {{ request()->is('admin/history*') ? 'active' : '' }}">
                     <i class="fa-solid fa-clock-rotate-left"></i>
