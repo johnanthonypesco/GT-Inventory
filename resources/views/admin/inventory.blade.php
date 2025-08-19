@@ -310,7 +310,7 @@
 
                 <br>
                 
-                <a href="{{ route('admin.file-ocr.index') }}" class="outline-2 outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
+                <a href="{{ route('admin.file-ocr.index') }}" class="outline-2  outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
                     <i class="fa-solid fa-folder-open"></i>
                     View Scanned Receipts
                 </a>
