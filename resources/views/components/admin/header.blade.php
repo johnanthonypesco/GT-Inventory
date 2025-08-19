@@ -29,7 +29,7 @@
 
 
     <div class="flex items-center gap-2">
-        @if (auth('superadmin')->check() || auth('admin')->check())
+        @if (auth('superadmin')->check() || auth('admin')->check() || (auth('staff')->check() && !request()->routeIs('admin.dashboard')))
             @if (!request()->routeIs('admin.chat.*'))
                 <div class="relative group">
                     <button id="help" class="flex gap-2 justify-center items-center font-semibold text-xl rounded-full py-1 bg-green-600/80 text-white w-fit px-2 cursor-pointer hover:bg-green-600 transition-all duration-150"
