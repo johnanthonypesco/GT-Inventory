@@ -1,17 +1,20 @@
 var currentLocation = window.location.href;
-var navLinks = document.querySelectorAll('.list-none a');
-var navicons = document.querySelectorAll('.list-none a i');
-navLinks.forEach(function(link) {
-    if (link.href === currentLocation) {
-        link.classList.add('active');
-    }
-});
-navicons.forEach(function(icon) {
-    if (icon.parentElement.href === currentLocation) {
-        icon.classList.add('text-white');
-    }
-});
+    var navLinks = document.querySelectorAll('.list-none a');
+    var navicons = document.querySelectorAll('.list-none a i');
 
+    // Highlight active link
+    navLinks.forEach(function(link) {
+        if (currentLocation.startsWith(link.href)) {
+            link.classList.add('active');
+        }
+    });
+
+    // Highlight active icon
+    navicons.forEach(function(icon) {
+        if (currentLocation.startsWith(icon.parentElement.href)) {
+            icon.classList.add('text-white');
+        }
+    });
 
     // add auto reload for realtime
     document.addEventListener('DOMContentLoaded', function() {
@@ -19,7 +22,7 @@ navicons.forEach(function(icon) {
     
         // Start contacts refresh interval
         function startContactsRefresh() {
-            contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 6 seconds
+            contactsRefreshInterval = setInterval(refreshContacts, 7000); // Refresh every 7 seconds
         }
     
         // Stop contacts refresh interval
