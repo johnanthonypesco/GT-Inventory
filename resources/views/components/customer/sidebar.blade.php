@@ -112,10 +112,10 @@
     }
 
     // This function is called by the close button and the overlay
-    window.closeSidebar = function() {
-        sidebar.classList.remove('left-[0.1px]', 'w-[300px]');
-        overlay.classList.add('hidden');
-    }
+    // window.closeSidebar = function() {
+    //     sidebar.classList.remove('left-[0.1px]', 'w-[300px]');
+    //     overlay.classList.add('hidden');
+    // }
 
     // Handles closing when the window is resized
     window.addEventListener('resize', () => {

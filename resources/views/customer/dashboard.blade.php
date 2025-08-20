@@ -394,9 +394,7 @@
             }); 
         });
         
-        window.successMessage = @json(session('success'));
     </script> 
     <script src="{{ asset('js/customer/sweetalert/dashboardsweetalert.js') }}"></script>
-    <script>window.successMessage = @json(session('success'));</script>
 </body> 
 </html>

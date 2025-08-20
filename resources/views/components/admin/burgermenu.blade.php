@@ -2,7 +2,7 @@
     <i class="fa-solid fa-bars text-3xl hover:cursor-pointer" onclick="sidebar()"></i>
 </div>
 
-<div class="sidebar fixed top-0 -left-48 w-0 h-full flex flex-col bg-white z-20 gap-1 p-10 transition-all duration-500" id="sidebar">
+<div class="sidebar fixed top-0 -left-48 w-0 h-full flex flex-col bg-white z-20 gap-1 p-6 transition-all duration-500" id="sidebar">
     <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
 
@@ -168,8 +168,8 @@
 </div>
 <div id="sidebar-overlay"
      class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-10"
-     onclick="sidebar()">
+     >
 </div>
 <script src="{{ asset('js/burgermenu.js') }}"></script>
 
-<script src="{{asset('js/burgermenu.js')}}"></script>
+{{-- <script src="{{asset('js/burgermenu.js')}}"></script> --}}

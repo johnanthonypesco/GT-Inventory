@@ -43,14 +43,14 @@ navLinks.forEach(function(link) {
     }
 });
 
-window.addEventListener('scroll', () => {
-    event.preventDefault();
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.classList.remove('left-0')
-    sidebar.classList.remove('w-[280px]')
-        closeSidebar();
+// window.addEventListener('scroll', () => {
+//     event.preventDefault();
+//     const sidebar = document.querySelector('.sidebar')
+//     sidebar.classList.remove('left-0')
+//     sidebar.classList.remove('w-[280px]')
+//         closeSidebar();
 
-})
+// })
 window.addEventListener('resize', () => {
     event.preventDefault();
     const sidebar = document.querySelector('.sidebar')

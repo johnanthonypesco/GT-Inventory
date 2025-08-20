@@ -39,14 +39,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $tdBody = 'text-left text-[10px] text-center';
+                        @endphp
                         @foreach ($content as $contentItem )
                         <tr>
-                            <td class="text-left text-[10px]">{{ $contentItem->aboutus1 }}</td>
-                            <td class="text-left text-[10px]">{{ $contentItem->aboutus2 }}</td>
-                            <td class="text-left text-[10px]">{{ $contentItem->aboutus3 }}</td>
-                            <td class="text-left text-[10px]">{{ $contentItem->contact_number }}</td>
-                            <td class="text-left text-[10px]">{{ $contentItem->email }}</td>
-                            <td class="text-left text-[10px]">{{ $contentItem->address }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->aboutus1 }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->aboutus2 }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->aboutus3 }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->contact_number }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->email }}</td>
+                            <td class="{{$tdBody}}">{{ $contentItem->address }}</td>
                             <td>
                                 <button 
                                     class="edit-btn flex items-center justify-center text-[#005382] cursor-pointer gap-2 bg-[#005382]/[0.1] hover:bg-[#005382] hover:text-white hover:-mt-[10px] p-2 rounded-lg hover:-translate-y-1 transition-all duration-200"
@@ -143,9 +146,9 @@
                     <thead>
                         <tr>
                             <th>Generic Name</th>
-                            <th class="hidden lg:table-cell">Brand Name</th>
-                            <th class="hidden lg:table-cell">Form</th>
-                            <th class="hidden lg:table-cell">Strength</th>
+                            <th>Brand Name</th>
+                            <th>Form</th>
+                            <th>Strength</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -153,9 +156,9 @@
                         @foreach ($product as $productItem)
                             <tr>
                                 <td>{{ $productItem->generic_name }}</td>
-                                <td class="hidden lg:table-cell">{{ $productItem->brand_name }}</td>
-                                <td class="hidden lg:table-cell">{{ $productItem->form }}</td>
-                                <td class="hidden lg:table-cell">{{ $productItem->strength }}</td>
+                                <td>{{ $productItem->brand_name }}</td>
+                                <td>{{ $productItem->form }}</td>
+                                <td>{{ $productItem->strength }}</td>
                                 <td>
                                     <form action="{{ route('admin.product.enabledisable', $productItem->id) }}" method="POST" class="inline">
                                         @csrf

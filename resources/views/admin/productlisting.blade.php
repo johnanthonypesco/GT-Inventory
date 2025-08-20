@@ -433,8 +433,6 @@
 <script src="{{asset ('js/sweetalert/productlistingsweetalert.js')}}"></script>
 <script src="{{asset('js/sweetalert/deletebuttonsweetalert.js')}}"></script>
 <script>
-    window.successMessage = @json(session('success'));
-
     document.addEventListener('DOMContentLoaded', function () {
         const totalPersonalCounterID = '#real-timer-total-personal-counter';
         const searchCompanyID = '#company-search-suggestions';

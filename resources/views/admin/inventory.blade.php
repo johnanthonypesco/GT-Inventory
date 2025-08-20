@@ -683,7 +683,7 @@
 
             <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
                 @csrf
-                @method('PUT')
+                @method('PUT')  
 
                 <div class="flex justify-between">
                     <div class="flex-col gap-5">
@@ -816,7 +816,6 @@
 
 {{-- REAL TIME INVENTORY STOCKER --}}
 <script>
-    window.successMessage = @json(session('success'));
 
     document.addEventListener('DOMContentLoaded', function () {
         const stockTableID = '#real-timer-stock';

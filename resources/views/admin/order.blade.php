@@ -86,12 +86,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white  hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -106,12 +106,12 @@
                 </span>
             </h1>
             <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                <div class="flex items-center justify-end">
+                <div class="flex flex-wrap justify-between items-center">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
-                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
+                            <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>
                     {{-- Table Button --}}
@@ -346,7 +346,7 @@
     <input type="hidden" id="status-id" name="status">
     <input type="hidden" id="mother-id" name="mother_div">
 
-    {{-- <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
+    <button class="bg-amber-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'pending')" type="button">
         PENDING
     </button>
     <button class="bg-violet-600 font-bold text-white px-6 py-2 rounded-md cursor-pointer" onclick="changeStatus(this.closest('form'), 'packed')" type="button">
@@ -422,7 +422,7 @@
                 <!-- Upload Form -->
                 <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
                     <input type="file" name="qr_code" id="qr_code" accept="image/*" class="border border-gray-300 rounded-lg px-4 py-2 w-full text-gray-700 focus:ring focus:ring-blue-200 focus:outline-none" required>
-                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:-translate-y-1 transition-all duration-200">
+                    <button id="uploadqrbtn" type="button" class="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                         <i class="fa-solid fa-upload"></i>
                         <span>Upload</span>
                     </button>
@@ -552,11 +552,13 @@
 <x-loader />
 {{-- loader --}}
 
-    {{-- <x-successmessage /> --}}
+    <x-successmessage />
 </body>
 </html>
 
 {{-- <script src="{{ asset('js/order.js') }}"></script> --}}
+{{-- <script>
+</script> --}}
 
 <script>
     document.getElementById('uploadqrbtn').addEventListener('click', function() {
@@ -967,4 +969,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // REAL TIMER STUFF BY SIGRAE
 </script>
-

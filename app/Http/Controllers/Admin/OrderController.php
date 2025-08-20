@@ -310,7 +310,7 @@ foreach ($orderArray as $productName => $orders) {
             // dd($validate['strength']);
 
             DB::commit();
-            session()->flash("success", true);
+            session()->flash("success", 'Order status updated successfully.');
 
             return to_route('admin.order')->with("update-success", $validate['mother_div']);
 

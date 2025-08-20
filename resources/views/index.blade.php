@@ -227,7 +227,7 @@
     </footer>
 
     {{-- loader --}}
-    <x-loader/>
+    {{-- <x-loader/> --}}
     {{-- loader --}}
 </body>
 <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
