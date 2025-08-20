@@ -146,3 +146,45 @@ nav a:hover::before {
         transform: translateY(0);
     }
 }
+#h1{
+    animation: totop 0.7s ease-in-out;
+}
+@keyframes totop {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+#p{
+    animation: toright 0.7s ease-in-out;
+}
+@keyframes toright {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+#button1{
+    animation: tobottom 0.6s ease-in-out;
+}
+#button2{
+    animation: tobottom 0.8s ease-in-out;
+}
+@keyframes tobottom {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

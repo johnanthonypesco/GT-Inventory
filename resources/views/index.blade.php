@@ -35,14 +35,12 @@
     <main class="mt-20 mb-20 main">
         <section id="home" class="flex flex-col-reverse px-5 lg:flex-row justify-center lg:px-24">
             <div class="flex flex-col gap-5 lg:w-1/2 lg:gap-10 lg:mt-20" id="content-left">
-                <h1 class="text-5xl font-bold">Connect with <span class="text-[#0097D3]">RCT Med Pharma</span> Anytime, Anywhere!</h1>
-                <p class="text-lg">Our secure and efficient system allows you to place orders, track inventory, 
-                    and manage transactions with ease. Experience seamless healthcare solutions 
-                    at your fingertips, no matter where you are.
+                <h1 id="h1" class="text-5xl font-bold">Connect with <span class="text-[#0097D3]">RCT Med Pharma</span> Anytime, Anywhere!</h1>
+                <p id="p" class="text-lg">
                 </p>
                 <div class="flex gap-5">
-                    <a href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white hover:-translate-y-1 transition-transform duration-300">Reach Us</a>
-                    <a href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold hover:-translate-y-1 transition-transform duration-300">About Us</a>
+                    <a id="button1" href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white hover:-translate-y-1 transition-transform duration-300">Reach Us</a>
+                    <a id="button2" href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold hover:-translate-y-1 transition-transform duration-300">About Us</a>
                 </div>
             </div>
             <div id="bouncy" class="flex justify-center items-center lg:w-1/2">
