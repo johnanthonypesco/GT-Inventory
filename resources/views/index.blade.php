@@ -24,7 +24,7 @@
             <a href="#home" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Home</a>
             <a href="#about" class="lg:mr-12 font-semibold hover:text-[#0097D3]">About Us</a>
             <a href="#products" class="lg:mr-12 font-semibold hover:text-[#0097D3]">Products</a>
-            <button onclick="window.location.href = '#inquire'" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white">Reach Us</button>
+            <button id="inquire" onclick="window.location.href = '#inquire'" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white hover:bg-[#005382] hover:cursor-pointer hover:-translate-y-1 transition-all duration-200">Reach Us</button>
             
             {{-- <a href="{{ route('beta.register') }}" class="bg-red-600 animate-pulse w-fit px-5 py-2 rounded-lg font-semibold text-white">Join The Beta Test Program</a> --}}
         </nav>

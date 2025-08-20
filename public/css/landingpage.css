@@ -178,6 +178,9 @@ nav a:hover::before {
 #button2{
     animation: tobottom 0.8s ease-in-out;
 }
+button#inquire:hover{
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.434);
+}
 @keyframes tobottom {
     from {
         transform: translateY(50px);
