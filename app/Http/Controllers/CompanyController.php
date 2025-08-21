@@ -17,7 +17,7 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'location_id' => 'required|exists:locations,id',
-            'status' => 'required|in:active,inactive',
+            // 'status' => 'required|in:active,inactive',
         ]);
 
         $company->update($validated);

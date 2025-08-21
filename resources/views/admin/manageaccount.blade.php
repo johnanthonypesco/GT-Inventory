@@ -388,7 +388,7 @@
                 <thead>
                     <tr>
                         <th class="py-2 px-4 border-b">Company Name</th>
-                        <th class="py-2 px-4 border-b">Status</th>
+                        {{-- <th class="py-2 px-4 border-b">Status</th> --}}
                         <th class="py-2 px-4 border-b">Actions</th>
                     </tr>
                 </thead>
@@ -396,11 +396,11 @@
                     @forelse($companies as $company)
                         <tr>
                             <td class="py-2 px-4 border-b text-center">{{ $company->name }}</td>
-                            <td class="py-2 px-4 border-b text-center">
-                                <span class="px-2 py-1 font-semibold leading-tight rounded-full {{ $company->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                            {{-- <td class="py-2 px-4 border-b text-center"> --}}
+                                {{-- <span class="px-2 py-1 font-semibold leading-tight rounded-full {{ $company->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                     {{ ucfirst($company->status) }}
-                                </span>
-                            </td>
+                                </span> --}}
+                            {{-- </td> --}}
                             <td class="py-2 px-4 border-b text-center">
                                 <button 
                                     type="button" 
@@ -409,8 +409,8 @@
                                     data-id="{{ $company->id }}"
                                     data-name="{{ $company->name }}"
                                     data-address="{{ $company->address }}"
-                                    data-location-id="{{ $company->location_id }}"
-                                    data-status="{{ $company->status }}">
+                                    data-location-id="{{ $company->location_id }}">
+                                    {{-- data-status="{{ $company->status }}"> --}}
                                     <i class="fa-solid fa-pencil"></i> Edit
                                 </button>
                             </td>
@@ -462,13 +462,13 @@
                     </select>
                 </div>
                 
-                <div>
+                {{-- <div>
                     <label for="editCompanyStatus" class="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" id="editCompanyStatus" required class="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
-                </div>
+                </div> --}}
             </div>
 
             <div class="mt-8 flex justify-between items-center">
@@ -765,14 +765,14 @@ window.openEditCompanyModal = (button) => {
     const name = button.getAttribute('data-name');
     const address = button.getAttribute('data-address');
     const locationId = button.getAttribute('data-location-id');
-    const status = button.getAttribute('data-status');
+    // const status = button.getAttribute('data-status');
 
     // Populate the form fields
     document.getElementById('editCompanyId').value = id;
     document.getElementById('editCompanyName').value = name;
     document.getElementById('editCompanyAddress').value = address;
     document.getElementById('editCompanyLocation').value = locationId;
-    document.getElementById('editCompanyStatus').value = status;
+    // document.getElementById('editCompanyStatus').value = status;
     
     // Set the dynamic action URL for both forms
     const updateActionUrl = `/companies/${id}`; // Example URL, adjust to your actual route
