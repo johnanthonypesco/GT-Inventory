@@ -1,1 +1,1 @@
-<button class="flex items-center text-[#005382] cursor-pointer text-sm" {{$attributes}}><i class="fa-regular fa-pen-to-square mr-2"></i>Edit</button>
+<button class="flex items-center text-[#005382] cursor-pointer text-sm bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200" {{$attributes}}><i class="fa-regular fa-pen-to-square mr-2"></i>Edit</button>

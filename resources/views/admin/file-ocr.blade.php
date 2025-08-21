@@ -212,5 +212,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+
+{{-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const inventoryUrl = "{{ route('admin.inventory') }}";
+  const inventoryLink = Array.from(document.querySelectorAll('.list-none a'))
+    .find(a => a.href.startsWith(inventoryUrl));
+
+  if (inventoryLink) {
+    inventoryLink.classList.add('active');
+    const icon = inventoryLink.querySelector('i');
+    if (icon) icon.classList.add('text-white');
+  }
+});
+</script> --}}
 </body>
 </html>

@@ -77,11 +77,11 @@
     {{-- TUTORIAL POPUP MODAL --}}
     {{-- BTW KUNG NAG TATAKA KAYO KUNG BAKIT AYAW GUMANA NG TIME SCROLLER HINDI KASI SUPPORTED
     NG php artisan serve YUNG PAG HANDLE NG GANUNG REQUEST. BAKA GUMANA SYA SA HOSTINGER? --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="tutorialModal">
-        <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative">
+    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
+        <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
-            <div class="w-full h-full overflow-scroll flex-col justify-center items-center">
+            <div class="w-full h-fit overflow-scroll flex-col justify-center items-center">
                 <h1 class="text-2xl uppercase font-semibold text-[#005382] text-center mb-3">
                     Tutorial For This Page:
                 </h1>

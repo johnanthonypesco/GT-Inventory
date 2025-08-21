@@ -19,3 +19,7 @@
         </div>
     </div>
 @endif
+
+<script>
+    window.successMessage = @json(session('success'));
+</script>

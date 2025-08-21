@@ -8,13 +8,13 @@
 
     <ul class="flex flex-col pt-5">
         <div class="flex flex-col gap-2">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home</span>
             <a href="{{ route('customer.dashboard') }}" class="text-sm"><i class="fa-solid fa-gauge"></i>Dashboard</a>
             <a href="{{ route('customer.order') }}" class="text-sm {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
         </div>
         
         <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Communication <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Communication</span>
             <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-sm relative">
                 <i class="fa-brands fa-rocketchat"></i>Chat
     
@@ -27,14 +27,14 @@
         </div>
 
         <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Management <i class="fa-solid fa-angle-down text-gray-400"></i></span>            
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Management</span>            
             <a href="{{ route('customer.manageorder') }}" class="text-sm {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
             <a href="{{ route('customer.manageaccount') }}" class="text-sm"><i class="fa-solid fa-gear"></i>Manage Account</a>
         </div>
 
 
         <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">History & Review <i class="fa-solid fa-angle-down text-gray-400"></i></span>
+            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">History & Review</span>
             <a href="{{ route('customer.history') }}" class="text-sm {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
             <a href="#" id="openReviewModal" class="text-sm"><i class="fa-solid fa-star"></i>Leave a Review</a>
         </div>

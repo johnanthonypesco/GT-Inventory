@@ -8,7 +8,7 @@
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" class="delete-deal-btn m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center text-sm" {{ $attributes }}>
+                <button type="button" class="delete-deal-btn m-auto text-red-500 cursor-pointer flex gap-2 items-center text-sm bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200" {{ $attributes }}>
                     <i class="fa-solid fa-database"></i> Archive
                 </button>
             </form>
@@ -18,7 +18,7 @@
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" class="delete-dealelse-btn m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center text-sm" {{ $attributes }}>
+                <button type="button" class="delete-dealelse-btn m-auto text-red-500 cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-2 items-center text-sm" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>
@@ -31,7 +31,7 @@
             @if (strtoupper($method) !== 'POST')
                 @method(strtoupper($method))
             @endif
-            <button type="button" class="archive-btn m-auto text-red-500 font-bold cursor-pointer transform duration-300 flex gap-2 items-center text-sm" {{ $attributes }}>
+            <button type="button" class="archive-btn m-auto text-red-500 font-bold cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-2 items-center text-sm" {{ $attributes }}>
                 <i class="fa-solid fa-database"></i> Archive
             </button>
         </form>
@@ -44,7 +44,7 @@
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" class="delete-default-btn m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center text-sm" {{ $attributes }}>
+                <button type="button" class="delete-default-btn m-auto text-red-500 cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-2 items-center text-sm" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>
@@ -54,7 +54,7 @@
                 @if (strtoupper($method) !== 'POST')
                     @method(strtoupper($method))
                 @endif
-                <button type="button" class="delete-default-else-btn m-auto text-red-500 cursor-pointer transform duration-300 flex gap-2 items-center text-sm" {{ $attributes }}>
+                <button type="button" class="delete-default-else-btn m-auto text-red-500 cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-2 items-center text-sm" {{ $attributes }}>
                     <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </form>

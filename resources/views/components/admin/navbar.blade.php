@@ -6,7 +6,7 @@
     <ul class="list-none flex flex-col px-1 py-0 gap-[1px]">
 
         {{-- DASHBOARD (ALL ROLES) --}}
-        <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold flex items-center justify-between">Home <i class="fa-solid fa-angle-down text-black/70"></i></div>
+        <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold flex items-center justify-between">Home</div>
         <li>
             <a href="{{ route('admin.dashboard') }}" class="mt-1 flex items-center gap-1 p-2">
                 <i class="fa-solid fa-gauge"></i>
@@ -16,16 +16,16 @@
 
         {{-- ADMIN & SUPERADMIN MENUS --}}
         @if (auth('superadmin')->check() || auth('admin')->check())
-            <li class="{{ request()->is('admin/sales*') }}">
-                <a href="{{ route('admin.sales') }}" class="flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('admin.sales') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/sales*') ? 'active' : '' }}">
                     <i class="fa-solid fa-print"></i>
                     <span>Sales Reports</span>
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Communication <i class="fa-solid fa-angle-down text-black/70"></i></div>
-            <li class="{{ request()->is('admin/chat*') }}">
-                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-1 p-2">
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Communication</div>
+            <li class="">
+                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-1 p-2 {{ request()->is('admin/chat*') ? 'active' : '' }}">
                     <i class="fa-brands fa-rocketchat"></i>
                     <span>Chat</span>
                     @if ($adminsidebar_counter > 0)
@@ -36,30 +36,30 @@
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Management <i class="fa-solid fa-angle-down text-black/70"></i></div>
-            <li class="{{ request()->is(['admin/inventory', 'admin/ocr-files']) }}">
-                <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-1 p-2">
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">Management</div>
+            <li class="">
+                <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-1 p-2 {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'active' : '' }}">
                     <i class="fa-solid fa-boxes-stacked"></i>
                     <span>Inventory</span>
                 </a>
             </li>
             
-            <li class="{{ request()->is('admin/productlisting') }}">
-                <a href="{{ route('admin.productlisting') }}" class="flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('admin.productlisting') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/productlisting') ? 'active' : '' }}">
                     <i class="fa-solid fa-list-check"></i>
                     <span>Product Deals</span>
                 </a>
             </li>
 
-            <li class="{{ request()->is('admin/order*') }}">
-                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/order*') ? 'active' : '' }}">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Orders</span>
                 </a>
             </li>
 
-            <li class="{{ request()->is('manageaccounts*') }}">
-                <a href="{{ route('superadmin.account.index') }}" class="flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('superadmin.account.index') }}" class="flex items-center gap-1 p-2 {{ request()->is('manageaccounts*') ? 'active' : '' }}">
                     <i class="fa-solid fa-bars-progress"></i>
                     <span>Manage Accounts</span>
                 </a>
@@ -79,9 +79,9 @@
                 </a>
             </li>
 
-            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff <i class="fa-solid fa-angle-down text-black/70"></i></div>
-            <li class="{{ request()->is('admin/history*') }}">
-                <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2">
+            <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff</div>
+            <li class="">
+                <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2 {{ request()->is('admin/history*') ? 'active' : '' }}">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Order History</span>
                 </a>
@@ -104,15 +104,15 @@
 
         {{-- STAFF MENUS --}}
         @if (auth('staff')->check())
-            <li class="{{ request()->is('staff/order') }}">
-                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('admin.order') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/order*') ? 'active' : '' }}">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Orders</span>
                 </a>
             </li>
 
-            <li class="{{ request()->is('admin/chat*') }}">
-                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative flex items-center gap-1 p-2">
+            <li class="">
+                <a href="{{ route('admin.chat.index') }}" id="chatNav" class="relative flex items-center gap-1 p-2 {{ request()->is('admin/chat*') ? 'active' : '' }}">
                     <i class="fa-brands fa-rocketchat"></i>
                     <span>Chat</span>
                     @if ($adminsidebar_counter > 0)

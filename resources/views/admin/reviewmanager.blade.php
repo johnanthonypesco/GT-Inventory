@@ -23,42 +23,42 @@
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
             
             <div class="overflow-auto">
-                <table class="w-full table-auto text-left border border-gray-200">
-                    <thead class="bg-[#005382] text-white">
+                <table>
+                    <thead>
                         <tr>
-                            <th class="p-2">Customer Name</th>
-                            <th class="p-2">Company Name</th>
+                            <th>Customer Name</th>
+                            <th>Company Name</th>
 
-                            <th class="p-2">Rating</th>
-                            <th class="p-2">Comment</th>
-                            <th class="p-2">Public</th>
-                            <th class="p-2">Status</th>
-                            <th class="p-2">Action</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Public</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($reviews as $review)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $review->user->name }}</td>
-                            <td class="p-2">{{ $review->user->company->name }}</td>
+                        <tr>
+                            <td>{{ $review->user->name }}</td>
+                            <td>{{ $review->user->company->name }}</td>
 
-                            <td class="p-2">{{ $review->rating }}</td>
-                            <td class="p-2">{{ $review->comment }}</td>
-                            <td class="p-2">{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
-                            <td class="p-2">
+                            <td>{{ $review->rating }}</td>
+                            <td>{{ $review->comment }}</td>
+                            <td>{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
+                            <td class="font-bold">
                                 @if ($review->is_approved)
                                     <span class="text-green-600 font-semibold">Approved</span>
                                 @else
                                     <span class="text-yellow-600 font-semibold">Pending</span>
                                 @endif
                             </td>
-                            <td class="p-2">
+                            <td>
                                 <form action="{{ $review->is_approved 
                                     ? route('superadmin.reviews.disapprove', $review) 
                                     : route('superadmin.reviews.approve', $review) }}" id="approve-form" method="POST">
                                     @csrf
-                                    <button type="button" id="approve-button" class="px-4 py-2 rounded text-white
-                                        {{ $review->is_approved ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700' }}">
+                                    <button type="button" id="approve-button" class="px-4 py-2 rounded text-white font-bold
+                                        {{ $review->is_approved ? 'bg-red-600/30 text-red-600 hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200' : 'bg-blue-600/30 text-blue-600 hover:text-white hover:bg-blue-600 hover:-translate-y-1 transition-all duration-200' }}">
                                         {{ $review->is_approved ? 'Disapprove' : 'Approve' }}
                                     </button>
                                 </form>

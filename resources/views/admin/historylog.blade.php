@@ -31,16 +31,15 @@
                 <option value="Delete">Delete</option>
                 <option value="Restore">Restore</option>
 
-                    <option value="Archive">Archive</option>
-                    <option value="Approve">Approve</option>
-                    <option value="Disapprove">Disapprove</option>
-                     <option value="Login">Login</option>
-                    <option value="Logout">Logout</option>
-                    <option value="Failed Login">Failed Login</option>
-
-
-                </select>
-            </div>
+                <option value="Archive">Archive</option>
+                <option value="Approve">Approve</option>
+                <option value="Disapprove">Disapprove</option>
+                <option value="Login">Login</option>
+                <option value="Logout">Logout</option>
+                <option value="Failed Login">Failed Login</option>
+            </select>
+        </div>
+        <div class="p-2 bg-white rounded-md mt-5" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
 
             <div id="historylog-data-container">
                 {{-- This includes the table partial for the initial page load. --}}

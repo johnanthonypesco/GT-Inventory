@@ -86,12 +86,12 @@
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
                     @if (!$authGuard) 
-                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="uploadqr()">
+                        <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white  hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
                         </button>
                     @endif
                 
-                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="window.location.href='{{ route('orders.scan') }}'">
                         <i class="fa-solid fa-qrcode"></i> Scan
                     </button>
                 </div>
@@ -557,6 +557,8 @@
 </html>
 
 {{-- <script src="{{ asset('js/order.js') }}"></script> --}}
+{{-- <script>
+</script> --}}
 
 <script>
     document.getElementById('uploadqrbtn').addEventListener('click', function() {
@@ -967,4 +969,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // REAL TIMER STUFF BY SIGRAE
 </script>
-
