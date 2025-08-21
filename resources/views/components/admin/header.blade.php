@@ -81,7 +81,7 @@
         <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
-            <div class="w-full h-fit overflow-scroll flex-col justify-center items-center">
+            <div class="w-full h-fit overflow-scroll flex-col justify-center items-center p2">
                 <h1 class="text-2xl uppercase font-semibold text-[#005382] text-center mb-3">
                     Tutorial For This Page:
                 </h1>
@@ -114,6 +114,18 @@
                     @endforeach
                     Your browser does not support the video tag.
                 </video>
+
+                <div class="flex justify-center w-full">
+                    <button type="button" 
+                    class="py-3 px-10 bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-100 text-white font-bold tracking-widest hover:-translate-y-1 hover:shadow-black/60 hover:shadow-md my-5 self-center rounded-md text-xl text-center flex items-center gap-4"                    
+                    
+                    onclick="playVideo(this)"
+                    >
+                        <i class="fa-solid fa-video"></i>
+                    
+                        WATCH
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -128,6 +140,29 @@
                 tutorialModal.classList.replace("hidden", 'flex');
             } else {
                 tutorialModal.classList.replace('flex', "hidden");
+                playVideo();
+            }
+        }
+
+        function playVideo(btn) {
+            const video = document.getElementById('tutorialVideo');
+            
+            if (!video.paused && !video.ended) {
+                video.pause();
+
+                return;
+            }
+
+            if (btn) {
+                video.play();
+    
+                if (video.requestFullscreen) { // normal
+                    video.requestFullscreen();
+                } 
+    
+                else if (video.webkitRequestFullscreen) { // Safari
+                    video.webkitRequestFullscreen();
+                }
             }
         }
     </script>
