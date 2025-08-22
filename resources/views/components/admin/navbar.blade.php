@@ -88,7 +88,7 @@
             </li>
 
             <li>
-                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-1 p-2">
+                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/historylog*') ? 'active' : '' }}">
                     <i class="fa-solid fa-magnifying-glass-chart"></i>
                     <span>History Log</span>
                 </a>

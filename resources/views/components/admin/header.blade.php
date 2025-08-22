@@ -79,8 +79,6 @@
     NG php artisan serve YUNG PAG HANDLE NG GANUNG REQUEST. BAKA GUMANA SYA SA HOSTINGER? --}}
     <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
         <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
-        <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
             <div class="w-full h-fit overflow-scroll flex-col justify-center items-center p2">
@@ -169,4 +167,3 @@
         }
     </script>
 </header>
-

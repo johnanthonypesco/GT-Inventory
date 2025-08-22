@@ -25,3 +25,6 @@ body::before {
     background-color: rgba(0, 0, 0, 0.4);
     background-blend-mode: darken;
 }
+input:focus{
+    outline: 1px solid #005382;
+}
