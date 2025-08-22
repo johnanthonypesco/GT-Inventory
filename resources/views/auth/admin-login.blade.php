@@ -1,90 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-
     <title>Admin Login</title>
 </head>
-<body class="bg-gray-100">
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-60 gap-5 items-center min-h-screen">
-        <div>
-            <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
-        </div>
+<body class="flex items-center justify-center h-screen p-10">
 
-        {{-- ✅ Admin Login Form --}}
-        <form method="POST" action="{{ route('admin.login.store') }}"
-              class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white rounded-lg">
-            @csrf {{-- ✅ Security Token --}}
-
-            <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">
-                “Manage Your Medication Effortlessly <span class="font-light">Anytime, Anywhere</span>”
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[55%] overflow-hidden">
+        
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
+            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
 
-            {{-- ✅ Email Field --}}
-            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border md:border-none" value="{{ old('username') }}"/>
-            @error('email') 
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>  
-            @enderror
-            {{-- <div class="mt-5">
-                <label for="s_admin_email" class="text-[20px] text-[#005382]/71">Email</label>
-                <input type="email" name="email" id="email" 
-                       placeholder="Enter Your Email"
-                       class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('s_admin_email') 
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
-                @enderror
-            </div> --}}
+            <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in as an Admin</h1>
+            <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1>
 
-            {{-- ✅ Password Field (Fix: Changed name to "password") --}}
-            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border md:border-none">
-                <x-view-password onclick="showpassword()" id="eye"/>
-            </x-label-input>
-            @error('password') 
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-            {{-- <div class="mt-5">
-                <label for="password" class="text-[20px] text-[#005382]/71">Password</label>
-                <input type="password" name="password" id="password"
-                       placeholder="Enter Your Password"
-                       class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2">
-                @error('password')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div> --}}
+            <form method="POST" action="{{ route('admin.login.store') }}" class="mt-10 space-y-5">
+                @csrf
 
-            {{-- ✅ Remember Me & Forgot Password --}}
-            <div class="flex justify-between items-center mt-4">
-                <div class="flex items-center gap-1">
-                    <input type="checkbox" name="remember" id="remember" class="w-5">
-                    <label for="remember" class="text-[18px] text-[#005382]/61">Remember Me</label>
+                @if(session('error'))
+                    <p class="text-red-500 text-center text-sm mt-3">{{ session('error') }}</p>
+                @endif
+                
+                <div>
+                    <label for="email" class="text-xs text-black/80 font-medium">Email Address:</label>
+                    <input type="email" name="email" id="email" placeholder="Enter Your Email" 
+                           class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm" value="{{ old('email') }}">
+                    @error('email') 
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                    @enderror
                 </div>
-                {{-- <a href="{{ route('admin.password.request') }}" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a> --}}
-            </div>
 
-            {{-- ✅ Submit Button --}}
-            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 hover:bg-[#008CFF] cursor-pointer">
-                Login
-            </button>
+                <div>
+                    <div class="flex justify-between items-center">
+                        <label for="password" class="text-xs text-black/80 font-medium">Password:</label>
+                        {{-- Uncomment if you have a password reset route for admins --}}
+                        {{-- <a href="{{ route('admin.password.request') }}" class="text-xs text-[#005382] font-semibold">Forgot Password?</a> --}}
+                    </div>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" placeholder="Enter Your Password" 
+                            class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm">
+                        <button type="button" onclick="showpassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
+                            <i id="eye" class="fa-solid fa-eye mt-2"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            {{-- ✅ Display Authentication Error --}}
-            @if(session('error'))
-                <p class="text-red-500 text-center text-sm mt-3">{{ session('error') }}</p>
-            @endif
-        </form>
+                <div class="flex items-center mt-2 gap-2">
+                    <input type="checkbox" name="remember" class="w-4 h-4">
+                    <label for="remember" class="text-xs text-black/80 font-medium">Remember Me</label>
+                </div>
+
+                <button type="submit" 
+                        class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base">
+                    Login
+                </button>
+            </form>
+        </div>
+
+        <div id="flip" class="hidden lg:block w-1/2">
+            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
+        </div>
     </div>
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
-
 </body>
+
+<x-loader/>
+
 <script>
     function showpassword() {
         var password = document.getElementById('password');
@@ -92,10 +83,10 @@
 
         if (password.type === 'password') {
             password.type = 'text';
-            eye.classList.replace('fa-eye-slash', 'fa-eye');
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
         } else {
             password.type = 'password';
-            eye.classList.replace('fa-eye', 'fa-eye-slash');
+            eye.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 </script>
