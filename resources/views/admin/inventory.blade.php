@@ -106,10 +106,14 @@
 
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
                 <button class="w-full lg:w-fit px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                <button class="w-full lg:w-fit px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Data  
                 </button>
                 
+                <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
+                <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
                 <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
                 <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
             </div>
@@ -142,7 +146,7 @@
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="text-xl font-bold mb-5">
-                Delivery Location: {{ $currentSearch['location'] !== "All" ? html_entity_decode($currentSearch['location']) : $provinceName }}
+                Delivery Location: {{ $currentSearch['location'] !== "All" ? $currentSearch['location'] : $provinceName }}
             </h1>
 
             <div  class="flex flex-wrap justify-between items-center">
@@ -268,7 +272,9 @@
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
                                     <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-green-600 bg-green-600/20 p-2 rounded-lg hover:text-white hover:bg-green-600 hover:-translate-y-1 transition-all duration-200"><i class="fa-solid fa-plus"></i>Add Stock</button>
+                                    <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-green-600 bg-green-600/20 p-2 rounded-lg hover:text-white hover:bg-green-600 hover:-translate-y-1 transition-all duration-200"><i class="fa-solid fa-plus"></i>Add Stock</button>
 
+                                    <button class="flex items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200" onclick="editRegisteredProduct('{{$product->id}}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
                                     <button class="flex items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200" onclick="editRegisteredProduct('{{$product->id}}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
                                         <i class="fa-regular fa-pen-to-square mr-2"></i>
                                         Edit
@@ -314,6 +320,7 @@
 
                 <br>
                 
+                <a href="{{ route('admin.file-ocr.index') }}" class="outline-2  outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
                 <a href="{{ route('admin.file-ocr.index') }}" class="outline-2  outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
                     <i class="fa-solid fa-folder-open"></i>
                     View Scanned Receipts
@@ -382,6 +389,7 @@
                                         @csrf
                                         @method('PUT')
 
+                                        <button type="button" id="unarchivebtn" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200">
                                         <button type="button" id="unarchivebtn" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200">
                                             <i class="fa-solid fa-undo"></i>
                                             Unarchive
@@ -687,6 +695,7 @@
 
             <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')  
                 @method('PUT')  
 
                 <div class="flex justify-between">

@@ -1,68 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-
     <title>Customer Login</title>
 </head>
-<body>
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-60 gap-5 items-center">
-        <div>
-            <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
-        </div>
+<body class="flex items-center justify-center h-screen p-10">
 
-        <!-- ✅ Updated Form to Submit to Laravel Authentication -->
-        <form method="POST" action="{{ route('login') }}" class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit lg:bg-white/0 bg-white">
-            @csrf  <!-- ✅ CSRF Token for Security -->
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[55%] overflow-hidden">
 
-            <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-left">
-                “Manage Your Medication Effortlessly <span class="font-light">Anytime, Anywhere</span>”
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
+            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
 
-            <!-- ✅ Display Validation Errors -->
-            @if ($errors->any())
-                <div class="bg-red-200 text-red-700 p-3 rounded-lg mt-3">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>⚠️ {{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in to your Account</h1>
+            <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1>
 
-            <!-- ✅ Username Input -->
-            <x-label-input label="Email" name="email" placeholder="Enter Your Email" type="text" divclass="mt-10" inputclass="outline-none bg-white p-3 border md:border-none" value="{{ old('username') }}"/>
+            <form method="POST" action="{{ route('login') }}" class="mt-10 space-y-5">
+                @csrf
 
-            <!-- ✅ Password Input -->
-            <x-label-input label="Password" name="password" placeholder="Enter Your Password" type="password" divclass="mt-7 mb-5 relative" inputid="password" inputclass="outline-none bg-white p-3 border md:border-none">
-                <x-view-password onclick="showpassword()" id="eye"/>
-            </x-label-input>
-
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-1">
-                    <input type="checkbox" name="remember" id="remember" class="w-5">
-                    <label for="remember" class="text-[18px] text-[#005382]/61">Remember Me</label>
+                @if ($errors->any())
+                    <div class="bg-red-200 text-red-700 p-3 rounded-lg">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li class="text-sm">⚠️ {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <div>
+                    <label for="email" class="text-xs text-black/80 font-medium">Email Address:</label>
+                    <input type="email" name="email" id="email" placeholder="Enter Your Email"
+                           class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm" value="{{ old('email') }}">
                 </div>
 
-                <a href="{{ route('users.password.request') }}" class="text-[18px] text-[#005382]/61">Forgot Your Password?</a>
-            </div>
+                <div>
+                    <div class="flex justify-between items-center">
+                        <label for="password" class="text-xs text-black/80 font-medium">Password:</label>
+                        <a href="{{ route('users.password.request') }}" class="text-xs text-[#005382] font-semibold">Forgot Password?</a>
+                    </div>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" placeholder="Enter Your Password"
+                               class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm">
+                        <button type="button" onclick="showpassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
+                            <i id="eye" class="fa-solid fa-eye mt-2"></i>
+                        </button>
+                    </div>
+                </div>
 
-            <!-- ✅ Login Button -->
-            <button type="submit" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer">Login</button>
-        </form>
+                <div class="flex items-center mt-2 gap-2">
+                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4">
+                    <label for="remember" class="text-xs text-black/80 font-medium">Remember Me</label>
+                </div>
+
+                <button type="submit"
+                        class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base">
+                    Sign in
+                </button>
+            </form>
+        </div>
+
+        <div class="hidden lg:block w-1/2">
+            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
+        </div>
     </div>
-</body>
 
-{{-- loader --}}
-<x-loader />
-{{-- loader --}}
+    <x-loader/>
+
+</body>
 
 <script>
     function showpassword() {

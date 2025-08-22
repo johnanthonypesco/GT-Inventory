@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,80 +8,109 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="flex flex-col lg:flex-row p-5 lg:gap-60 gap-5 items-center min-h-screen">
-        <div>
-            <img src="{{ asset('image/Group 41.png') }}" class="lg:w-[300px] w-[200px] mt-10 lg:mt-0 m-auto">
-        </div>
+<body class="flex items-center justify-center h-screen p-10">
 
-        <form method="POST" action="{{ route($userType .'.password.store') }}" class="w-full lg:w-[500px] m-0 p-5 flex flex-col h-fit bg-white">
-            @csrf
-            <h1 class="text-4xl font-semibold text-[#005382] m-auto text-center lg:text-center">
-                “Reset Your Password <span class="font-light">Securely & Quickly</span>”
+    <!-- Wrapper -->
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[55%] overflow-hidden">
+
+        <!-- Left Side Logo + Branding -->
+        <div class="flex flex-col w-full lg:w-1/2 p-6 md:p-10">
+            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
 
-            <p class="text-gray-600 text-center lg:text-center mt-3">
-                Enter your new password below to reset your credentials.
-            </p>
+            <!-- ✅ Reset Form -->
+            <form method="POST" action="{{ route($userType .'.password.store') }}" class="mt-8">
+                @csrf
+                <h1 class="text-xl md:text-2xl font-medium text-[#005382] text-center lg:text-left">
+                    “Reset Your Password <span class="font-light">Securely & Quickly</span>”
+                </h1>
 
-            @if ($errors->any())
-                <div class="bg-red-200 text-red-700 p-3 rounded-lg mt-3">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>⚠️ {{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+                <p class="text-sm md:text-base text-[#005382]/85 text-center lg:text-left mt-2">
+                    Enter your new password below to reset your credentials.
+                </p>
 
-            <input type="hidden" name="token" value="{{ $request->route('token') }}">
-
-            <div class="mt-10">
-                <label class="block text-[18px] text-[#005382]">Email Address</label>
-                <input id="email" type="email" name="email" class="outline-none bg-white p-3 border rounded-lg w-full mt-2" value="{{ old('email', $request->email) }}" required readonly autocomplete="username">
-            </div>
-
-            <div class="mt-4">
-                <div class="relative">
-                    <label class="block text-[18px] text-[#005382]">New Password</label>
-                    <input id="password" type="password" name="password" class="outline-none bg-white p-3 border rounded-lg w-full mt-2" required autocomplete="new-password">
-                    <i onclick="showpassword()" id="eye-password" class="fa-solid fa-eye absolute right-5 top-[53px] cursor-pointer text-gray-400"></i>
-                </div>
-                
-                <div class="mt-2 text-sm">
-                    <div id="password-rules" class="text-gray-500 space-y-1 hidden">
-                        <p id="rule-uppercase" class="transition-colors duration-300"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 uppercase letter.</p>
-                        <p id="rule-lowercase" class="transition-colors duration-300"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 lowercase letter.</p>
-                        <p id="rule-number" class="transition-colors duration-300"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 number.</p>
-                        <p id="rule-special" class="transition-colors duration-300"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 special character.</p>
-                        <p id="rule-length" class="transition-colors duration-300"><i class="fas fa-times text-red-500 mr-2"></i>At least 8 characters long.</p>
+                <!-- ✅ Display Errors -->
+                @if ($errors->any())
+                    <div class="bg-red-200 text-red-700 p-3 rounded-lg mt-3">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>⚠️ {{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
-                    <p id="password-secure-status" class="h-5"></p>
-                </div>
-            </div>
+                @endif
 
-            <div class="mt-4">
-                <div class="relative">
-                    <label class="block text-[18px] text-[#005382]">Confirm Password</label>
-                    <input id="password_confirmation" type="password" name="password_confirmation" class="outline-none bg-white p-3 border rounded-lg w-full mt-2" required autocomplete="new-password">
-                    <i onclick="showconfirmpassword()" id="eye-confirm-password" class="fa-solid fa-eye absolute right-5 top-[53px] cursor-pointer text-gray-400"></i>
-                </div>
-                <p id="password-match-status" class="text-sm mt-2 h-5"></p>
-            </div>
+                <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <div id="reset-button-container" class="mt-5">
-                <button type="submit" id="reset-button" class="bg-[#15ABFF] w-full p-3 rounded-lg text-white opacity-50 cursor-not-allowed" disabled>
-                    Reset Password
-                </button>
-            </div>
-             <a href="{{ route($userType === 'users' ? 'login' : $userType . '.login') }}"
-               class="block w-full p-3 rounded-lg text-center mt-3 bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
-                ← Back to Login
-            </a>
-        </form>
+                <!-- Email (readonly) -->
+                <div>
+                    <label class="text-xs text-black/80 font-medium">Email Address:</label>
+                    <input id="email" type="email" name="email" 
+                        value="{{ old('email', $request->email) }}" 
+                        class="border border-gray-300 bg-gray-100 p-3 rounded-lg w-full mt-2 text-sm cursor-not-allowed" 
+                        readonly required autocomplete="username">
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="text-xs text-black/80 font-medium">New Password:</label>
+                    <div class="relative">
+                        <input id="password" type="password" name="password" 
+                            class="border border-gray-300 bg-white p-3 rounded-lg w-full mt-2 text-sm" 
+                            required autocomplete="new-password">
+                        <i onclick="showpassword()" id="eye-password" class="fa-solid fa-eye absolute right-5 top-[55%] translate-y-[-50%] cursor-pointer text-gray-400"></i>
+                    </div>
+
+                    <div class="mt-2 text-sm">
+                        <div id="password-rules" class="text-gray-500 space-y-1 hidden">
+                            <p id="rule-uppercase"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 uppercase letter.</p>
+                            <p id="rule-lowercase"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 lowercase letter.</p>
+                            <p id="rule-number"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 number.</p>
+                            <p id="rule-special"><i class="fas fa-times text-red-500 mr-2"></i>At least 1 special character.</p>
+                            <p id="rule-length"><i class="fas fa-times text-red-500 mr-2"></i>At least 8 characters long.</p>
+                        </div>
+                        <p id="password-secure-status" class="h-5"></p>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="text-xs text-black/80 font-medium">Confirm Password:</label>
+                    <div class="relative">
+                        <input id="password_confirmation" type="password" name="password_confirmation" 
+                            class="border border-gray-300 bg-white p-3 rounded-lg w-full text-sm" 
+                            required autocomplete="new-password">
+                        <i onclick="showconfirmpassword()" id="eye-confirm-password" class="fa-solid fa-eye absolute right-5 top-[55%] translate-y-[-50%] cursor-pointer text-gray-400"></i>
+                    </div>
+                    <p id="password-match-status" class="text-sm mt-2 h-5"></p>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="flex flex-col md:flex-row gap-3 w-full">
+                    <!-- Reset Button -->
+                    <div id="reset-button-container" class="w-full">
+                        <button type="submit" id="reset-button"
+                            class="bg-[#15ABFF] w-full p-3 rounded-lg text-white opacity-50 cursor-not-allowed transition-all duration-300">
+                            Reset Password
+                        </button>
+                    </div>
+
+                    <!-- Back to Login -->
+                    <a href="{{ route($userType === 'users' ? 'login' : $userType . '.login') }}" 
+                        class="w-full bg-[#15ABFF] p-3 rounded-lg text-white text-center hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base">
+                        ← Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side Image -->
+        <div class="hidden lg:block w-1/2">
+            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
+        </div>
     </div>
 
     {{-- loader --}}

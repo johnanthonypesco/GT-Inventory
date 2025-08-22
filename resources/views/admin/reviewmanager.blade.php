@@ -25,10 +25,19 @@
             <div class="overflow-auto">
                 <table>
                     <thead>
+                <table>
+                    <thead>
                         <tr>
                             <th>Customer Name</th>
                             <th>Company Name</th>
+                            <th>Customer Name</th>
+                            <th>Company Name</th>
 
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Public</th>
+                            <th>Status</th>
+                            <th>Action</th>
                             <th>Rating</th>
                             <th>Comment</th>
                             <th>Public</th>
@@ -38,6 +47,9 @@
                     </thead>
                     <tbody>
                         @forelse($reviews as $review)
+                        <tr>
+                            <td>{{ $review->user->name }}</td>
+                            <td>{{ $review->user->company->name }}</td>
                         <tr>
                             <td>{{ $review->user->name }}</td>
                             <td>{{ $review->user->company->name }}</td>
@@ -52,6 +64,7 @@
                                     <span class="text-yellow-600 font-semibold">Pending</span>
                                 @endif
                             </td>
+                            <td>
                             <td>
                                 <form action="{{ $review->is_approved 
                                     ? route('superadmin.reviews.disapprove', $review) 
