@@ -141,6 +141,7 @@ table tbody tr{
 }
 table tr{
     text-align: center;
+    text-overflow: ellipsis;
 }
 table tbody tr:hover{
     background-color: #78787824;

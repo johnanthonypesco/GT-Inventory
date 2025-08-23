@@ -6,6 +6,14 @@ document.addEventListener('click', function(e) {
     if(form) showsweetalert(form);
 });
 
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#updateButton');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#selectForm');
+    if(form) showsweetalert(form);
+});
+
 function showsweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',

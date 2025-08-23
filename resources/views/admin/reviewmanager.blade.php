@@ -30,14 +30,6 @@
                         <tr>
                             <th>Customer Name</th>
                             <th>Company Name</th>
-                            <th>Customer Name</th>
-                            <th>Company Name</th>
-
-                            <th>Rating</th>
-                            <th>Comment</th>
-                            <th>Public</th>
-                            <th>Status</th>
-                            <th>Action</th>
                             <th>Rating</th>
                             <th>Comment</th>
                             <th>Public</th>

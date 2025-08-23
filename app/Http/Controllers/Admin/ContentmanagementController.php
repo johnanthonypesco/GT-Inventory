@@ -39,6 +39,33 @@ class ContentmanagementController extends Controller
         return redirect()->back()->with('status', 'Product status updated!');
     }
 
+    public function selectmultipleproduct(Request $request)
+    {
+        $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:products,id',
+        ]);
+
+        $selectedIds = $request->input('product_ids');
+
+        $products = Product::whereIn('id', $selectedIds)->get();
+
+        foreach ($products as $product) {
+            $product->is_displayed = !$product->is_displayed;
+            $product->save();
+        }
+
+        // bulk history log
+        foreach ($products as $product) {
+            HistorylogController::add(
+                $product->is_displayed ? 'Enable' : 'Disable',
+                'Product ' . $product->generic_name . ' has been ' . ($product->is_displayed ? 'enabled' : 'disabled')
+            );
+        }
+
+        return redirect()->back()->with('success', 'Product display status updated successfully!');
+    }
+
 
     // public function editContent(Request $request, $id)
     // {    

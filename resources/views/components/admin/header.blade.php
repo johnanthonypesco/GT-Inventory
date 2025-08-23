@@ -50,11 +50,11 @@
 
 
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
-        <div class="hidden group lg:flex gap-2 items-center px-5 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
+        <div class="hidden group lg:flex gap-2 items-center px-2 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
             <i class="fa-solid fa-user text-xl bg-[#005382] text-white py-2 px-3 rounded-full"></i>
             <div>
-                <p class="font-semibold text-sm">{{ $name }}</p>
-                <p class="text-[12px] font-semibold text-black/60">{{ $email }}</p>
+                <p class="font-semibold text-sm w-[150px] truncate">{{ $name }}</p>
+                <p class="text-[12px] font-semibold text-black/60 w-[150px] truncate">{{ $email }}</p>
             </div>
             <i class='fa-solid fa-angle-down text-black/70 absolute right-2'></i>
 
