@@ -57,8 +57,7 @@ class ContentmanagementController extends Controller
 
         // bulk history log
         foreach ($products as $product) {
-            HistorylogController::add(
-                $product->is_displayed ? 'Enable' : 'Disable',
+            HistorylogController::add('Edit',
                 'Product ' . $product->generic_name . ' has been ' . ($product->is_displayed ? 'enabled' : 'disabled')
             );
         }
