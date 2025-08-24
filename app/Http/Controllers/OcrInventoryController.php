@@ -20,7 +20,7 @@ use App\Http\Controllers\Admin\HistorylogController;
 class OcrInventoryController extends Controller
 {
     /**
-     * Handles the receipt upload, trying Gemini first and falling back to Mistral.
+     * Handles the receipt upload, trying the main Gemini key first and falling back to the backup Gemini key.
      */
     public function uploadReceipt(Request $request)
     {
@@ -63,20 +63,20 @@ class OcrInventoryController extends Controller
             $jsonSchema = $this->getJsonSchema();
             $extractedJson = null;
 
-            // Try Gemini first, then Mistral as fallback
+            // Try the main Gemini key first, then the backup Gemini key as a fallback
             try {
-                Log::info('Attempting OCR with Gemini AI...');
+                Log::info('Attempting OCR with Gemini AI (Main Key)...');
                 $extractedJson = $this->callGeminiApi($prompt, $mimeType, $imageData, $jsonSchema);
-                Log::info('Successfully processed OCR with Gemini AI.');
+                Log::info('Successfully processed OCR with Gemini AI (Main Key).');
             } catch (Exception $geminiException) {
-                Log::warning('Gemini AI failed. Falling back to Mistral AI.', ['error' => $geminiException->getMessage()]);
+                Log::warning('Main Gemini AI key failed. Falling back to Backup Gemini AI key.', ['error' => $geminiException->getMessage()]);
                 try {
-                    Log::info('Attempting OCR with Mistral AI...');
-                    $extractedJson = $this->callMistralApi($prompt, $mimeType, $imageData);
-                    Log::info('Successfully processed OCR with fallback Mistral AI.');
-                } catch (Exception $mistralException) {
-                    Log::error('Fallback Mistral AI also failed.', ['error' => $mistralException->getMessage()]);
-                    throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$mistralException->getMessage()}).");
+                    Log::info('Attempting OCR with Gemini AI (Backup Key)...');
+                    $extractedJson = $this->callGeminiApiBackup($prompt, $mimeType, $imageData, $jsonSchema);
+                    Log::info('Successfully processed OCR with fallback Gemini AI (Backup Key).');
+                } catch (Exception $geminiBackupException) {
+                    Log::error('Fallback Gemini AI (Backup Key) also failed.', ['error' => $geminiBackupException->getMessage()]);
+                    throw new Exception("The primary AI service failed (Error: {$geminiException->getMessage()}) and the fallback service also failed (Error: {$geminiBackupException->getMessage()}).");
                 }
             }
 
@@ -98,14 +98,12 @@ class OcrInventoryController extends Controller
                 $form = $this->normalizeForm($item['form'] ?? 'N/A');
                 $strength = (!empty($item['strength']) && $item['strength'] !== 'N/A') ? $item['strength'] : $this->extractStrength($productName);
 
-                // Validate if the product exists, INCLUDING BRAND NAME
                 $existingProduct = Product::where('generic_name', $productName)
                     ->where('strength', $strength)
                     ->where('form', $form)
                     ->where('brand_name', $brandName)
                     ->first();
 
-                // MODIFIED: Set season_peak to null directly
                 $seasonPeak = null; 
 
                 return [
@@ -116,7 +114,7 @@ class OcrInventoryController extends Controller
                     'batch_number' => $item['batch_number'] ?? '',
                     'expiry_date' => $this->normalizeDate($item['expiry_date'] ?? ''),
                     'strength' => $strength,
-                    'season_peak' => $seasonPeak, // This will now be null
+                    'season_peak' => $seasonPeak,
                     'is_registered' => !is_null($existingProduct)
                 ];
             }, $extractedData['data']);
@@ -134,14 +132,14 @@ class OcrInventoryController extends Controller
     }
 
     /**
-     * Calls the Gemini API to perform OCR.
+     * Calls the Gemini API to perform OCR using the MAIN API Key.
      * @throws Exception if the API call or processing fails.
      */
     private function callGeminiApi(string $prompt, string $mimeType, string $imageData, array $jsonSchema): string
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.keys.main'); 
         if (!$apiKey) {
-            throw new Exception('Gemini API Key is not set.');
+            throw new Exception('Main Gemini API Key (GEMINI_API_KEY1) is not set.');
         }
 
         $response = Http::timeout(120)->post(
@@ -159,7 +157,7 @@ class OcrInventoryController extends Controller
         );
 
         if ($response->failed()) {
-            throw new Exception("Gemini API request failed. Status: " . $response->status());
+            throw new Exception("Gemini API (Main) request failed. Status: " . $response->status());
         }
 
         $result = $response->json();
@@ -167,54 +165,47 @@ class OcrInventoryController extends Controller
 
         if (empty($extractedJson)) {
             $reason = $result['candidates'][0]['finishReason'] ?? 'unknown reason';
-            throw new Exception("Gemini processing failed. Reason: {$reason}");
+            throw new Exception("Gemini (Main) processing failed. Reason: {$reason}");
         }
 
         return $extractedJson;
     }
 
     /**
-     * Calls the Mistral API as a fallback for OCR.
+     * Calls the Gemini API as a fallback for OCR using the BACKUP API Key.
      * @throws Exception if the API call or processing fails.
      */
-    private function callMistralApi(string $prompt, string $mimeType, string $imageData): string
+    private function callGeminiApiBackup(string $prompt, string $mimeType, string $imageData, array $jsonSchema): string
     {
-        $apiKey = env('MISTRAL_API_KEY');
+        $apiKey = config('services.gemini.keys.backup');
         if (!$apiKey) {
-            throw new Exception('Mistral API Key is not set.');
+            throw new Exception('Backup Gemini API Key (GEMINI_API_KEY2) is not set.');
         }
 
-        $response = Http::withToken($apiKey)
-            ->timeout(120)
-            ->post('https://api.mistral.ai/v1/chat/completions', [
-                'model' => 'mistral-large-latest',
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => [
-                            ['type' => 'text', 'text' => $prompt],
-                            [
-                                'type' => 'image_url',
-                                'image_url' => [
-                                    'url' => "data:$mimeType;base64,$imageData"
-                                ]
-                            ]
-                        ]
-                    ]
+        $response = Http::timeout(120)->post(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$apiKey}",
+            [
+                "contents" => [["parts" => [["text" => $prompt], ["inline_data" => ["mime_type" => $mimeType, "data" => $imageData]]]]],
+                "safetySettings" => [
+                    ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
+                    ["category" => "HARM_CATEGORY_HATE_SPEECH", "threshold" => "BLOCK_NONE"],
+                    ["category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold" => "BLOCK_NONE"],
+                    ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"]
                 ],
-                'response_format' => ['type' => 'json_object']
-            ]);
+                "generationConfig" => ["responseMimeType" => "application/json", "responseSchema" => $jsonSchema]
+            ]
+        );
 
         if ($response->failed()) {
-            throw new Exception("Mistral API request failed. Status: " . $response->status());
+            throw new Exception("Gemini API (Backup) request failed. Status: " . $response->status());
         }
 
         $result = $response->json();
-        $extractedJson = $result['choices'][0]['message']['content'] ?? null;
+        $extractedJson = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
         if (empty($extractedJson)) {
-            $reason = $result['choices'][0]['finish_reason'] ?? 'unknown reason';
-            throw new Exception("Mistral processing failed. Reason: {$reason}");
+            $reason = $result['candidates'][0]['finishReason'] ?? 'unknown reason';
+            throw new Exception("Gemini (Backup) processing failed. Reason: {$reason}");
         }
 
         return $extractedJson;
@@ -297,13 +288,12 @@ class OcrInventoryController extends Controller
 
         foreach ($products as $index => $data) {
             try {
-                // MODIFIED: Updated the validation rule for season_peak
                 $rules = [
                     'product_name' => 'required|string|max:255',
                     'brand_name' => 'nullable|string|max:255',
                     'form' => 'required|string|max:50',
                     'strength' => 'required|string|max:50',
-                    'season_peak' => 'nullable|string', // Changed to nullable
+                    'season_peak' => 'nullable|string',
                     'batch_number' => 'required|string|max:50',
                     'expiry_date' => 'required|date|after_or_equal:today',
                     'quantity' => 'required|integer|min:1',
@@ -318,7 +308,6 @@ class OcrInventoryController extends Controller
                     continue;
                 }
 
-                // Find the product, INCLUDING BRAND NAME for final validation
                 $product = Product::where('generic_name', $data['product_name'])
                     ->where('strength', $data['strength'])
                     ->where('form', $data['form'])
@@ -395,8 +384,6 @@ class OcrInventoryController extends Controller
         return response()->json(['locations' => $locations]);
     }
     
-    // MODIFIED: The getSeasonPeakForProduct function has been completely removed.
-
     /**
      * Normalizes a given pharmaceutical form string to a standard term.
      */

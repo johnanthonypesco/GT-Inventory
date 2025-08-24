@@ -1,5 +1,5 @@
 <?php
-
+// junk code incase needed
 // namespace App\Http\Controllers\mobile;
 
 // use App\Http\Controllers\Controller;
@@ -166,7 +166,7 @@
 namespace App\Http\Controllers\mobile;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Admin\HistorylogController; // Make sure this use statement is correct
+use App\Http\Controllers\Admin\HistorylogController; // Siguraduhing tama ang path nito
 use App\Models\ImmutableHistory;
 use App\Models\Inventory;
 use App\Models\Location;
@@ -197,14 +197,14 @@ class MobileStaffQrController extends Controller
         try {
             // ✅ Step 1: Validate incoming data from the mobile app's FormData
             $validatedData = $request->validate([
-                'order_id'      => 'required|integer|exists:orders,id',
-                'product_name'  => 'required|string|max:255',
-                'brand_name'    => 'nullable|string|max:255',
-                'strength'      => 'required|string|max:255',
-                'form'          => 'required|string|max:255',
-                'location'      => 'required|string|exists:locations,province',
-                'quantity'      => 'required|integer|min:1',
-                'signature'     => 'required|image|mimes:png|max:2048', // 2MB limit for the signature image
+                'order_id'       => 'required|integer|exists:orders,id',
+                'product_name'   => 'required|string|max:255',
+                'brand_name'     => 'nullable|string|max:255',
+                'strength'       => 'required|string|max:255',
+                'form'           => 'required|string|max:255',
+                'location'       => 'required|string|exists:locations,province',
+                'quantity'       => 'required|integer|min:1',
+                'signature'      => 'required|image|mimes:png|max:2048', // 2MB limit for the signature image
             ]);
 
             Log::info("Mobile Scan: Initiating inventory deduction for Order ID: {$orderId}", $validatedData);
@@ -216,10 +216,6 @@ class MobileStaffQrController extends Controller
 
             // Find the Location ID from the province name
             $location = Location::where('province', $validatedData['location'])->first();
-            if (!$location) {
-                // This check is technically covered by 'exists:locations,province' validation, but it's good practice.
-                throw new \Exception('Location "' . $validatedData['location'] . '" not found in the database');
-            }
             $locationId = $location->id;
 
             // Find the Product ID
@@ -280,6 +276,8 @@ class MobileStaffQrController extends Controller
             
             ImmutableHistory::create([
                 'order_id'      => $orderId,
+                'company_id'    => $orderArchive->user->company->id,
+                'user_id'       => $orderArchive->user->id,
                 'province'      => $orderArchive->user->company->location->province,
                 'company'       => $orderArchive->user->company->name,
                 'employee'      => $orderArchive->user->name,
@@ -299,21 +297,29 @@ class MobileStaffQrController extends Controller
             if ($request->hasFile('signature')) {
                 $signatureFile = $request->file('signature');
                 $fileName = "signatures/signature_{$orderId}_" . time() . ".png";
-                // Use the 'public' disk which maps to storage/app/public
-                $signaturePath = Storage::disk('public')->putFileAs('', $signatureFile, $fileName);
+                $signaturePath = Storage::disk('public')->put($fileName, file_get_contents($signatureFile));
             }
 
             // ✅ Step 8: Log the successful scan event
             ScannedQrCode::create([
-                'order_id'         => $orderId,
-                'product_name'     => $validatedData['product_name'],
-                'location'         => $validatedData['location'],
-                'quantity'         => $validatedData['quantity'],
-                'affected_batches' => json_encode($affectedBatches),
-                'scanned_at'       => now(),
-                'signature'        => $signaturePath,
+                'order_id'          => $orderId,
+                'product_name'      => $validatedData['product_name'],
+                'location'          => $validatedData['location'],
+                'quantity'          => $validatedData['quantity'],
+                'affected_batches'  => json_encode($affectedBatches),
+                'scanned_at'        => now(),
+                'signature'         => $signaturePath,
             ]);
             
+            // =========================================================================================
+            // >> DAGDAG: LOGGING LOGIC (Kinopya mula sa web controller)
+            // =========================================================================================
+            HistorylogController::add(
+                'QR Upload & Deduct',
+                'QR code processed and inventory deducted for Order #' . $validatedData['order_id'] . ', Product: "' . $validatedData['product_name'] . '", Location: "' . $validatedData['location'] . '".'
+            );
+            // =========================================================================================
+
             // ✅ Step 9: Finalize the transaction
             DB::commit();
 

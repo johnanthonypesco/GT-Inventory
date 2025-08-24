@@ -18,8 +18,11 @@ return [
     ],
 
     'gemini' => [
-        'key' => env('GEMINI_API_KEY'),
+    'keys' => [
+        'main' => env('GEMINI_API_KEY1'),
+        'backup' => env('GEMINI_API_KEY2'),
     ],
+],
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

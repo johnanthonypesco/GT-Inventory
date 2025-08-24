@@ -96,7 +96,7 @@
                 ])
             </div>
 
-            {{-- *** START: MODIFIED AI ANALYSIS SECTION *** --}}
+            {{-- *** START: AI ANALYSIS SECTION *** --}}
             @if(!$currentUser instanceof \App\Models\Staff && !$currentUser instanceof \App\Models\Admin)
             <div id="ai-analysis-section" class="mt-6 bg-white p-4 rounded-lg border-t-4 border-purple-600" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3 sm:gap-4">
@@ -154,7 +154,7 @@
                 </div>
             </div>
             @endif
-            {{-- *** END: MODIFIED AI ANALYSIS SECTION *** --}}
+            {{-- *** END: AI ANALYSIS SECTION *** --}}
 
             @if(!$currentUser instanceof \App\Models\Staff)
                 <div class="mt-5 bg-white p-4 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
@@ -271,7 +271,7 @@
                             <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800">Products Delivered (Top 10)<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="deductions-info-icon"></i></h3>
                             <span class="text-xs sm:text-sm text-gray-500">Delivered Orders</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 md:mb-6">
                             <div>
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Year</label>
                                 <select id="deductedYearFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -297,12 +297,18 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product</label>
+                                <select id="deductedProductFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Products</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="h-60 xs:h-64 sm:h-72 md:h-80 chart-canvas" id="deductedQuantitiesChartContainer"></div>
                     </div>
                     <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6border border-gray-100 inventory-chart" data-chart-id="inventory" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Inventory Levels (Top 10 Low Stock)<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="inventory-info-icon"></i></h3>
-                        <div class="grid grid-cols-1 max-w-xs gap-3 sm:gap-4 mb-4 md:mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 md:mb-6">
                             <div>
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Filter by Location</label>
                                 <select id="inventoryLocationFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -310,6 +316,12 @@
                                     @foreach($locations as $location)
                                         <option value="{{ $location->id }}">{{ $location->city }}, {{ $location->province }}</option>
                                     @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product</label>
+                                <select id="inventoryProductFilter" class="w-full p-1.5 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Products</option>
                                 </select>
                             </div>
                         </div>
@@ -346,6 +358,12 @@
                     </div>
                     <div class="chart-container bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 border border-gray-100 performance-chart" data-chart-id="performance" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389);">
                         <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-4">Ordered Products Performance<i class="fas fa-info-circle text-blue-500 cursor-pointer ml-2" id="performance-info-icon"></i></h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Product</label>
+                            <select id="performanceProductFilter" class="w-full max-w-xs p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">All Products</option>
+                            </select>
+                        </div>
                         <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
                             <button id="mostSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">Most Ordered</button>
                             <button id="moderateSoldBtn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-full font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Moderate Ordered</button>
@@ -400,277 +418,131 @@
             </div>
         </div>
 
-        <!-- Revenue Chart Info Modal -->
-        <div id="revenue-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-gray-900">Revenue Over Time Explanation</h3>
-                        <p class="text-sm text-gray-500">Detailed formula and computation explanation</p>
-                    </div>
-                    <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="revenue-info-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4 text-gray-700">
-                    <p><strong>Formula:</strong> Total Revenue = SUM(quantity * price) for all delivered orders, grouped by the selected time period (daily, weekly, monthly, or yearly).</p>
-                    <p><strong>Explanation:</strong> This chart aggregates revenue from delivered orders based on the order date. Data is filtered by year, month, or week as selected. For daily: grouped by day of month; Weekly: grouped by week number in month; Monthly: grouped by month in year; Yearly: grouped by year. Missing periods are filled with zero revenue for continuity.</p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="revenue-info-modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Deductions (Products Delivered) Chart Info Modal -->
-        <div id="deductions-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-gray-900">Products Delivered Explanation</h3>
-                        <p class="text-sm text-gray-500">Detailed formula and computation explanation</p>
-                    </div>
-                    <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="deductions-info-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4 text-gray-700">
-                    <p><strong>Formula:</strong> Total Delivered Quantity = SUM(quantity) for delivered orders, grouped by generic_name, ordered DESC, limited to top 10.</p>
-                    <p><strong>Explanation:</strong> This chart shows the top 10 products by delivered quantity in the selected year and month. Optionally filtered by province. Data is sourced from ImmutableHistory where status = 'delivered'.</p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="deductions-info-modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Inventory Chart Info Modal -->
-        <div id="inventory-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-gray-900">Inventory Levels Explanation</h3>
-                        <p class="text-sm text-gray-500">Detailed formula and computation explanation</p>
-                    </div>
-                    <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="inventory-info-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4 text-gray-700">
-                    <p><strong>Formula:</strong> Total Quantity = SUM(quantity) per generic_name, ordered ASC by total_quantity, limited to top 10 low stock.</p>
-                    <p><strong>Explanation:</strong> This chart aggregates current inventory levels from the Inventory table, joined with Products. Optionally filtered by location_id. Shows products with the lowest stock levels.</p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="inventory-info-modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Trends Chart Info Modal -->
-        <div id="trends-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-gray-900">Product Trends & Predictions Explanation</h3>
-                        <p class="text-sm text-gray-500">Detailed formula and computation explanation</p>
-                    </div>
-                    <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="trends-info-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4 text-gray-700">
-                    <p><strong>Formulas:</strong></p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Monthly Averages: AVG(total_quantity) per month over historical data (last 2 years).</li>
-                        <li>Historical Overall Average: AVG of all monthly averages.</li>
-                        <li>Recent Trend: (Current Sales * 0.5) + (M-1 Sales * 0.3) + (M-2 Sales * 0.2).</li>
-                        <li>Base Prediction: (Next Month Historical Avg * 0.6) + (Recent Trend * 0.4).</li>
-                        <li>Seasonal Multiplier: 1.25 if product season matches next month season; 0.80 if mismatch; 1.0 for all-year.</li>
-                        <li>Final Prediction: Base Prediction * Seasonal Multiplier.</li>
-                        <li>Percentage Change: ((Final Prediction - Current Sales) / Current Sales) * 100 (or 100 if Current Sales = 0).</li>
-                    </ul>
-                    <p><strong>Explanation:</strong> Predictions are based on historical sales data from ImmutableHistory, joined with Products for season_peak. Filtered by season and year. Top trending and predicted products are sorted and limited.</p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="trends-info-modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Chart Info Modal -->
-        <div id="performance-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-gray-900">Ordered Products Performance Explanation</h3>
-                        <p class="text-sm text-gray-500">Detailed formula and computation explanation</p>
-                    </div>
-                    <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="performance-info-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4 text-gray-700">
-                    <p><strong>Formula:</strong> Total Quantity = SUM(quantity) for delivered orders, grouped by generic_name.</p>
-                    <p><strong>Categorization:</strong></p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Most Ordered: Top 6 by total_quantity DESC.</li>
-                        <li>Moderate Ordered: total_quantity > 10 and <= 50, top 6 DESC.</li>
-                        <li>Low Ordered: total_quantity <= 10, top 6 ASC.</li>
-                    </ul>
-                    <p><strong>Explanation:</strong> This chart categorizes products based on ordered quantities from ImmutableHistory where status = 'delivered'. Limits to 6 per category for visualization.</p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="performance-info-modal">Close</button>
-                </div>
-            </div>
-        </div>
+        <!-- Info Modals -->
+        <div id="revenue-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden"> <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100"> <div class="flex justify-between items-start"> <div class="space-y-1"> <h3 class="text-xl font-bold text-gray-900">Revenue Over Time Explanation</h3> <p class="text-sm text-gray-500">Detailed formula and computation explanation</p> </div> <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="revenue-info-modal"> <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg> </button> </div> <div class="mt-6 space-y-4 text-gray-700"> <p><strong>Formula:</strong> Total Revenue = SUM(quantity * price) for all delivered orders, grouped by the selected time period (daily, weekly, monthly, or yearly).</p> <p><strong>Explanation:</strong> This chart aggregates revenue from delivered orders based on the order date. Data is filtered by year, month, or week as selected. For daily: grouped by day of month; Weekly: grouped by week number in month; Monthly: grouped by month in year; Yearly: grouped by year. Missing periods are filled with zero revenue for continuity.</p> </div> <div class="mt-8 flex justify-end"> <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="revenue-info-modal">Close</button> </div> </div> </div>
+        <div id="deductions-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden"> <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100"> <div class="flex justify-between items-start"> <div class="space-y-1"> <h3 class="text-xl font-bold text-gray-900">Products Delivered Explanation</h3> <p class="text-sm text-gray-500">Detailed formula and computation explanation</p> </div> <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="deductions-info-modal"> <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg> </button> </div> <div class="mt-6 space-y-4 text-gray-700"> <p><strong>Formula:</strong> Total Delivered Quantity = SUM(quantity) for delivered orders, grouped by generic_name, ordered DESC, limited to top 10.</p> <p><strong>Explanation:</strong> This chart shows the top 10 products by delivered quantity in the selected year and month. It can be filtered by province and by a specific product.</p> </div> <div class="mt-8 flex justify-end"> <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="deductions-info-modal">Close</button> </div> </div> </div>
+        <div id="inventory-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden"> <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100"> <div class="flex justify-between items-start"> <div class="space-y-1"> <h3 class="text-xl font-bold text-gray-900">Inventory Levels Explanation</h3> <p class="text-sm text-gray-500">Detailed formula and computation explanation</p> </div> <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="inventory-info-modal"> <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg> </button> </div> <div class="mt-6 space-y-4 text-gray-700"> <p><strong>Formula:</strong> Total Quantity = SUM(quantity) per generic_name, ordered ASC by total_quantity, limited to top 10 low stock.</p> <p><strong>Explanation:</strong> This chart aggregates current inventory levels from the Inventory table. It can be filtered by location_id and by a specific product. It shows products with the lowest stock levels.</p> </div> <div class="mt-8 flex justify-end"> <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="inventory-info-modal">Close</button> </div> </div> </div>
+        <div id="trends-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden"> <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100"> <div class="flex justify-between items-start"> <div class="space-y-1"> <h3 class="text-xl font-bold text-gray-900">Product Trends & Predictions Explanation</h3> <p class="text-sm text-gray-500">Detailed formula and computation explanation</p> </div> <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="trends-info-modal"> <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg> </button> </div> <div class="mt-6 space-y-4 text-gray-700"> <p><strong>Formulas:</strong></p> <ul class="list-disc pl-5 space-y-2"> <li>Monthly Averages: AVG(total_quantity) per month over historical data (last 2 years).</li> <li>Historical Overall Average: AVG of all monthly averages.</li> <li>Recent Trend: (Current Sales * 0.5) + (M-1 Sales * 0.3) + (M-2 Sales * 0.2).</li> <li>Base Prediction: (Next Month Historical Avg * 0.6) + (Recent Trend * 0.4).</li> <li>Seasonal Multiplier: 1.25 if product season matches next month season; 0.80 if mismatch; 1.0 for all-year.</li> <li>Final Prediction: Base Prediction * Seasonal Multiplier.</li> <li>Percentage Change: ((Final Prediction - Current Sales) / Current Sales) * 100 (or 100 if Current Sales = 0).</li> </ul> <p><strong>Explanation:</strong> Predictions are based on historical sales data from ImmutableHistory, joined with Products for season_peak. Filtered by season and year. Top trending and predicted products are sorted and limited.</p> </div> <div class="mt-8 flex justify-end"> <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="trends-info-modal">Close</button> </div> </div> </div>
+        <div id="performance-info-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center hidden"> <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 border border-gray-100"> <div class="flex justify-between items-start"> <div class="space-y-1"> <h3 class="text-xl font-bold text-gray-900">Ordered Products Performance Explanation</h3> <p class="text-sm text-gray-500">Detailed formula and computation explanation</p> </div> <button class="close-info-modal text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" data-modal="performance-info-modal"> <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg> </button> </div> <div class="mt-6 space-y-4 text-gray-700"> <p><strong>Formula:</strong> Total Quantity = SUM(quantity) for delivered orders, grouped by generic_name.</p> <p><strong>Categorization:</strong></p> <ul class="list-disc pl-5 space-y-2"> <li>Most Ordered: Top 6 by total_quantity DESC.</li> <li>Moderate Ordered: total_quantity > 10 and <= 50, top 6 DESC.</li> <li>Low Ordered: total_quantity <= 10, top 6 ASC.</li> </ul> <p><strong>Explanation:</strong> This chart categorizes products based on ordered quantities from ImmutableHistory. It can be filtered by a specific product. Limits to 6 per category for visualization.</p> </div> <div class="mt-8 flex justify-end"> <button class="close-info-modal px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-modal="performance-info-modal">Close</button> </div> </div> </div>
     </main>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Global variables
-        const chartInstances = {};
-        let sortableInstances = {}; // To hold the SortableJS instances
-        const XL_BREAKPOINT = 1280; // Tailwind CSS 'xl' breakpoint in pixels
+   <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // =========================================================================
+            // SECTION 1: GLOBAL VARIABLES & INITIAL SETUP
+            // =========================================================================
+            const chartInstances = {};
+            let sortableInstances = {};
+            const XL_BREAKPOINT = 1280;
+            window.isRevenueFiltered = false;
+            const activeAnimations = {}; // For realtime card animations
 
-        // MODIFIED: Added a global flag to control realtime revenue updates.
-        window.isRevenueFiltered = false;
 
-        // --- SCRIPT FOR REVENUE CARD MODAL ---
-        const totalSaleCard = document.getElementById('totalSaleCard');
-        const revenueModal = document.getElementById('revenueFilterModal');
-        const closeModalBtn = document.getElementById('closeRevenueModalBtn');
-        const applyFilterBtn = document.getElementById('applyRevenueFilterBtn');
-        const cancelRevenueFilterBtn = document.getElementById('cancelRevenueFilterBtn');
-        const totalSaleValueEl = document.getElementById('total-sale-value');
-        const modalPeriodSelect = document.getElementById('revenueModalPeriod');
-        const modalCustomRangeContainer = document.getElementById('revenueModalCustomRange');
-        const revenueModalStartDate = document.getElementById('revenueModalStartDate');
-        const revenueModalEndDate = document.getElementById('revenueModalEndDate');
+            // =========================================================================
+            // SECTION 2: REVENUE CARD MODAL LOGIC
+            // =========================================================================
+            const totalSaleCard = document.getElementById('totalSaleCard');
+            const revenueModal = document.getElementById('revenueFilterModal');
+            const closeModalBtn = document.getElementById('closeRevenueModalBtn');
+            const applyFilterBtn = document.getElementById('applyRevenueFilterBtn');
+            const cancelRevenueFilterBtn = document.getElementById('cancelRevenueFilterBtn');
+            const totalSaleValueEl = document.getElementById('total-sale-value');
+            const modalPeriodSelect = document.getElementById('revenueModalPeriod');
+            const modalCustomRangeContainer = document.getElementById('revenueModalCustomRange');
+            const revenueModalStartDate = document.getElementById('revenueModalStartDate');
+            const revenueModalEndDate = document.getElementById('revenueModalEndDate');
 
-        function closeModal() {
-            revenueModal.classList.add('hidden');
-            // We don't reset filters here so the state persists if the modal is just closed
-        }
+            function closeModal() {
+                if (revenueModal) revenueModal.classList.add('hidden');
+            }
 
-        if (totalSaleCard) {
-            totalSaleCard.addEventListener('click', () => {
-                revenueModal.classList.remove('hidden');
-            });
-        }
+            if (totalSaleCard) {
+                totalSaleCard.addEventListener('click', () => revenueModal.classList.remove('hidden'));
+            }
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+            }
+            if (revenueModal) {
+                revenueModal.addEventListener('click', (event) => {
+                    if (event.target === revenueModal) {
+                        closeModal();
+                    }
+                });
+            }
+            if (modalPeriodSelect) {
+                modalPeriodSelect.addEventListener('change', () => {
+                    modalCustomRangeContainer.classList.toggle('hidden', modalPeriodSelect.value !== 'custom');
+                });
+            }
+            if (cancelRevenueFilterBtn) {
+                cancelRevenueFilterBtn.addEventListener('click', closeModal);
+            }
+            if (applyFilterBtn) {
+                applyFilterBtn.addEventListener('click', async () => {
+                    const period = modalPeriodSelect.value;
+                    const startDate = revenueModalStartDate.value;
+                    const endDate = revenueModalEndDate.value;
 
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', closeModal);
-        }
-
-        if (revenueModal) {
-            revenueModal.addEventListener('click', (event) => {
-                if (event.target === revenueModal) {
-                    closeModal();
-                }
-            });
-        }
-
-        if (modalPeriodSelect) {
-            modalPeriodSelect.addEventListener('change', () => {
-                modalCustomRangeContainer.classList.toggle('hidden', modalPeriodSelect.value !== 'custom');
-            });
-        }
-
-        if (cancelRevenueFilterBtn) {
-            cancelRevenueFilterBtn.addEventListener('click', closeModal);
-        }
-
-        if (applyFilterBtn) {
-            applyFilterBtn.addEventListener('click', async () => {
-                const period = modalPeriodSelect.value;
-                const startDate = revenueModalStartDate.value;
-                const endDate = revenueModalEndDate.value;
-
-                // Validate custom date range
-                if (period === 'custom' && (!startDate || !endDate)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid Input',
-                        text: 'Please provide both start and end dates for custom range.',
-                    });
-                    return;
-                }
-
-                if (period === 'custom' && new Date(endDate) < new Date(startDate)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid Date Range',
-                        text: 'End date must be on or after start date.',
-                    });
-                    return;
-                }
-
-                applyFilterBtn.disabled = true;
-                applyFilterBtn.textContent = 'Loading...';
-                totalSaleValueEl.textContent = '...';
-
-                try {
-                    const response = await fetch("{{ route('admin.filtered-revenue') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        },
-                        body: JSON.stringify({
-                            period: period,
-                            start_date: startDate,
-                            end_date: endDate,
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+                    if (period === 'custom' && (!startDate || !endDate)) {
+                        Swal.fire({ icon: 'error', title: 'Invalid Input', text: 'Please provide both start and end dates for custom range.' });
+                        return;
+                    }
+                    if (period === 'custom' && new Date(endDate) < new Date(startDate)) {
+                        Swal.fire({ icon: 'error', title: 'Invalid Date Range', text: 'End date must be on or after start date.' });
+                        return;
                     }
 
-                    const result = await response.json();
-                    const formattedRevenue = '₱' + new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 }).format(result.total_revenue);
-                    totalSaleValueEl.textContent = formattedRevenue;
+                    applyFilterBtn.disabled = true;
+                    applyFilterBtn.textContent = 'Loading...';
+                    totalSaleValueEl.textContent = '...';
 
-                    // MODIFIED: Update the flag and title based on the selected filter
-                    const totalSaleTitleEl = document.getElementById('total-sale-value-title');
-                    if (totalSaleTitleEl) {
-                        if (period === 'all_time') {
-                            window.isRevenueFiltered = false;
-                            totalSaleTitleEl.textContent = 'Total Sale';
-                        } else {
-                            window.isRevenueFiltered = true;
-                            const selectedOptionText = modalPeriodSelect.options[modalPeriodSelect.selectedIndex].text;
-                            totalSaleTitleEl.textContent = `Total Sale (${selectedOptionText})`;
+                    try {
+                        const response = await fetch("{{ route('admin.filtered-revenue') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            },
+                            body: JSON.stringify({ period, start_date: startDate, end_date: endDate }),
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
                         }
+
+                        const result = await response.json();
+                        const formattedRevenue = '₱' + new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 }).format(result.total_revenue);
+                        totalSaleValueEl.textContent = formattedRevenue;
+
+                        const totalSaleTitleEl = document.getElementById('total-sale-value-title');
+                        if (totalSaleTitleEl) {
+                            if (period === 'all_time') {
+                                window.isRevenueFiltered = false;
+                                totalSaleTitleEl.textContent = 'Total Sale';
+                            } else {
+                                window.isRevenueFiltered = true;
+                                const selectedOptionText = modalPeriodSelect.options[modalPeriodSelect.selectedIndex].text;
+                                totalSaleTitleEl.textContent = `Total Sale (${selectedOptionText})`;
+                            }
+                        }
+                        Swal.fire({ icon: 'success', title: 'Success', text: 'Revenue updated successfully!', timer: 1500, showConfirmButton: false });
+                        closeModal();
+                    } catch (error) {
+                        console.error('Error fetching filtered revenue:', error);
+                        totalSaleValueEl.textContent = 'Error';
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Could not fetch the filtered sales data: ' + error.message });
+                    } finally {
+                        applyFilterBtn.disabled = false;
+                        applyFilterBtn.textContent = 'Apply Filter';
                     }
+                });
+            }
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Revenue updated successfully!',
-                        timer: 1500,
-                        showConfirmButton: false,
-                    });
-
-                    closeModal();
-                } catch (error) {
-                    console.error('Error fetching filtered revenue:', error);
-                    totalSaleValueEl.textContent = 'Error';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Could not fetch the filtered sales data: ' + error.message,
-                    });
-                } finally {
-                    applyFilterBtn.disabled = false;
-                    applyFilterBtn.textContent = 'Apply Filter';
-                }
-            });
-        }
-
-        // --- UNIFIED AI ANALYSIS SCRIPT ---
+            // =========================================================================
+            // SECTION 3: AI-POWERED ANALYSIS LOGIC
+            // =========================================================================
+            // --- UNIFIED AI ANALYSIS SCRIPT ---
         if (document.getElementById('ai-analysis-section')) {
             let countdownInterval;
 
@@ -923,462 +795,279 @@
             getCombinedAnalysis(false);
         }
 
-        // --- CHARTING LOGIC ---
-        const chartsContainer = document.getElementById('chartsContainer');
-        const leftCharts = document.getElementById('leftCharts');
-        const rightCharts = document.getElementById('rightCharts');
-        const chartFilterSelect = document.getElementById('chartFilter');
-        const customChartSelectionDiv = document.getElementById('customChartSelection');
-        const applyCustomChartsBtn = document.getElementById('applyCustomCharts');
-        const allChartContainers = document.querySelectorAll('#chartsContainer .chart-container');
 
-        function resizeAllCharts() {
-            Object.values(chartInstances).forEach(chart => {
-                if (chart && typeof chart.resize === 'function') {
-                    chart.resize();
+            // =========================================================================
+            // SECTION 4: CHARTING LOGIC
+            // =========================================================================
+            const chartsContainer = document.getElementById('chartsContainer');
+            const leftCharts = document.getElementById('leftCharts');
+            const rightCharts = document.getElementById('rightCharts');
+            const chartFilterSelect = document.getElementById('chartFilter');
+            const customChartSelectionDiv = document.getElementById('customChartSelection');
+            const applyCustomChartsBtn = document.getElementById('applyCustomCharts');
+            const allChartContainers = document.querySelectorAll('#chartsContainer .chart-container');
+            let performanceDataStore = null;
+            let currentPerformanceType = 'mostSold';
+
+            function destroyChart(canvasId) {
+                if (chartInstances[canvasId]) {
+                    chartInstances[canvasId].destroy();
+                    delete chartInstances[canvasId];
                 }
-            });
-        }
-
-        function applyChartFilter() {
-            const filterValue = chartFilterSelect.value;
-            customChartSelectionDiv.classList.toggle('hidden', filterValue !== 'custom');
-            if (filterValue === 'custom') return;
-
-            allChartContainers.forEach(container => {
-                const chartId = container.dataset.chartId;
-                const shouldShow = (filterValue === 'all') || (filterValue === chartId);
-                container.style.display = shouldShow ? 'block' : 'none';
-            });
-            setTimeout(resizeAllCharts, 10);
-        }
-
-        function applyCustomFilter() {
-            const selectedCharts = Array.from(document.querySelectorAll('input[name="customChart"]:checked')).map(cb => cb.value);
-            allChartContainers.forEach(container => {
-                const chartId = container.dataset.chartId;
-                container.style.display = selectedCharts.includes(chartId) ? 'block' : 'none';
-            });
-            setTimeout(resizeAllCharts, 10);
-        }
-
-        if (chartFilterSelect) chartFilterSelect.addEventListener('change', applyChartFilter);
-        if (applyCustomChartsBtn) applyCustomChartsBtn.addEventListener('click', applyCustomFilter);
-
-        function destroyChart(canvasId) {
-            if (chartInstances[canvasId]) {
-                chartInstances[canvasId].destroy();
-                delete chartInstances[canvasId];
             }
-        }
 
-        function createChart(canvasId, options) {
-            destroyChart(canvasId);
-            const canvasContainer = document.getElementById(canvasId + 'Container');
-            if (!canvasContainer) return null;
-            canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`;
-            const ctx = document.getElementById(canvasId)?.getContext('2d');
-            if (ctx) {
-                const newChart = new Chart(ctx, options);
-                chartInstances[canvasId] = newChart;
-                return newChart;
+            function createChart(canvasId, options) {
+                destroyChart(canvasId);
+                const canvasContainer = document.getElementById(canvasId + 'Container');
+                if (!canvasContainer) return null;
+                canvasContainer.innerHTML = `<canvas id="${canvasId}"></canvas>`;
+                const ctx = document.getElementById(canvasId)?.getContext('2d');
+                if (ctx) {
+                    chartInstances[canvasId] = new Chart(ctx, options);
+                    return chartInstances[canvasId];
+                }
+                return null;
             }
-            return null;
-        }
 
-        function showChartLoader(containerId, text) {
-            const container = document.getElementById(containerId);
-            if(container) {
-                container.innerHTML = `<div class="loader h-full"><svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold text-blue-600">${text}</span></div>`;
+            function showChartLoader(containerId, text) {
+                const container = document.getElementById(containerId);
+                if(container) {
+                    container.innerHTML = `<div class="loader h-full"><svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-lg font-semibold text-blue-600">${text}</span></div>`;
+                }
             }
-        }
 
-        async function updateRevenueChart() {
-            const period = document.getElementById('revenueTimePeriod')?.value;
-            const year = document.getElementById('revenueYearFilter')?.value;
-            const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
-            const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
-            showChartLoader('revenueChartContainer', 'Loading revenue data...');
-            try {
-                const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
-                if (!response.ok) throw new Error('Network response error');
-                const data = await response.json();
-                createChart('revenueChart', {
-                    type: 'line',
-                    data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (v) => '₱' + v.toLocaleString('en-PH') } } }, interaction: { intersect: false, mode: 'index' } }
-                });
-            } catch (error) {
-                console.error('Error fetching revenue data:', error);
-                document.getElementById('revenueChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load revenue data.</p>';
+            async function populateProductFilters() {
+                try {
+                    const response = await fetch("{{ route('admin.products.filter') }}");
+                    if (!response.ok) throw new Error('Failed to fetch products');
+                    const products = await response.json();
+                    const filters = [
+                        document.getElementById('deductedProductFilter'),
+                        document.getElementById('inventoryProductFilter'),
+                        document.getElementById('performanceProductFilter')
+                    ];
+                    filters.forEach(selectElement => {
+                        if (selectElement) {
+                            products.forEach(product => {
+                                const option = document.createElement('option');
+                                option.value = product.id;
+                                option.dataset.genericName = product.generic_name;
+                                option.textContent = product.text;
+                                selectElement.appendChild(option);
+                            });
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error populating product filters:", error);
+                }
             }
-        }
 
-        function updatePerformanceChart(type) {
-            const performanceData = {
-                   mostSold: { labels: @json($labels), data: @json($data), backgroundColor: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)', label: 'Most Ordered Products' },
-                   moderateSold: { labels: @json($moderateSoldLabels), data: @json($moderateSoldData), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', label: 'Moderately Ordered Products' },
-                   lowSold: { labels: @json($lowSoldLabels), data: @json($lowSoldData), backgroundColor: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)', label: 'Low Ordered Products' }
-            };
-            const chartData = performanceData[type];
-            createChart('productPerformanceChart', {
-                type: 'bar',
-                data: { labels: chartData.labels, datasets: [{ label: chartData.label, data: chartData.data, backgroundColor: chartData.backgroundColor, borderColor: chartData.borderColor, borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } }, x: { title: { display: true, text: 'Product' } } } }
-            });
-        }
-
-        async function updateDeductedChart() {
-            const year = document.getElementById('deductedYearFilter')?.value;
-            const month = document.getElementById('deductedMonthFilter')?.value;
-            const location = document.getElementById('deductedLocationFilter')?.value || '';
-            showChartLoader('deductedQuantitiesChartContainer', 'Loading products delivered...');
-            try {
-                const response = await fetch(`/admin/filtered-deducted-quantities/${year}/${month}/${location}`);
-                if (!response.ok) throw new Error('Network error');
-                const data = await response.json();
-                createChart('deductedQuantitiesChart', {
-                    type: 'bar',
-                    data: { labels: data.labels, datasets: [{ label: 'Quantity Delivered', data: data.deductedData, backgroundColor: 'rgba(54, 162, 235, 0.6)', borderWidth: 1 }] },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Product' } } } }
-                });
-            } catch (error) {
-                console.error('Error fetching deducted quantities:', error);
-                document.getElementById('deductedQuantitiesChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load delivered products data.</p>';
+            async function updateRevenueChart() {
+                const period = document.getElementById('revenueTimePeriod')?.value;
+                const year = document.getElementById('revenueYearFilter')?.value;
+                const month = (period !== 'year') ? document.getElementById('revenueMonthFilter')?.value : '';
+                const week = (period === 'week') ? document.getElementById('revenueWeekFilter')?.value : '';
+                showChartLoader('revenueChartContainer', 'Loading revenue data...');
+                try {
+                    const response = await fetch(`/admin/revenue-data/${period}/${year}/${month || '0'}/${week || '0'}`);
+                    if (!response.ok) throw new Error('Network response error');
+                    const data = await response.json();
+                    createChart('revenueChart', { type: 'line', data: { labels: data.labels, datasets: [{ label: 'Revenue (Delivered Orders)', data: data.values, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (v) => '₱' + v.toLocaleString('en-PH') } } }, interaction: { intersect: false, mode: 'index' } } });
+                } catch (error) {
+                    console.error('Error fetching revenue data:', error);
+                    document.getElementById('revenueChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load revenue data.</p>';
+                }
             }
-        }
 
-        async function updateInventoryChart() {
-            const locationId = document.getElementById('inventoryLocationFilter')?.value;
-            const url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
-            showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network error fetching inventory data');
-                const data = await response.json();
-                createChart('inventoryLevelsChart', {
-                    type: 'bar',
-                    data: { labels: data.labels, datasets: [{ label: 'Current Stock', data: data.inventoryData, backgroundColor: 'rgba(255, 99, 132, 0.6)', borderWidth: 1 }] },
-                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Quantity' } } } }
-                });
-            } catch (error) {
-                console.error('Error fetching inventory data:', error);
-                document.getElementById('inventoryLevelsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load inventory data.</p>';
+            async function fetchPerformanceData() {
+                const productSelect = document.getElementById('performanceProductFilter');
+                const selectedOption = productSelect ? productSelect.options[productSelect.selectedIndex] : null;
+                const genericName = selectedOption ? (selectedOption.dataset.genericName || '') : '';
+                showChartLoader('productPerformanceChartContainer', 'Loading performance data...');
+                try {
+                    const params = new URLSearchParams();
+                    if (genericName) params.append('generic_name', genericName);
+                    const response = await fetch(`{{ route('admin.performance.data') }}?${params.toString()}`);
+                    if (!response.ok) throw new Error('Network error');
+                    performanceDataStore = await response.json();
+                    updatePerformanceChart(currentPerformanceType);
+                } catch (error) {
+                    console.error('Error fetching performance data:', error);
+                    document.getElementById('productPerformanceChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load performance data.</p>';
+                }
             }
-        }
 
-        async function fetchAndUpdateTrendData() {
-            const season = document.getElementById('seasonFilter')?.value;
-            const year = document.getElementById('trendYearFilter')?.value;
-            const predictionContainer = document.getElementById('predictionCardsContainer');
-            showChartLoader('seasonalTrendsChartContainer', 'Loading trend data...');
-            predictionContainer.innerHTML = `<div class="loader col-span-3">Loading predictions...</div>`;
-            try {
-                const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
-                if (!response.ok) throw new Error('Network error');
-                const data = await response.json();
+            function updatePerformanceChart(type) {
+                currentPerformanceType = type;
+                if (!performanceDataStore) return;
+                const config = {
+                    mostSold: { label: 'Most Ordered', data: performanceDataStore.mostSold, bg: 'rgba(54, 162, 235, 0.6)' },
+                    moderateSold: { label: 'Moderate Ordered', data: performanceDataStore.moderateSold, bg: 'rgba(75, 192, 192, 0.6)' },
+                    lowSold: { label: 'Low Ordered', data: performanceDataStore.lowSold, bg: 'rgba(255, 159, 64, 0.6)' }
+                };
+                const chartData = config[type].data;
+                createChart('productPerformanceChart', { type: 'bar', data: { labels: chartData.labels, datasets: [{ label: config[type].label, data: chartData.data, backgroundColor: config[type].bg, borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity Sold' } } } } });
+            }
 
-                createChart('seasonalTrendsChart', {
-                        type: 'bar',
-                        data: {
-                            labels: data.trending_products.map(p => p.generic_name),
-                            datasets: [
-                                { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'},
-                                { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 },
-                                { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] }
-                            ]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-                });
+            async function updateDeductedChart() {
+                const year = document.getElementById('deductedYearFilter')?.value;
+                const month = document.getElementById('deductedMonthFilter')?.value;
+                const location = document.getElementById('deductedLocationFilter')?.value || '';
+                const productSelect = document.getElementById('deductedProductFilter');
+                const selectedOption = productSelect.options[productSelect.selectedIndex];
+                const genericName = selectedOption ? (selectedOption.dataset.genericName || '') : '';
+                showChartLoader('deductedQuantitiesChartContainer', 'Loading products delivered...');
+                try {
+                    const params = new URLSearchParams();
+                    if (genericName) params.append('generic_name', genericName);
+                    const response = await fetch(`/admin/filtered-deducted-quantities/${year}/${month}/${location}?${params.toString()}`);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    createChart('deductedQuantitiesChart', { type: 'bar', data: { labels: data.labels, datasets: [{ label: 'Quantity Delivered', data: data.deductedData, backgroundColor: 'rgba(54, 162, 235, 0.6)', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+                } catch (error) {
+                    console.error('Error fetching deducted quantities:', error);
+                    document.getElementById('deductedQuantitiesChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load delivered products data.</p>';
+                }
+            }
 
-                predictionContainer.innerHTML = '';
-                if(data.predicted_peaks.length === 0) {
+            async function updateInventoryChart() {
+                const locationId = document.getElementById('inventoryLocationFilter')?.value;
+                const productId = document.getElementById('inventoryProductFilter')?.value;
+                let url = locationId ? `/admin/inventory-levels/${locationId}` : '/admin/inventory-levels';
+                const params = new URLSearchParams();
+                if (productId) params.append('product_id', productId);
+                if (params.toString()) url += `?${params.toString()}`;
+                showChartLoader('inventoryLevelsChartContainer', 'Loading inventory data...');
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network error fetching inventory data');
+                    const data = await response.json();
+                    createChart('inventoryLevelsChart', { type: 'bar', data: { labels: data.labels, datasets: [{ label: 'Current Stock', data: data.inventoryData, backgroundColor: 'rgba(255, 99, 132, 0.6)', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Quantity' } } } } });
+                } catch (error) {
+                    console.error('Error fetching inventory data:', error);
+                    document.getElementById('inventoryLevelsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load inventory data.</p>';
+                }
+            }
+
+            async function fetchAndUpdateTrendData() {
+                const season = document.getElementById('seasonFilter')?.value;
+                const year = document.getElementById('trendYearFilter')?.value;
+                const predictionContainer = document.getElementById('predictionCardsContainer');
+                showChartLoader('seasonalTrendsChartContainer', 'Loading trend data...');
+                predictionContainer.innerHTML = `<div class="loader col-span-3">Loading predictions...</div>`;
+                try {
+                    const response = await fetch(`/admin/trending-products?season=${season}&year=${year}`);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    createChart('seasonalTrendsChart', { type: 'bar', data: { labels: data.trending_products.map(p => p.generic_name), datasets: [ { label: 'Current Month Sales', data: data.trending_products.map(p => p.current_sales), backgroundColor: 'rgba(54, 162, 235, 0.6)'}, { label: 'Next Month Predicted', data: data.trending_products.map(p => p.next_month_prediction), backgroundColor: 'rgba(255, 159, 64, 0.8)', borderColor: 'rgba(255, 159, 64, 1)', type: 'line', tension: 0.3, borderWidth: 2 }, { label: 'Historical Average', data: data.trending_products.map(p => p.historical_avg), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', type: 'line', tension: 0.3, borderWidth: 2, borderDash: [5, 5] } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+                    predictionContainer.innerHTML = '';
+                    if(data.predicted_peaks.length === 0) {
                         predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">No prediction available for this filter.</p>';
-                } else {
+                    } else {
                         data.predicted_peaks.forEach(p => {
                             const card = document.createElement('div');
                             card.className = 'bg-white p-4 rounded-lg shadow-md border-l-4 animate__animated animate__fadeInUp';
-
                             const percentage = p.prediction_percentage_change;
-                            const statusText = p.prediction_status_text;
-
-                            let colorClass = 'text-gray-600';
-                            let iconClass = 'fa-solid fa-minus';
-                            let borderColor = 'border-gray-400';
-
-                            if (percentage >= 25) {
-                                colorClass = 'text-green-600';
-                                iconClass = 'fa-solid fa-arrow-trend-up';
-                                borderColor = 'border-green-500';
-                            } else if (percentage > 5) {
-                                colorClass = 'text-green-500';
-                                iconClass = 'fa-solid fa-arrow-up';
-                                borderColor = 'border-green-400';
-                            } else if (percentage < -20) {
-                                colorClass = 'text-red-600';
-                                iconClass = 'fa-solid fa-arrow-trend-down';
-                                borderColor = 'border-red-500';
-                            } else if (percentage < -5) {
-                                colorClass = 'text-yellow-600';
-                                iconClass = 'fa-solid fa-arrow-down';
-                                borderColor = 'border-yellow-500';
-                            }
-
+                            let colorClass = 'text-gray-600', iconClass = 'fa-solid fa-minus', borderColor = 'border-gray-400';
+                            if (percentage >= 25) { colorClass = 'text-green-600'; iconClass = 'fa-solid fa-arrow-trend-up'; borderColor = 'border-green-500'; }
+                            else if (percentage > 5) { colorClass = 'text-green-500'; iconClass = 'fa-solid fa-arrow-up'; borderColor = 'border-green-400'; }
+                            else if (percentage < -20) { colorClass = 'text-red-600'; iconClass = 'fa-solid fa-arrow-trend-down'; borderColor = 'border-red-500'; }
+                            else if (percentage < -5) { colorClass = 'text-yellow-600'; iconClass = 'fa-solid fa-arrow-down'; borderColor = 'border-yellow-500'; }
                             card.classList.add(borderColor);
-
-                            card.innerHTML = `
-                                <h4 class="font-semibold text-gray-800 truncate">${p.generic_name}</h4>
-                                <p class="text-sm text-gray-600 truncate">${p.brand_name}</p>
-                                <p class="text-xs text-gray-500 mb-2">${p.strength ? `${p.strength} - ` : ''}${p.form}</p>
-                                <div class="text-2xl font-bold ${colorClass} mb-2 flex items-center">
-                                    <i class="${iconClass} mr-2 fa-fw"></i>
-                                    <span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span>
-                                </div>
-                                <p class="text-xs text-gray-500">${statusText}</p>
-                            `;
-
+                            card.innerHTML = `<h4 class="font-semibold text-gray-800 truncate">${p.generic_name}</h4><p class="text-sm text-gray-600 truncate">${p.brand_name}</p><p class="text-xs text-gray-500 mb-2">${p.strength ? `${p.strength} - ` : ''}${p.form}</p><div class="text-2xl font-bold ${colorClass} mb-2 flex items-center"><i class="${iconClass} mr-2 fa-fw"></i><span>${percentage > 0 ? '+' : ''}${percentage.toFixed(0)}%</span></div><p class="text-xs text-gray-500">${p.prediction_status_text}</p>`;
                             predictionContainer.appendChild(card);
                         });
-                }
-
-            } catch(error) {
-                console.error('Error fetching trend data:', error);
-                document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
-                predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">An error occurred while analyzing predictions.</p>';
-            }
-        }
-
-        function createOrderStatusChart() {
-            createChart('orderStatusChart', {
-                type: 'doughnut',
-                data: {
-                    labels: ['Delivered', 'Pending', 'Cancelled'],
-                    datasets: [{
-                        label: 'Order Count',
-                        data: [{{ $orderStatusCounts['delivered'] ?? 0 }}, {{ $orderStatusCounts['pending'] ?? 0 }}, {{ $orderStatusCounts['cancelled'] ?? 0 }}],
-                        backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(255, 99, 132, 0.8)']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        // --- Layout and Initialization ---
-        function toggleSortableBasedOnViewport() {
-            const isDisabled = window.innerWidth < XL_BREAKPOINT;
-            if (sortableInstances.left) {
-                sortableInstances.left.option("disabled", isDisabled);
-            }
-            if (sortableInstances.right) {
-                sortableInstances.right.option("disabled", isDisabled);
-            }
-        }
-
-        function initializeSortable() {
-            if (leftCharts && rightCharts) {
-                sortableInstances.left = Sortable.create(leftCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
-                sortableInstances.right = Sortable.create(rightCharts, { group: 'charts', animation: 150, onEnd: saveChartLayout });
-            }
-            toggleSortableBasedOnViewport();
-        }
-
-        function saveChartLayout() {
-            const leftIds = [...leftCharts.children].map(el => el.dataset.chartId);
-            const rightIds = [...rightCharts.children].map(el => el.dataset.chartId);
-            localStorage.setItem('dashboardChartLayout', JSON.stringify({ left: leftIds, right: rightIds }));
-            Object.values(chartInstances).forEach(chart => chart.resize());
-        }
-
-        window.addEventListener('resize', toggleSortableBasedOnViewport);
-
-        const initialChartRenders = async () => {
-            await Promise.allSettled([
-                updateRevenueChart(),
-                updateDeductedChart(),
-                updateInventoryChart(),
-                fetchAndUpdateTrendData(),
-            ]);
-            updatePerformanceChart('mostSold');
-            createOrderStatusChart();
-            initializeSortable();
-        };
-
-        initialChartRenders();
-
-        // Event Listeners for Chart Filters
-        document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
-        document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
-        document.getElementById('deductedMonthFilter')?.addEventListener('change', updateDeductedChart);
-        document.getElementById('deductedLocationFilter')?.addEventListener('change', updateDeductedChart);
-        document.getElementById('inventoryLocationFilter')?.addEventListener('change', updateInventoryChart);
-        document.getElementById('seasonFilter')?.addEventListener('change', fetchAndUpdateTrendData);
-        document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
-        document.getElementById('mostSoldBtn')?.addEventListener('click', () => updatePerformanceChart('mostSold'));
-        document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
-        document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
-
-        // --- Info Modal Handlers ---
-        const infoIcons = {
-            'revenue-info-icon': 'revenue-info-modal',
-            'deductions-info-icon': 'deductions-info-modal',
-            'inventory-info-icon': 'inventory-info-modal',
-            'trends-info-icon': 'trends-info-modal',
-            'performance-info-icon': 'performance-info-modal'
-        };
-
-        Object.keys(infoIcons).forEach(iconId => {
-            const icon = document.getElementById(iconId);
-            if (icon) {
-                icon.addEventListener('click', () => {
-                    const modalId = infoIcons[iconId];
-                    document.getElementById(modalId).classList.remove('hidden');
-                });
-            }
-        });
-
-        document.querySelectorAll('.close-info-modal').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const modalId = e.target.dataset.modal;
-                document.getElementById(modalId).classList.add('hidden');
-            });
-        });
-
-        document.querySelectorAll('[id$="-info-modal"]').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-        });
-    });
-    </script>
-
-    @if(auth()->guard('staff')->check())
-    <script>
-        if (navigator.geolocation) {
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        fetch("{{ route('api.update-location') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            },
-                            body: JSON.stringify({
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude,
-                            }),
-                        });
-                    },
-                    function (error) {
-                        console.error("Error getting location: ", error);
                     }
-                );
-            }, 10000); // Send location every 10 seconds
-        } else {
-            console.error("Geolocation is not supported.");
-        }
-    </script>
-    @endif
+                } catch(error) {
+                    console.error('Error fetching trend data:', error);
+                    document.getElementById('seasonalTrendsChartContainer').innerHTML = '<p class="text-center text-red-500">Could not load trends data.</p>';
+                    predictionContainer.innerHTML = '<p class="text-gray-500 col-span-3 text-center">An error occurred while analyzing predictions.</p>';
+                }
+            }
 
-        @if(auth()->guard('superadmin')->check() || auth()->guard('admin')->check())
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const runReactiveAnalysis = async () => {
-                    console.log('Running automatic reactive seasonality analysis...');
-                    try {
-                        const response = await fetch("{{ route('products.analyzeRecentSales') }}", { // <-- ETO YUNG BINAGO
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            }
-                        });
+            // --- Layout, Initialization, and Event Listeners ---
+            function initializeSortable() {
+                if (leftCharts && rightCharts) {
+                    const options = { group: 'charts', animation: 150, onEnd: saveChartLayout };
+                    sortableInstances.left = Sortable.create(leftCharts, options);
+                    sortableInstances.right = Sortable.create(rightCharts, options);
+                }
+                toggleSortableBasedOnViewport();
+            }
+            const toggleSortableBasedOnViewport = () => {
+                const isDisabled = window.innerWidth < XL_BREAKPOINT;
+                if (sortableInstances.left) sortableInstances.left.option("disabled", isDisabled);
+                if (sortableInstances.right) sortableInstances.right.option("disabled", isDisabled);
+            };
+            const saveChartLayout = () => {
+                const leftIds = [...leftCharts.children].map(el => el.dataset.chartId);
+                const rightIds = [...rightCharts.children].map(el => el.dataset.chartId);
+                localStorage.setItem('dashboardChartLayout', JSON.stringify({ left: leftIds, right: rightIds }));
+                Object.values(chartInstances).forEach(chart => chart.resize());
+            };
+            window.addEventListener('resize', toggleSortableBasedOnViewport);
 
-                        if (!response.ok) {
-                            console.error('Automatic analysis failed. Server responded with an error.');
-                            return;
-                        }
+            const initialChartRenders = async () => {
+                await populateProductFilters();
+                await Promise.allSettled([
+                    updateRevenueChart(),
+                    updateDeductedChart(),
+                    updateInventoryChart(),
+                    fetchAndUpdateTrendData(),
+                    fetchPerformanceData(),
+                ]);
+                initializeSortable();
+            };
+            initialChartRenders();
 
-                        const result = await response.json();
-                        console.log('Auto-Update Result:', result.message);
+            // Event Listeners for Chart Filters
+            document.getElementById('revenueUpdateBtn')?.addEventListener('click', updateRevenueChart);
+            document.getElementById('deductedYearFilter')?.addEventListener('change', updateDeductedChart);
+            document.getElementById('deductedMonthFilter')?.addEventListener('change', updateDeductedChart);
+            document.getElementById('deductedLocationFilter')?.addEventListener('change', updateDeductedChart);
+            document.getElementById('inventoryLocationFilter')?.addEventListener('change', updateInventoryChart);
+            document.getElementById('seasonFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+            document.getElementById('trendYearFilter')?.addEventListener('change', fetchAndUpdateTrendData);
+            document.getElementById('deductedProductFilter')?.addEventListener('change', updateDeductedChart);
+            document.getElementById('inventoryProductFilter')?.addEventListener('change', updateInventoryChart);
+            document.getElementById('performanceProductFilter')?.addEventListener('change', fetchPerformanceData);
+            document.getElementById('mostSoldBtn')?.addEventListener('click', () => updatePerformanceChart('mostSold'));
+            document.getElementById('moderateSoldBtn')?.addEventListener('click', () => updatePerformanceChart('moderateSold'));
+            document.getElementById('lowSoldBtn')?.addEventListener('click', () => updatePerformanceChart('lowSold'));
 
-                        if (result.products_with_new_classification > 0) {
-                            const Toast = Swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 5000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.onmouseenter = Swal.stopTimer;
-                                    toast.onmouseleave = Swal.resumeTimer;
-                                }
-                            });
-                            Toast.fire({
-                                icon: 'info',
-                                title: `${result.products_with_new_classification} products re-classified based on recent sales!`
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Failed to run automatic analysis:', error);
-                    }
-                };
-
-                // Tatakbo ito kada 15 minuto para i-check ang benta ng nakaraang araw.
-                // Pwede mo itong gawing mas matagal (e.g., kada isang oras: 3600000)
-                setInterval(runReactiveAnalysis, 10000); // 15 minutes
+            // Info Modal Handlers
+            const infoIcons = { 'revenue-info-icon': 'revenue-info-modal', 'deductions-info-icon': 'deductions-info-modal', 'inventory-info-icon': 'inventory-info-modal', 'trends-info-icon': 'trends-info-modal', 'performance-info-icon': 'performance-info-modal' };
+            Object.keys(infoIcons).forEach(iconId => {
+                const icon = document.getElementById(iconId);
+                if (icon) icon.addEventListener('click', () => document.getElementById(infoIcons[iconId]).classList.remove('hidden'));
             });
-        </script>
-        @endif
-    {{-- realtime --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ✅ Object to store animation frame IDs
-            const activeAnimations = {};
+            document.querySelectorAll('.close-info-modal').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.target.dataset.modal).classList.add('hidden')));
+            document.querySelectorAll('[id$="-info-modal"]').forEach(modal => modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); }));
 
-            // Function to fetch and update the dashboard card statistics
+            // =========================================================================
+            // SECTION 5: REALTIME DASHBOARD CARD UPDATES
+            // =========================================================================
             async function updateDashboardCards() {
                 try {
-                    const response = await fetch("{{ route('api.dashboard-stats') }}", {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-
+                    const response = await fetch("{{ route('api.dashboard-stats') }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                     if (!response.ok) {
                         console.error('Failed to fetch dashboard stats. Status:', response.status);
                         return;
                     }
-
                     const stats = await response.json();
-
-                    // Update each card with a smooth counting animation
                     animateCountUp('total-delivered-count', stats.totalOrders);
                     animateCountUp('pending-orders-count', stats.pendingOrders);
                     animateCountUp('cancelled-orders-count', stats.cancelledOrders);
                     animateCountUp('unread-messages-count', stats.unreadMessages);
-
-                    const totalSaleEl = document.getElementById('total-sale-value');
-                    if (totalSaleEl) {
-                        // MODIFIED: Check the global flag. Only update revenue if no filter is active.
-                        if (window.isRevenueFiltered === false) {
-                            animateRevenue('total-sale-value', stats.totalRevenue);
-                        }
+                    if (document.getElementById('total-sale-value') && window.isRevenueFiltered === false) {
+                        animateRevenue('total-sale-value', stats.totalRevenue);
                     }
-
                 } catch (error) {
                     console.error('Error updating dashboard cards:', error);
                 }
             }
-            
-            function formatNumberWithCommas(number) {
-                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
-
-            // --- Animation Functions ---
+            const formatNumberWithCommas = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const easeOutCubic = (t) => (--t) * t * t + 1;
             function animateCountUp(elementId, endValue) {
                 const el = document.getElementById(elementId);
                 if (!el) return;
@@ -1392,16 +1081,14 @@
                     const progress = currentFrame / totalFrames;
                     const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic(progress));
                     el.textContent = formatNumberWithCommas(currentValue);
-                    if (currentFrame < totalFrames) {
-                        activeAnimations[elementId] = requestAnimationFrame(count);
-                    } else {
+                    if (currentFrame < totalFrames) activeAnimations[elementId] = requestAnimationFrame(count);
+                    else {
                         el.textContent = formatNumberWithCommas(endValue);
                         delete activeAnimations[elementId];
                     }
                 };
                 activeAnimations[elementId] = requestAnimationFrame(count);
             }
-
             function animateRevenue(elementId, endValue) {
                 const el = document.getElementById(elementId);
                 if (!el) return;
@@ -1415,27 +1102,84 @@
                     const progress = currentFrame / totalFrames;
                     const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic(progress));
                     el.textContent = '₱' + formatNumberWithCommas(currentValue);
-                    if (currentFrame < totalFrames) {
-                        activeAnimations[elementId] = requestAnimationFrame(count);
-                    } else {
+                    if (currentFrame < totalFrames) activeAnimations[elementId] = requestAnimationFrame(count);
+                    else {
                         el.textContent = '₱' + formatNumberWithCommas(endValue);
                         delete activeAnimations[elementId];
                     }
                 };
                 activeAnimations[elementId] = requestAnimationFrame(count);
             }
-
-            function easeOutCubic(t) {
-                return (--t) * t * t + 1;
-            }
-
-            // --- Set Interval ---
-            setInterval(updateDashboardCards, 10000); // Update every 10 seconds
-
-            // Initial call on page load
+            setInterval(updateDashboardCards, 10000);
             updateDashboardCards();
+
+
+            // =========================================================================
+            // SECTION 6: REACTIVE PRODUCT SEASONALITY ANALYSIS (for admin/superadmin)
+            // =========================================================================
+            @if(auth()->guard('superadmin')->check() || auth()->guard('admin')->check())
+            const runReactiveAnalysis = async () => {
+                console.log('Running automatic reactive seasonality analysis...');
+                try {
+                    const response = await fetch("{{ route('products.analyzeRecentSales') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (!response.ok) {
+                        console.error('Automatic analysis failed. Server responded with an error.');
+                        return;
+                    }
+                    const result = await response.json();
+                    console.log('Auto-Update Result:', result.message);
+                    if (result.products_with_new_classification > 0) {
+                        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 5000, timerProgressBar: true, didOpen: (toast) => { toast.onmouseenter = Swal.stopTimer; toast.onmouseleave = Swal.resumeTimer; } });
+                        Toast.fire({ icon: 'info', title: `${result.products_with_new_classification} products re-classified based on recent sales!` });
+                    }
+                } catch (error) {
+                    console.error('Failed to run automatic analysis:', error);
+                }
+            };
+            setInterval(runReactiveAnalysis, 900000); // Run every 15 minutes
+            @endif
         });
     </script>
+
+    @if(auth()->guard('staff')->check())
+    <script>
+        // This script is separate as it only runs for staff
+        if (navigator.geolocation) {
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        fetch("{{ route('api.update-location') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                            }),
+                        });
+                    },
+                    function(error) {
+                        console.error("Error getting location: ", error);
+                    }
+                );
+            }, 10000); // Send location every 10 seconds
+        } else {
+            console.error("Geolocation is not supported.");
+        }
+    </script>
+    @endif
+
+
+    {{-- Other scripts (staff location, reactive analysis, realtime cards) remain unchanged --}}
+    {{-- ... --}}
 
     {{-- loader --}}
     <x-loader />

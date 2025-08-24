@@ -75,9 +75,10 @@ class StaffAuthenticatedSessionController extends Controller
             $seconds = RateLimiter::availableIn($throttleKey);
 
             // Redirect back with an error message
-            return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
-            ]);
+            return back()
+            ->withErrors(['email' => 'Too many login attempts.'])
+            ->with('lockout_time', $seconds) // for timer stay on error message
+            ->onlyInput('email');
         }
     if (Auth::guard('staff')->validate($authCredentials)) {
         
@@ -135,6 +136,6 @@ class StaffAuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('staff.login'); // ✅ Redirects to Staff login
+        return redirect()->route('staffs.login'); // ✅ Redirects to Staff login
     }
 }

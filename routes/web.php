@@ -136,23 +136,19 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
         Route::get('admin/filtered-deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
-        // Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/inventory-levels/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);
-
-        // New API routes for added dashboard charts
-        Route::get('admin/order-status-counts', [DashboardController::class, 'getOrderStatusCounts']);
-        Route::get('admin/average-order-value/{year}/{month?}', [DashboardController::class, 'getAverageOrderValue']);
-        Route::get('admin/fulfillment-time/{period}/{year}/{month?}', [DashboardController::class, 'getOrderFulfillmentTime']);
         Route::get('admin/orders-by-location/{year}/{month?}', [DashboardController::class, 'getOrdersByLocation']);
 
-        // NEW: AI Chart Analysis Route
-        // Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI'])->name('admin.analyze.charts');
-        // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
+        // *** NEW: Routes for product filters and dynamic performance chart ***
+        Route::get('admin/products-for-filter', [DashboardController::class, 'getProductsForFilter'])->name('admin.products.filter');
+        Route::get('admin/performance-data', [DashboardController::class, 'getPerformanceData'])->name('admin.performance.data');
+        // *** END NEW Routes ***
+
+        // AI and Realtime Routes
         Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
-        Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
-        // for realtime
         Route::get('/dashboard-stats', [App\Http\Controllers\Admin\DashboardController::class, 'getDashboardStats'])->name('api.dashboard-stats');
+        // ======================== END DASHBOARD API ROUTES ========================
         
         Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
         // sales reports
@@ -204,16 +200,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
-        // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
-        //     ->name('orders.generateQrCode');
-
-        // Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
-        //     ->name('orders.showQrCode');
-
-        // Route::get('/scan-qr', function () {
-        //     return view('orders.scan'); // Blade file for scanning QR codes
-        // })->name('orders.scan');
-
         Route::get('/upload-qr', function () {
             return view('orders.upload_qr'); // Blade file for uploading QR codes
         })->name('upload.qr');
@@ -238,7 +224,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
-        // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         // Initial page load for the history log
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog.show');
@@ -254,11 +239,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
 
     //6///////////////////////// << DASHBOARD ROUTE >> //////////////////////////////6//
-    // Bakit dalawa yung dashboard routes dito??? <<<<<-------------------
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard'); // ✅ Shared dashboard view
-    })->name('admin.dashboard');
-
     Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
     //6///////////////////////// << DASHBOARD ROUTE >> //////////////////////////////6//
 
@@ -317,16 +297,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::post('/admin/group-chat/store', [GroupChatController::class, 'store'])->name('admin.group.chat.store');
     // ✅ ADD THIS NEW ROUTE FOR FETCHING MESSAGES
     Route::get('/admin/group-chat/messages', [GroupChatController::class, 'fetchMessages'])->name('admin.group.chat.fetch');
-    // Route::get('/admin/chat/{user}', [ChatController::class, 'index'])->name('admin.chat.index');
     Route::post('/admin/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
-
-    // admins and staff chats
-    // Route::get('admin/chat', [ChatController::class, 'showChat'])->name('employee.chat');
-    // Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
-    // Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
-
-    // Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
-    // Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
     //9///////////////////////// << EMPLOYEE CHAT ROUTES >> //////////////////////////////9//
 
 
@@ -360,9 +331,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 /////order tracking////
  Route::get('/track-order/{order}/location', [TrackingController::class, 'getStaffLocationForOrder'])->name('track.location');
  
-/////order tracking///
-
-       //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
    Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');
 
     //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
@@ -393,27 +361,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
 
     Route::get('/customer/account', [CustomerAccountController::class, 'index'])->name('customer.account');
-    Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
-    //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
-
-    // Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])
-    // ->name('customer.chat.markAsRead');
-
-});
-    // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
-    // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
-    // Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
-    // Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
-
-    // Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
-    // Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
-    // Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
-
-    // Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
-    // Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
-    // ->name('customer.chat.fetch');
-
-    // Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
+    Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');});
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
 
 // ========================= CUSTOMER CHAT ROUTES ========================= //
@@ -523,4 +471,3 @@ Route::post('/manage-companies/{id}/restore', [CompanyController::class, 'restor
 // To Keep Laravel Auth Routes
 require __DIR__.'/auth.php';
 require __DIR__.'/api.php';
-
