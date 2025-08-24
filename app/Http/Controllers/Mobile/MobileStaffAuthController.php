@@ -12,29 +12,64 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException; // Import for better error handling
 use App\Models\StaffLocation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Auth\Events\Lockout;
+use App\Http\Controllers\Admin\HistorylogController;
 
 class MobileStaffAuthController extends Controller
 {
     public function login(Request $request)
     {
         try {
-            // Added 'min:8' to the password validation rule.
-            $request->validate([
+            // Unang i-validate ang format ng input
+            $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|string|min:8',
             ]);
 
-            $staff = Staff::where('email', $request->email)->first();
+            // =================================================================
+            // >> DAGDAG: BRUTE-FORCE PROTECTION LOGIC
+            // =================================================================
 
-            if (!$staff || !Hash::check($request->password, $staff->password)) {
-                // This specifically handles the case of wrong email or password.
+            // 1. Gumawa ng unique key para sa bawat user (email + IP address)
+            $throttleKey = strtolower($credentials['email']) . '|' . $request->ip();
+
+            // 2. I-check kung na-lockout na ang user (5 attempts)
+            if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+                event(new Lockout($request));
+                $seconds = RateLimiter::availableIn($throttleKey);
+
+                // Magpadala ng 429 error response kasama ang lockout time
+                return response()->json([
+                    'message' => 'Too many login attempts.',
+                    'lockout_time' => $seconds,
+                ], 429); // 429 Too Many Requests
+            }
+            // =================================================================
+
+            $staff = Staff::where('email', $credentials['email'])
+                          ->whereNull('archived_at') // Siguraduhing hindi archived ang staff
+                          ->first();
+
+            if (!$staff || !Hash::check($credentials['password'], $staff->password)) {
+                // =================================================================
+                // >> DAGDAG: Itala ang failed attempt
+                // =================================================================
+                RateLimiter::hit($throttleKey, 300); // I-lockout ng 300 seconds (5 mins) kapag lumagpas sa limit
+                // =================================================================
+                
                 return response()->json(['message' => 'Invalid credentials. Please check your email and password.'], 401);
             }
+
+            // =================================================================
+            // >> DAGDAG: I-clear ang attempt counter kapag successful ang login
+            // =================================================================
+            RateLimiter::clear($throttleKey);
+            // =================================================================
 
             $staff->generateTwoFactorCode();
             Mail::to($staff->email)->send(new TwoFactorCodeMail($staff->two_factor_code));
             
-            // Return user details for the frontend to use in the 2FA screen
             return response()->json([
                 'message' => '2FA code sent. Please verify.',
                 'two_factor_user_id' => $staff->id,
@@ -43,8 +78,6 @@ class MobileStaffAuthController extends Controller
             ]);
 
         } catch (ValidationException $e) {
-            // This catches validation errors (e.g., password too short)
-            // and returns them in a structured way (422 status).
             return response()->json([
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
@@ -56,7 +89,7 @@ class MobileStaffAuthController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:staff,id',
-            'code' => 'required|string|digits:6', // Ensure string validation
+            'code' => 'required|string|digits:6',
         ]);
 
         $staff = Staff::find($request->user_id);
@@ -65,7 +98,6 @@ class MobileStaffAuthController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        // String-to-string comparison for the code
         if ($staff->two_factor_code !== $request->code || now('Asia/Manila')->gt($staff->two_factor_expires_at)) {
             return response()->json(['message' => 'Invalid or expired code.'], 403);
         }
@@ -73,6 +105,12 @@ class MobileStaffAuthController extends Controller
         $staff->two_factor_code = null;
         $staff->two_factor_expires_at = null;
         $staff->save();
+
+        // =================================================================
+        // >> BINAGO: Tinawag na ang tamang 'loginLog' method <<
+        // =================================================================
+        HistorylogController::loginLog($staff);
+        // =================================================================
 
         $token = $staff->createToken('StaffMobileApp')->plainTextToken;
         return response()->json(['token' => $token, 'user' => $staff]);
@@ -91,7 +129,18 @@ class MobileStaffAuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $staff = $request->user();
+
+        if ($staff) {
+            // =================================================================
+            // >> BINAGO: Tinawag na ang tamang 'logoutLog' method <<
+            // =================================================================
+            HistorylogController::logoutLog($staff);
+            // =================================================================
+            
+            $staff->currentAccessToken()->delete();
+        }
+        
         return response()->json(['message' => 'Logged out successfully.']);
     }
 

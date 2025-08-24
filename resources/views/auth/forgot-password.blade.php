@@ -74,7 +74,7 @@
         </div>
 
         <!-- Right Side Image -->
-        <div class="hidden lg:block w-1/2">
+        <div class="hidden lg:block w-1/2 transform scale-x-[-1]">
             <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
         </div>
     </div>

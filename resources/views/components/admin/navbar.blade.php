@@ -81,14 +81,14 @@
 
             <div class="text-[12px] uppercase p-1 w-full text-[#005382] border-b font-semibold mt-2 flex items-center justify-between">History & Staff</div>
             <li class="">
-                <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2 {{ request()->is('admin/history*') ? 'active' : '' }}">
+                <a href="{{ route('admin.history') }}" class="fmt-1 lex items-center gap-1 p-2 {{ request()->is('admin/history') ? 'active' : '' }}">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Order History</span>
                 </a>
             </li>
 
             <li>
-                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/historylog*') ? 'active' : '' }}">
+                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-1 p-2 {{ request()->is('admin/historylog') ? 'active' : '' }}">
                     <i class="fa-solid fa-magnifying-glass-chart"></i>
                     <span>History Log</span>
                 </a>

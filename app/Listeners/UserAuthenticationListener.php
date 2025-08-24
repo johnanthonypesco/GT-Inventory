@@ -2,10 +2,14 @@
 
 namespace App\Listeners;
 
-use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\Admin\HistorylogController;
+use App\Mail\BruteForceAlert;
+use App\Models\SuperAdmin;
 
 class UserAuthenticationListener
 {
@@ -22,24 +26,35 @@ class UserAuthenticationListener
      */
     public function handle(object $event): void
     {
-        // Check if the event is a successful Login
         if ($event instanceof Login) {
-            // A user successfully logged in, so we log it.
             HistorylogController::loginLog($event->user);
 
-        } 
-        // Check if the event is a Failed login attempt
-        elseif ($event instanceof Failed) {
-            // A user failed to log in. We get the email they tried to use.
-            if (!empty($event->credentials['email'])) {
-                $email = $event->credentials['email'];
-                HistorylogController::failedLoginLog($email);
-            }
+        } elseif ($event instanceof Failed) {
+            $email = $event->credentials['email'] ?? 'not_provided';
 
-        } 
-        // Check if the event is a Logout
-        elseif ($event instanceof Logout) {
-            // A user logged out. We check if the user object exists before logging.
+            // 1. Call the logger AND capture the returned data into $logData
+            $logData = HistorylogController::failedLoginLog($email);
+
+            // 2. Extract the IP and location from the data
+            $ipAddress = $logData['ip'];
+            $locationString = $logData['location'];
+
+            // 3. Use the data for the Brute-Force Detection
+            $key = 'login-attempt:' . $ipAddress;
+            RateLimiter::hit($key, 600); 
+
+            if (RateLimiter::tooManyAttempts($key, 5)) {
+                $notificationKey = 'notification-sent:' . $ipAddress;
+                if (RateLimiter::attempt($notificationKey, 1, fn() => true, 600)) {
+                    $superAdmins = SuperAdmin::all();
+                    foreach ($superAdmins as $superAdmin) {
+                        Mail::to($superAdmin->email)->send(
+                            new BruteForceAlert($ipAddress, $locationString, $email)
+                        );
+                    }
+                }
+            }
+        } elseif ($event instanceof Logout) {
             if ($event->user) {
                 HistorylogController::logoutLog($event->user);
             }

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\HistorylogController;
 
 class MobileStaffOrdersController extends Controller
 {
@@ -202,10 +203,6 @@ class MobileStaffOrdersController extends Controller
             if ($newStatus === 'out for delivery') {
                 $order->staff_id = $validated['staff_id'];
             }
-
-            // The logic for stock deduction is now primarily handled by the QR scan process.
-            // This update is for status changes only. If a 'delivered' status is forced here,
-            // it assumes stock was handled elsewhere or isn't required for this action.
             
             $order->status = $newStatus;
             $order->save();
@@ -213,21 +210,33 @@ class MobileStaffOrdersController extends Controller
             // Create an immutable history record for the change
             if (in_array($newStatus, ['delivered', 'cancelled'])) {
                  ImmutableHistory::create([
-                    'order_id' => $order->id,
-                    'province' => $order->user->company->location->province,
-                    'company' => $order->user->company->name,
-                    'employee' => $order->user->name,
-                    'date_ordered' => $order->date_ordered,
-                    'status' => $newStatus,
-                    'generic_name' => $order->exclusive_deal->product->generic_name,
-                    'brand_name' => $order->exclusive_deal->product->brand_name,
-                    'form' => $order->exclusive_deal->product->form,
-                    'strength' => $order->exclusive_deal->product->strength,
-                    'quantity' => $order->quantity,
-                    'price' => $order->exclusive_deal->price,
-                    'subtotal' => $order->quantity * $order->exclusive_deal->price,
-                ]);
+                     'order_id' => $order->id,
+                     'company_id' => $order->user->company->id, // DAGDAG
+                     'user_id' => $order->user->id, // DAGDAG
+                     'province' => $order->user->company->location->province,
+                     'company' => $order->user->company->name,
+                     'employee' => $order->user->name,
+                     'date_ordered' => $order->date_ordered,
+                     'status' => $newStatus,
+                     'generic_name' => $order->exclusive_deal->product->generic_name,
+                     'brand_name' => $order->exclusive_deal->product->brand_name,
+                     'form' => $order->exclusive_deal->product->form,
+                     'strength' => $order->exclusive_deal->product->strength,
+                     'quantity' => $order->quantity,
+                     'price' => $order->exclusive_deal->price,
+                     'subtotal' => $order->quantity * $order->exclusive_deal->price,
+                 ]);
             }
+            
+            // =================================================================
+            // >> DAGDAG: LOGGING LOGIC (Kinopya mula sa web controller)
+            // =================================================================
+            $orderUser = $order->user; // Kunin ang user details para sa log message
+            HistorylogController::add(
+                'Edit',
+                "An order from {$orderUser->company->name} in {$orderUser->company->location->province} has been updated to status: " . ucfirst($newStatus)
+            );
+            // =================================================================
 
             DB::commit();
 

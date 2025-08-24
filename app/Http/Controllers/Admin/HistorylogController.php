@@ -80,6 +80,10 @@ class HistorylogController extends Controller
         $actionBy = "Attempt by: {$ipAddress} ({$locationString})";
         
         self::log('Failed Login', $description, $actionBy); 
+         return [
+        'ip' => $ipAddress,
+        'location' => $locationString
+    ];
     }
     /**
      * ✅ REPLACEMENT METHOD: This one public method replaces ALL your old repetitive methods.

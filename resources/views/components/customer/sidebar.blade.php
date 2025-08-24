@@ -1,6 +1,6 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden"></div>
 <!-- Sidebar -->
 <div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-50 p-5 list-none transition-all duration-500" id="sidebar">
     <div class="p-3 flex flex-col relative">
@@ -12,7 +12,7 @@
     <ul class="flex flex-col pt-5 overflow-y-auto">
         <div class="flex flex-col gap-2">
             <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
-            <a href="{{ route('customer.dashboard') }}" class="text-sm"><i class="fa-solid fa-gauge"></i>Dashboard</a>
+            <a href="{{ route('customer.dashboard') }}" class="text-sm {{ request()->is('customer/dashboard') ? 'active' : '' }}"><i class="fa-solid fa-gauge"></i>Dashboard</a>
             <a href="{{ route('customer.order') }}" class="text-sm {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
 
         </div>
@@ -52,8 +52,6 @@
         </button>
     </form>
 </div>
-<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden" onclick="closeSidebar()"></div>
-
 <!-- Review Modal -->
 <div id="reviewModalsidebar" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -95,6 +93,12 @@
 <!-- JavaScript -->
 <script>
 
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.remove('left-[0.1px]', 'w-[300px]');
+        const overlay = document.getElementById('sidebar-overlay');
+        overlay.classList.add('hidden');
+    }
  
     document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.getElementById('sidebar');

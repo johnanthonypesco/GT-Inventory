@@ -34,13 +34,11 @@ class DashboardController extends Controller
     {
         try {
             if ($request->input('request_type') === 'dashboard_analysis') {
-                $aiModel = $request->input('ai_model', 'deepseek/deepseek-r1:free'); 
+                $aiModel = $request->input('ai_model', 'deepseek/deepseek-r1:free');
                 $chartData = $request->input('chart_data', []);
                 $forceRefresh = $request->input('force_refresh', false);
-                // MODIFIED: Get the selected API key type from the request
-                $apiKeyType = $request->input('api_key_type', 'primary'); 
+                $apiKeyType = $request->input('api_key_type', 'primary');
 
-                // MODIFIED: Pass the key type to the analysis function
                 $result = $this->generateDashboardAnalysis($aiModel, $chartData, $forceRefresh, $apiKeyType);
 
                 return response()->json($result);
@@ -52,9 +50,6 @@ class DashboardController extends Controller
         }
     }
 
-    /**
-     * Generates a complete dashboard analysis, checking the database unless a force refresh is requested.
-     */
     /**
      * Generates a complete dashboard analysis, checking the database unless a force refresh is requested.
      */
@@ -70,13 +65,12 @@ class DashboardController extends Controller
             ];
         } else {
             $rawAiResponseForLogging = '';
-             try {
+            try {
                 $dataForPrompt = $this->gatherDataForAnalysis();
                 $prompt = $this->createUnifiedAnalysisPrompt($dataForPrompt, $chartData);
                 
-                // MODIFIED: Pass the apiKeyType to the dispatch function
                 $aiResponse = $this->_dispatchAiRequest($prompt, $aiModel, $apiKeyType, true);
-                $rawAiResponseForLogging = $aiResponse['content']; 
+                $rawAiResponseForLogging = $aiResponse['content'];
                 $analysis = json_decode($rawAiResponseForLogging, true);
 
                 if (!is_array($analysis) || !isset($analysis['anomalies'])) {
@@ -120,7 +114,7 @@ class DashboardController extends Controller
     /**
      * Gathers key business metrics from the database for AI analysis.
      */
-     private function gatherDataForAnalysis(): array
+    private function gatherDataForAnalysis(): array
     {
         $startDate = Carbon::now('Asia/Manila')->subDays(30)->startOfDay();
         $endDate = Carbon::now('Asia/Manila')->endOfDay();
@@ -177,18 +171,18 @@ class DashboardController extends Controller
 
         ```json
         {
-          "anomalies": [
+        "anomalies": [
             {
-              "type": "positive|negative|warning",
-              "message": "A concise description of a key finding from the database stats."
+                "type": "positive|negative|warning",
+                "message": "A concise description of a key finding from the database stats."
             }
-          ],
-          "recommendations": [
+        ],
+        "recommendations": [
             {
-              "message": "A short, actionable step linking database and chart data."
+                "message": "A short, actionable step linking database and chart data."
             }
-          ],
-          "chart_analysis": "A holistic summary of all charts combined, focusing on the business story."
+        ],
+        "chart_analysis": "A holistic summary of all charts combined, focusing on the business story."
         }
         ```
 
@@ -211,12 +205,10 @@ class DashboardController extends Controller
     }
 
     /**
-     * MODIFIED: This function now exclusively uses OpenRouter for all AI requests.
-     * All old logic for direct Gemini and Mistral calls has been removed.
+     * Dispatches all AI requests through OpenRouter.
      */
     private function _dispatchAiRequest(string $prompt, string $model, string $apiKeyType = 'primary', bool $jsonMode = false): array
     {
-        // MODIFIED: Select the key from the config array
         $apiKey = config('services.openrouter.keys.' . $apiKeyType);
 
         if (!$apiKey) {
@@ -300,44 +292,11 @@ class DashboardController extends Controller
             ->orderByDesc('total_revenue')
             ->first();
 
-        $mostSoldProducts = ImmutableHistory::where('status', 'delivered')
-            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('generic_name')
-            ->orderByDesc('total_quantity')
-            ->limit(6)
-            ->get();
-
-        $lowSoldProductsQuery = ImmutableHistory::where('status', 'delivered')
-            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('generic_name')
-            ->having('total_quantity', '<=', 10)
-            ->orderBy('total_quantity')
-            ->limit(6)
-            ->get();
-
-        $moderateSoldProducts = ImmutableHistory::where('status', 'delivered')
-            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('generic_name')
-            ->having('total_quantity', '>', 10)
-            ->having('total_quantity', '<=', 50)
-            ->orderByDesc('total_quantity')
-            ->limit(6)
-            ->get();
-
         $lowStockProductsList = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
             ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'))
             ->groupBy('products.generic_name')
             ->having('total_quantity', '<=', 50)
             ->get();
-
-        $labels = $mostSoldProducts->pluck('generic_name')->toArray();
-        $data = $mostSoldProducts->pluck('total_quantity')->toArray();
-
-        $lowSoldLabels = $lowSoldProductsQuery->pluck('generic_name')->toArray();
-        $lowSoldData = $lowSoldProductsQuery->pluck('total_quantity')->toArray();
-
-        $moderateSoldLabels = $moderateSoldProducts->pluck('generic_name')->toArray();
-        $moderateSoldData = $moderateSoldProducts->pluck('total_quantity')->toArray();
 
         $availableYears = Order::select(DB::raw('YEAR(date_ordered) as year'))
             ->distinct()
@@ -367,27 +326,113 @@ class DashboardController extends Controller
             'averageOrderValue' => $averageOrderValue,
             'topSeller' => $topSeller,
             'lowStockProducts' => $lowStockProductsList,
-            'labels' => $labels,
-            'data' => $data,
-            'lowSoldLabels' => $lowSoldLabels,
-            'lowSoldData' => $lowSoldData,
-            'moderateSoldLabels' => $moderateSoldLabels,
-            'moderateSoldData' => $moderateSoldData,
             'availableYears' => $availableYears,
             'orderStatusCounts' => $orderStatusCounts,
         ]);
     }
 
     /**
+     * Provide a list of products formatted for filter dropdowns.
+     */
+    public function getProductsForFilter(Request $request)
+    {
+        $search = $request->query('search');
+
+        $query = Product::select('id', 'generic_name', 'brand_name', 'form', 'strength')
+            ->where('is_archived', false);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('generic_name', 'like', "%{$search}%")
+                  ->orWhere('brand_name', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->orderBy('generic_name')
+            ->limit(100) // Limit results for performance
+            ->get()
+            ->map(function ($product) {
+                $displayText = "{$product->generic_name} ({$product->brand_name}) - {$product->strength} {$product->form}";
+                return [
+                    'id' => $product->id,
+                    'generic_name' => $product->generic_name,
+                    'text' => $displayText
+                ];
+            });
+
+        return response()->json($products);
+    }
+
+    /**
+     * Provide product performance data for its chart, with optional filtering.
+     */
+    public function getPerformanceData(Request $request)
+    {
+        $genericName = $request->query('generic_name');
+
+        $baseQuery = ImmutableHistory::where('status', 'delivered');
+
+        if ($genericName) {
+            $baseQuery->where('generic_name', $genericName);
+        }
+
+        $mostSoldProducts = (clone $baseQuery)
+            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('generic_name')
+            ->orderByDesc('total_quantity')
+            ->limit(6)
+            ->get();
+
+        $lowSoldProducts = (clone $baseQuery)
+            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('generic_name')
+            ->having('total_quantity', '<=', 10)
+            ->orderBy('total_quantity', 'asc')
+            ->limit(6)
+            ->get();
+
+        $moderateSoldProducts = (clone $baseQuery)
+            ->select('generic_name', DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('generic_name')
+            ->having('total_quantity', '>', 10)
+            ->having('total_quantity', '<=', 50)
+            ->orderByDesc('total_quantity')
+            ->limit(6)
+            ->get();
+
+        return response()->json([
+            'mostSold' => [
+                'labels' => $mostSoldProducts->pluck('generic_name'),
+                'data' => $mostSoldProducts->pluck('total_quantity'),
+            ],
+            'moderateSold' => [
+                'labels' => $moderateSoldProducts->pluck('generic_name'),
+                'data' => $moderateSoldProducts->pluck('total_quantity'),
+            ],
+            'lowSold' => [
+                'labels' => $lowSoldProducts->pluck('generic_name'),
+                'data' => $lowSoldProducts->pluck('total_quantity'),
+            ],
+        ]);
+    }
+
+
+    /**
      * Provide inventory data for charts.
      */
-    public function getInventoryLevels($locationId = null)
+    public function getInventoryLevels(Request $request, $locationId = null)
     {
+        $productId = $request->query('product_id');
+
         $query = Inventory::join('products', 'inventories.product_id', '=', 'products.id')
             ->select('products.generic_name', DB::raw('SUM(inventories.quantity) as total_quantity'));
 
         if ($locationId) {
             $query->where('inventories.location_id', $locationId);
+        }
+
+        if ($productId) {
+            $query->where('inventories.product_id', $productId);
         }
 
         $inventoryData = $query->groupBy('products.generic_name')
@@ -404,33 +449,36 @@ class DashboardController extends Controller
     /**
      * Provide product delivery data for charts, filtered by province.
      */
-    public function getFilteredDeductedQuantities($year, $month, $province = null)
-{
-    $deductedQuery = ImmutableHistory::where('status', 'delivered')
-        ->whereYear('date_ordered', $year)
-        ->whereMonth('date_ordered', $month);
+    public function getFilteredDeductedQuantities(Request $request, $year, $month, $province = null)
+    {
+        $genericName = $request->query('generic_name');
 
-    if ($province) {
-        $deductedQuery->where('province', $province);
+        $deductedQuery = ImmutableHistory::where('status', 'delivered')
+            ->whereYear('date_ordered', $year)
+            ->whereMonth('date_ordered', $month);
+
+        if ($province) {
+            $deductedQuery->where('province', $province);
+        }
+
+        if ($genericName) {
+            $deductedQuery->where('generic_name', $genericName);
+        }
+
+        $deductedQuantities = $deductedQuery->select(
+                'generic_name',
+                DB::raw('SUM(quantity) as total_deducted')
+            )
+            ->groupBy('generic_name')
+            ->orderBy('total_deducted', 'DESC')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'labels'        => $deductedQuantities->pluck('generic_name'),
+            'deductedData'  => $deductedQuantities->pluck('total_deducted'),
+        ]);
     }
-
-    $deductedQuantities = $deductedQuery->select(
-            'generic_name',
-            DB::raw('SUM(quantity) as total_deducted')
-        )
-        ->groupBy('generic_name')
-        ->orderBy('total_deducted', 'DESC')
-        ->limit(10)
-        ->get();
-
-    // Idagdag ang linyang ito para i-debug
-    // dd($deductedQuantities); 
-
-    return response()->json([
-        'labels'        => $deductedQuantities->pluck('generic_name'),
-        'deductedData'  => $deductedQuantities->pluck('total_deducted'),
-    ]);
-}
 
     /**
      * Provide revenue data for charts based on different time periods.
@@ -521,7 +569,7 @@ class DashboardController extends Controller
 
         $seasonFilter = $request->input('season', 'all');
         $today = Carbon::now('Asia/Manila');
-        $startOfHistory = $today->copy()->subYears(2)->startOfYear(); 
+        $startOfHistory = $today->copy()->subYears(2)->startOfYear();
 
         $historicalData = ImmutableHistory::where('status', 'delivered')
             ->where('date_ordered', '>=', $startOfHistory)
@@ -671,7 +719,6 @@ class DashboardController extends Controller
         try {
             $currentUser = Auth::user();
 
-            // Calculate unread messages based on the current user's role
             $unreadMessages = 0;
             if ($currentUser instanceof SuperAdmin) {
                 $unreadMessages = Conversation::where('is_read', false)->where('receiver_type', 'super_admin')->where('receiver_id', $currentUser->id)->count();
@@ -681,20 +728,10 @@ class DashboardController extends Controller
                 $unreadMessages = Conversation::where('is_read', false)->where('receiver_type', 'staff')->where('receiver_id', $currentUser->id)->count();
             }
 
-            // Calculate order counts
             $totalOrders = ImmutableHistory::where('status', 'delivered')->count();
-
-            // $startDate = '2025-01-01';
-            // $endDate   = '2025-07-31';
-
-            // $tagulan = ImmutableHistory::whereBetween('created_at', [$startDate, $endDate])->get();
-
-            // dd('Tag-ulan data:', $tagulan);
-
             $pendingOrders = Order::where('status', 'pending')->count();
             $cancelledOrders = ImmutableHistory::where('status', 'cancelled')->count();
 
-            // Calculate total revenue (only for non-staff)
             $totalRevenue = 0;
             if (!$currentUser instanceof Staff) {
                  $totalRevenue = ImmutableHistory::where('status', 'delivered')

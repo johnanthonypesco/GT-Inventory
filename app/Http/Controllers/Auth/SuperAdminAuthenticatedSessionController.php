@@ -6,13 +6,15 @@ use Illuminate\View\View;
 use App\Models\SuperAdmin;
 use Illuminate\Http\Request;
 use App\Mail\TwoFactorCodeMail;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\Admin\HistorylogController;
-use Illuminate\Auth\Events\Failed;
 
 
 class SuperAdminAuthenticatedSessionController extends Controller
@@ -20,8 +22,23 @@ class SuperAdminAuthenticatedSessionController extends Controller
     /**
      * Display the Super Admin login view.
      */
-    public function create(): View
+      public function create()
     {
+        $guardsToCheck = ['web', 'admin', 'superadmin', 'staff'];
+
+        foreach ($guardsToCheck as $guard) {
+            if (Auth::guard($guard)->check()) {
+                // Check which guard is authenticated and redirect accordingly
+                if (in_array($guard, ['admin', 'staff', 'superadmin'])) {
+                    return redirect()->route('admin.dashboard');
+                }
+
+                if ($guard === 'web') {
+                    return redirect()->route('customer.dashboard');
+                }
+            }
+        }
+
         return view('auth.superadmin-login');
     }
 
@@ -40,9 +57,28 @@ class SuperAdminAuthenticatedSessionController extends Controller
             'password' => ['required'],
         ])->validate();
     
+
+             // Create a unique key for the rate limiter based on email and IP
+        $throttleKey = strtolower($request->input('email')) . '|' . $request->ip();
+
+        // Check if the user has made too many attempts
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            // Fire a Lockout event
+            event(new Lockout($request));
+
+            // Get the number of seconds until they can try again
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            // Redirect back with an error message
+            return back()->withErrors([
+                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
+            ]);
+        }
+        
     if (Auth::guard('superadmin')->validate($credentials)) {
             $superAdmin = SuperAdmin::where('email', 'like', $credentials['email'])->first();
-    
+                RateLimiter::clear($throttleKey);
+
             // ✅ Generate a 6-digit 2FA code
             $twoFactorCode = (string) rand(100000, 999999);
     
@@ -73,6 +109,8 @@ class SuperAdminAuthenticatedSessionController extends Controller
             
            // ✅ 2. ADD THIS BLOCK FOR FAILED ATTEMPTS
             // Try to find the user that failed to log in
+                        RateLimiter::hit($throttleKey, 300); // Lockout for 300 seconds (5 minutes)
+
             $user = SuperAdmin::where('email', $credentials['email'])->first();
 
             // Fire the Failed event so our listener can log it

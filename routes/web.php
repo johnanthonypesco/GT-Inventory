@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 // Admin Controller
 use App\Http\Controllers\QRCodeController;
-use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SampleController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
@@ -18,14 +18,14 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\FileOcrController;
-use App\Http\Controllers\ProductSeasonalityController;
+use App\Http\Controllers\Admin\HistoryController;
 
 // Staff Controller
-use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\ReviewManagerController;
 use App\Http\Controllers\StaffLocationController;
 use App\Http\Controllers\Admin\ChattingController;
+use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 
@@ -48,39 +48,41 @@ use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 
-use App\Http\Controllers\Admin\ManageaccountController;
+use App\Http\Controllers\ProductSeasonalityController;
 
 // chat
+use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
+
+
+
+
 use App\Http\Controllers\Admin\ProductlistingController;
-
-
-
-
 use App\Http\Controllers\Customer\ManageorderController;
-use App\Http\Controllers\Customer\CustomerloginController;
 
 // GroupChat
+use App\Http\Controllers\Admin\AccountSecurityController;
+
+
+
+
+use App\Http\Controllers\Customer\CustomerloginController;
 use App\Http\Controllers\Admin\ContentmanagementController;
-
-
-
-
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\ExportController as ExportDocxController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
+
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+// download apk for registration.
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
-// download apk for registration.
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
@@ -128,28 +130,25 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}/{exportSpecification?}/{secondaryExportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}/{exportSpecification?}/{secondaryExportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
-        
-        // dashboard routes
+        // Route::post('/accounts/disable', [AccountSecurityController::class, 'disable'])->name('accounts.disable');
+        // Route::post('/ips/block', [BlockedIpController::class, 'block'])->name('ips.block');
+        // // dashboard routes
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
         Route::get('admin/filtered-deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
-        // Route::get('admin/inventory-levels/{year}/{month}/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/inventory-levels/{locationId?}', [DashboardController::class, 'getInventoryLevels']);
         Route::get('admin/trending-products', [DashboardController::class, 'getTrendingProducts']);
-
-        // New API routes for added dashboard charts
-        Route::get('admin/order-status-counts', [DashboardController::class, 'getOrderStatusCounts']);
-        Route::get('admin/average-order-value/{year}/{month?}', [DashboardController::class, 'getAverageOrderValue']);
-        Route::get('admin/fulfillment-time/{period}/{year}/{month?}', [DashboardController::class, 'getOrderFulfillmentTime']);
         Route::get('admin/orders-by-location/{year}/{month?}', [DashboardController::class, 'getOrdersByLocation']);
 
-        // NEW: AI Chart Analysis Route
-        // Route::post('admin/analyze-charts', [DashboardController::class, 'analyzeChartsWithAI'])->name('admin.analyze.charts');
-        // Route::post('/admin/generate-ai-summary', [DashboardController::class, 'ajaxGenerateExecutiveSummary'])->name('admin.generate.ai.summary');
+        // *** NEW: Routes for product filters and dynamic performance chart ***
+        Route::get('admin/products-for-filter', [DashboardController::class, 'getProductsForFilter'])->name('admin.products.filter');
+        Route::get('admin/performance-data', [DashboardController::class, 'getPerformanceData'])->name('admin.performance.data');
+        // *** END NEW Routes ***
+
+        // AI and Realtime Routes
         Route::post('admin/ai-handler', [DashboardController::class, 'handleAiRequest'])->name('admin.ai.handler');
-        Route::get('/revenue-data', [DashboardController::class, 'getRevenueData']);
-        // for realtime
         Route::get('/dashboard-stats', [App\Http\Controllers\Admin\DashboardController::class, 'getDashboardStats'])->name('api.dashboard-stats');
+        // ======================== END DASHBOARD API ROUTES ========================
         
         Route::post('/save-inventory', [OcrInventoryController::class, 'saveInventory'])->name('save.inventory');
         // sales reports
@@ -201,16 +200,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         //5///////////////////////// << QR CODE ROUTES >> //////////////////////////////5//
 
-        // Route::get('/orders/{order}/generate-qr-code', [QRCodeController::class, 'generateOrderQrCode'])
-        //     ->name('orders.generateQrCode');
-
-        // Route::get('/orders/{order}/show-qr-code', [QrCodeController::class, 'showOrderQrCode'])
-        //     ->name('orders.showQrCode');
-
-        // Route::get('/scan-qr', function () {
-        //     return view('orders.scan'); // Blade file for scanning QR codes
-        // })->name('orders.scan');
-
         Route::get('/upload-qr', function () {
             return view('orders.upload_qr'); // Blade file for uploading QR codes
         })->name('upload.qr');
@@ -235,7 +224,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
         Route::put('/admin/inventory/transfer', [InventoryController::class, 'transferInventory'])->name('admin.inventory.transfer');
 
         //5.5///////////////////////// << OCR ROUTES >> //////////////////////////////5.5//
-        // Route::post('/export-inventory', [ExportDocxController::class, 'exportDocx'])->name('inventory.export');
         //6.6///////////////////////// << HISTORY LOG ROUTES >> //////////////////////////////6.6//
         // Initial page load for the history log
         Route::get('admin/historylog', [HistorylogController::class, 'showHistorylog'])->name('admin.historylog.show');
@@ -251,11 +239,6 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
 
     //6///////////////////////// << DASHBOARD ROUTE >> //////////////////////////////6//
-    // Bakit dalawa yung dashboard routes dito??? <<<<<-------------------
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard'); // ✅ Shared dashboard view
-    })->name('admin.dashboard');
-
     Route::get('/admin/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
     //6///////////////////////// << DASHBOARD ROUTE >> //////////////////////////////6//
 
@@ -314,16 +297,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
     Route::post('/admin/group-chat/store', [GroupChatController::class, 'store'])->name('admin.group.chat.store');
     // ✅ ADD THIS NEW ROUTE FOR FETCHING MESSAGES
     Route::get('/admin/group-chat/messages', [GroupChatController::class, 'fetchMessages'])->name('admin.group.chat.fetch');
-    // Route::get('/admin/chat/{user}', [ChatController::class, 'index'])->name('admin.chat.index');
     Route::post('/admin/chat/store', [ChatController::class, 'store'])->name('admin.chat.store');
-
-    // admins and staff chats
-    // Route::get('admin/chat', [ChatController::class, 'showChat'])->name('employee.chat');
-    // Route::get('admin/chat/{id}', [ChatController::class, 'chatWithUser'])->name('admin.chatting');
-    // Route::get('/admin/chat/refresh', [ChatController::class, 'refresh'])->name('admin.chat.refresh');
-
-    // Route::get('/admin/get-latest-message', [ChatController::class, 'getLatestMessage'])->name('admin.getLatestMessage');
-    // Route::get('/admin/fetch-messages', [ChatController::class, 'fetchMessages'])->name('admin.fetchMessages');
     //9///////////////////////// << EMPLOYEE CHAT ROUTES >> //////////////////////////////9//
 
 
@@ -357,9 +331,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 /////order tracking////
  Route::get('/track-order/{order}/location', [TrackingController::class, 'getStaffLocationForOrder'])->name('track.location');
  
-/////order tracking///
-
-       //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
    Route::post('/review', [ReviewController::class, 'store'])->name('customer.review.store');
 
     //11///////////////////////// << CUSTOMER Review ROUTES >> //////////////////////////////11//
@@ -390,31 +361,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customer/manageaccount', [CustomerManageaccountController::class, 'showAccount'])->name('customer.manageaccount');
 
     Route::get('/customer/account', [CustomerAccountController::class, 'index'])->name('customer.account');
-    Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');
-    //14////////////////////// << CUSTOMER ACCOUNT MANAGEMENT ROUTES >> ///////////////////////////14//
-
-    // Route::post('/chat/mark-as-read', [ChatRepsController::class, 'markAsRead'])
-    // ->name('customer.chat.markAsRead');
-
-});
-    // //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
-    // Route::get('/chat', [ChatRepsController::class, 'index'])->name('chat'); // List all SuperAdmins
-    // Route::get('/chat/{id}', [ChatRepsController::class, 'show'])->name('chat.show'); // Show specific chat
-    // Route::post('/chat/send', [ChatRepsController::class, 'store'])->name('chat.store'); // Send message
-
-    // Route::get('/customer/chat', [ChatRepsController::class, 'index'])->name('customer.chat.index');
-    // Route::get('/customer/chat/{superAdminId}', [ChatRepsController::class, 'show'])->name('customer.chat.show');
-    // Route::post('/customer/chat/store', [ChatRepsController::class, 'store'])->name('customer.chat.store');
-
-    // Route::get('/messages/new', [ChatRepsController::class, 'fetchNewMessages'])->name('customer.chat.newMessages');
-    // Route::get('/customer/chat/fetch-messages', [ChatRepsController::class, 'fetchNewMessages'])
-    // ->name('customer.chat.fetch');
-
-    // Route::get('/customer/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat');
+    Route::post('/customer/account/update', [CustomerAccountController::class, 'update'])->name('customer.account.update');});
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
 
 // ========================= CUSTOMER CHAT ROUTES ========================= //
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::prefix('customer/chat')->name('customer.chat.')->group(function () {
         Route::get('/', [ChatRepsController::class, 'index'])->name('index');
         Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('show');
@@ -520,4 +471,3 @@ Route::post('/manage-companies/{id}/restore', [CompanyController::class, 'restor
 // To Keep Laravel Auth Routes
 require __DIR__.'/auth.php';
 require __DIR__.'/api.php';
-

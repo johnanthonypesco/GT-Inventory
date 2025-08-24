@@ -1,54 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <title>Email Verification</title>
 </head>
-<body class="flex justify-center items-center min-h-screen bg-[#F5F5F5]">
+<body class="flex items-center justify-center h-screen p-10">
 
-    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-lg text-center">
-        <img src="{{ asset('image/Group 41.png') }}" class="w-[200px] mx-auto mb-5">
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[55%] overflow-hidden">
+        
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
+            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
+            </h1>
 
-        <h1 class="text-2xl font-bold text-[#005382] mb-4">Verify Your Email</h1>
+            <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Verify Your Email</h1>
+            <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1>
 
-        <p class="text-gray-600 text-sm">
-            Thanks for signing up! Before getting started, please verify your email by clicking Send Verification Button below and click the link on the verification email that was sent to you.
-        </p>
+            <div class="mt-10 space-y-5">
+                <p class="text-black/80 text-sm text-center">
+                    Thanks for signing up! We have automatically sent a verification link to your email address. Please check your inbox and click the link to activate your account.
+                </p>
 
-        @if (session('status') == 'verification-link-sent')
-            <div class="bg-green-100 text-green-700 p-3 rounded-lg mt-4">
-                ✅ A verification link has been sent to your email.
+                @if (session('status') == 'verification-link-sent')
+                    <p class="text-green-500 text-center text-sm mt-3">✅ A new verification link has been sent to your email address.</p>
+                @endif
+                
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit" 
+                            class="bg-[#15ABFF] w-full p-3 rounded-lg text-white cursor-pointer hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base">
+                        Resend Verification Email
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                    @csrf
+                    <button type="submit" class="w-full text-[#005382] font-semibold underline hover:text-[#003F6B] text-sm md:text-base">
+                        Log Out
+                    </button>
+                </form>
             </div>
-        @endif
+        </div>
 
-        <div class="mt-6 flex flex-col gap-4">
-            <!-- ✅ Resend Verification Email Form -->
-            <form method="POST" action="{{ route('verification.send') }}">
-                @csrf
-                <button type="submit" class="w-full bg-[#15ABFF] text-white p-3 rounded-lg hover:bg-[#0E8CD7] transition">
-                    Send Verification Email
-                </button>
-            </form>
-
-            <!-- ✅ Log Out Button -->
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full text-[#005382] font-semibold underline hover:text-[#003F6B]">
-                    Log Out
-                </button>
-            </form>
+        <div id="flip" class="hidden lg:block w-1/2 transform scale-x-[-1]">
+            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
         </div>
     </div>
-
-    {{-- loader --}}
-    <x-loader />
-    {{-- loader --}}
 </body>
+
+<x-loader/>
+
 </html>
