@@ -56,7 +56,7 @@
                         <input type="search" name="employee_search" 
                             id="employee_search"
                             placeholder="Search Employee by Name & Company" 
-                            class="w-full p-2 pr-10 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382] bg-white"
+                            class="w-full p-2 pr-10 border border-[#005382] rounded-lg bg-white"
                             list="employee-search-suggestions"
                             autocomplete="off"
                             value="{{ $current_search['query'] ? $current_search['query'][0] . ' - ' . $current_search['query'][1] : '' }}"
