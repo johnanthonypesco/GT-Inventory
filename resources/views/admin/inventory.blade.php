@@ -692,7 +692,7 @@
                 <div class="flex justify-between">
                     <div class="flex-col gap-5">
                         <h1 id="title-prod-edit" class="font-bold text-2xl text-[#005382]"> Updating Product ID: {{ $errorPresentInEdit ? old("id")  : '' }} </h1>
-                        <button type="button" id="edit-prod-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                        <button type="button" id="edit-prod-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200"> 
                             <img src="{{asset('image/image 51.png')}}"/>
                             Save Changes 
                         </button>
@@ -770,7 +770,7 @@
                 value="{{ $errorPresentInStockEdit ? old('expiry_date') : '' }}"
                 :errorChecker="$errorPresentInStockEdit ? $errors->first('expiry_date') : null "/>
 
-                <button type="button" id="edit-stock-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer"> 
+                <button type="button" id="edit-stock-btn" class="mt-10 flex items-center gap-2 shadow-sm shadow-blue-500 px-5 py-2 rounded-lg cursor-pointer hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200"> 
                     <img src="{{asset('image/image 51.png')}}"/>
                     Save Changes 
                 </button>

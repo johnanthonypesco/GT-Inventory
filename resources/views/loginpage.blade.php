@@ -34,7 +34,7 @@ body::before {
   background-position: center;
   filter: blur(8px);
   z-index: -1;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.4);
   background-blend-mode: darken;
 }
 #flip{

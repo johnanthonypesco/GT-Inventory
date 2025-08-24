@@ -189,6 +189,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         //5///////////////////////// << CONTENT MANAGEMENT ROUTES >> //////////////////////////////5//
         Route::get('admin/contentmanagement', [ContentmanagementController::class, 'showContentmanagement'])->name('admin.contentmanagement');
+
+        Route::post('/admin/products/bulk-select', [ContentmanagementController::class, 'selectmultipleproduct'])->name('admin.contentmanagement.selectmultipleproduct');
+
         Route::put('/admin/contentmanagement/edit/{id}', [ContentmanagementController::class, 'editContent'])->name('admin.contentmanagement.edit');
         Route::put('/admin/product/{id}/enabledisable', [ContentmanagementController::class, 'enabledisable'])->name('admin.product.enabledisable');
         Route::get('/admin/ocr-files', [FileOcrController::class, 'index'])->name('admin.file-ocr.index');

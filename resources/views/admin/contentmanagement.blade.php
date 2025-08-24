@@ -141,7 +141,10 @@
 
         <div class="table-container bg-white rounded-md mt-5 p-4" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="text-2xl font-bold text-[#005382] mb-4">Shown Product in Promotional Page</h1>
-            <div class="overflow-auto">
+
+            <button class="w-fit flex items-center gap-2 px-4 py-2 hover:text-white rounded-lg hover:bg-[#00456a] hover:-translate-y-1 transition-all duration-200" style="box-shadow: 0 3px 5px rgba(0, 0, 0, 0.389)" id="selectButton"><i class="fa-solid fa-check"></i> Select Multiple Products</button>
+
+            <div class="overflow-auto mt-5">
                 <table>
                     <thead>
                         <tr>
@@ -175,6 +178,45 @@
             </div>
         </div>
 
+        <div class="fixed w-full h-full top-0 left-0 bg-black/70 z-50 flex p-5 lg:p-20 justify-center items-center hidden" id="selectModal">
+            <div class="modal bg-white w-full max-w-lg md:max-w-xl lg:max-w-3xl mx-auto p-5 rounded-md relative">
+                <x-modalclose click="closeselectmodal"/>
+
+                <h1 class="text-left text-[#005382] text-2xl font-bold mb-5">Select Multiple Products to Display</h1>
+                <form action="{{route ('admin.contentmanagement.selectmultipleproduct')}}" method="POST" id="selectForm">
+                    @csrf
+                    @method ('POST')
+                    <div class="table-container overflow-auto h-[400px]">
+                        <table class="w-full text-sm sm:text-base">
+                            <thead>
+                                <tr>
+                                    <th class="flex items-center gap-2"><input type="checkbox" id="selectAllCheckbox">Select All</th>
+                                    <th>Generic Name</th>
+                                    <th>Brand Name</th>
+                                    <th>Form</th>
+                                    <th>Strength</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($product as $productItem)
+                                    <tr>
+                                        <td><input type="checkbox" name="product_ids[]" value="{{ $productItem->id }}"></td>
+                                        <td>{{ $productItem->generic_name }}</td>
+                                        <td>{{ $productItem->brand_name }}</td>
+                                        <td>{{ $productItem->form }}</td>
+                                        <td>{{ $productItem->strength }}</td>
+                                        <td class="{{ $productItem->is_displayed ? 'text-[#005382]' : 'text-red-500' }}">{{ $productItem->is_displayed ? 'Enabled' : 'Disabled' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <button id="updateButton" type="button" class="w-fit px-4 py-2 hover:text-white rounded-lg hover:bg-[#00456a] hover:-translate-y-1 transition-all duration-200 mt-5" style="box-shadow: 0 3px 5px rgba(0, 0, 0, 0.389)"> <i class="fa-solid fa-check"></i> Update Display Status</button>
+                </form>
+            </div>
+        </div>
+
     </main>
     {{-- loader --}}
     <x-loader />
@@ -187,16 +229,13 @@
         const editForm = document.getElementById('editForm');
         const updateButton = document.getElementById('updateButton');
         
-        // Function to open the modal and populate it with the correct data
         window.openeditmodal = function(button) {
             const id = button.dataset.id;
-            // Create the correct route for the form action dynamically
             const actionTemplate = "{{ route('admin.contentmanagement.edit', ['id' => 'ID_PLACEHOLDER']) }}";
             const actionUrl = actionTemplate.replace('ID_PLACEHOLDER', id);
             
             editForm.action = actionUrl;
             
-            // Populate form fields from the button's data attributes
             document.getElementById('aboutus1').value = button.dataset.aboutus1;
             document.getElementById('aboutus2').value = button.dataset.aboutus2;
             document.getElementById('aboutus3').value = button.dataset.aboutus3;
@@ -207,23 +246,38 @@
             editModal.classList.remove('hidden');
         }
 
-        // Function to close the modal (used by your x-modalclose component)
         window.closeeditmodal = function() {
             document.getElementById('editmodal').classList.add('hidden');
         }
         
-        // Re-open the modal automatically if the page was reloaded with validation errors
         @if($errors->any())
             editModal.classList.remove('hidden');
         @endif
 
-        // Attach event listeners to all edit buttons
         document.querySelectorAll('.edit-btn').forEach(button => {
             button.addEventListener('click', function() {
                 openeditmodal(this);
             });
         });
     });
+
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const productIds = document.querySelectorAll('input[name="product_ids[]"]');
+    selectAllCheckbox.addEventListener('change', function() {
+        productIds.forEach(product => {
+            product.checked = selectAllCheckbox.checked;
+        });
+    });
+
+    const selectModal = document.getElementById('selectModal');
+    const selectButton = document.getElementById('selectButton');
+    selectButton.addEventListener('click', function() {
+        selectModal.classList.remove('hidden');
+    });
+
+    function closeselectmodal() {
+        selectModal.classList.add('hidden');
+    }
     
 </script>
 <script>window.successMessage = @json(session('success'));</script>
