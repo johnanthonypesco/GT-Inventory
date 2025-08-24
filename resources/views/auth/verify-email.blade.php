@@ -19,8 +19,9 @@
         <h1 class="text-2xl font-bold text-[#005382] mb-4">Verify Your Email</h1>
 
         <p class="text-gray-600 text-sm">
-            Thanks for signing up! Before getting started, please verify your email by clicking Send Verification Button below and click the link on the verification email that was sent to you.
-        </p>
+Thanks for signing up! We have automatically sent a verification link to your email address. Please check your inbox and click the link to activate your account.
+
+If you don't see the email, you can use the button below to send a new one.        </p>
 
         @if (session('status') == 'verification-link-sent')
             <div class="bg-green-100 text-green-700 p-3 rounded-lg mt-4">
@@ -33,7 +34,7 @@
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
                 <button type="submit" class="w-full bg-[#15ABFF] text-white p-3 rounded-lg hover:bg-[#0E8CD7] transition">
-                    Send Verification Email
+                    Resend Verification Email
                 </button>
             </form>
 

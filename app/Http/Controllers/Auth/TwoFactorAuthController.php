@@ -83,6 +83,8 @@
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+
 use App\Services\SmsService;
 
 use App\Mail\TwoFactorCodeMail;
@@ -139,6 +141,8 @@ class TwoFactorAuthController extends Controller
             Auth::login($user, $remember);
             session()->forget('two_factor_user_id');
             // event(new Login('web', $user, false)); // ✅ 2. ADD THIS LINE
+ $throttleKey = strtolower($user->email) . '|' . request()->ip();
+    RateLimiter::clear($throttleKey);
 
             return redirect()->route('customer.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -158,6 +162,8 @@ class TwoFactorAuthController extends Controller
         Auth::guard('admin')->login($admin, $remember); 
             session()->forget('two_factor_admin_id');
             // event(new Login('admin', $admin, false)); // ✅ 2. ADD THIS LINE
+ $throttleKey = strtolower($admin->email) . '|' . request()->ip();
+    RateLimiter::clear($throttleKey);
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -178,6 +184,8 @@ class TwoFactorAuthController extends Controller
             session()->forget('two_factor_superadmin_id');
 
                         // event(new Login('superadmin', $superAdmin, false)); // ✅ 2. ADD THIS LINE
+ $throttleKey = strtolower($superAdmin->email) . '|' . request()->ip();
+    RateLimiter::clear($throttleKey);
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }
@@ -197,6 +205,10 @@ class TwoFactorAuthController extends Controller
             Auth::guard('staff')->login($staff, $remember);
             session()->forget('two_factor_staff_id');
             // event(new Login('staff', $staff, false)); // ✅ 2. ADD THIS LINE
+
+             $throttleKey = strtolower($staff->email) . '|' . request()->ip();
+    RateLimiter::clear($throttleKey);
+
 
             return redirect()->route('admin.dashboard')->with('success', 'Two-factor authentication successful.');
         }

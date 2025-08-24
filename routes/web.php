@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 // Admin Controller
 use App\Http\Controllers\QRCodeController;
-use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SampleController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\ItemQrCodeController;
@@ -18,14 +18,14 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\OcrInventoryController;
 use App\Http\Controllers\Admin\FileOcrController;
-use App\Http\Controllers\ProductSeasonalityController;
+use App\Http\Controllers\Admin\HistoryController;
 
 // Staff Controller
-use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\ReviewManagerController;
 use App\Http\Controllers\StaffLocationController;
 use App\Http\Controllers\Admin\ChattingController;
+use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroupChatController;
 
@@ -48,39 +48,41 @@ use App\Http\Controllers\SuperAdminAccountController;
 use App\Http\Controllers\Auth\TwoFactorAuthController;
 
 
-use App\Http\Controllers\Admin\ManageaccountController;
+use App\Http\Controllers\ProductSeasonalityController;
 
 // chat
+use App\Http\Controllers\Admin\ManageaccountController;
 use App\Http\Controllers\SuperAdminDashboardController;
+
+
+
+
 use App\Http\Controllers\Admin\ProductlistingController;
-
-
-
-
 use App\Http\Controllers\Customer\ManageorderController;
-use App\Http\Controllers\Customer\CustomerloginController;
 
 // GroupChat
+use App\Http\Controllers\Admin\AccountSecurityController;
+
+
+
+
+use App\Http\Controllers\Customer\CustomerloginController;
 use App\Http\Controllers\Admin\ContentmanagementController;
-
-
-
-
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\ExportController as ExportDocxController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
+
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
 use App\Http\Controllers\Staff\OrderController as StaffOrderController;
-
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+// download apk for registration.
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
-// download apk for registration.
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
 
@@ -128,8 +130,9 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
         Route::get('admin/inventory/export/{exportType}/{exportSpecification?}/{secondaryExportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
         Route::post('admin/inventory/export/{exportType}/{exportSpecification?}/{secondaryExportSpecification?}', [ExportController::class, 'export'])->name('admin.inventory.export');
-        
-        // dashboard routes
+        // Route::post('/accounts/disable', [AccountSecurityController::class, 'disable'])->name('accounts.disable');
+        // Route::post('/ips/block', [BlockedIpController::class, 'block'])->name('ips.block');
+        // // dashboard routes
          // API routes for dashboard charts
         Route::get('admin/revenue-data/{period}/{year}/{month?}/{week?}', [DashboardController::class, 'getRevenueData']);
         Route::get('admin/filtered-deducted-quantities/{year}/{month}/{location?}', [DashboardController::class, 'getFilteredDeductedQuantities']);
@@ -414,7 +417,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //15///////////////////////// << CUSTOMER CHAT ROUTES >> //////////////////////////////15//
 
 // ========================= CUSTOMER CHAT ROUTES ========================= //
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::prefix('customer/chat')->name('customer.chat.')->group(function () {
         Route::get('/', [ChatRepsController::class, 'index'])->name('index');
         Route::get('/{id}/{type}', [ChatRepsController::class, 'show'])->name('show');
