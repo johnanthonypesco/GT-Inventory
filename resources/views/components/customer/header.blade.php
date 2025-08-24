@@ -68,7 +68,7 @@ if(auth('web')->check()) {
                 <p class="text-sm uppercase truncate">{{ $name }}</p>
                 <p class="text-sm font-semibold truncate">{{ $company }}</p>
         </div>
-            <p class="text-[12px] font-semibold text-gray-600 w-[150px] truncate">{{ $email }}</p>
+            <p class="text-[12px] font-semibold text-gray-600 w-[120px] truncate">{{ $email }}</p>
             
             <i class="fa-solid fa-angle-down absolute right-2 bottom-0"></i>
         </div>

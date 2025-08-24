@@ -147,7 +147,7 @@ nav a:hover::before {
     }
 }
 #h1{
-    animation: totop 0.7s ease-in-out;
+    animation: totop 1s ease-in-out;
 }
 @keyframes totop {
     from {
@@ -160,7 +160,7 @@ nav a:hover::before {
     }
 }
 #p{
-    animation: toright 0.7s ease-in-out;
+    animation: toright 0.5s ease-in-out;
 }
 @keyframes toright {
     from {
@@ -173,10 +173,10 @@ nav a:hover::before {
     }
 }
 #button1{
-    animation: tobottom 0.6s ease-in-out;
+    animation: tobottom 1.2s ease-in-out;
 }
 #button2{
-    animation: tobottom 0.8s ease-in-out;
+    animation: tobottom 1.5s ease-in-out;
 }
 button#inquire:hover{
     box-shadow: 0 5px 8px rgba(0, 0, 0, 0.434);
