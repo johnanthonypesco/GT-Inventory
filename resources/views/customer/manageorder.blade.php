@@ -25,7 +25,7 @@
     <x-customer.navbar/>
 
     <main class="w-full lg:ml-[16%] opacity-0 px-4">
-        <x-customer.header title="Manage Current Orders" icon="fa-solid fa-list-check"/>
+        <x-customer.header title="Manage Orders" icon="fa-solid fa-list-check"/>
 
         <div class="bg-white mt-24 p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             @php
