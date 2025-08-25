@@ -28,8 +28,6 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
         orderSummaryContent.innerHTML += `
             <div id="item-parent-${deal_id}" class="order-item mt-2">
 
-                <input type="hidden" id="user_id" required type="number" value="${userIDInputValue}" name="user_id[]">
-
                 <input type="hidden" required type="number" value="${deal_id}" name="exclusive_deal_id[]">
 
                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -62,7 +60,7 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
                 </div>
                 <hr class="h-1 bg-[#005382] rounded-md border-none my-2">
             </div>`;
-    });
+    });    
 }
 
 function deleteOrdereredItem(deleteBtnID, parentID, deal_id) {
