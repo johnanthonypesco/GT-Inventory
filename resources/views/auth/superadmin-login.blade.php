@@ -14,8 +14,8 @@
     <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
         
         <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
-            <h1 class="font-bold text-lg flex items-center gap-2 text-[#005382]">
-                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-15">RCT MED PHARMA
+            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
 
             <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in to your Super Admin Account</h1>
