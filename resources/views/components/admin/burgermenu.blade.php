@@ -6,9 +6,9 @@
     <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
 
-<div onclick="sidebar()" class="w-14 h-14 bg-[#005382] shadow-md z-40 flex items-center justify-center absolute -top-10 -right-14 rounded-md hover:cursor-pointer">
-    <span class="text-6xl text-white ">&times;</span>
-</div>
+        <div onclick="sidebar()" class="w-14 h-14 bg-[#005382] shadow-md z-40 flex items-center justify-center absolute -top-9 -right-14 rounded-md hover:cursor-pointer">
+            <span class="text-6xl text-white ">&times;</span>
+        </div>
     </div>
     <ul class="list-none flex flex-col px-1 py-0 gap-[1px] overflow-y-scroll">
 

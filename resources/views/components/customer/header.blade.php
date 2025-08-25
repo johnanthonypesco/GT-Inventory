@@ -64,11 +64,11 @@ if(auth('web')->check()) {
         {{-- <label for="profile_image">
         </label>         --}}
         <div class="relative">
-            <div class="flex items-center gap-1">
-                <p class="text-sm uppercase w-[150px] truncate">{{ $name }}</p>
-                <p class="text-sm font-semibold w-[150px] truncate">{{ $company }}</p>
+            <div class="flex items-center gap-1 w-[150px]">
+                <p class="text-sm uppercase truncate">{{ $name }}</p>
+                <p class="text-sm font-semibold truncate">{{ $company }}</p>
         </div>
-            <p class="text-[12px] font-semibold text-gray-600">{{ $email }}</p>
+            <p class="text-[12px] font-semibold text-gray-600 w-[120px] truncate">{{ $email }}</p>
             
             <i class="fa-solid fa-angle-down absolute right-2 bottom-0"></i>
         </div>

@@ -129,14 +129,22 @@
                                         <td class="p-3 font-medium"> 
                                             ₱{{ number_format($order->exclusive_deal ? ($order->exclusive_deal->price * $order->quantity) : $order->total_amount, 2) }} 
                                         </td> 
-                                        <td class="p-3"> 
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                                @if($order->status == 'Pending') bg-[#005382] text-white 
-                                                @elseif($order->status == 'delivered') bg-gray-100 text-gray-800 
-                                                @elseif($order->status == 'Packed') bg-green-100 text-green-800 
-                                                @elseif($order->status == 'Cancelled') bg-red-100 text-red-800 @endif"> 
-                                                {{ ucfirst($order->status) }} 
-                                            </span> 
+                                        <td class="p-3 font-bold"> 
+                                            @php 
+                                                $beforestatus = "rounded-lg flex gap-2 w-fit items-center before:content-[''] before:block before:w-2 before:h-2 before:rounded-full p-2";
+                                            @endphp
+
+                                            @if($order->status == 'pending') 
+                                                <span class="text-yellow-600 bg-yellow-500/20 p-2 {{$beforestatus}} before:bg-yellow-600 ">Pending</span> 
+                                            @elseif($order->status == 'out for delivery') 
+                                                <span class="text-indigo-500 bg-indigo-500/20 p-2 {{$beforestatus}}  before:bg-indigo-500">Out for Delivery</span> 
+                                            @elseif($order->status == 'packed') 
+                                                <span class="text-purple-500 bg-purple-500/20 p-2 {{$beforestatus}}  before:bg-purple-500">Packed</span>
+                                            @elseif($order->status == 'cancelled') 
+                                                <span class="text-red-500 bg-red-500/20 p-2 {{$beforestatus}}  before:bg-red-500">Cancelled</span> 
+                                            @elseif($order->status == 'delivered') 
+                                                <span class="text-green-500 bg-green-500/20 p-2 {{$beforestatus}}  before:bg-green-500">Delivered</span> 
+                                            @endif
                                         </td> 
                                     </tr> 
                                 @empty 
