@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Models\BlockedIp;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Logout;
@@ -24,26 +25,21 @@ class UserAuthenticationListener
     /**
      * Handle user authentication events.
      */
-    public function handle(object $event): void
+     public function handle(object $event): void
     {
         if ($event instanceof Login) {
             HistorylogController::loginLog($event->user);
 
         } elseif ($event instanceof Failed) {
             $email = $event->credentials['email'] ?? 'not_provided';
-
-            // 1. Call the logger AND capture the returned data into $logData
+            
             $logData = HistorylogController::failedLoginLog($email);
-
-            // 2. Extract the IP and location from the data
             $ipAddress = $logData['ip'];
             $locationString = $logData['location'];
-
-            // 3. Use the data for the Brute-Force Detection
             $key = 'login-attempt:' . $ipAddress;
             RateLimiter::hit($key, 600); 
 
-            if (RateLimiter::tooManyAttempts($key, 5)) {
+            if (RateLimiter::tooManyAttempts($key, 10)) {
                 $notificationKey = 'notification-sent:' . $ipAddress;
                 if (RateLimiter::attempt($notificationKey, 1, fn() => true, 600)) {
                     $superAdmins = SuperAdmin::all();
@@ -53,6 +49,15 @@ class UserAuthenticationListener
                         );
                     }
                 }
+
+                // The blocking command here is correct. It runs after 5 failed attempts.
+                BlockedIp::firstOrCreate(
+                    ['ip_address' => $ipAddress],
+                    [
+                        'reason' => 'Brute-force login attempt detected.',
+                        'blocked_by_email' => 'System',
+                    ]
+                );
             }
         } elseif ($event instanceof Logout) {
             if ($event->user) {

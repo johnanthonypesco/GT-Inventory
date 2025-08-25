@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 
 // Admin Controller
+use App\Http\Middleware\CheckBlockedIp;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\SampleController;
 use App\Http\Controllers\CompanyController;
@@ -25,23 +26,24 @@ use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\ReviewManagerController;
 use App\Http\Controllers\StaffLocationController;
 use App\Http\Controllers\Admin\ChattingController;
-use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\GroupChatController;
 
 // Customer Controller
+use App\Http\Controllers\Admin\GroupChatController;
 use App\Http\Controllers\Admin\InventoryController;
-use App\Http\Controllers\Customer\ReviewController;
 
 
 //Super Admin Login
+use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\PromotionalPageController;
 use App\Http\Controllers\Admin\HistorylogController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Customer\ChatRepsController;
-use App\Http\Controllers\Customer\TrackingController;
 // use app\http\Controllers\ExportController as ExportDocxController;
+use App\Http\Controllers\Customer\TrackingController;
+
+
 use App\Http\Controllers\SuperAdminAccountController;
 
 
@@ -72,6 +74,7 @@ use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\ExportController as ExportDocxController;
 use App\Http\Controllers\Staff\ChatController as StaffChatController;
+
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 
 use App\Http\Controllers\Staff\LoginController as StaffLoginController;
@@ -79,12 +82,15 @@ use App\Http\Controllers\Staff\OrderController as StaffOrderController;
 use App\Http\Controllers\Customer\ChatController as CustomerChatController;
 use App\Http\Controllers\Staff\HistoryController as StaffHistoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+// download apk for registration.
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 // download apk for registration.
 use App\Http\Controllers\Staff\InventoryController as StaffInventoryController;
 use App\Http\Controllers\Customer\HistoryController as CustomerHistoryController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ManageaccountController as CustomerManageaccountController;
+
+use App\Http\Controllers\SuperAdmin\BlockedIpController;
 
 // Route::get('/beta-register', [BetaRegistrationController::class, 'showForm'])->name('beta.register.form');
 // Route::post('/beta-register', [BetaRegistrationController::class, 'store'])->name('beta.register.store');
@@ -402,7 +408,7 @@ Route::prefix('chat')->middleware('auth')->group(function () {
 //++~~~~~~~~~~~~~~~~~~~~~~~~~ << GUEST USERS ROUTES >> ~~~~~~~~~~~~~~~~~~~~~~~~~~~++//
 
 //16////////////////////// << SUPERADMIN LOGIN ROUTES >> ///////////////////////////16//
-Route::middleware('guest:superadmin')->group(function () {
+Route::middleware(['guest:superadmin',CheckBlockedIp::class])->group(function () {
     Route::get('/superadmin/login', [SuperAdminAuthenticatedSessionController::class, 'create'])
         ->name('superadmins.login');
 
@@ -413,7 +419,7 @@ Route::middleware('guest:superadmin')->group(function () {
 
 
 //17////////////////////// << ADMIN LOGIN ROUTES >> ///////////////////////////17//
-Route::middleware('guest:admin')->group(function () {
+Route::middleware(['guest:admin', CheckBlockedIp::class])->group(function () {
     Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])
         ->name('admins.login');
 
@@ -423,7 +429,7 @@ Route::middleware('guest:admin')->group(function () {
 //17////////////////////// << ADMIN LOGIN ROUTES >> ///////////////////////////17//
 
 //18////////////////////// << STAFF LOGIN ROUTES >> ///////////////////////////18//
-Route::middleware('guest:staff')->group(function () {
+Route::middleware(['guest:staff', CheckBlockedIp::class])->group(function () {
     Route::get('/staff/login', [StaffAuthenticatedSessionController::class, 'create'])
         ->name('staffs.login');
 
@@ -467,6 +473,12 @@ Route::middleware(['auth:superadmin,admin'])->group(function () {
 Route::post('/manage-companies/{id}/restore', [CompanyController::class, 'restore'])->name('admin.companies.restore');
 });
 
+Route::middleware(['auth:superadmin'])->group(function () {
+    Route::get('/blocked-ips', [BlockedIpController::class, 'index'])->name('blocked-ips.index');
+        Route::delete('/blocked-ips/{blockedIp}', [BlockedIpController::class, 'destroy'])->name('blocked-ips.destroy');
+                Route::get('/blocked-ips/search', [BlockedIpController::class, 'search'])->name('blocked-ips.search'); // ✅ Add this
+
+    });
 
 // To Keep Laravel Auth Routes
 require __DIR__.'/auth.php';

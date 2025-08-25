@@ -104,6 +104,8 @@
         <i class="fa-solid fa-archive"></i> View Archived Companies
     </button>
     
+
+   
 </div>
         {{-- End Filter & Add Account --}}
 

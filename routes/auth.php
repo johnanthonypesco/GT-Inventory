@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckBlockedIp;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -15,7 +16,7 @@ use App\Http\Controllers\Auth\StaffAuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\SuperAdminAuthenticatedSessionController;
 
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', CheckBlockedIp::class])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
