@@ -13,7 +13,7 @@
 <body class="flex items-center justify-center h-screen p-10">
 
     <!-- Wrapper -->
-    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[55%] overflow-hidden">
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-[100%] overflow-hidden">
 
         <!-- Left Side Logo + Branding -->
         <div class="flex flex-col w-full lg:w-1/2 p-6 md:p-10">
