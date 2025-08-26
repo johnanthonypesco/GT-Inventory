@@ -6,7 +6,7 @@
     <title>Invoice - Order #{{ $order->id }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     {{--  --}}
     <style>

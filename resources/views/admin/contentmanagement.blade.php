@@ -13,7 +13,7 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <script src="https://cdn.tailwindcss.com"></script>
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Manage Content</title>
 </head>

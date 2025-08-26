@@ -109,7 +109,13 @@
                 class="w-full h-auto rounded-lg shadow-md">
                     @foreach ($routesForVids as $routeName => $fileName)
                         @if ($routeIs($routeName))
-                            <source src="{{ asset('videos/' . $fileName) }}" type="video/mp4">
+                            @php
+                                $url = App::environment("local") 
+                                ? asset('videos/' . $fileName)
+                                : 'https://rmpoims.com/videos/' . $fileName;
+                            @endphp
+
+                            <source src="{{ $url }}" type="video/mp4">
                         @endif
                     @endforeach
                     Your browser does not support the video tag.

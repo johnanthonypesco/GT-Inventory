@@ -121,35 +121,22 @@ class OrderController extends Controller
         // // To connect the pair dynamic between the order quantity and the stock quantity 
        $insufficients = [];
 
-// Start by looping through all the orders that were grouped by product.
-foreach ($orderArray as $productName => $orders) {
-    // For each product, get its stock. Default to 0 if no stock record exists.
-    $totalStock = $currentStocks[$productName] ?? 0;
+        // Start by looping through all the orders that were grouped by product.
+        foreach ($orderArray as $productName => $orders) {
+            // For each product, get its stock. Default to 0 if no stock record exists.
+            $totalStock = $currentStocks[$productName] ?? 0;
 
-    // Now, check each individual order for that product.
-    foreach ($orders as $order) {
-        $insufficients[] = [
-            "currentInfo" => [
-                "name" => $productName,
-                "total" => $totalStock // Use the determined stock level
-            ],
-            "currentOrder" => $order,
-        ];
-    }
-}
-
-        // dd($currentStocks);
-
-        // // Groups the non-suppliable by product-name
-        // $insufficients = collect($insufficients)->groupBy(function ($pair) {
-        //     if ($pair["currentInfo"]["total"] < $pair["currentOrder"]["quantity"]) {
-        //         return $pair["currentInfo"]["name"];
-        //     } else {
-        //         return "rejecteds";
-        //     }
-        // })->forget('rejecteds'); // removes the rejected group from the collection
-
-        // dd($insufficients);
+            // Now, check each individual order for that product.
+            foreach ($orders as $order) {
+                $insufficients[] = [
+                    "currentInfo" => [
+                        "name" => $productName,
+                        "total" => $totalStock // Use the determined stock level
+                    ],
+                    "currentOrder" => $order,
+                ];
+            }
+        }
 
         $insufficients = collect($insufficients)->groupBy(function ($pair) {
             $total = $pair["currentInfo"]["total"];

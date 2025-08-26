@@ -10,7 +10,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Order</title>
 </head>
@@ -109,7 +109,11 @@
             <!-- Summary of Orders -->
             <form action="{{ route('customer.order.store') }}" method="POST" id="ordersummaryform" class="w-full border-t-4 border-[#005382] lg:border-t-0 sticky left-0 bottom-0 lg:w-[30%] bg-white p-5 rounded-none lg:rounded-xl" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 @csrf
-                <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}">
+                
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                
+                <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}"> </p>
+                
                 <div class="flex justify-between items-center pb-2">
                     <h1 class="text-center font-semibold text-2xl">Summary of Orders</h1>
                     <span class="block lg:hidden"><i onclick="viewOrderSummary()" id="ordersummaryicon" class="fa-solid fa-angles-up border border-[#005382] p-3 rounded-full text-center hover:bg-[#005382] hover:text-white transition-all duration-500"></i></span>
@@ -142,5 +146,7 @@
 
 <script src="{{ asset('js/customer/order.js') }}"></script>
 <script src="{{ asset('js/customer/sweetalert/order.js') }}"></script>
-<script>window.successMessage = @json(session('success'));</script>
+<script>
+    window.successMessage = @json(session('success'));
+</script>
 </html>

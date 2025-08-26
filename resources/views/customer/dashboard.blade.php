@@ -15,7 +15,7 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon"> 
     <title>Dashboard</title> 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <style> 
         /* Skeleton Loader Styles */ 
@@ -129,13 +129,13 @@
                                         <td class="p-3 font-medium"> 
                                             ₱{{ number_format($order->exclusive_deal ? ($order->exclusive_deal->price * $order->quantity) : $order->total_amount, 2) }} 
                                         </td> 
-                                        <td class="p-3"> 
+                                        <td class="p-3 font-bold"> 
                                             @php 
                                                 $beforestatus = "rounded-lg flex gap-2 w-fit items-center before:content-[''] before:block before:w-2 before:h-2 before:rounded-full p-2";
                                             @endphp
 
                                             @if($order->status == 'pending') 
-                                                <span class="text-yellow-500 bg-yellow-500/20 p-2 {{$beforestatus}} before:bg-yellow-500 ">Pending</span> 
+                                                <span class="text-yellow-600 bg-yellow-500/20 p-2 {{$beforestatus}} before:bg-yellow-600 ">Pending</span> 
                                             @elseif($order->status == 'out for delivery') 
                                                 <span class="text-indigo-500 bg-indigo-500/20 p-2 {{$beforestatus}}  before:bg-indigo-500">Out for Delivery</span> 
                                             @elseif($order->status == 'packed') 

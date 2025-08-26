@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ asset('css/order.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Orders</title>
 </head>
@@ -97,6 +97,7 @@
                 </div>
             </div>
 
+            <di id="real-timer-provinces"> {{-- for the realtimer provinces --}}
             @foreach ($provinces as $provinceName => $companies)
             {{-- Table for Order --}}
             <h1 class="text-[20px] sm:text-[30px] font-regular font-bold mb-3">
@@ -105,7 +106,7 @@
                     {{ $provinceName }}
                 </span>
             </h1>
-            <div class="table-container bg-white p-5 rounded-lg mb-5" id="real-timer-provinces" data-location="{{ $provinceName }}" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
+            <div class="table-container bg-white p-5 rounded-lg mb-5" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
                 <div class="flex flex-wrap justify-between items-center">
                     <div class="table-button flex gap-4 mt-5 lg:mt-0">
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
@@ -155,6 +156,7 @@
             </div>
             {{-- Table for Order --}}
         @endforeach
+        </di> {{-- for the realtimer provinces --}}
         </div>
 
         {{-- View Order Modal --}}
@@ -181,7 +183,11 @@
                                 </span>
                             </h1>
 
-                            <div class="table-container h-[360px] overflow-y-auto">
+                            @php
+                                $forTheRealtimeOrders = $explodedIDNameDate[0] . "-" . $explodedIDNameDate[2];
+                            @endphp
+
+                            <div id="real-timer-orders" data-iddate="{{$forTheRealtimeOrders}}" class="table-container h-[360px] overflow-y-auto">
                                 @foreach ($groupedStatuses as $statusName => $orders)
                                     <h1 class="text-lg text-black font-bold uppercase mb-3
                                         {{
@@ -276,7 +282,7 @@
 
                             {{-- Print Buttons etc. (optional) --}}
                             <div class="print-button flex flex-col sm:flex-row justify-end mt-24 gap-4 items-center">
-                                <p class="text-right text-[18px] sm:text-[20px] font-bold">
+                                <p id="real-timer-grand-total" data-iddate="{{$forTheRealtimeOrders}}" class="text-right text-[18px] sm:text-[20px] font-bold">
                                     Grand Total: ₱ {{ number_format($total) }}
                                 </p>
                                 {{-- <button class="flex items-center gap-2 cursor-pointer text-sm sm:text-base">
@@ -628,9 +634,20 @@ function showInsufficientProducts() {
 }
 </script>
 
-<script> 
+<script>
 function viewOrder(id) {
-    var viewOrderModal = document.getElementById("order-modal-" + id);
+    const modalID = "order-modal-" + id;
+
+    if (!document.getElementById(modalID)) {
+        localStorage.setItem("tried-to-open", id);
+
+        alert("This is a new order you are trying to view! Refreshing the page contents...");
+
+        location.reload();
+    }
+
+    var viewOrderModal = document.getElementById(modalID);
+    
     viewOrderModal.classList.replace("hidden", "flex");
 }
 function closeOrderModal(id) {
@@ -701,7 +718,7 @@ function showChangeStatusModal(id, motherDiv) {
         motherInput.value       = motherDiv;
 
         // Remove after confirming everything works
-        console.log('Change-Status modal opened:', { id, archivingDetails });
+        // console.log('Change-Status modal opened:', { id, archivingDetails });
         return;
     }
 
@@ -867,14 +884,24 @@ function closeAssignStaffModal() {
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
 
-// REAL TIMER STUFF BY SIGRAE
 
+// REAL TIMER STUFF BY SIGRAE
 document.addEventListener('DOMContentLoaded', function () {
     const totalCountersID = '#real-timer-counters';
     const unfulfillableTableID = '#real-timer-unfulfillable-orders-table';
     const insufficientTableID = '#real-timer-insufficients-table';
-    // const provincesID = '#real-timer-provinces';
-    // const employeeOrdersTableID = '#real-timer-employee-orders-table';
+    const provincesID = '#real-timer-provinces';
+    const employeeOrdersTableID = '#real-timer-orders';
+
+    // if may nag try mag open ng newly updated na order sa provinces, reload niya and auto open after refresh
+    const modalID = localStorage.getItem("tried-to-open");
+
+    if (modalID) {
+        viewOrder(modalID)
+
+        localStorage.removeItem("tried-to-open");
+        console.log("Opened the modal you tried to open previously :)");
+    }
 
     // every 8.5 secs mag update yung main section
     setInterval(() => {
@@ -891,7 +918,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // DITO YUNG MULTI REPLACE SECTION
             const currentCounters = document.querySelectorAll(totalCountersID);            
             // const currentProvinces = document.querySelectorAll(provincesID);            
-            // const currentEmployeeOrderTables = document.querySelectorAll(employeeOrdersTableID);            
+            const currentEmployeeOrderTables = document.querySelectorAll(employeeOrdersTableID);            
 
             currentCounters.forEach(currentCounter => {
                 const type = currentCounter.dataset.type;
@@ -903,41 +930,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     currentCounter.innerHTML = updatedCounter.innerHTML;
                 }
             });
-
-            // currentProvinces.forEach(currentProvince => {
-            //     const location = currentProvince.dataset.location;
-
-            //     // Update the current iter with the updated version
-            //     const updatedProvince = updatedPage.querySelector(`${provincesID}[data-location="${location}"]`);
-                
-            //     if (updatedProvince) {
-            //         currentProvince.innerHTML = updatedProvince.innerHTML;
-            //     }
-            // });
             
-            // currentEmployeeOrderTables.forEach(currentTable => {
-            //     const nameDate = currentTable.dataset.namedate;
-            //     const currentNameDate = document.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
-            //     const currentClose = document.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
-            //     const currentGrandTotal = document.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+            currentEmployeeOrderTables.forEach(currentTable => {
+                const nameDate = currentTable.dataset.iddate;
+                const grandTotalID = "#real-timer-grand-total";
 
-            //     // Update the current iter with the updated version
-            //     const updatedTable = updatedPage.querySelector(`${employeeOrdersTableID}[data-namedate="${nameDate}"]`);
-            //     const updatedNameDate = updatedPage.querySelector(`#real-timer-employee-name[data-namedate="${nameDate}"]`);
-            //     const updatedClose = updatedPage.querySelector(`#real-timer-employee-close[data-namedate="${nameDate}"]`);
-            //     const updatedGrandTotal = updatedPage.querySelector(`#real-timer-grand-total[data-namedate="${nameDate}"]`);
+                const currentGrandTotal = document.querySelector(`${grandTotalID}[data-iddate="${nameDate}"]`);
+
+                // Update the current iter with the updated version
+                const updatedTable = updatedPage.querySelector(`${employeeOrdersTableID}[data-iddate="${nameDate}"]`);
+
+                const updatedGrandTotal = updatedPage.querySelector(`${grandTotalID}[data-iddate="${nameDate}"]`);
                 
-            //     if (updatedTable) {
-            //         currentTable.innerHTML = updatedTable.innerHTML;
-            //         currentNameDate.innerHTML = updatedNameDate.innerHTML;
-            //         currentClose.innerHTML = updatedClose.innerHTML;
-            //         currentGrandTotal.innerHTML = updatedGrandTotal.innerHTML;
-            //     }
-            // });
+                if (updatedTable) {
+                    currentTable.innerHTML = updatedTable.innerHTML;
+                    currentGrandTotal.innerHTML = updatedGrandTotal.innerHTML;
+                }
+            });
             
             // DITO YUNG MULTI REPLACE SECTION
 
-            // DITO YUNG SINGULAR REPLACE SECTION    
+            // DITO YUNG SINGULAR REPLACE SECTION
+            const currentProvinces = document.querySelector(provincesID);
+            const updatedProvinces = updatedPage.querySelector(provincesID);
+
+            currentProvinces.innerHTML = updatedProvinces.innerHTML;
+
             const currentUnfulfillable = document.querySelector(unfulfillableTableID);
             const updatedUnfulfillable = updatedPage.querySelector(unfulfillableTableID);
 

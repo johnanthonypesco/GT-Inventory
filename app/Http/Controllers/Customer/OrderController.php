@@ -52,7 +52,7 @@ class OrderController extends Controller
 
     public function storeOrder(Request $request){
         $validated = $request->validate([
-            'user_id.*' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'exclusive_deal_id.*' => 'required|numeric',
             'quantity.*' => 'required|numeric', 
         ]);
@@ -67,75 +67,90 @@ class OrderController extends Controller
             );
         }, $validated);
 
-        // dd($validated['exclusive_deal_id']);
+        // OG count
+        $ids = $validated['exclusive_deal_id'];
 
-        $checkOrders = array_map(function ($value) {
-            return (
-                ExclusiveDeal::where('id', $value)
-                ->where('company_id', auth()->user()->company_id)->exists()
-            );
-        }, $validated['exclusive_deal_id']);
+        // New count after checking if not doctored by user
+        $validIds = ExclusiveDeal::whereIn('id', $ids)
+            ->where('company_id', auth()->user()->company_id)
+            ->pluck('id')
+            ->toArray();
 
-        $isOrderInvalid = in_array(false, $checkOrders);
+        // Check na ngayon if walang doctored na deal ID, na hindi belong sa company nayun.
+        // if pantay lang yung counts, it means na walang na filter out na doctored IDS outside
+        // sa company nayun. Which means valid yung order and wont get rejected
+        // by: Optimizing Sigrae
+        $isOrdersNotDoctored = count($ids) === count($validIds);
         
-        if (!$isOrderInvalid) {
+        if ($isOrdersNotDoctored) {
+            // SIGRAE'S ARRAY
             $orders = [];
+
+            // KUYA'S ARRAY
             $orderDetails = [];
     
-            foreach ($validated['user_id'] as $index => $user_id) {
-                $user = User::findOrFail($user_id);
-                $deal = ExclusiveDeal::with('product')->findOrFail($validated['exclusive_deal_id'][$index]);
-                $locationId = $user->company->location_id;
-    
-                $availableQty = Inventory::where('location_id', $locationId)
-                    ->where('product_id', $deal->product_id)
-                    ->sum('quantity');
-    
+            $user = User::findOrFail($validated["user_id"]);
+            $locationId = $user->company->location_id;
+
+            $deals = ExclusiveDeal::with('product')
+            ->whereIn('id', $validated['exclusive_deal_id'])
+            ->get()
+            ->keyBy("id"); // para hindi na need ulitin query, accessin nalang gamit yung key
+
+            $inventory = Inventory::where('location_id', $locationId)
+            ->selectRaw('product_id, SUM(quantity) as total_qty')
+            ->groupBy('product_id')
+            ->pluck('total_qty', 'product_id');
+
+            foreach ($validated['exclusive_deal_id'] as $index => $deal_id) {
+                // START OF KUYA'S CODE
+                $prod_id = $deals[$deal_id]->product->id;
+                $availableQty = $inventory[$prod_id] ?? 0;
+                
                 // $availableQty = $inventory ? $inventory->quantity : 0;
                 $isAvailable = $availableQty >= $validated['quantity'][$index];
-    
+                
                 // Save for email
                 $orderDetails[] = [
                     'user' => $user->name,
-                    'product' => $deal->product->generic_name,
-                    'brand_name' =>$deal->product->brand_name,
-                    'generic_name' => $deal->product->generic_name,
-                    'form' => $deal->product->form, // e.g., 'Tablet', 'Syrup'
-                    'strength' => $deal->product->strength, // e.g., '500mg', '250mg/5ml'
+                    // 'product' => $deals[$deal_id]->product->generic_name,
+                    'brand_name' =>$deals[$deal_id]->product->brand_name,
+                    'generic_name' => $deals[$deal_id]->product->generic_name,
+                    'form' => $deals[$deal_id]->product->form, // e.g., 'Tablet', 'Syrup'
+                    'strength' => $deals[$deal_id]->product->strength, // e.g., '500mg', '250mg/5ml'
                     'quantity_requested' => $validated['quantity'][$index],
                     'available' => $isAvailable,
                     'available_quantity' => $availableQty,
                     'location' => $user->company->location->province . ', ' . $user->company->location->city,
                 ];
+                // END OF KUYA'S CODE
+
     
+                // START OF SIGRAE'S CODE
                 $orders[] = [
-                    'user_id' => $user_id,
-                    'exclusive_deal_id' => $validated['exclusive_deal_id'][$index],
+                    'user_id' => $validated['user_id'],
+                    'exclusive_deal_id' => $deal_id,
                     'quantity' => $validated['quantity'][$index],
                     'date_ordered' => date('Y-m-d'),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
             }
-    
+            
             Order::insert($orders);
+            // END OF SIGRAE'S CODE
     
             // Notify admins
+            $admins = Admin::all();
+            $superadmins = SuperAdmin::all();
 
+            foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
+            }
 
-                $admins = Admin::all();
-                $superadmins = SuperAdmin::all();
-
-                foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
-                }
-
-                foreach ($superadmins as $superadmin) {
-                Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
-                }
-                
-
-            
+            foreach ($superadmins as $superadmin) {
+            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
+            }
     
             return to_route('customer.order')->with('success', 'Order placed successfully.');
         } else {

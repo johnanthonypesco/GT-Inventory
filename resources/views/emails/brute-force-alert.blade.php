@@ -3,7 +3,7 @@
 
 Hello,
 
-Five failed login attempts have been detected
+Ten failed login attempts have been detected
 <x-mail::table>
 | Detail | Information |
 |:--- |:--- |
@@ -13,8 +13,7 @@ Five failed login attempts have been detected
 | **Time of Alert** | {{ now()->format('F d, Y - h:i:s A T') }} |
 </x-mail::table>
 
-You may want to investigate this activity in the history log or consider temporarily blocking this IP address at your firewall.
-
+This IP address has been automatically blocked due to excessive failed login attempts. Please review the activity or contact the system administrator. If you believe this was a mistake, you can unblock the IP from the history log.
 <x-mail::button :url="route('superadmins.login')" color="error">
 View History Log
 </x-mail::button>
