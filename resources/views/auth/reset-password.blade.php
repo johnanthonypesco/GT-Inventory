@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 </head>
-<body class="flex items-center justify-center h-screen p-10">
+<body class="flex items-center justify-center min-h-screen h-screen p-10">
 
     <!-- Wrapper -->
     <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">

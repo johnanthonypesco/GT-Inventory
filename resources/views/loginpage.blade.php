@@ -42,7 +42,7 @@ body::before {
 }
 
 </style>
-<body class="flex items-center justify-center h-screen p-10">
+<body class="flex items-center justify-center min-h-screen h-screen p-10">
 
     <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
     

@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Email Verification</title>
 </head>
-<body class="flex items-center justify-center h-screen p-10">
+<body class="flex items-center justify-center min-h-screen h-screen p-10">
 
     <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
         
-        <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 h-full p-6 md:p-10">
             <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
                 <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
