@@ -28,3 +28,13 @@ body::before {
 input:focus{
     outline: 1px solid #005382;
 }
+
+.TwoFA_num_inputs::-webkit-outer-spin-button,
+.TwoFA_num_inputs::-webkit-inner-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+
+.TwoFA_num_inputs[type=number] {
+    -moz-appearance: textfield;
+}
