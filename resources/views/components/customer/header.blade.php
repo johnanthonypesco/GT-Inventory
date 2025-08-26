@@ -14,7 +14,7 @@ if(auth('web')->check()) {
 }
 @endphp
 <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
-<header class="flex justify-between items-center py-2 px-5 bg-white fixed top-0 left-0 lg:left-[16%] right-0 z-50">
+<header id="header" class="flex justify-between items-center py-2 px-5 bg-white fixed top-0 left-0 lg:left-[16%] right-0 z-[49] duration-200 transition-all">
 <div class="flex items-center gap-2">
     <i {{ $attributes->merge(['class'=> 'text-[#005382] text-2xl '. $icon]) }}></i>
     <h1 class="font-bold text-2xl uppercase">{{$title}}</h1>
@@ -166,4 +166,18 @@ if(auth('web')->check()) {
     // Start the refresh interval when the page loads
     startContactsRefresh();
 });
+
+const header = document.getElementById("header");
+        const frenchFries = 20;
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY >= frenchFries) {
+                header.classList.add("shadow-lg", "shadow-black/50");
+                header.classList.replace("py-2", "py-[12px]");
+            } 
+            else if (window.scrollY === 0) {
+                header.classList.remove("shadow-lg", "shadow-black/50");
+                header.classList.replace("py-[12px]", "py-2");
+            }
+        });
 </script>

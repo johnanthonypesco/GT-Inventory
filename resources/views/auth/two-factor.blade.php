@@ -40,11 +40,21 @@
                     </div>
                 @endif
                 
-                <div>
-                    <label for="two_factor_code" class="text-xs text-black/80 font-medium">Verification Code:</label>
-                    <input type="number" name="two_factor_code" id="two_factor_code" placeholder="Enter 6-Digit Code" 
-                           class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm"
-                           required autofocus>
+                <div class="text-center md:text-center -mt-4 md:-mt-0">
+                    <label for="two_factor_code" class="text-lg text-black/80 font-medium">Verification Code:</label>
+
+                    <input type="hidden" name="two_factor_code" id="two_factor_code" placeholder="Enter 6-Digit Code">
+                    @php
+                        $inputCSS = "border border-gray-300 bg-white w-40 h-15 md:w-20 md:h-20 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-lg outline-none mt-2 md:text-xl lg:text-lg text-center TwoFA_num_inputs";
+                    @endphp
+                    <div class="flex gap-3 flex-row justify-center flex-nowrap">
+                        <input type="number" class="{{$inputCSS}}" id="one" min="0" max="9" placeholder="0" autofocus required pattern="\d*">
+                        <input type="number" class="{{$inputCSS}}" id="two" min="0" max="9" placeholder="0" required pattern="\d*">
+                        <input type="number" class="{{$inputCSS}}" id="three" min="0" max="9" placeholder="0" required pattern="\d*">
+                        <input type="number" class="{{$inputCSS}}" id="four" min="0" max="9" placeholder="0" required pattern="\d*">
+                        <input type="number" class="{{$inputCSS}}" id="five" min="0" max="9" placeholder="0" required pattern="\d*">
+                        <input type="number" class="{{$inputCSS}}" id="six" min="0" max="9" placeholder="0" required pattern="\d*">
+                    </div>
                 </div>
 
                 <button type="submit" 
@@ -79,3 +89,100 @@
     
 </body>
 </html>
+
+
+<script>
+// tinamad nako, niGPT ko nalang navigation logic :)
+// SA ARAW NG FINAL DEFENSE BALIK MOTO SA DATI PARA MADALIAN SI KUYA MAG DEBUG
+//eto yung dating input na full:
+
+// <input type="number" name="two_factor_code" id="two_factor_code" placeholder="Enter 6-Digit Code" 
+// class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm"
+// required autofocus>
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const codeInputs = Array.from(document.querySelectorAll('.TwoFA_num_inputs'));
+  const hiddenInput = document.getElementById('two_factor_code');
+
+  // safety: ensure hidden exists
+  if (!hiddenInput || codeInputs.length === 0) return;
+
+  codeInputs.forEach((input, idx) => {
+    // make behavior consistent across browsers
+    input.setAttribute('inputmode', 'numeric');
+    input.setAttribute('pattern', '\\d*');
+    input.setAttribute('maxlength', '1'); // helpful for text inputs; harmless for number
+
+    // sanitize and handle typing / paste distribution
+    input.addEventListener('input', (e) => {
+      let val = input.value.replace(/\D/g, ''); // strip non-digits
+
+      if (!val) {
+        input.value = '';
+        updateHidden();
+        return;
+      }
+
+      // user pasted multiple digits into one box -> distribute across following inputs
+      if (val.length > 1) {
+        for (let i = 0; i < val.length && (idx + i) < codeInputs.length; i++) {
+          codeInputs[idx + i].value = val.charAt(i);
+        }
+        const nextFocus = Math.min(codeInputs.length - 1, idx + val.length);
+        codeInputs[nextFocus].focus();
+        codeInputs[nextFocus].select();
+      } else {
+        // single digit typed
+        input.value = val.charAt(0);
+        if (idx < codeInputs.length - 1) {
+          codeInputs[idx + 1].focus();
+          codeInputs[idx + 1].select();
+        }
+      }
+
+      updateHidden();
+    });
+
+    // keyboard navigation and blocking non-printable characters
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace') {
+        if (input.value === '' && idx > 0) {
+          // go back and clear previous
+          const prev = codeInputs[idx - 1];
+          prev.value = '';
+          prev.focus();
+          updateHidden();
+          e.preventDefault();
+        }
+        // else let default clear current input
+      } else if (e.key === 'ArrowLeft' && idx > 0) {
+        codeInputs[idx - 1].focus();
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight' && idx < codeInputs.length - 1) {
+        codeInputs[idx + 1].focus();
+        e.preventDefault();
+      } else if (e.key.length === 1 && !/\d/.test(e.key)) {
+        // block any printable non-digit
+        e.preventDefault();
+      }
+    });
+
+    // paste handling (explicit)
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      for (let i = 0; i < paste.length && (idx + i) < codeInputs.length; i++) {
+        codeInputs[idx + i].value = paste.charAt(i);
+      }
+      const focusIdx = Math.min(codeInputs.length - 1, idx + paste.length);
+      codeInputs[focusIdx].focus();
+      updateHidden();
+    });
+  });
+
+  function updateHidden() {
+    hiddenInput.value = codeInputs.map(i => i.value || '').join('');
+  }
+});
+</script>
