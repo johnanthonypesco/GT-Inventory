@@ -12,7 +12,7 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <title>Manage Accounts</title>
 

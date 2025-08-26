@@ -8,7 +8,7 @@
     <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Beta Registration</title>
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     <style>
     /* Hide the default browser password reveal icon */
