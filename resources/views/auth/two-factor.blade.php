@@ -10,10 +10,9 @@
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Two-Factor Authentication</title>
 </head>
-<body class="flex items-center justify-center min-h-screen h-screen p-10">
-    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
-        
-        <div class="flex flex-col gap-1 w-full h-full lg:w-1/2 p-6 md:p-10">
+<body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:max-w-3xl max-h-screen">
+        <div class="flex flex-col gap-1 w-full lg:w-1/2 p-6 md:p-10">
             <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
                 <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
@@ -45,7 +44,7 @@
 
                     <input type="hidden" name="two_factor_code" id="two_factor_code" placeholder="Enter 6-Digit Code">
                     @php
-                        $inputCSS = "border border-gray-300 bg-white w-40 h-15 md:w-20 md:h-20 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-lg outline-none mt-2 md:text-xl lg:text-lg text-center TwoFA_num_inputs";
+                        $inputCSS = "border border-gray-300 bg-white w-40 h-15 md:w-20 md:h-20 lg:w-14 lg:h-14 rounded-lg outline-none mt-2 md:text-xl lg:text-lg text-center TwoFA_num_inputs";
                     @endphp
                     <div class="flex gap-3 flex-row justify-center flex-nowrap">
                         <input type="number" class="{{$inputCSS}}" id="one" min="0" max="9" placeholder="0" autofocus required pattern="\d*">

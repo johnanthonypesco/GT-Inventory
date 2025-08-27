@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
-            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+            
 
     <title>RCT Med Pharma</title>
 </head>
