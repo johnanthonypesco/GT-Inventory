@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -61,8 +62,8 @@
 <body class="flex flex-col lg:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Manage Account" icon="fa-solid fa-bars-progress" />
+    <main class="md:w-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Manage Account" icon="fa-regular fa-users-gear" />
 
         <div id="successToast" class="toast-notification fixed top-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-50 flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-2xl"></i>

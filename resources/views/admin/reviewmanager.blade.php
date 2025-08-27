@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -16,8 +17,8 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Manage Reviews" icon="fa-solid fa-star" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Manage Reviews" icon="fa-regular fa-star-sharp-half-stroke" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
@@ -41,13 +42,13 @@
                         @forelse($reviews as $review)
                         <tr>
                             <td>{{ $review->user->name }}</td>
-                            <td>{{ $review->user->company->name }}</td>
+                            <td class="text-black/80">{{ $review->user->company->name }}</td>
                         <tr>
                             <td>{{ $review->user->name }}</td>
-                            <td>{{ $review->user->company->name }}</td>
+                            <td class="text-black/80">{{ $review->user->company->name }}</td>
 
                             <td>{{ $review->rating }}</td>
-                            <td>{{ $review->comment }}</td>
+                            <td class="text-black/80">{{ $review->comment }}</td>
                             <td>{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
                             <td class="font-bold">
                                 @if ($review->is_approved)

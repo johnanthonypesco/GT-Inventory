@@ -3,7 +3,7 @@
     font-family: "Roboto", sans-serif;
 }
 body{
-    background-color: #eaeaea;
+    background-color: #f3f3f3;
 }
 main{
     padding-bottom: 10px;
@@ -13,11 +13,12 @@ main{
 nav#sidebar{ 
     background-color: white;
     height: 100vh;
+    box-shadow: 5px 0px 5px rgba(0, 0, 0, 0.277);
 }
-li{
+/* li{
     padding: 0 9px 0 9px;
-}
-li a, .sidebar a{
+} */
+/* li a, .sidebar a{
     display: flex;
     align-items: center;
     gap: 10px;
@@ -26,14 +27,14 @@ li a, .sidebar a{
     position: relative;
     transition: all 0.3s;
     overflow: hidden;
-    text-transform: uppercase;
+    text-transform: capitalize;
     letter-spacing: 1px;
     z-index: 0;
     transition: duration 0.3s;
     font-size: 12.5px;
-    color: rgba(0, 0, 0, 0.732);
-}
-li a::before, .sidebar a::before{
+    color: rgba(0, 0, 0, 0.666);
+} */
+/* li a::before, .sidebar a::before{
     content: "";
     position : absolute;
     width: 100%;
@@ -44,34 +45,54 @@ li a::before, .sidebar a::before{
     border-radius: 10px ;
     z-index: -1;
     transition: all 0.3s ease;
-}
-li a:hover::before, .sidebar a:hover::before{
+} */
+/* li a:hover::before, .sidebar a:hover::before{
     left: 0;
+} */
+/* li a, #sidebar a{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    position: relative;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.697);
+    padding: 0 9px 0 9px;
 }
-li a:hover, .sidebar a:hover{
-    padding: 8px;
-    border-radius: 10px;
-    color: white;
-}
-li a:hover i, .sidebar a:hover i{
-    color: white;
-}
-.logout{
-    background-color: #005382;
-    color: white;
-    padding: 8px;
-    border-radius: 10px;
-    cursor: pointer;
+li a:hover i, #sidebar a:hover i{
+    color: black;
+    }
+    li a i{
+        font-size: 15px;
+        }
+        .logout{
+            background-color: #0052821b;
+            padding: 8px;
+            color: black !important;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
+            position: relative;
+            border-left: 3px solid #005382;
+            }
+            */
+li a:hover, #sidebar a:hover{
+    background-color: #0052821b;
+    color: black !important;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
+    position: relative;
+    border-left: 3px solid #005382;
+    transition: all 0.3s ease;
 }
 .active{
-    background-color: #005382;
-    padding: 8px;
-    border-radius: 10px;
-    color: white !important;
+    background-color: #0052821b;
+    color: black !important;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
-}
+    position: relative;
+    border-left: 4px solid #005382;
+    font-weight: 600;
+} 
 header{
     background-color: white;
+    box-shadow: 0 1px 3px #00000052;
 }
 header h1 i{
     color: #005382;
@@ -104,7 +125,7 @@ input[type='search']:focus {
 }
 
 ::-webkit-scrollbar {
-    width: 4px;
+    width: 2px;
     height: 3px;
 }
 ::-webkit-scrollbar-track {
@@ -145,7 +166,7 @@ table{
 }
 table tbody td{
     padding: 7px;
-    font-size: 14px;
+    font-size: 13px;
 }
 table tbody tr{
     border-bottom: 2px solid #0052825e;
@@ -156,6 +177,11 @@ table tr{
 }
 table tbody tr:hover{
     background-color: #78787824;
+}
+/* odd even table data */
+tr:nth-child(even)
+{
+    background-color: #e1e1e1;
 }
 .customer-container:hover{
     background-color: #005382;
@@ -208,9 +234,9 @@ input[type="search"]:focus{
         transform: rotate(180deg);
     }
 }
-#help{
+/* #help{
     animation: bounce 2s infinite;
-}
+} */
 #help:hover{
     animation: none;
 }

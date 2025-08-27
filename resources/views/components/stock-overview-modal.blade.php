@@ -104,9 +104,9 @@
                                 <tr>
                                     @foreach ($generalInfo['inventory'] as $stock)
                                         <td> {{ $stock->product->generic_name }} </td>
-                                        <td> {{ $stock->product->brand_name }} </td>
+                                        <td class="text-black/80"> {{ $stock->product->brand_name }} </td>
                                         <td> {{ $stock->product->form }} </td>
-                                        <td> {{ $stock->product->strength }} </td>
+                                        <td class="text-black/80"> {{ $stock->product->strength }} </td>
                                         @break
                                     @endforeach
                                     <td>{{ $generalInfo['total'] }}</td>
@@ -135,11 +135,11 @@
                             @foreach ($stocks as $stock)
                                 <tr class="text-center">
                                     <td> {{ $stock->batch_number }} </td>
-                                    <td>{{ $stock->product->generic_name }}</td>
+                                    <td class="text-black/80">{{ $stock->product->generic_name }}</td>
                                     <td>{{ $stock->product->brand_name }}</td>
-                                    <td>{{ $stock->product->form }}</td>
+                                    <td class="text-black/80">{{ $stock->product->form }}</td>
                                     <td>{{ $stock->product->strength }}</td>
-                                    <td>{{ $stock->quantity }}</td>
+                                    <td class="text-black/80">{{ $stock->quantity }}</td>
                                     <td>{{ Carbon::parse($stock->expiry_date)->translatedFormat('M j, Y') }}</td>
                                 </tr>
                             @endforeach

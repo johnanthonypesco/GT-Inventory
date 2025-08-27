@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -23,8 +24,8 @@
 
     <x-admin.navbar class="opacity-0"/>
 
-    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Inventory" icon="fa-solid fa-boxes-stacked" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Inventory" icon="fa-regular fa-warehouse" name="John Anthony Pesco" gmail="admin@gmail"/>
         {{-- $stockMonitor['paracetamol']["inventories"] --}}
 
         @php
@@ -169,7 +170,7 @@
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
                        <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
                             <span class="group-hover:text-white">
-                                <i class="fa-solid fa-plus"></i>
+                                <i class="fa-regular fa-qrcode-read"></i>
                                 Scan Receipt
                             </span>
                         </button>
@@ -210,38 +211,30 @@
         </div>
     </main>
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewallproductmodal">
-        <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <x-modalclose id="viewallproductclose" click="closeviewallproduct"/>
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto" id="viewallproductmodal">
+        <div class="modal w-full lg:w-[80%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
+            <x-modalclose id="viewallproductclose" click="closeviewallproduct" />
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
-            
+
             <div class="flex justify-between flex-col lg:flex-row gap-5 mt-5">
                 <button onclick="addmultiplestock()" class="bg-white w-fit font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
                     <i class="fa-solid fa-plus"></i>
                     Add Multiple Stocks
                 </button>
-                
+
                 <div class="flex flex-col lg:flex-row gap-2 w-full lg:w-[420px]">
                     @if (session('registeredProductSearch'))
-                        <button onclick="window.location.href = '{{route('admin.inventory')}}'" class="bg-red-500/80 w-full sm:w-fit whitespace-nowrap text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">                         
+                        <button onclick="window.location.href = '{{ route('admin.inventory') }}'" class="bg-red-500/80 w-full sm:w-fit whitespace-nowrap text-white font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center gap-2 cursor-pointer">
                             Reset Search
                         </button>
                     @endif
 
-                    <x-input name="search"
-                    placeholder="Search Product by Name"
-                    classname="fa fa-magnifying-glass"
-                    divclass="w-full lg:w-[100%] bg-white relative rounded-lg"
-                    id="search-product"
-                    searchType="product"
-                    :dataList="$uniqueProducts"
-                    :autofill="true"
-                    :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''  "/>
+                    <x-input name="search" placeholder="Search Product by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[100%] bg-white relative rounded-lg" id="search-product" searchType="product" :dataList="$uniqueProducts" :autofill="true" :currentSearch="$currentSearch['type'] === 'product' ? $currentSearch['query'] : ''" />
                 </div>
             </div>
 
             {{-- Table for all products --}}
-            <div id="real-timer-products-table" class="table-container mt-5 overflow-auto h-[300px]">
+            <div id="real-timer-products-table" class="table-container mt-5 overflow-auto max-h-[400px]">
                 <table>
                     <thead>
                         <tr>
@@ -256,38 +249,36 @@
                     <tbody class="data">
                         @foreach ($registeredProducts as $product)
                             @php
-                                $generic_name = $product->generic_name ? $product->generic_name : "none";
-                                $brand_name = $product->brand_name ? $product->brand_name : "none";
+                                $generic_name = $product->generic_name ?: 'none';
+                                $brand_name = $product->brand_name ?: 'none';
                             @endphp
-
                             <tr>
-                                <td>{{ $product->id}}</td>
-                                <td>{{ $generic_name }}</td>
+                                <td>{{ $product->id }}</td>
+                                <td class="text-black/80">{{ $generic_name }}</td>
                                 <td>{{ $brand_name }}</td>
-                                <td>{{ $product->form }}</td>
+                                <td class="text-black/80">{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
-                                    <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-green-600 bg-green-600/20 p-2 rounded-lg hover:text-white hover:bg-green-600 hover:-translate-y-1 transition-all duration-200"><i class="fa-solid fa-plus"></i>Add Stock</button>
-
-                                    <button class="flex items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200" onclick="editRegisteredProduct('{{$product->id}}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
+                                    <button onclick="addstock('{{ $product->id }}', @js($generic_name . '-' . $brand_name))" class="cursor-pointer flex items-center gap-2 text-green-600 bg-green-600/20 p-2 rounded-lg hover:text-white hover:bg-green-600 hover:-translate-y-1 transition-all duration-200">
+                                        <i class="fa-solid fa-plus"></i>Add Stock
+                                    </button>
+                                    <button class="flex items-center text-[#005382] cursor-pointer bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200" onclick="editRegisteredProduct('{{ $product->id }}', @js($generic_name), @js($brand_name), @js($product->form), @js($product->strength), '{{ url('/') }}/', @js($product->img_file_path))">
                                         <i class="fa-regular fa-pen-to-square mr-2"></i>
                                         Edit
                                     </button>
-
-                                    <x-delete-button route="admin.archive.product" routeid="{{$product->id}}" method="PUT" deleteType="archive" />
+                                    <x-delete-button route="admin.archive.product" routeid="{{ $product->id }}" method="PUT" deleteType="archive" />
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+                {{-- Pagination --}}
+                <div id="regis-product-paginate-div" class="mt-5">
+                    {{ $registeredProducts->links() }}
+                </div>
+                {{-- Pagination --}}
             </div>
             {{-- Table for all products --}}
-
-            {{-- Pagination --}}
-            <div id="regis-product-paginate-div" class="mt-5">
-                {{ $registeredProducts->links() }}
-            </div>
-            {{-- Pagination --}}
         </div>
     </div>
     {{-- Modal for View All Products --}}
@@ -373,9 +364,9 @@
 
                             <tr>
                                 <td>{{ $product->id}}</td>
-                                <td>{{ $generic_name }}</td>
+                                <td class="text-black/80">{{ $generic_name }}</td>
                                 <td>{{ $brand_name }}</td>
-                                <td>{{ $product->form }}</td>
+                                <td class="text-black/80">{{ $product->form }}</td>
                                 <td>{{ $product->strength }}</td>
                                 <td class="flex items-center gap-4 justify-center font-bold">
                                     <form id="unarchiveform" class="unarchiveform" action="{{ route('admin.archive.product', [$product->id, 'undo']) }}" method="post">

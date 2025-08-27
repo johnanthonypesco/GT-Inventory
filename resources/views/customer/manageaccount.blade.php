@@ -14,7 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Font Awesome --}}
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
 
     {{-- Custom CSS --}}
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">

@@ -8,7 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -22,8 +23,8 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Orders" icon="fa-solid fa-cart-shopping" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Orders" icon="fa-regular fa-cart-circle-check" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         {{-- Total Container --}}
         <div class="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -31,11 +32,15 @@
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
             <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
             title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientOrders" classname="absolute right-5 opacity-70">
-                <i class="fa-solid fa-hand-pointer text-lg text-white animate-bounce bg-[#005382] rounded-full px-2 py-1"></i>
+                <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce">
+                    <i class="fa-solid fa-hand-pointer text-lg text-white"></i>
+                </div>
             </x-countcard>  
             <x-countcard onclick="showInsufficientProducts()"   class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientproducts > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
                 title='Insufficient Products' image="outofstocks.png" :count="$insufficientproducts" classname="absolute right-5 opacity-70">
-                <i class="fa-solid fa-hand-pointer text-lg text-white animate-bounce bg-[#005382] rounded-full px-2 py-1"></i>
+                <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce mt-2">
+                    <i class="fa-solid fa-hand-pointer text-lg text-white"></i>
+                </div>
             </x-countcard>
 
         </div>
@@ -237,13 +242,13 @@
                                                 {{ $isInsufficient ? "bg-red-500 animate-pulse text-white" : '' }}
                                                 ">
                                                     <td>{{ $productInfo->generic_name }}</td>
-                                                    <td>{{ $productInfo->brand_name }}</td>
+                                                    <td class="text-black/80">{{ $productInfo->brand_name }}</td>
                                                     <td>{{ $productInfo->form }}</td>
-                                                    <td>{{ $productInfo->strength }}</td>
+                                                    <td class="text-black/80">{{ $productInfo->strength }}</td>
                                                     <td>{{ $currentStock }}</td>
-                                                    <td>{{ $order->quantity }}</td>
+                                                    <td class="text-black/80">{{ $order->quantity }}</td>
                                                     <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
-                                                    <td>₱ {{ number_format($order_calc) }}</td>
+                                                    <td class="text-black/80">₱ {{ number_format($order_calc) }}</td>
                                                     <td colspan="2">
                                                         @if ($isInsufficient)
                                                             <p> Insufficient Stock </p>
@@ -474,17 +479,17 @@
                         
                                 <tr>
                                     <td> {{ $explodedName[4] }} </td>
-                                    <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
+                                    <td class="text-black/80"> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
-                                    <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
+                                    <td class="text-black/80"> {{ $order["currentOrder"]["user"]["name"] }} </td>
                                     <td> {{ $explodedName[0] }} </td>
-                                    <td> {{ $explodedName[1] }} </td>
+                                    <td class="text-black/80"> {{ $explodedName[1] }} </td>
                                     <td> {{ $explodedName[2] }} </td>
-                                    <td> {{ $explodedName[3] }} </td>
+                                    <td class="text-black/80"> {{ $explodedName[3] }} </td>
                                     <td>
                                         {{ $isExpired ? 'Expired' : number_format($available) }}
                                     </td>
-                                    <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
+                                    <td class="text-black/80"> {{ number_format($order["currentOrder"]['quantity']) }} </td>
                                 </tr>
                             @endforeach
                         @endforeach
@@ -539,11 +544,11 @@
 
                         <tr>
                             <td>{{ $explosionBaby[0] }}</td>
-                            <td>{{ $explosionBaby[1] }}</td>
+                            <td class="text-black/80">{{ $explosionBaby[1] }}</td>
                             <td>{{ $explosionBaby[2] }}</td>
-                            <td>{{ $explosionBaby[3] }}</td>
+                            <td class="text-black/80">{{ $explosionBaby[3] }}</td>
                             <td>{{ $item['available'] }}</td>
-                            <td>{{ $item['ordered'] }}</td>
+                            <td class="text-black/80">{{ $item['ordered'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>

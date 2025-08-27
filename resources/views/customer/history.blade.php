@@ -10,7 +10,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> --}}
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{asset ('css/customer/history.css')}}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -122,7 +123,7 @@
                                 @endphp
                                 <tr class="text-center">
                                     <td>{{ Carbon::parse($statuses->first()->first()->date_ordered)->translatedFormat('M d, Y') }}</td>
-                                    <td>₱ {{ number_format($total) }}</td>
+                                    <td class="text-black/80">₱ {{ number_format($total) }}</td>
                                     <td>
                                         <x-vieworder onclick="viewOrder('{{ $dateName }}')" name="View Ordered Items"/>
                                     </td>
@@ -187,11 +188,11 @@
                                         @endphp
                                         <tr class="text-center">
                                             <td>{{ $item->generic_name }}</td>
-                                            <td>{{ $item->brand_name }}</td>
+                                            <td class="text-black/80">{{ $item->brand_name }}</td>
                                             <td>{{ $item->form }}</td>
-                                            <td>{{ $item->strength }}</td>
+                                            <td class="text-black/80">{{ $item->strength }}</td>
                                             <td>{{ $item->quantity }}</td>
-                                            <td> ₱ {{ number_format($item->price) }}</td>
+                                            <td class="text-black/80"> ₱ {{ number_format($item->price) }}</td>
                                             <td> ₱ {{ number_format($calc) }} </td>
                                         </tr>
                                     @endforeach

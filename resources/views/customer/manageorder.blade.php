@@ -15,7 +15,8 @@
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
 
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/manageorder.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -126,7 +127,7 @@
                                 @endphp
                                 <tr class="text-center">
                                     <td> {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y') }} </td>
-                                    <td> ₱ {{ number_format($total) }} </td>
+                                    <td class="text-black/80"> ₱ {{ number_format($total) }} </td>
                                     <td>
                                         <x-vieworder onclick="viewOrder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" name="View Ordered Items"/>
                                     </td>
@@ -196,11 +197,11 @@
                                     @endphp
                                     <tr class="text-center">
                                         <td>{{ $item->exclusive_deal->product->generic_name }}</td>
-                                        <td>{{ $item->exclusive_deal->product->brand_name }}</td>
+                                        <td class="text-black/80">{{ $item->exclusive_deal->product->brand_name }}</td>
                                         <td>{{ $item->exclusive_deal->product->form }}</td>
-                                        <td>{{ $item->exclusive_deal->product->strength }}</td>
+                                        <td class="text-black/80">{{ $item->exclusive_deal->product->strength }}</td>
                                         <td>{{ $item->quantity }}</td>
-                                        <td>₱ {{number_format($item->exclusive_deal->price)}}</td>
+                                        <td class="text-black/80">₱ {{number_format($item->exclusive_deal->price)}}</td>
                                         <td> ₱ {{ number_format($calc) }}</td>
                                         <td> 
                               @if($item->status == 'out for delivery' && $item->staff_id)

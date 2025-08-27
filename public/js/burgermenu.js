@@ -38,7 +38,7 @@ navLinks.forEach(function(link) {
         // also add the white text to the icon inside the active link
         const icon = link.querySelector('i');
         if (icon) {
-            icon.classList.add('text-white');
+            icon.classList.add('text-black/80');
         }
     }
 });
