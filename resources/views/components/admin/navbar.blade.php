@@ -1,6 +1,6 @@
 <x-fontawesome/>
 
-<nav id="sidebar" class="md:w-[16%] w-full hidden lg:flex flex-col fixed h-screen shadow-sm z-[49] bg-white">
+<nav id="sidebar" class="md:w-[16%] w-full hidden lg:flex flex-col fixed h-screen shadow-sm z-[48] bg-white">
     <div class="p-4 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[110px] self-center">
     </div>
