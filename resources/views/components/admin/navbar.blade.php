@@ -1,3 +1,5 @@
+<x-fontawesome/>
+
 <nav id="sidebar" class="md:w-[16%] w-full hidden lg:flex flex-col fixed h-screen shadow-sm z-[49] bg-white">
     <div class="p-4 flex flex-col">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[110px] self-center">
@@ -131,7 +133,7 @@
         <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-regular transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>
@@ -139,7 +141,7 @@
         <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-medium transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>
@@ -147,7 +149,7 @@
         <form id="logout-form" method="POST" action="{{ route('staff.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-medium transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>
