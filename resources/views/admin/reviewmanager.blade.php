@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -19,11 +21,15 @@
 
     <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
         <x-admin.header title="Manage Reviews" icon="fa-regular fa-star-sharp-half-stroke" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Manage Reviews" icon="fa-regular fa-star-sharp-half-stroke" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             <h1 class="font-bold text-2xl text-[#005382] mb-4">Customer Reviews</h1>
             
             <div class="overflow-auto">
+                <table>
+                    <thead>
                 <table>
                     <thead>
                         <tr>
@@ -44,6 +50,7 @@
 
                             <td>{{ $review->rating }}</td>
                             <td class="text-black/80">{{ $review->comment }}</td>
+                            <td class="text-black/80">{{ $review->comment }}</td>
                             <td>{{ $review->allow_public_display ? 'Yes' : 'No' }}</td>
                             <td class="font-bold">
                                 @if ($review->is_approved)
@@ -52,6 +59,7 @@
                                     <span class="text-yellow-600 font-semibold">Pending</span>
                                 @endif
                             </td>
+                            <td>
                             <td>
                                 <form action="{{ $review->is_approved 
                                     ? route('superadmin.reviews.disapprove', $review) 

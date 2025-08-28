@@ -159,7 +159,7 @@ nav a:hover::before {
         opacity: 1;
     }
 }
-#p{
+#type-writing{
     animation: toright 0.5s ease-in-out;
 }
 @keyframes toright {

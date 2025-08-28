@@ -52,6 +52,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-1 items-center"
+                            <button type="button" class="deleteaccountbtn text-red-500 cursor-pointer bg-red-600/20 p-2 rounded-lg hover:text-white hover:bg-red-600 hover:-translate-y-1 transition-all duration-200 flex gap-1 items-center"
                                 data-account-id="{{ $account->id }}"
                                 onclick="confirmDelete(this)">
                                 <i class="fa-solid fa-trash mr-2"></i> Delete
