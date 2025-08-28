@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,8 +36,8 @@
 <body class="flex flex-col md:flex-row mx-auto m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Dashboard" icon="fa-solid fa-gauge" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Dashboard" icon="fa-regular fa-chart-fft" name="John Anthony Pesco" gmail="admin@gmail"/>
         <div class="h-full mt-24 overflow-y-autop-4 rounded-lg">
             @php
                 $cardCount = 3;

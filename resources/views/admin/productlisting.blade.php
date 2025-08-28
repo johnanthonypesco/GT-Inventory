@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -19,8 +20,8 @@
 <body class="flex flex-col md:flex-row p-0 m-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="Product Deals" icon="fa-solid fa-list-check" name="John Anthony Pesco" gmail="admin@gmail"/>
+    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="Product Deals" icon="fa-regular fa-building-memo" name="John Anthony Pesco" gmail="admin@gmail"/>
 
         <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             {{-- Customer List Search Function --}}
@@ -207,9 +208,9 @@
                             
                             <tr class="text-center">
                                 <td>{{ $deal->product->generic_name }}</td>
-                                <td>{{ $deal->product->brand_name }}</td>
+                                <td class="text-black/80">{{ $deal->product->brand_name }}</td>
                                 <td>{{ $deal->product->form }}</td>
-                                <td>{{ $deal->product->strength }}</td>
+                                <td class="text-black/80">{{ $deal->product->strength }}</td>
                                 <td>₱ {{ number_format($deal->price) }}</td>
                                 <td>
                                     <div class="flex gap-3 items-center justify-center text-xl">
@@ -322,53 +323,49 @@
     @endforeach
 
     {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}
-    <div class="w-full {{ session("unarchived")  ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="view-archived-listings">
-        
-        <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
-            <x-modalclose click="viewArchivedDeals" closeType="customer-deals-archive"/>
-                <h1 class="text-4xl uppercase font-semibold text-[#005382] mb-9">
-                    Archived Exclusive Deals:
-                </h1>
-                
-                <div class="flex-col h-[420px] overflow-scroll border-y-4 border-opacity-60 border-[#005382] p-1 py-2" id="real-timer-archived-deals-modal">
-                    @foreach ($archivedDealsDB as $companyName => $deals)
-                        @if ($deals->total() <= 0)
-                            @continue
-                        @endif
-    
-    
-                        <h1 class="text-3xl font-semibold text-[#005382]">
-                            Deals From: {{ 
-                                $companyName
-                            }}
-                        </h1>
-    
-                        {{-- Table for all ARCHIVED DEALS --}}
-                        <div class="table-container mt-5 overflow-auto h-fit">
-                            <table>
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>Generic Name</th>
-                                        <th>Brand Name</th>
-                                        <th>Form</th>
-                                        <th>Strength</th>
-                                        <th>Price</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($deals->items() as $deal)
+    <div class="w-full {{ session("unarchived") ? 'block' : 'hidden' }} h-screen bg-black/70 fixed top-0 left-0 p-5 md:p-10 lg:p-20 z-50 overflow-y-auto flex items-center justify-center" id="view-archived-listings">
+        <div class="modal w-full lg:w-[80%] max-w-6xl h-fit m-auto rounded-lg bg-white p-5 md:p-10 relative my-10">
+            <x-modalclose click="viewArchivedDeals" closeType="customer-deals-archive" />
+            <h1 class="text-3xl sm:text-4xl uppercase font-semibold text-[#005382] mb-5 sm:mb-9">
+                Archived Exclusive Deals:
+            </h1>
+            
+            <div class="flex-col max-h-[70vh] overflow-y-auto border-y-4 border-opacity-60 border-[#005382] p-1 py-2" id="real-timer-archived-deals-modal">
+                @foreach ($archivedDealsDB as $companyName => $deals)
+                    @if ($deals->total() <= 0)
+                        @continue
+                    @endif
+                    
+                    <h1 class="text-xl sm:text-2xl font-semibold text-[#005382] mt-4 mb-2">
+                        Deals From: {{ $companyName }}
+                    </h1>
+                    
+                    {{-- Table for all ARCHIVED DEALS --}}
+                    <div class="table-container mt-2 overflow-x-auto h-fit">
+                        <table>
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Generic Name</th>
+                                    <th>Brand Name</th>
+                                    <th>Form</th>
+                                    <th>Strength</th>
+                                    <th>Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($deals->items() as $deal)
                                     <tr class="text-center">
                                         <td>{{ $deal->product->generic_name }}</td>
-                                        <td>{{ $deal->product->brand_name }}</td>
+                                        <td class="text-black/80">{{ $deal->product->brand_name }}</td>
                                         <td>{{ $deal->product->form }}</td>
-                                        <td>{{ $deal->product->strength }}</td>
+                                        <td class="text-black/80">{{ $deal->product->strength }}</td>
                                         <td>₱ {{ number_format($deal->price) }}</td>
                                         <td class="flex justify-center">
                                             <form class="unarchiveform" action="{{ route('admin.productlisting.archive', [$deal->id, $deal->company->name, 'undo']) }}" method="post">
                                                 @csrf
                                                 @method('PUT')
-
+                                                
                                                 <button type="button" class="unarchivebtn flex gap-2 items-center text-[#005382] cursor-pointer font-bold bg-[#005382]/20 p-2 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-200">
                                                     <i class="fa-solid fa-undo"></i>
                                                     Unarchive
@@ -376,27 +373,24 @@
                                             </form>
                                         </td>
                                     </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        {{-- Table for all ARCHIVED products --}}
-    
-                        {{-- Archive Pagination --}}
-                        <div class="mt-2">
-                            {{ $deals->links() }}
-                        </div>
-                        {{-- Aarchive Pagination --}}
-
-                        <div class="flex justify-center w-full gap-3 my-4">
-                            <hr class="bg-[#005382] h-2 rounded-full w-[5%]">
-                            <hr class="bg-[#005382] h-2 rounded-full w-[10%]">
-                            <hr class="bg-[#005382] h-2 rounded-2xl w-[70%]">
-                            <hr class="bg-[#005382] h-2 rounded-full w-[10%]">
-                            <hr class="bg-[#005382] h-2 rounded-full w-[5%]">
-                        </div>
-                    @endforeach
-                </div>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    {{-- Table for all ARCHIVED products --}}
+                    
+                    {{-- Archive Pagination --}}
+                    <div class="mt-2">
+                        {{ $deals->links() }}
+                    </div>
+                    {{-- Archive Pagination --}}
+                    
+                    <div class="flex justify-center w-full gap-1 my-4">
+                        <hr class="bg-[#005382] h-1 rounded-full w-[4%]">
+                        <hr class="bg-[#005382] h-1 rounded-full w-[1%]">
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
     {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}

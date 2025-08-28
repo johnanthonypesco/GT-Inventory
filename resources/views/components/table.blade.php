@@ -18,11 +18,11 @@
                 @foreach ($variable as $inv)
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
-                        <td>{{ $inv->product->generic_name }}</td>
+                        <td class="text-black/80">{{ $inv->product->generic_name }}</td>
                         <td>{{ $inv->product->brand_name }}</td>
-                        <td>{{ $inv->product->form }}</td>
+                        <td class="text-black/80">{{ $inv->product->form }}</td>
                         <td>{{ $inv->product->strength }}</td>
-                        <td class="{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
+                        <td class="text-black/80{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                         <td class="flex justify-center gap-2">
                             {{-- <button class="cursor-pointer bg-blue-600 text-white px-3 rounded-xl flex justify-center items-center">
@@ -71,11 +71,11 @@
                 @foreach ($variable as $inv)
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
-                        <td>{{ $inv->product->generic_name }}</td>
+                        <td class="text-black/80">{{ $inv->product->generic_name }}</td>
                         <td>{{ $inv->product->brand_name }}</td>
-                        <td>{{ $inv->product->form }}</td>
+                        <td class="text-black/80">{{ $inv->product->form }}</td>
                         <td>{{ $inv->product->strength }}</td>
-                        <td class="{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
+                        <td class="text-black/80{{  $inv->quantity > 0 ? '' : 'text-red-600 font-bold'}}">{{ $inv->quantity > 0 ? $inv->quantity : 'Empty'  }}</td>
                         <td>{{ Carbon::parse($inv->expiry_date)->translatedFormat('M d, Y') }}</td>
                     </tr>
                 @endforeach
@@ -86,8 +86,8 @@
                 @foreach ($variable as $company)
                     <tr id="real-timer-total-personal-counter" data-company="{{ $company->id }}" class="text-center">
                         <td>{{ $company->id }}</td>
-                        <td> {{ $company->name }} </td>
-                        <td id="tbl-count"> 
+                        <td class="text-black/80"> {{ $company->name }} </td>
+                        <td id="tbl-count" class="text-black/80"> 
                             {{ isset($secondaryVariable[$company->name]) ? 
                             $secondaryVariable[$company->name]->total() 
                             : 'No' }} {{ $dealSearchCompany === $company->name ? "Searched" : "" }} Personalized Products
@@ -116,7 +116,7 @@
                     
                     <tr class="text-center">
                         <td> {{ $separatedNameAndDate[1] }} </td>
-                        <td> 
+                        <td class="text-black/80"> 
                             {{ Carbon::parse($separatedNameAndDate[2])->translatedFormat('M d, Y') }}
                         </td>
                         
@@ -156,7 +156,7 @@
 
                     <tr>
                         <td>{{ $separated[0] }}</td>
-                        <td>{{ Carbon::parse($separated[1])->translatedFormat('M d, Y') }}</td>
+                        <td class="text-black/80">{{ Carbon::parse($separated[1])->translatedFormat('M d, Y') }}</td>
                         <td>₱ {{ number_format($totalPrice) }}</td>
                         <td>
                             <x-vieworder onclick="viewOrder('{{ e($employeeName) }}')" name="View Order"/>

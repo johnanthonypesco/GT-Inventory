@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -23,7 +24,7 @@
     
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[15%] ml-0 px-4">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 px-6">
         <x-admin.header title="OCR Archives" icon="fa-solid fa-folder-open"/>
         
         <div class="bg-white rounded-lg shadow p-6 mt-24">

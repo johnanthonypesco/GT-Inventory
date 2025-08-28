@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,8 +18,8 @@
     
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[15%] ml-0 opacity-0 px-4">
-        <x-admin.header title="Sales Report" icon="fa-solid fa-print"/>
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0 px-6">
+        <x-admin.header title="Sales Report" icon="fa-regular fa-file-chart-column"/>
         
         <div class="flex flex-col h-full mt-24">
             <div class="bg-white rounded-lg mb-8" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -16,8 +17,8 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
-        <x-admin.header title="History Log" icon="fa-solid fa-history"/>
+    <main class="md:w-full lg:ml-[16%] opacity-0 px-6">
+        <x-admin.header title="History Log" icon="fa-regular fa-circle-user-clock"/>
         
         <div class="flex flex-col md:flex-row justify-between mt-24">
             {{-- Added name="search" for easier access in JS --}}

@@ -10,10 +10,8 @@
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <title>Forgot Password</title>
 </head>
-<body class="flex items-center justify-center h-screen p-5">
-
-    <!-- Wrapper -->
-    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
+<body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:max-w-3xl max-h-screen">
 
         <!-- Left Side Logo + Text -->
         <div class="flex flex-col w-full lg:w-1/2 p-6 md:p-10">

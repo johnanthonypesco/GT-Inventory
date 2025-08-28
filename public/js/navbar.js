@@ -8,7 +8,7 @@ navLinks.forEach(function(link) {
 });
 navicons.forEach(function(icon) {
     if (icon.parentElement.href === currentLocation) {
-        icon.classList.add('text-white');
+        icon.classList.add('text-black/80');
     }
 });
 

@@ -21,10 +21,10 @@
 @endphp
 
 {{-- <div class="bg-[#eaeaea] h-1 fixed top-0 left-[16%] right-2 z-[51]"></div> --}}
-<header id="header" class="flex justify-between items-center md:py-2 py-2 px-5 fixed top-0 left-0 lg:left-[15%] right-0 z-[48] bg-white transition-all duration-200">
+<header id="header" class="flex justify-between items-center lg:py-2 py-4 px-5 fixed top-0 left-0 lg:left-[16%] right-0 z-[48] bg-white transition-all duration-200">
     <div class="flex items-center gap-2">
-        <i {{ $attributes->merge(['class'=> 'text-[#005382] text-2xl '. $icon]) }}></i>
-        <h1 class="font-bold text-md uppercase">{{$title}}</h1>
+        <i {{ $attributes->merge(['class'=> 'text-black text-2xl '. $icon]) }}></i>
+        <h1 class="font-bold text-md uppercase text-black/70">{{$title}}</h1>
     </div>
 
 
@@ -50,13 +50,15 @@
 
 
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
-        <div class="hidden group lg:flex gap-2 items-center px-2 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
-            <i class="fa-solid fa-user text-xl bg-[#005382] text-white py-2 px-3 rounded-full"></i>
+        <div class="hidden group lg:flex gap-1 items-center px-2 py-1 rounded-md relative cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-150">
+            <div class="rounded-full w-fit p-2">
+                <i class="fa-regular fa-user"></i>
+            </div>
             <div>
                 <p class="font-semibold text-sm w-[150px] truncate">{{ $name }}</p>
                 <p class="text-[12px] font-semibold text-black/60 w-[150px] truncate">{{ $email }}</p>
             </div>
-            <i class='fa-solid fa-angle-down text-black/70 absolute right-2'></i>
+            <i class='fa-regular fa-angle-down text-black/70 absolute right-0'></i>
 
             {{-- dropdown menu --}}
             <div class="absolute right-0 top-full mt-1 w-32 bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">

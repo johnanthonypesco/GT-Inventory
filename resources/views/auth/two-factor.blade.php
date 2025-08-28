@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
     <title>Two-Factor Authentication</title>
 </head>
-<body class="flex items-center justify-center h-screen p-10">
-    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:w-[70%] h-auto lg:h-[100%] overflow-hidden">
-        
-        <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
+<body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
+    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:max-w-3xl max-h-screen">
+        <div class="flex flex-col gap-1 w-full lg:w-1/2 p-6 md:p-10">
             <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
                 <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
             </h1>
@@ -21,11 +21,11 @@
             <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Secure Your Login with Two-Factor Authentication</h1>
             <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Enter the 6-digit code sent to you.</h1>
 
-            <form method="POST" action="{{ route('2fa.check') }}" class="mt-10 space-y-5">
+            <form method="POST" action="{{ route('2fa.check') }}" class="mt-10 relative">
                 @csrf
 
                 @if ($errors->any())
-                    <div class="bg-red-200 text-red-700 p-3 rounded-lg mt-3">
+                    <div class="bg-red-200 text-red-700 p-3 rounded-lg">
                         <ul>
                             @foreach ($errors->all() as $error)
                                 <li>⚠️ {{ $error }}</li>
@@ -45,7 +45,7 @@
 
                     <input type="hidden" name="two_factor_code" id="two_factor_code" placeholder="Enter 6-Digit Code">
                     @php
-                        $inputCSS = "border border-gray-300 bg-white w-40 h-15 md:w-20 md:h-20 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-lg outline-none mt-2 md:text-xl lg:text-lg text-center TwoFA_num_inputs";
+                        $inputCSS = "border border-gray-300 bg-white w-40 h-15 md:w-20 md:h-20 lg:w-14 lg:h-14 rounded-lg outline-none mt-2 md:text-xl lg:text-lg text-center TwoFA_num_inputs";
                     @endphp
                     <div class="flex gap-3 flex-row justify-center flex-nowrap">
                         <input type="number" class="{{$inputCSS}}" id="one" min="0" max="9" placeholder="0" autofocus required pattern="\d*">
@@ -67,12 +67,12 @@
                 <p class="text-sm text-gray-600 mb-4">Or, get a new code:</p>
                 <div class="flex flex-row justify-center gap-4">
                     
-                    <form method="POST" action="{{ route('2fa.resend') }}" class="flex-1">
+                    <form method="POST" action="{{ route('2fa.resend') }}" class="">
                         @csrf
                         <button class="hover:cursor-pointer border-[1px] border-[#005382] p-2 rounded-lg hover:border-none hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-all duration-200">Resend Via Email</button>
                     </form>
 
-                    <form method="POST" action="{{ route('two-factor.sms') }}" class="flex-1">
+                    <form method="POST" action="{{ route('two-factor.sms') }}" class="">
                         @csrf
                         <button class="hover:cursor-pointer border-[1px] border-[#005382] p-2 rounded-lg hover:border-none hover:bg-[#005382] hover:text-white hover:-translate-y-1 transition-all duration-200">Resend Via SMS</button>
                     </form>

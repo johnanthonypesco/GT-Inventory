@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,8 +17,8 @@
 <body class="flex flex-col md:flex-row m-o p-0">
     <x-admin.navbar />
 
-    <main class="md:w-full h-full lg:ml-[15%] ml-0 opacity-0 px-4">
-        <x-admin.header title="Chat" icon="fa-solid fa-message"/>
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0 px-6">
+        <x-admin.header title="Chat" icon="fa-regular fa-comment-captions"/>
 
         <!-- Blade component for search added here -->
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-24 rounded-lg"/>
@@ -27,7 +28,9 @@
                 <div class="mb-2">
                     <div class="flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"
                          onclick="window.location.href='{{ route('admin.group.chat') }}'">
-                        <i class="fa-solid fa-users text-white text-xl bg-[#005382] p-5 rounded-full"></i>
+                        <div class="bg-[#005382] p-5 rounded-full">
+                            <i class="fa-solid fa-users text-white text-xl"></i>
+                        </div>
                         <div>
                             <p class="text-[12px] font-bold sm:text-2xl">Employee Group Chat</p>
                             <p class="text-sm text-gray-500">Click to ChatGroup</p>
@@ -46,7 +49,9 @@
                             <div class="customer-container flex items-center justify-between gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"
                                  onclick="window.location.href='{{ route('admin.chat.show', [$superAdmin->id, 'super_admin']) }}'">
                                 <div class="flex items-center gap-2 flex-grow">
-                                    <i class="fa-solid fa-user text-white text-xl bg-red-500 p-5 rounded-full"></i>
+                                    <div class="bg-red-500 p-5 rounded-full">
+                                        <i class="fa-solid fa-user text-white text-xl"></i>
+                                    </div>
                                     <div class="flex-grow">
                                         <p class="text-[12px] font-bold sm:text-2xl">{{ $superAdmin->s_admin_username ?? 'Super Admin' }}</p>
                                         <p class="text-sm text-gray-500 truncate">
@@ -62,7 +67,9 @@
                                 <div class="w-10 flex-shrink-0 flex justify-center items-center">
                                     @if (isset($unreadCounts[$superAdmin->id]) && $unreadCounts[$superAdmin->id] > 0)
                                         <div class="relative">
-                                            <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            <div>
+                                                <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            </div>
                                             <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 transform translate-x-1/2 -translate-y-1/2">
                                                 {{ $unreadCounts[$superAdmin->id] }}
                                             </span>
@@ -79,7 +86,9 @@
                              <div class="customer-container flex items-center justify-between gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"
                                   onclick="window.location.href='{{ route('admin.chat.show', [$admin->id, 'admin']) }}'">
                                 <div class="flex items-center gap-2 flex-grow">
-                                    <i class="fa-solid fa-user text-white text-xl bg-blue-500 p-5 rounded-full"></i>
+                                    <div class="bg-blue-500 p-5 rounded-full">
+                                        <i class="fa-solid fa-user text-white text-xl"></i>
+                                    </div>
                                     <div class="flex-grow">
                                         <p class="text-[12px] font-bold sm:text-2xl">{{ $admin->username ?? 'Admin' }}</p>
                                         <p class="text-sm text-gray-500 truncate">
@@ -95,7 +104,9 @@
                                 <div class="w-10 flex-shrink-0 flex justify-center items-center">
                                     @if (isset($unreadCounts[$admin->id]) && $unreadCounts[$admin->id] > 0)
                                         <div class="relative">
-                                            <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            <div>
+                                                <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            </div>
                                             <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 transform translate-x-1/2 -translate-y-1/2">
                                                 {{ $unreadCounts[$admin->id] }}
                                             </span>
@@ -112,7 +123,9 @@
                              <div class="customer-container flex items-center justify-between gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"
                                   onclick="window.location.href='{{ route('admin.chat.show', [$staffMember->id, 'staff']) }}'">
                                 <div class="flex items-center gap-2 flex-grow">
-                                    <i class="fa-solid fa-user text-white text-xl bg-green-500 p-5 rounded-full"></i>
+                                    <div class="bg-green-500 p-5 rounded-full">
+                                        <i class="fa-solid fa-user text-white text-xl"></i>
+                                    </div>
                                     <div class="flex-grow">
                                         <p class="text-[12px] font-bold sm:text-2xl">{{ $staffMember->staff_username ?? 'Staff' }}</p>
                                         <p class="text-sm text-gray-500 truncate">
@@ -128,7 +141,9 @@
                                 <div class="w-10 flex-shrink-0 flex justify-center items-center">
                                     @if (isset($unreadCounts[$staffMember->id]) && $unreadCounts[$staffMember->id] > 0)
                                         <div class="relative">
-                                            <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            <div>
+                                                <i class="fa-solid fa-envelope-open-text text-gray-400 text-xl"></i>
+                                            </div>
                                             <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 transform translate-x-1/2 -translate-y-1/2">
                                                 {{ $unreadCounts[$staffMember->id] }}
                                             </span>
@@ -145,7 +160,9 @@
                              <div class="customer-container flex items-center justify-between gap-2 p-3 rounded-lg cursor-pointer hover:bg-blue-5382 transition"
                                   onclick="window.location.href='{{ route('admin.chat.show', [$customer->id, 'customer']) }}'">
                                 <div class="flex items-center gap-2 flex-grow">
-                                    <i class="fa-solid fa-user text-white text-xl bg-yellow-500 p-5 rounded-full"></i>
+                                    <div class="bg-yellow-500 p-5 rounded-full">
+                                        <i class="fa-solid fa-user text-white text-xl"></i>
+                                    </div>
                                     <div class="flex-grow">
                                         <p class="text-[12px] font-bold sm:text-2xl">{{ $customer->name ?? 'Customer' }}</p>
                                         <p class="text-sm text-gray-500 truncate">

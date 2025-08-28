@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/customer/style.css') }}">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
@@ -49,7 +50,7 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-customer.navbar />
 
-    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0 px-4">
+    <main class="md:w-full h-full lg:ml-[16%] ml-0 opacity-0 px-6">
         <x-customer.header title="Chat" icon="fa-solid fa-message"/>
 
         <x-input name="search" placeholder="Search Conversation by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative mt-24 rounded-lg"/>

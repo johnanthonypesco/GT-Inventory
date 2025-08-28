@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
+    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,9 +21,9 @@
     <x-admin.navbar/>
 
     {{-- Main Content --}}
-    <main class="md:w-full h-full md:ml-[15%] opacity-0 px-4">
+    <main class="md:w-full h-full md:ml-[16%] opacity-0 px-6">
         {{-- Header --}}
-        <x-admin.header title="Staff Locations" icon="fa-solid fa-map-marker-alt" name="{{ auth()->user()->name }}" gmail="{{ auth()->user()->email }}"/>
+        <x-admin.header title="Staff Locations" icon="fa-regular fa-location-dot" name="{{ auth()->user()->name }}" gmail="{{ auth()->user()->email }}"/>
 
         {{-- Staff List --}}
         <div class="bg-white rounded-lg p-4 mt-24" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
