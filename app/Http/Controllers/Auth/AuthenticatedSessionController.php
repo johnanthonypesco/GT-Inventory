@@ -140,9 +140,10 @@ public function store(Request $request): RedirectResponse
     if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
         event(new Lockout($request));
         $seconds = RateLimiter::availableIn($throttleKey);
-        return back()->withErrors([
-            'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
-        ]);
+        return back()
+            ->withErrors(['email' => 'Too many login attempts.'])
+            ->with('lockout_time', $seconds) // 💡 Ito ang pagbabago
+            ->onlyInput('email');
     }
 
     // 3. Use Auth::attempt() to log the user in

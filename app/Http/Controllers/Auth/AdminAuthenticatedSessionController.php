@@ -72,10 +72,11 @@ use Illuminate\Auth\Events\Lockout;
             $seconds = RateLimiter::availableIn($throttleKey);
 
             // Redirect back with an error message
-            return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
-            ]);
-        }
+            return back()
+            ->withErrors(['email' => 'Too many login attempts.'])
+            ->with('lockout_time', $seconds) // 💡 Ito ang mahalagang pagbabago
+            ->onlyInput('email');
+            }
 
     // 2. ✅ Create a new array for the auth check that includes
     //    the condition to only find non-archived admins.

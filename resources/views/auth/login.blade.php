@@ -25,19 +25,15 @@
             <form method="POST" action="{{ route('login') }}" class="mt-10 space-y-5">
                 @csrf
 
-                @if ($errors->any())
-                    <div class="bg-red-200 text-red-700 p-3 rounded-lg">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li class="text-sm">⚠️ {{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 <div>
                     <label for="email" class="text-xs text-black/80 font-medium">Email Address:</label>
                     <input type="email" name="email" id="email" placeholder="Enter Your Email"
                            class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm" value="{{ old('email') }}">
+                    <div id="email-error-container" class="text-red-500 text-sm mt-1 font-medium">
+                        @error('email') 
+                            <span>{{ $message }}</span> 
+                        @enderror
+                    </div>
                 </div>
 
                 <div>
@@ -60,7 +56,7 @@
                 </div>
 
                 <button type="submit"
-                        class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base">
+                        class="bg-[#15ABFF] w-full p-3 rounded-lg text-white mt-5 cursor-pointer hover:bg-[#005382] hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-sm md:text-base disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none">
                     Sign in
                 </button>
             </form>
@@ -88,5 +84,66 @@
             eye.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    // ✅ ADDED: Script for real-time counter
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginButton = document.querySelector('button[type="submit"]');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorContainer = document.getElementById('email-error-container');
+
+        let timerElement = null;
+
+        const disableForm = () => {
+            if (loginButton) loginButton.disabled = true;
+            if (emailInput) emailInput.disabled = true;
+            if (passwordInput) passwordInput.disabled = true;
+        };
+
+        const enableForm = () => {
+            if (loginButton) loginButton.disabled = false;
+            if (emailInput) emailInput.disabled = false;
+            if (passwordInput) passwordInput.disabled = false;
+        };
+
+        const handleLockout = () => {
+            const lockoutEndTime = localStorage.getItem('lockoutEndTime');
+            if (!lockoutEndTime) {
+                enableForm();
+                return;
+            }
+
+            const remainingSeconds = Math.round((lockoutEndTime - Date.now()) / 1000);
+
+            if (remainingSeconds > 0) {
+                disableForm();
+
+                if (!timerElement) {
+                    timerElement = document.createElement('span');
+                    errorContainer.innerHTML = ''; 
+                    errorContainer.appendChild(timerElement);
+                }
+                
+                timerElement.innerHTML = `Please try again in <strong>${remainingSeconds}</strong> second(s).`;
+
+                setTimeout(handleLockout, 1000);
+            } else {
+                enableForm();
+                localStorage.removeItem('lockoutEndTime'); 
+                if (timerElement) {
+                    timerElement.remove();
+                    timerElement = null;
+                }
+            }
+        };
+
+        @if(session('lockout_time'))
+            const newLockoutSeconds = {{ session('lockout_time') }};
+            const newEndTime = Date.now() + newLockoutSeconds * 1000;
+            localStorage.setItem('lockoutEndTime', newEndTime);
+        @endif
+
+        handleLockout();
+    });
 </script>
 </html>
