@@ -211,8 +211,8 @@
         </div>
     </main>
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto" id="viewallproductmodal">
-        <div class="modal w-full lg:w-[80%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto p-5" id="viewallproductmodal">
+        <div class="modal w-full lg:w-[70%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct" />
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
 
@@ -272,12 +272,12 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{-- Pagination --}}
-                <div id="regis-product-paginate-div" class="mt-5">
-                    {{ $registeredProducts->links() }}
-                </div>
-                {{-- Pagination --}}
             </div>
+            {{-- Pagination --}}
+            <div id="regis-product-paginate-div" class="mt-5">
+                {{ $registeredProducts->links() }}
+            </div>
+            {{-- Pagination --}}
             {{-- Table for all products --}}
         </div>
     </div>

@@ -8,7 +8,8 @@
 
     hamburger.addEventListener('click', () => {
         nav.classList.toggle('hidden');
-        hamburger.classList.toggle('fa-x');
+        hamburger.classList.toggle('fa-bars-staggered');
+        hamburger.classList.toggle('fa-xmark');
     });
 
     viewAllProductsButton.addEventListener('click', () => {

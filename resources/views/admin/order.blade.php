@@ -30,19 +30,20 @@
         <div class="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <x-countcard title='Total Orders This Week' image="stocks.png" :count="$ordersThisWeek"/>
             <x-countcard title='Pending Orders' image="pending.png" :count="$currentPendings"/>
-            <x-countcard onclick="showInsufficients()" class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
-            title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientOrders" classname="absolute right-5 opacity-70">
+            <x-countcard onclick="showInsufficients()" 
+                class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
+                title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientOrders" classname="absolute right-5 opacity-70">
                 <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce">
-                    <i class="fa-solid fa-hand-pointer text-lg text-white"></i>
+                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white"></i>
                 </div>
-            </x-countcard>  
-            <x-countcard onclick="showInsufficientProducts()"   class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-200 {{ $insufficientproducts > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
+            </x-countcard> 
+            <x-countcard onclick="showInsufficientProducts()" 
+                class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 transition-all duration-200 {{ $insufficientproducts > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
                 title='Insufficient Products' image="outofstocks.png" :count="$insufficientproducts" classname="absolute right-5 opacity-70">
                 <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce mt-2">
-                    <i class="fa-solid fa-hand-pointer text-lg text-white"></i>
+                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white"></i>
                 </div>
             </x-countcard>
-
         </div>
         {{-- Total Container --}}
 

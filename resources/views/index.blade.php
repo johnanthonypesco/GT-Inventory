@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
+    <x-fontawesome/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
@@ -29,7 +30,7 @@
             {{-- <a href="{{ route('beta.register') }}" class="bg-red-600 animate-pulse w-fit px-5 py-2 rounded-lg font-semibold text-white">Join The Beta Test Program</a> --}}
         </nav>
 
-        <i class="fa-solid fa-bars text-xl lg:hidden cursor-pointer" id="hamburger"></i>
+        <i class="fa-regular fa-bars-staggered text-xl lg:hidden" id="hamburger"></i>
     </header>    
 
     <main class="mt-20 mb-20 main">
