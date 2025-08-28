@@ -21,7 +21,7 @@
     <x-admin.navbar/>
 
     {{-- Main Content --}}
-    <main class="md:w-full h-full md:ml-[16%] opacity-0 px-">
+    <main class="md:w-full h-full md:ml-[16%] opacity-0 px-6">
         {{-- Header --}}
         <x-admin.header title="Staff Locations" icon="fa-regular fa-location-dot" name="{{ auth()->user()->name }}" gmail="{{ auth()->user()->email }}"/>
 

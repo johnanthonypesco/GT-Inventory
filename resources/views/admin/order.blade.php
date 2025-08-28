@@ -378,11 +378,11 @@
 
     {{-- <label for="status-select" class="font-semibold">Select Status:</label>
     <select id="status-select" name="status" onchange="changeStatus(this.closest('form'), this.value)" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 hover:bg-white hover:cursor-pointer">
-        <option value="pending" selected style="background-color: orange; color: white">PENDING</option>
-        <option value="packed" style="background-color: purple; color: white">PACKED</option>
-        <option value="out for delivery" style="background-color: green; color: white">OUT FOR DELIVERY</option>
-        <option value="delivered" style="background-color: blue; color: white">DELIVERED</option>
-        <option value="cancelled" style="background-color: red; color: white">CANCELLED</option>
+        <option value="pending" selected>PENDING</option>
+        <option value="packed">PACKED</option>
+        <option value="out for delivery">OUT FOR DELIVERY</option>
+        <option value="delivered">DELIVERED</option>
+        <option value="cancelled">CANCELLED</option>
     </select> --}}
 
 

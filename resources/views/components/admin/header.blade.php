@@ -21,7 +21,7 @@
 @endphp
 
 {{-- <div class="bg-[#eaeaea] h-1 fixed top-0 left-[16%] right-2 z-[51]"></div> --}}
-<header id="header" class="flex justify-between items-center lg:py-2 py-5 px-5 fixed top-0 left-0 lg:left-[16%] right-0 z-[48] bg-white transition-all duration-200">
+<header id="header" class="flex justify-between items-center lg:py-2 py-4 px-5 fixed top-0 left-0 lg:left-[16%] right-0 z-[48] bg-white transition-all duration-200">
     <div class="flex items-center gap-2">
         <i {{ $attributes->merge(['class'=> 'text-black text-2xl '. $icon]) }}></i>
         <h1 class="font-bold text-md uppercase text-black/70">{{$title}}</h1>

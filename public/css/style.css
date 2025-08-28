@@ -179,10 +179,10 @@ table tbody tr:hover{
     background-color: #78787824;
 }
 /* odd even table data */
-tr:nth-child(even)
+/* tr:nth-child(odd)
 {
     background-color: #e1e1e1;
-}
+} */
 .customer-container:hover{
     background-color: #005382;
     color: white;
