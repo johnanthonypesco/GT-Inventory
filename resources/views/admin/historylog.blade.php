@@ -23,13 +23,12 @@
         <div class="flex flex-col md:flex-row justify-between mt-24">
             {{-- Added name="search" for easier access in JS --}}
             <x-input id="search" name="search" class="w-full md:w-[40%] relative bg-white rounded-lg" type="text" placeholder="Search logs by description, event, or user..." classname="fa fa-magnifying-glass"/>
-         <div class="flex flex-col-2 md:flex-row gap-2">
-            <a href="{{ route('blocked-ips.index') }}" 
-   class="w-full h-fit text-md md:w-fit bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-mt-[10px] transition-all duration-500 ease-in-out">
-    <i class="fa-solid fa-ban"></i> Manage Blocked IPs
-</a>
-            {{-- Added name="event" and included all event types --}}
-            <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg mt-3 md:mt-0 w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
+         <div class="flex items-center gap-2 mt-3 lg:mt-0">
+            <a href="{{ route('blocked-ips.index') }}"
+            class="w-full md:w-fit text-md bg-white shadow-sm shadow-[#005382] p-2 rounded-lg flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#005382] hover:text-white hover:-translate-y-[1] transition-all duration-500 ease-in-out">
+                <i class="fa-solid fa-ban"></i> Manage Blocked IPs
+            </a>
+            <select id="eventFilter" name="event" class="p-2 cursor-pointer rounded-lg w-full md:w-fit bg-white outline-none" style="box-shadow: 0 0 2px #003582;">
                 <option value="All">--All Events--</option>
                 <option value="Add">Add</option>
                 <option value="Edit">Edit</option>
