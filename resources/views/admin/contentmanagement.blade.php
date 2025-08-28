@@ -10,8 +10,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
-    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
-    <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
@@ -23,8 +21,6 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
-        <x-admin.header title="Manage Content" icon="fa-regular fa-file-circle-plus" name="John Anthony Pesco" gmail="admin@gmail"/>
     <main class="md:w-full h-full lg:ml-[16%] opacity-0 px-6">
         <x-admin.header title="Manage Content" icon="fa-regular fa-file-circle-plus" name="John Anthony Pesco" gmail="admin@gmail"/>
 
@@ -165,7 +161,6 @@
                             <tr>
                                 <td>{{ $productItem->generic_name }}</td>
                                 <td class="text-black/80">{{ $productItem->brand_name }}</td>
-                                <td class="text-black/80">{{ $productItem->brand_name }}</td>
                                 <td>{{ $productItem->form }}</td>
                                 <td class="text-black/80">{{ $productItem->strength }}</td>
                                 <td class="font-bold">
@@ -209,9 +204,7 @@
                                     <tr>
                                         <td><input type="checkbox" name="product_ids[]" value="{{ $productItem->id }}"></td>
                                         <td class="text-black/80">{{ $productItem->generic_name }}</td>
-                                        <td class="text-black/80">{{ $productItem->generic_name }}</td>
                                         <td>{{ $productItem->brand_name }}</td>
-                                        <td class="text-black/80">{{ $productItem->form }}</td>
                                         <td class="text-black/80">{{ $productItem->form }}</td>
                                         <td>{{ $productItem->strength }}</td>
                                         <td class="{{ $productItem->is_displayed ? 'text-[#005382]' : 'text-red-500' }}">{{ $productItem->is_displayed ? 'Enabled' : 'Disabled' }}</td>
