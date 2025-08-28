@@ -31,9 +31,11 @@
                     <i class="fa-regular fa-comment-captions text-base"></i>
                     <span>Chat</span>
                     @if ($adminsidebar_counter > 0)
-                        <span class="absolute -top-1 right-1 bg-red-500 px-1 rounded-full text-xs text-white">
-                            {{ $adminsidebar_counter }}
-                        </span>
+                        <div class="absolute top-3 right-1 bg-red-500 px-1 rounded-full text-sm text-white">
+                            <span>
+                                {{ $adminsidebar_counter }}
+                            </span>
+                        </div>
                     @endif
                 </a>
             </li>
