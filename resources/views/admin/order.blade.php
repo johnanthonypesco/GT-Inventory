@@ -34,16 +34,16 @@
             <x-countcard onclick="showInsufficients()" 
                 class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 transition-all duration-200 {{ $insufficientOrders > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
                 title='Orders That Cannot Be Fulfilled' image="pending.png" :count="$insufficientOrders" classname="absolute right-5 opacity-70" hoverTextColor="text-white">
-                <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce">
-                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white"></i>
+                <div class="bg-[#005382] rounded-full p-2 animate-bounce">
+                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white text-white"></i>
                 </div>
             </x-countcard> 
 
             <x-countcard onclick="showInsufficientProducts()" 
                 class="shadow-lg bg-white w-full p-5 rounded-xl hover:cursor-pointer hover:bg-red-500 transition-all duration-200 {{ $insufficientproducts > 0 ? 'animate-pulse border-2 border-red-500' : '' }}" 
                 title='Insufficient Products' image="outofstocks.png" :count="$insufficientproducts" classname="absolute right-5 opacity-70" hoverTextColor="text-white">
-                <div class="bg-[#005382] rounded-full px-2 py-1bg-[#005382] py-1 animate-bounce mt-2">
-                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white"></i>
+                <div class="bg-[#005382] rounded-full p-2 animate-bounce mt-2">
+                    <i class="fa-solid fa-hand-pointer text-lg group-hover:text-white text-white"></i>
                 </div>
             </x-countcard>
         </div>
@@ -245,13 +245,13 @@
                                                 {{ $isInsufficient ? "bg-red-500 animate-pulse text-white" : '' }}
                                                 ">
                                                     <td>{{ $productInfo->generic_name }}</td>
-                                                    <td class="text-black/80">{{ $productInfo->brand_name }}</td>
+                                                    <td>{{ $productInfo->brand_name }}</td>
                                                     <td>{{ $productInfo->form }}</td>
-                                                    <td class="text-black/80">{{ $productInfo->strength }}</td>
+                                                    <td>{{ $productInfo->strength }}</td>
                                                     <td>{{ $currentStock }}</td>
-                                                    <td class="text-black/80">{{ $order->quantity }}</td>
+                                                    <td>{{ $order->quantity }}</td>
                                                     <td>₱ {{ number_format($order->exclusive_deal->price) }}</td>
-                                                    <td class="text-black/80">₱ {{ number_format($order_calc) }}</td>
+                                                    <td>₱ {{ number_format($order_calc) }}</td>
                                                     <td colspan="2">
                                                         @if ($isInsufficient)
                                                             <p> Insufficient Stock </p>
@@ -482,17 +482,17 @@
                         
                                 <tr>
                                     <td> {{ $explodedName[4] }} </td>
-                                    <td class="text-black/80"> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
+                                    <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
-                                    <td class="text-black/80"> {{ $order["currentOrder"]["user"]["name"] }} </td>
+                                    <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
                                     <td> {{ $explodedName[0] }} </td>
-                                    <td class="text-black/80"> {{ $explodedName[1] }} </td>
+                                    <td> {{ $explodedName[1] }} </td>
                                     <td> {{ $explodedName[2] }} </td>
-                                    <td class="text-black/80"> {{ $explodedName[3] }} </td>
+                                    <td> {{ $explodedName[3] }} </td>
                                     <td>
                                         {{ $isExpired ? 'Expired' : number_format($available) }}
                                     </td>
-                                    <td class="text-black/80"> {{ number_format($order["currentOrder"]['quantity']) }} </td>
+                                    <td> {{ number_format($order["currentOrder"]['quantity']) }} </td>
                                 </tr>
                             @endforeach
                         @endforeach
