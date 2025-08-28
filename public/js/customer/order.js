@@ -31,10 +31,13 @@ function updatePurchaseOrder(deal_id, quantity, product_name, price) {
                 <input type="hidden" required type="number" value="${deal_id}" name="exclusive_deal_id[]">
 
                 <div class="flex items-center justify-between gap-2 mb-2">
-                    <div class="flex gap-2 items-center">
-                        <i id="del-btn-${deal_id}" 
-                        onclick="deleteOrdereredItem('del-btn-${deal_id}', 'item-parent-${deal_id}', ${deal_id})" class="fa-solid fa-trash -mt-[1px] text-red-600 p-3 rounded-xl border-2 border-red-500 hover:cursor-pointer hover:text-white hover:bg-red-500 transition-all duration-100"></i>
-                        <p class="pname font-bold uppercase text-[#005382]">${orderData[1]}</p>
+                    <div class="flex items-center gap-2 sm:gap-3 group">
+                        <div id="del-btn-${deal_id}"
+                            onclick="deleteOrdereredItem('del-btn-${deal_id}', 'item-parent-${deal_id}', ${deal_id})"
+                            class="p-2 rounded-xl border-2 border-red-500 hover:cursor-pointer hover:bg-red-500 transition-all duration-100">
+                            <i class="fa-regular fa-trash-can text-red-500 text-sm group-hover:text-white"></i>
+                        </div>
+                        <p class="pname font-bold uppercase text-[#005382] text-sm sm:text-base md:text-lg">${orderData[1]}</p>
                     </div>
 
                     <input name="quantity[]" readonly type="number" class="quantity w-[100px] px-2 border border-[#005382] rounded-xl" 

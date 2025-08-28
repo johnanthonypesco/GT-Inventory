@@ -115,9 +115,11 @@
                 
                 <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}"> </p>
                 
-                <div class="flex justify-between items-center pb-2">
-                    <h1 class="text-center font-semibold text-2xl">Summary of Orders</h1>
-                    <span class="block lg:hidden"><i onclick="viewOrderSummary()" id="ordersummaryicon" class="fa-solid fa-angles-up border border-[#005382] p-3 rounded-full text-center hover:bg-[#005382] hover:text-white transition-all duration-500"></i></span>
+                <div class="flex items-center justify-between pb-4 border-b">
+                    <h1 class="font-bold text-2xl text-gray-800">Order Summary</h1>
+                    <button onclick="viewOrderSummary()" class="lg:hidden p-3 rounded-full border border-gray-400 text-gray-600 transition-all duration-300 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        <i id="ordersummaryicon" class="fa-solid fa-angles-up"></i>
+                    </button>
                 </div>
 
                 {{-- This div is where all the magic happens 😉 --}}

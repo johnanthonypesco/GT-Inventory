@@ -69,7 +69,9 @@
             <div id="actualContacts" class="hidden">
                 @foreach ($superAdmins as $superAdmin)
                     <div onclick="markAsRead({{ $superAdmin->id }}, 'super_admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
-                        <i class="fa-solid fa-user text-white text-2xl bg-red-500 p-5 rounded-full"></i>
+                        <div class="bg-red-500 p-5 rounded-full">
+                            <i class="fa-solid fa-user text-white text-2xl "></i>
+                        </div>
                         <div class="relative flex-1">
                             <p class="text-xl font-bold">{{ $superAdmin->s_admin_username }}</p>
                             @if ($superAdmin->lastMessage)
@@ -100,7 +102,9 @@
 
                 @foreach ($admins as $admin)
                     <div onclick="markAsRead({{ $admin->id }}, 'admin')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
-                        <i class="fa-solid fa-user text-white text-2xl bg-blue-500 p-5 rounded-full"></i>
+                        <div class="bg-blue-500 p-5 rounded-full">
+                            <i class="fa-solid fa-user text-white text-2xl "></i>
+                        </div>
                         <div class="relative flex-1">
                             <p class="text-xl font-bold">{{ $admin->username}}</p>
                             @if ($admin->lastMessage)
@@ -131,7 +135,9 @@
 
                 @foreach ($staff as $staffMember)
                     <div onclick="markAsRead({{ $staffMember->id }}, 'staff')" class="customer-container flex gap-2 p-2 hover:bg-gray-200 rounded-lg cursor-pointer">
-                        <i class="fa-solid fa-user text-white text-2xl bg-green-500 p-5 rounded-full"></i>
+                        <div class="bg-green-500 p-5 rounded-full">
+                            <i class="fa-solid fa-user text-white text-2xl "></i>
+                        </div>
                         <div class="relative flex-1">
                             <p class="text-xl font-bold">{{ $staffMember->staff_username }}</p>
                             @if ($staffMember->lastMessage)
