@@ -36,8 +36,7 @@
         <section id="home" class="flex flex-col-reverse px-5 lg:flex-row justify-center lg:px-24">
             <div class="flex flex-col gap-5 lg:w-1/2 lg:gap-10 lg:mt-20" id="content-left">
                 <h1 id="h1" class="text-5xl font-bold">Connect with <span class="text-[#0097D3]">RCT Med Pharma</span> Anytime, Anywhere!</h1>
-                <p id="p" class="text-lg">
-                </p>
+                <p id="type-writing" class="text-lg"></p>
                 <div class="flex gap-5">
                     <a id="button1" href="#inquire" class="bg-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold text-white hover:-translate-y-1 transition-transform duration-300">Reach Us</a>
                     <a id="button2" href="#about" class="border border-[#0097D3] w-fit px-5 py-2 rounded-lg font-semibold hover:-translate-y-1 transition-transform duration-300">About Us</a>
@@ -181,33 +180,33 @@
         </section>
     </main>
 
-    <div class="fixed hidden bg-black/40 w-full h-full top-0 left-0 lg:p-10 p-5 z-50" id="productsmodal">
-            <div class="modal bg-white rounded-md w-full h-full relative lg:p-10 p-5 ">
-                <x-modalclose id="closeproductsmodal"/>
-                <h1 class="text-xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
+    <div class="fixed hidden bg-black/40 w-full h-full top-0 left-0 p-5 z-50 md:p-10" id="productsmodal">
+        <div class="modal bg-white rounded-md w-full max-w-7xl mx-auto h-full relative p-5 lg:p-10">
+            <x-modalclose id="closeproductsmodal"/>
+            <h1 class="text-xl md:text-2xl text-[#084876] font-bold text-center lg:text-left">All Products</h1>
 
-                <div class="mt-5 flex gap-4 justify-center lg:justify-start">
-                    <button class="text-[#084876] font-md text-xl border-b border-[#084876] filter-btn" data-filter="all" onclick="applyModalFilter('all')">All Products</button>
-                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="injectables" onclick="applyModalFilter('injectables')">Injectables</button>
-                    <button class="text-gray-600 font-md text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
-                </div>
+            {{-- <div class="mt-5 flex gap-2 flex-wrap justify-center lg:justify-start">
+                <button class="text-[#084876] font-md text-sm md:text-xl border-b border-[#084876] filter-btn" data-filter="all" onclick="applyModalFilter('all')">All Products</button>
+                <button class="text-gray-600 font-md text-sm md:text-xl filter-btn" data-filter="injectables" onclick="applyModalFilter('injectables')">Injectables</button>
+                <button class="text-gray-600 font-md text-sm md:text-xl filter-btn" data-filter="oral" onclick="applyModalFilter('oral')">Oral</button>
+            </div> --}}
 
-                <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[600px] lg:h-[400px] justify-center">
-                    @forelse($enabledProducts as $product)
-                        <div class="product-card" data-filter="{{ strtolower($product->for) }}">
-                            <x-promotionalpage.product 
-                                :image="$product->img_file_path"
-                                genericname="{{ $product->generic_name }}"
-                                brandname="{{ $product->brand_name }}"
-                                form="{{ $product->form }}"
-                            />
-                        </div>
-                    @empty
-                        <p class="text-center text-gray-500">No products available.</p>
-                    @endforelse
-                </div>
+            <div class="flex flex-wrap gap-5 mt-5 overflow-y-auto h-[70vh] lg:h-[60vh] justify-center lg:justify-center">
+                @forelse($enabledProducts as $product)
+                    <div class="product-card w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5" data-filter="{{ strtolower($product->for) }}">
+                        <x-promotionalpage.product 
+                            :image="$product->img_file_path"
+                            genericname="{{ $product->generic_name }}"
+                            brandname="{{ $product->brand_name }}"
+                            form="{{ $product->form }}"
+                        />
+                    </div>
+                @empty
+                    <p class="text-center text-gray-500">No products available.</p>
+                @endforelse
             </div>
         </div>
+    </div>
 
     <footer class="bg-[#084876] text-white p-5 w-full">
         <div class="flex gap-1 items-center justify-center">
@@ -234,4 +233,21 @@
     <!--<script chatbot_id="6898c15e3362e02152ae1688" data-type="default" src="https://app.thinkstack.ai/bot/thinkstackai-loader.min.js"></script>-->
 <!--<script src="//code.tidio.co/smjz9pf1qeaxphqxmrdbw46qxzlpfv6s.js" async></script>-->
 <script src="{{ asset('js/landingpage/index.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const text = 'Our secure and efficient system allows you to place orders, track inventory, and manage transactions with ease. Experience seamless healthcare solutions at your fingertips, no matter where you are.';
+    const textTyping = document.getElementById('type-writing');
+    let i = 0;
+
+    function typewrite() {
+        if (i < text.length) {
+            textTyping.textContent += text.charAt(i);
+            i++;
+            setTimeout(typewrite, 25);
+        }
+    }
+
+    typewrite();
+});
+</script>
 </html>

@@ -92,21 +92,21 @@ setActiveLink();
 
 // typing animation in id p
 
-function createTypingEffect(elementId, text, speed) {
-  let i = 0;
-  const element = document.getElementById(elementId);
+// function createTypingEffect(elementId, text, speed) {
+//   let i = 0;
+//   const element = document.getElementById(elementId);
 
-  function type() {
-    if (i < text.length) {
-      element.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(type, speed);
-    }
-  }
+//   function type() {
+//     if (i < text.length) {
+//       element.innerHTML += text.charAt(i);
+//       i++;
+//       setTimeout(type, speed);
+//     }
+//   }
 
-  type();
-}
+//   type();
+// }
 
-document.addEventListener('DOMContentLoaded', function() {
-  createTypingEffect('p', 'Our secure and efficient system allows you to place orders, track inventory, and manage transactions with ease. Experience seamless healthcare solutions at your fingertips, no matter where you are.', 20);
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//   createTypingEffect('p', 'Our secure and efficient system allows you to place orders, track inventory, and manage transactions with ease. Experience seamless healthcare solutions at your fingertips, no matter where you are.', 20);
+// });

@@ -5,7 +5,7 @@
     'form' => '',
 ])
 
-<div class="bg-white rounded-lg flex flex-col items-center justify-start p-2 mt-5 w-[300px] h-[320px] product-card"
+<div class="bg-white rounded-lg flex flex-col items-center justify-start p-2 mt-5 w-[260px] h-[280px] product-card"
      style="box-shadow: 0 0 5px black;"
      data-type="{{ strtolower($form) }}">
 

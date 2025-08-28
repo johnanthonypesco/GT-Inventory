@@ -72,13 +72,13 @@
                         </div>
                         
                         <div class="form-group flex items-center space-x-2">
-                            <button type="submit" name="preview" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                            <button type="submit" name="preview" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md hover:-translate-y-1 transition-all duration-200">
                                 <i class="fas fa-eye mr-2"></i> Preview Report
                             </button>
-                            <button type="button" id="generate-pdf-btn" class="btn btn-primary bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                            <button type="button" id="generate-pdf-btn" class="btn btn-primary bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md hover:-translate-y-1 transition-all duration-200">
                                 <i class="fas fa-file-pdf mr-2"></i> Generate PDF
                             </button>
-                            <a href="{{ route('admin.sales') }}" class="btn btn-secondary bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+                            <a href="{{ route('admin.sales') }}" class="btn btn-secondary bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hover:-translate-y-1 transition-all duration-200">
                                 <i class="fas fa-times mr-2"></i> Clear Filters
                             </a>
                         </div>
