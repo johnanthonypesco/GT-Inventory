@@ -30,7 +30,7 @@
             {{-- <a href="{{ route('beta.register') }}" class="bg-red-600 animate-pulse w-fit px-5 py-2 rounded-lg font-semibold text-white">Join The Beta Test Program</a> --}}
         </nav>
 
-        <i class="fa-regular fa-bars-staggered text-xl lg:hidden" id="hamburger"></i>
+        <i class="fa-regular fa-bars-staggered text-xl lg:hidden hover:cursor-pointer" id="hamburger"></i>
     </header>    
 
     <main class="mt-20 mb-20 main">
