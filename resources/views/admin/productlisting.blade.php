@@ -126,9 +126,9 @@
         @endphp
 
         {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
-        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="view-listings-{{ $companyID }}">
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 flex items-center justify-center z-50 overflow-auto" id="view-listings-{{ $companyID }}">
             
-            <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
+            <div class="modal w-full lg:max-w-3xl h-fit rounded-lg m-auto mt-10 bg-white p-5 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyID"/>
                 <div class="flex flex-col lg:flex-row md:justify-between items-center">
                     <h1 class="text-3xl font-semibold text-[#005382]">

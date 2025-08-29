@@ -284,8 +284,8 @@
     {{-- Modal for View All Products --}}
 
     {{-- VIEW ARCHIVE MENU MODAL --}}
-    <div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
-        <div class="modal w-[430px] h-fit max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
+    <div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-5 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
+        <div class="modal w-full h-fit lg:max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
             <x-modalclose click="viewArchivedMenu" />
 
             <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-6">Archive Menu</h1>
@@ -314,7 +314,7 @@
     </div>
 
     {{-- Modal for View All ARCHIVED Products --}}
-    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewAllArchivedProducts">
+    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="viewAllArchivedProducts">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="viewArchivedProducts"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Archived Products</h1>
@@ -343,7 +343,7 @@
             </div> --}}
 
             {{-- Table for all ARCHIVED products --}}
-            <div id="real-timer-archived-products-table" class="table-container mt-5 overflow-auto h-[300px]">
+            <div id="real-timer-archived-products-table" class="table-container mt-5 overflow-auto max-h-[400px]">
                 <table>
                     <thead>
                         <tr>
@@ -454,45 +454,45 @@
         $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength', 'DUPLICATE']);
     @endphp
 
-    <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="registerproductmodal">
-    <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
-        <x-modalclose click="closeregisterproductmodal" />
+    <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 z-50 p-5 sm:p-5 flex justify-center" id="registerproductmodal">
+        <div class="modal w-full lg:max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative mt-10">
+            <x-modalclose click="closeregisterproductmodal" />
 
-        <!-- Register New Product Form -->
-        <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" enctype="multipart/form-data" class="overflow-y-auto max-h-[90vh]">
-            @csrf
+            <!-- Register New Product Form -->
+            <form id="addproduct" action="{{ route('admin.register.product') }}" method="POST" enctype="multipart/form-data" class="overflow-y-auto max-h-[90vh]">
+                @csrf
 
-            <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-4">Register New Product</h1>
+                <h1 class="text-center font-bold text-2xl sm:text-3xl lg:text-4xl text-[#005382] mb-4">Register New Product</h1>
 
-            @if (old('form_type') !== 'edit-product' && $failedToRegister)
-                @error('DUPLICATE')
-                    <p class="mt-1 text-lg text-red-600 text-center self-center">{{ $message }}</p>
-                @enderror
-            @endif
+                @if (old('form_type') !== 'edit-product' && $failedToRegister)
+                    @error('DUPLICATE')
+                        <p class="mt-1 text-lg text-red-600 text-center self-center">{{ $message }}</p>
+                    @enderror
+                @endif
 
-            {{-- BTW FORM_TYPE IS FOR THE EDIT REGISTERED PRODUCT'S ERROR HANDLING --}}
-            <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-4" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
+                {{-- BTW FORM_TYPE IS FOR THE EDIT REGISTERED PRODUCT'S ERROR HANDLING --}}
+                <x-label-input label="Generic Name:" name="generic_name" type="text" for="generic_name" divclass="mt-4" placeholder="Enter Generic Name" value="{{ old('form_type') !== 'edit-product' ? old('generic_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('generic_name') : null"/>
 
-            <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-4" placeholder="Enter Brand Name" value="{{ old('form_type') !== 'edit-product' ? old('brand_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('brand_name') : null"/>
+                <x-label-input label="Brand Name:" name="brand_name" type="text" for="brand_name" divclass="mt-4" placeholder="Enter Brand Name" value="{{ old('form_type') !== 'edit-product' ? old('brand_name') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('brand_name') : null"/>
 
-            <x-label-input label="Form:" name="form" type="text" id="form" for="form" divclass="mt-4" placeholder="Enter Form (ex: Vials)" value="{{ old('form_type') !== 'edit-product' ? old('form') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('form') : null"/>
+                <x-label-input label="Form:" name="form" type="text" id="form" for="form" divclass="mt-4" placeholder="Enter Form (ex: Vials)" value="{{ old('form_type') !== 'edit-product' ? old('form') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('form') : null"/>
 
-            <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" divclass="mt-4" placeholder="Enter Strength (ex: 10mg/ml)" value="{{ old('form_type') !== 'edit-product' ? old('strength') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('strength') : null"/>
+                <x-label-input label="Strength:" name="strength" type="text" id="strength" for="strength" divclass="mt-4" placeholder="Enter Strength (ex: 10mg/ml)" value="{{ old('form_type') !== 'edit-product' ? old('strength') : '' }}" :errorChecker="old('form_type') !== 'edit-product' ? $errors->first('strength') : null"/>
 
-            <!-- File Upload -->
-            <div class="mt-4">
-                <label for="img_file_path" class="text-black/80 font-semibold text-md">Product Picture (Optional):</label>
-                <input type="file" accept=".jpeg,.jpg,.png" name="img_file_path" id="img-file-path"
-                    class="mt-1 block w-full rounded-lg border border-[#005382] bg-white px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-[#005382] focus:ring focus:ring-[#005382]/50 transition duration-150 ease-in-out">
-                @error('img_file_path')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+                <!-- File Upload -->
+                <div class="mt-4">
+                    <label for="img_file_path" class="text-black/80 font-semibold text-md">Product Picture (Optional):</label>
+                    <input type="file" accept=".jpeg,.jpg,.png" name="img_file_path" id="img-file-path"
+                        class="mt-1 block w-full rounded-lg border border-[#005382] bg-white px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-[#005382] focus:ring focus:ring-[#005382]/50 transition duration-150 ease-in-out">
+                    @error('img_file_path')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <x-submit-button id="addproductBtn" class="mt-6" />
-        </form>
+                <x-submit-button id="addproductBtn" class="mt-6" />
+            </form>
+        </div>
     </div>
-</div>
 
     {{-- Modal for Register New Product --}}
 
