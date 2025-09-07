@@ -26,7 +26,7 @@
 
     <div class="flex-1 min-w-0 relative">
         <h3 id="{{ $countId }}-title" class="text-gray-500 font-medium text-sm truncate">{{ $title }}</h3>
-        <p id="{{ $countId }}" class="text-gray-800 text-2xl font-bold mt-1 break-all">{!! $count !!}</p>
+        <p id="{{ $countId }}" class="text-gray-800 text-xl font-bold mt-1 break-all">{!! $count !!}</p>
     </div>
 
     <div class="ml-4 relative">

@@ -2,53 +2,81 @@
 
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden"></div>
 <!-- Sidebar -->
-<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-50 p-5 list-none transition-all duration-500" id="sidebar">
+<div class="flex flex-col gap-2 h-full w-0 fixed top-0 -left-32 bg-white z-50 list-none transition-all duration-500" id="sidebar">
     <div class="p-3 flex flex-col relative">
         <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[130px] self-center">
-        <div onclick="closeSidebar()" class="w-10 h-10 bg-[#005382] shadow-md flex items-center justify-center absolute -top-5 -right-10 rounded-md hover:cursor-pointer">
-            <span class="text-6xl text-white font-bold">&times;</span>
+        <div onclick="closeSidebar()" class="flex items-center justify-center absolute top-5 right-5 rounded-md hover:cursor-pointer">
+            <i class="fa-solid fa-x text-2xl text-black/80"></i>
         </div>
     </div>
-    <ul class="flex flex-col pt-5 overflow-y-auto">
-        <div class="flex flex-col gap-2">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Home <i class="fa-solid fa-angle-down text-gray-400"></i></span>
-            <a href="{{ route('customer.dashboard') }}" class="text-sm {{ request()->is('customer/dashboard') ? 'active' : '' }}"><i class="fa-solid fa-gauge"></i>Dashboard</a>
-            <a href="{{ route('customer.order') }}" class="text-sm {{ request()->is('customer/order') ? 'active' : '' }}"><i class="fa-solid fa-cart-shopping {{ request()->is('customer/order') ? 'text-white' : '' }}"></i>Make an Order</a>
+    <ul class="list-none flex flex-col py-2 gap-[1px] overflow-y-auto">
 
-        </div>
+        {{-- HOME --}}
+        <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold flex items-center justify-between gap-2">Home</div>
+        <li>
+            <a href="{{ route('customer.dashboard') }}" class="mt-1 flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 relative hover:bg-gray-100 hover:text-black {{ request()->is('customer/dashboard') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-solid fa-gauge text-base"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('customer.order') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 relative hover:bg-gray-100 hover:text-black {{ request()->is('customer/order') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-solid fa-cart-shopping text-base"></i>
+                <span>Make an Order</span>
+            </a>
+        </li>
         
-        <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Communication <i class="fa-solid fa-angle-down text-gray-400"></i></span>
-            <a href="{{ route('customer.chat.index') }}" id="chatNav" class="text-sm relative">
-                <i class="fa-brands fa-rocketchat"></i>Chat
-    
+        {{-- COMMUNICATION --}}
+        <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Communication</div>
+        <li>
+            <a href="{{ route('customer.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('customer/chat*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-brands fa-rocketchat text-base"></i>
+                <span>Chat</span>
                 @if ($totalUnreadMessages > 0)
-                    <span class="absolute top-2.5 right-2 bg-red-500 text-white p-1 px-2 rounded-full text-xs">
-                        {{ $totalUnreadMessages }}
-                    </span>
+                    <div class="absolute top-3 right-1 bg-red-500 px-1 rounded-full text-sm text-white">
+                        <span>{{ $totalUnreadMessages }}</span>
+                    </div>
                 @endif
             </a>
-        </div>
+        </li>
 
-        <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">Management <i class="fa-solid fa-angle-down text-gray-400"></i></span>            
-            <a href="{{ route('customer.manageorder') }}" class="text-sm {{ request()->is('customer/manageorder') ? 'active' : '' }}"><i class="fa-solid fa-list-check {{ request()->is('customer/manageorder') ? 'text-white' : '' }}"></i>Manage Order</a>
-            <a href="{{ route('customer.manageaccount') }}" class="text-sm"><i class="fa-solid fa-gear"></i>Manage Account</a>
-        </div>
+        {{-- MANAGEMENT --}}
+        <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Management</div>
+        <li>
+            <a href="{{ route('customer.manageorder') }}" class="mt-1 flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('customer/manageorder') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-solid fa-list-check text-base"></i>
+                <span>Manage Order</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('customer.manageaccount') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('customer/manageaccount') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-solid fa-gear text-base"></i>
+                <span>Manage Account</span>
+            </a>
+        </li>
 
-
-        <div class="flex flex-col gap-2 mt-4">
-            <span class="w-full border-b-2 text-[#005382]/70 font-semibold mb-1 text-sm flex justify-between items-center">History & Review <i class="fa-solid fa-angle-down text-gray-400"></i></span>
-            <a href="{{ route('customer.history') }}" class="text-sm {{ request()->is('customer/history') ? 'active' : '' }}"><i class="fa-regular fa-clock {{ request()->is('customer/history') ? 'text-white' : '' }}"></i>Order History</a>
-            <a href="#" id="openReviewModal" class="text-sm"><i class="fa-solid fa-star"></i>Leave a Review</a>
-        </div>
-
+        {{-- HISTORY & REVIEW --}}
+        <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">History & Review</div>
+        <li>
+            <a href="{{ route('customer.history') }}" class="mt-1 flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('customer/history') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <i class="fa-regular fa-clock text-base"></i>
+                <span>Order History</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" id="openReviewModal" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black">
+                <i class="fa-solid fa-star text-base"></i>
+                <span>Leave a Review</span>
+            </a>
+        </li>
     </ul>
 
+    {{-- LOGOUT --}}
     <form action="{{ route('logout') }}" method="POST" class="mt-auto">
         @csrf
-        <button type="submit" class="flex items-center gap-2 text-sm uppercase bg-[#005382] p-2 text-white rounded-lg w-full">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-medium transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout ...</span>
         </button>
     </form>
 </div>

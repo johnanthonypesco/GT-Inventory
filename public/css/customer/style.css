@@ -12,7 +12,7 @@ header{
 nav{
     box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1);
 }
-ul a,a{
+/* ul a,a{
     padding: 10px;
     border-radius: 10px;
     font-weight: 500;
@@ -56,25 +56,8 @@ ul a:hover i, a:hover i{
 }
 .active i{
     color: white;
-}
-::-webkit-scrollbar {
-    width: 4px; 
-}
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb {
-    background: #005382;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-button{
-    cursor: pointer;
-}
-li a,a{
+} */
+/* li a,a{
     padding: 10px;
     border-radius: 10px;
     font-weight: 500;
@@ -113,6 +96,39 @@ li a:hover i, a:hover i{
 li a .active{
     background-color: #005382;
     color: white;
+} */
+ li a:hover, #sidebar a:hover{
+    background-color: #0052821b;
+    color: black !important;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
+    position: relative;
+    border-left: 3px solid #005382;
+    transition: all 0.3s ease;
+}
+.active{
+    background-color: #0052821b;
+    color: black !important;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.277);
+    position: relative;
+    border-left: 4px solid #005382;
+    font-weight: 600;
+} 
+::-webkit-scrollbar {
+    width: 4px; 
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #005382;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+button{
+    cursor: pointer;
 }
 .modal{
     animation-name: animatetop;
