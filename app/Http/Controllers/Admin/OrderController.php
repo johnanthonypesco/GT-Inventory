@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ExclusiveDeal;
+use App\Models\PurchaseOrder;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Inventory;
@@ -20,6 +21,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\Staff; 
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -30,6 +32,7 @@ class OrderController extends Controller
         $orders = Order::with([
             'user.company.location',
             'exclusive_deal.product',
+            'purchase_order',
         ]);
         
         // If may search then add another gyad damn condition
@@ -110,7 +113,7 @@ class OrderController extends Controller
     });
     // dd($currentStocks);
         // To get only the orders grouped by name
-        $orderArray = Order::with(['user.company.location', 'exclusive_deal.product']) 
+        $orderArray = Order::with(['user.company.location', 'exclusive_deal.product', 'purchase_order']) 
         ->whereNotIn('status', ['delivered', 'cancelled'])
         ->orderBy('date_ordered', 'desc')
         ->get()
@@ -209,11 +212,11 @@ class OrderController extends Controller
         ]);
     }
 
-    public function storeOrder(Request $request) {
-        // dd($request->toArray());
-        
+    public function storeOrder(Request $request) {  
         $validated = $request->validate([
             'user_id' => 'required|integer',
+            'purchase_order_id' => 'required|integer|min:1',
+            'po_file_path' => 'nullable|string',
             'exclusive_deal_id' => 'required|integer',
             'quantity' => 'required|integer|min:1|max:100000',
             'status' => 'required|string|in:pending,packed,out for delivery',
@@ -225,8 +228,19 @@ class OrderController extends Controller
 
         // dd($validated);
 
-        Order::insert($validated);
+        $companyID = User::findOrFail($validated['user_id'])->company_id;
 
+        // if the P.O. doesnt exists yet.
+        $purchaseOrder = PurchaseOrder::firstOrCreate([
+            'company_id' => $companyID,
+            'po_number' => $validated['purchase_order_id'],
+        ]);        
+
+        $validated['purchase_order_id'] = $purchaseOrder->id;
+        
+        // dd($validated);
+        Order::create($validated);
+        
         $creator = auth()->user()->name;
         $user  = User::with('company')->findOrFail($validated['user_id']);
 
@@ -251,7 +265,7 @@ class OrderController extends Controller
             ]);
 
             $orderId = $validate['order_id'];
-            $orderDeets = Order::with(['user.company.location', 'exclusive_deal.product'])->findOrFail($orderId);
+            $orderDeets = Order::with(['user.company.location', 'exclusive_deal.product', 'purchase_order'])->findOrFail($orderId);
 
             $orderProd = $orderDeets->exclusive_deal->product;
             $orderUser = $orderDeets->user;
@@ -304,6 +318,7 @@ class OrderController extends Controller
                 ]);
 
                 ImmutableHistory::create([
+                    'purchase_order_no' => $orderDeets->purchase_order->po_number,
                     'order_id' => $orderId, 
                     'company_id' => $orderUser->company->id,
                     'user_id' => $orderUser->id,
@@ -323,6 +338,8 @@ class OrderController extends Controller
             }
 
             $order->update(['status' => $validate['status']]);
+
+            Storage::delete('public/qrcodes/' . 'order_' . $orderId . '.png');
 
             HistorylogController::add(
                 'Edit',

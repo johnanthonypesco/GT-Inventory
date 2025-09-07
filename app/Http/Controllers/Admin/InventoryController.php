@@ -641,7 +641,7 @@ class InventoryController extends Controller
         Storage::delete('qrcodes/' . '_' . $orderId . '.png');
 
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
-        $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+        $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product', 'purchase_order'])->findOrFail($orderId)->toArray();
         
         $companyDeets = $orderArchiveArray['user']['company'];
         $province = $orderArchiveArray['user']['company']['location']['province'];
@@ -653,6 +653,7 @@ class InventoryController extends Controller
         ImmutableHistory::createOrFirst([
             'province' => $province,
             'company_id' => $companyDeets["id"],
+            'purchase_order_no' => $orderArchiveArray["purchase_order"]["po_number"],
             'company' => $companyDeets["name"],
             'user_id' => $employeeDeets["id"],
             'employee' => $employeeDeets["name"],
@@ -810,7 +811,7 @@ class InventoryController extends Controller
         Storage::delete('public/qrcodes/' . 'order_' . $orderId . '.png');
 
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
-        $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
+        $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product', 'purchase_order'])->findOrFail($orderId)->toArray();
         
         $companyDeets = $orderArchiveArray['user']['company'];
         $province = $orderArchiveArray['user']['company']['location']['province'];
@@ -820,6 +821,7 @@ class InventoryController extends Controller
         $productPrice = $orderArchiveArray['exclusivedeal']['price'];
         
         ImmutableHistory::createOrFirst([
+            'purchase_order_no' => $orderArchiveArray["purchase_order"]["po_number"],
             'order_id' => $orderId,
             'company_id' => $companyDeets['id'],
             'user_id' => $employeeDeets['id'],

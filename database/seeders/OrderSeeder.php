@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\ExclusiveDeal;
 use App\Models\Order;
+use App\Models\PurchaseOrder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,6 +17,7 @@ class OrderSeeder extends Seeder
     {
         Order::create([
             'user_id' => 69,
+            'purchase_order_id' => PurchaseOrder::where('company_id', 1)->pluck('id')->random(),
             'exclusive_deal_id' => ExclusiveDeal::where('company_id', 1)->pluck('id')->random(),
             'date_ordered' => fake()->dateTimeBetween('-1 day', 'now'),
             'status' => fake()->randomElement([

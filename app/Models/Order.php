@@ -15,8 +15,9 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'purchase_order_id',
         'exclusive_deal_id',
-        'date',
+        'date_ordered',
         'status',
         'quantity',
         'qr_code',
@@ -50,6 +51,9 @@ public function staff()
     return $this->belongsTo(Staff::class);
 }
 
+public function purchase_order() {
+    return $this->belongsTo(related: PurchaseOrder::class);
+}
 
 }
 

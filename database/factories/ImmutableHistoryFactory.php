@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\ExclusiveDeal;
 use App\Models\Location;
 use App\Models\Order;
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,6 +29,8 @@ class ImmutableHistoryFactory extends Factory
         $companyName = $usableUser->company->name;
         $employeeName = $usableUser->name;
 
+        $purchaseOrderNo = PurchaseOrder::where('company_id', $companyID)->with('company')->pluck('po_number')->random();
+
         $orderID = Order::pluck('id')->random();
         $usableOrder = Order::with('exclusive_deal.product')->findOrFail($orderID);
         $dateOrdered = $usableOrder->date_ordered;
@@ -50,6 +53,7 @@ class ImmutableHistoryFactory extends Factory
         // --by: Evil Sigrae >:)
 
         return [
+            'purchase_order_no' => $purchaseOrderNo,
             'order_id' => $orderID,
             'company_id' => $companyID,
             'user_id' => $userID,

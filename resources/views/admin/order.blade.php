@@ -217,6 +217,7 @@
                                     <table class="w-full mb-5">
                                         <thead>
                                             <tr>
+                                                <th>P.O.</th>
                                                 <th>Generic Name</th>
                                                 <th>Brand Name</th>
                                                 <th>Form</th>
@@ -249,6 +250,7 @@
                                                 <tr style="{{ $isInsufficient ? 'pointer-events: none;' : '' }}" class="text-center
                                                 {{ $isInsufficient ? "bg-red-500 animate-pulse text-white" : '' }}
                                                 ">
+                                                    <td> {{ $order->purchase_order->po_number }} </td>
                                                     <td>{{ $productInfo->generic_name }}</td>
                                                     <td>{{ $productInfo->brand_name }}</td>
                                                     <td>{{ $productInfo->form }}</td>
@@ -336,7 +338,7 @@
             </datalist>
         @endforeach
 
-        <div class="add-new-order-modal {{ $errors->first('date_ordered') ? '' : 'hidden' }} fixed w-full h-full top-0 left-0 p-5 z-[53] bg-black/50 pt-[50px]">
+        <div class="add-new-order-modal {{ $errors->any() ? '' : 'hidden' }} fixed w-full h-full top-0 left-0 p-5 z-[53] bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="closeaddneworder"/>
                 <h1 class="text-[18px] text-[#005382] font-bold">Create a New Order</h1>
@@ -361,7 +363,10 @@
                         <div class="hidden" id="create-order-hidden-inputs">
                             <x-label-input list="" label="User ID:" name="user_id" type="number" for="user_id" divclass="row-span-1" placeholder="Enter name & company" errorChecker="{{ $errors->first('user_id') }}"/>
                             
+                            <x-label-input label="Purchase Order Number:" name="purchase_order_id" type="text" for="purchase_order_no" divclass="row-span-1" placeholder="Enter P.O. Number" errorChecker="{{ $errors->first('purchase_order_no') }}"/>
+                            
                             <x-label-input list="" label="Product Deal:" name="exclusive_deal_id" type="text" for="exclusive_deal_id" divclass="row-span-1" placeholder="Enter company & deal number" errorChecker="{{ $errors->first('exclusive_deal_id') }}"/>
+                            
                         </div>
 
                         <x-label-input label="Quantity:" name="quantity" type="number" for="quantity" divclass="row-span-1" placeholder="Enter Quantity" errorChecker="{{ $errors->first('quantity') }}"/>
@@ -515,6 +520,7 @@
                        <tr>
                             <th>Province</th>
                            <th>Date Ordered</th>
+                           <th>P.O.</th>
                            <th>Company</th>
                            <th>Employee</th>
                             <th>Generic Name</th>
@@ -538,6 +544,7 @@
                                 <tr>
                                     <td> {{ $explodedName[4] }} </td>
                                     <td> {{ Carbon::parse($order["currentOrder"]["date_ordered"])->translatedFormat('M d, Y') }} </td>
+                                    <td> {{ $order["currentOrder"]["purchase_order"]["po_number"] }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["company"]["name"] }} </td>
                                     <td> {{ $order["currentOrder"]["user"]["name"] }} </td>
                                     <td> {{ $explodedName[0] }} </td>
