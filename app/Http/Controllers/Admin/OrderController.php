@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\ExclusiveDeal;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Inventory;
@@ -11,6 +12,8 @@ use App\Models\ImmutableHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\Historylogs;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -180,7 +183,6 @@ class OrderController extends Controller
             ];
         });
 
-
         return view('admin.order', [
             'provinces' => $provinces,
             'stocksAvailable' => $currentStocks->toArray(),
@@ -198,7 +200,42 @@ class OrderController extends Controller
             ],
 
             'authGuard' => Auth::guard('staff')->check(),
+
+            // for manual order creations
+            'usersByCompany' => User::with('company')->get()->groupBy("company_id"),
+            'kompanies' => Company::all()->sortBy('name'),
+            'availableDealsByCompany' => ExclusiveDeal::with('product', 'company')
+            ->get()->groupBy("company_id"),
         ]);
+    }
+
+    public function storeOrder(Request $request) {
+        // dd($request->toArray());
+        
+        $validated = $request->validate([
+            'user_id' => 'required|integer',
+            'exclusive_deal_id' => 'required|integer',
+            'quantity' => 'required|integer|min:1|max:100000',
+            'status' => 'required|string|in:pending,packed,out for delivery',
+            'date_ordered' => 'required|date|date_format:Y-m-d|before_or_equal:today',
+            'staff_id' => 'nullable|integer|exists:staff,id',
+        ]);
+
+        $validated = array_map('strip_tags', $validated);
+
+        // dd($validated);
+
+        Order::insert($validated);
+
+        $creator = auth()->user()->name;
+        $user  = User::with('company')->findOrFail($validated['user_id']);
+
+        HistorylogController::add(
+            'Add',
+            "{$creator} Has made an order for {$user->company->name}."
+        );
+
+        return to_route('admin.order')->with('success', 'Order created successfully.');
     }
 
     public function updateOrder(Request $request, Order $order) 

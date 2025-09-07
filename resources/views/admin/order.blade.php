@@ -90,6 +90,11 @@
                 
                 {{-- Table Button --}}
                 <div class="flex gap-4 p-1 justify-center lg:justify-start">
+                    <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="addneworder()">
+                        <i class="fa-solid fa-plus"></i>
+                        Create Order
+                    </button>
+
                     @if (!$authGuard) 
                         <button class="bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white  hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" onclick="uploadqr()">
                             <i class="fa-solid fa-upload"></i> Upload QR Code
@@ -307,24 +312,74 @@
         @endforeach
         {{-- View Order Modal --}}
 
-        {{-- Add New Order Modal --}}
-        <div class="add-new-order-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px]">
+        {{-- Create New Order Modal --}}
+        @foreach ($usersByCompany as $companyID => $users)
+            <datalist id="create-suggestions-{{ $companyID }}">
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">
+                        {{ $user->name }} - {{$user->company->name}}
+                    </option>
+                @endforeach
+            </datalist>            
+        @endforeach
+
+        @foreach ($availableDealsByCompany as $companyID => $availableDeals)
+            <datalist id="available-deals-{{ $companyID }}">
+                @foreach($availableDeals as $deal)
+                    <option value="{{ $deal->id }}">
+                        {{ $deal->product->generic_name }} - {{ $deal->product->brand_name }} - {{ $deal->product->form }} - {{ $deal->product->strength }} - ₱{{ number_format($deal->price) }} - {{ $deal->company->name }}
+                    </option>
+                @endforeach
+            </datalist>
+        @endforeach
+
+        <div class="add-new-order-modal {{ $errors->first('date_ordered') ? '' : 'hidden' }} fixed w-full h-full top-0 left-0 p-5 z-[53] bg-black/50 pt-[50px]">
             <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="closeaddneworder"/>
-                <h1 class="text-[18px] text-[#005382] font-bold">Add New Order</h1>
+                <h1 class="text-[18px] text-[#005382] font-bold">Create a New Order</h1>
 
-                <form action="" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5">
+                <form action="{{  route('admin.order.store') }}" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5" method="POST">
+                    @csrf
+                    @method("POST")
+
                     <div class="flex flex-col gap-2 items-center px-5 pb-10" id="order-form-input">
-                        <x-label-input label="Customer Name:" name="customer_name" type="text" for="customer_name" divclass="flex flex-col" placeholder="Enter Customer Name"/>
-                        <x-label-input label="Product Name:" name="product" type="text" for="product" divclass="flex flex-col" placeholder="Enter Product Name"/>
-                        <x-label-input label="Quantity:" name="quantity" type="text" for="quantity" divclass="flex flex-col" placeholder="Enter Quantity"/>
-                        <x-label-input label="Price:" name="price" type="text" for="price" divclass="flex flex-col" placeholder="Enter Price"/>
+                        <div class="flex flex-col gap-3">
+                            <label>Choose a Company</label>
+                            <select id="company-select" class="row-span-1" onchange="companyChosen()">
+                                <option value="No Company Selected" selected disabled>Select Company</option>
+                                @foreach ($kompanies as $kompany)
+                                    <option value="{{ $kompany->id }}">
+                                        {{ $kompany->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="hidden" id="create-order-hidden-inputs">
+                            <x-label-input list="" label="User ID:" name="user_id" type="number" for="user_id" divclass="row-span-1" placeholder="Enter name & company" errorChecker="{{ $errors->first('user_id') }}"/>
+                            
+                            <x-label-input list="" label="Product Deal:" name="exclusive_deal_id" type="text" for="exclusive_deal_id" divclass="row-span-1" placeholder="Enter company & deal number" errorChecker="{{ $errors->first('exclusive_deal_id') }}"/>
+                        </div>
+
+                        <x-label-input label="Quantity:" name="quantity" type="number" for="quantity" divclass="row-span-1" placeholder="Enter Quantity" errorChecker="{{ $errors->first('quantity') }}"/>
+
+                        <x-label-input label="Date Ordered:" name="date_ordered" type="date" for="date_ordered" divclass="row-span-1" errorChecker="{{ $errors->first('date_ordered') }}"/>
+
+                        <div class="flex flex-col gap-3">
+                            <select name="status" class="row-span-1">
+                                <option value="pending" selected>Pending</option>
+                                <option value="packed">Packed</option>
+                                {{-- <option value="out for delivery">Out for Delivery</option> --}}
+                            </select>
+                        </div>
                     </div>
 
                     <div class="flex justify-between absolute bottom-0 w-full p-2 bg-white left-0">
-                        <button id="addnewworder-button" class="bg-white flex items-center">
+                        {{-- WILL ADD THIS FEATURE LATER ON --}}
+                        {{-- <button id="addnewworder-button" class="bg-white flex items-center">
                             <i class="fa-solid fa-plus"></i>Add More
-                        </button>
+                        </button> --}}
+
                         <button type="submit" class="bg-white p-2 rounded-lg flex items-center">
                             <img src="{{ asset('image/image 51.png') }}" class="w-[20px]">
                             Submit
@@ -567,7 +622,9 @@
 </body>
 </html>
 
-{{-- <script src="{{ asset('js/order.js') }}"></script> --}}
+{{-- gagamitin ko na uli itong JS file nato
+-- sigrar --}}
+<script src="{{ asset('js/order.js') }}"></script>
 {{-- <script>
 </script> --}}
 
