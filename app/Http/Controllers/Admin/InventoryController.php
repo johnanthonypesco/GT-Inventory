@@ -631,11 +631,14 @@ class InventoryController extends Controller
             ];
         }
 
-        // ✅ Step 5: Update related records
+        // ✅ Step 5: Update related records and delete the QR code
         Order::where('id', $orderId)->update([
             'status' => 'delivered',
             'updated_at' => now()
         ]);
+
+        // Delete the QR code
+        Storage::delete('qrcodes/' . '_' . $orderId . '.png');
 
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
         $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
@@ -803,6 +806,9 @@ class InventoryController extends Controller
             'status' => 'delivered',
             'updated_at' => now()
         ]);
+
+        Storage::delete('public/qrcodes/' . 'order_' . $orderId . '.png');
+
         // SIGRAE CODE FOR ARCHIVAL PURPOSES
         $orderArchiveArray = Order::with(['user.company.location', 'exclusivedeal.product'])->findOrFail($orderId)->toArray();
         
@@ -866,63 +872,97 @@ class InventoryController extends Controller
         ], $statusCode);
     }
 }
-        public function transferInventory(Request $request)
-        {
-            try {
-                \Log::info("Received Transfer Request:", $request->all());
 
-                $validated = $request->validate([
-                    'inventory_id' => 'required|exists:inventories,inventory_id',
-                    'new_location' => 'required'
-                ]);
+    public function transferInventory(Request $request)
+    {
+        try {
+            Log::info("Received Inventory Transfer Request:", $request->all());
 
-                // Determine location name from ID or province string
-                $locationName = null;
-                if (!is_numeric($validated['new_location'])) {
-                    $location = Location::where('province', $validated['new_location'])->first();
-                    if (!$location) {
-                        return response()->json(['success' => false, 'message' => 'Location not found.'], 400);
-                    }
-                    $validated['new_location'] = $location->id;
-                    $locationName = $location->province;
-                } else {
-                    $location = Location::find($validated['new_location']);
-                    $locationName = $location ? $location->province : 'Unknown';
-                }
+            // 1. Validate the incoming request data, including the new transfer_quantity
+            $validated = $request->validate([
+                'inventory_id'      => 'required|exists:inventories,inventory_id',
+                'new_location'      => 'required|exists:locations,id',
+                'transfer_quantity' => 'required|numeric|min:1'
+            ]);
 
-                // Find the inventory
-                $inventory = Inventory::where('inventory_id', $validated['inventory_id'])->first();
-                if (!$inventory) {
-                    return response()->json(['success' => false, 'message' => 'Inventory not found.'], 404);
-                }
+            $transferQuantity = (int)$validated['transfer_quantity'];
 
-                // ✅ Store the old location before updating
-                $oldLocation = $inventory->location ? $inventory->location->province : 'Unknown';
+            // 2. Find the original inventory record
+            $originalInventory = Inventory::findOrFail($validated['inventory_id']);
 
-                // Update the inventory's location
-                $inventory->update(['location_id' => $validated['new_location']]);
-
-                // ✅ Log the transfer with correct parameters
-                HistorylogController::add(
-                    'Transfer',
-                    'Inventory for ' . $inventory->product->generic_name . ' has been transferred from ' . $oldLocation . ' to ' . $locationName . '.',
-                    $inventory->product_id,
-                    $locationName
-                );
-
+            // 3. Perform validation checks
+            if ($transferQuantity > $originalInventory->quantity) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Inventory successfully transferred!'
-                ], 200);
-
-            } catch (\Exception $e) {
-                \Log::error("Error transferring inventory", ['error' => $e->getMessage()]);
+                    'success' => false, 
+                    'message' => 'Transfer quantity cannot be greater than the available stock.'
+                ], 422); // 422 Unprocessable Entity
+            }
+            
+            if ($originalInventory->location_id == $validated['new_location']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error: ' . $e->getMessage()
-                ], 500);
+                    'message' => 'New location cannot be the same as the current location.'
+                ], 422);
             }
+
+            // Get location details for logging
+            $newLocation = Location::find($validated['new_location']);
+            $oldLocationName = $originalInventory->location->province ?? 'Unknown';
+            $newLocationName = $newLocation->province ?? 'Unknown';
+            
+            // 4. Use a database transaction to ensure data integrity
+            DB::transaction(function () use ($originalInventory, $newLocation, $transferQuantity) {
+                
+                // If the entire quantity is transferred, simply update the location.
+                if ($transferQuantity == $originalInventory->quantity) {
+                     $originalInventory->update(['location_id' => $newLocation->id]);
+                } else {
+                    // Decrease the quantity of the original inventory item
+                    $originalInventory->quantity -= $transferQuantity;
+                    $originalInventory->save();
+
+                    // Check if an entry for the same product and batch already exists at the new location
+                    $existingInventoryAtNewLocation = Inventory::where('product_id', $originalInventory->product_id)
+                        ->where('batch_number', $originalInventory->batch_number)
+                        ->where('location_id', $newLocation->id)
+                        ->first();
+
+                    if ($existingInventoryAtNewLocation) {
+                        // If it exists, just add the quantity to it
+                        $existingInventoryAtNewLocation->quantity += $transferQuantity;
+                        $existingInventoryAtNewLocation->save();
+                    } else {
+                        // Otherwise, create a new inventory record for the new location by replicating the original
+                        $newInventory = $originalInventory->replicate(['inventory_id']); // Exclude primary key
+                        $newInventory->location_id = $newLocation->id;
+                        $newInventory->quantity = $transferQuantity;
+                        $newInventory->save();
+                    }
+                }
+            });
+
+            // 5. Log the transfer with a more detailed message
+            HistorylogController::add(
+                'Transfer',
+                "{$transferQuantity} unit(s) of {$originalInventory->product->generic_name} (Batch: {$originalInventory->batch_number}) transferred from {$oldLocationName} to {$newLocationName}.",
+                $originalInventory->product_id,
+                $newLocationName
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Inventory successfully transferred!'
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error("Error transferring inventory", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred: ' . $e->getMessage()
+            ], 500);
         }
-
-
     }
+
+}

@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
-    <x-fontawesome/>
+    <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <title>Manage Blocked IPs</title>
 </head>
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[16%] opacity-0 px-4">
+    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
         <x-admin.header title="Manage Blocked IPs" icon="fa-solid fa-ban"/>
         
         <div class="flex flex-col md:flex-row justify-between items-center mt-24">

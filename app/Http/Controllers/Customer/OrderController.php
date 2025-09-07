@@ -13,6 +13,7 @@ use App\Mail\OrderNotificationMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Events\OrderPlaced;
 
 class OrderController extends Controller
 {
@@ -140,17 +141,19 @@ class OrderController extends Controller
             Order::insert($orders);
             // END OF SIGRAE'S CODE
     
-            // Notify admins
-            $admins = Admin::all();
-            $superadmins = SuperAdmin::all();
+            // // Notify admins
+            // $admins = Admin::all();
+            // $superadmins = SuperAdmin::all();
 
-            foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
-            }
+            // foreach ($admins as $admin) {
+            // Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
+            // }
 
-            foreach ($superadmins as $superadmin) {
-            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
-            }
+            // foreach ($superadmins as $superadmin) {
+            // Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
+            // }
+                OrderPlaced::dispatch($orderDetails);
+
     
             return to_route('customer.order')->with('success', 'Order placed successfully.');
         } else {
@@ -237,15 +240,16 @@ class OrderController extends Controller
         Order::insert($newOrdersPayload);
 
         // 7. Send email notifications to admins, just like in storeOrder().
-        $admins = Admin::all();
-        $superadmins = SuperAdmin::all();
+        // $admins = Admin::all();
+        // $superadmins = SuperAdmin::all();
 
-        foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
-        }
-        foreach ($superadmins as $superadmin) {
-            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
-        }
+        // foreach ($admins as $admin) {
+        //     Mail::to($admin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        // }
+        // foreach ($superadmins as $superadmin) {
+        //     Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        // }
+    OrderPlaced::dispatch($orderDetailsForEmail);
 
         // 8. Redirect with a success message.
         return redirect()->route('customer.dashboard')->with('success', 'Successfully re-ordered your last purchase.');

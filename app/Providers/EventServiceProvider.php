@@ -21,21 +21,33 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
-        ],
+    /**
+     * The event listener mappings for the application.
+     * Add the new mapping for your chat message email notification here.
+     */
 
-        // 2. Add this block for your authentication events
-        Login::class => [
-            UserAuthenticationListener::class,
-        ],
-        Failed::class => [
-            UserAuthenticationListener::class,
-        ],
-        Logout::class => [
-            UserAuthenticationListener::class,
-        ],
-    ];
+     'App\Events\OrderPlaced' => [
+        'App\Listeners\SendOrderNotification',
+    ],
+    'App\Events\NewMessageReceived' => [
+        'App\Listeners\SendNewMessageNotification',
+    ],
+
+    // Your existing listeners below
+    Registered::class => [
+        SendEmailVerificationNotification::class,
+    ],
+
+    Login::class => [
+        UserAuthenticationListener::class,
+    ],
+    Failed::class => [
+        UserAuthenticationListener::class,
+    ],
+    Logout::class => [
+        UserAuthenticationListener::class,
+    ],
+];
 
     /**
      * Register any events for your application.
