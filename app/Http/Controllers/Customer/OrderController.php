@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Order;
@@ -54,6 +55,7 @@ class OrderController extends Controller
     public function storeOrder(Request $request){
         $validated = $request->validate([
             'user_id' => 'required|numeric',
+            'purchase_order_id' => 'required|numeric|min:1',
             'exclusive_deal_id.*' => 'required|numeric',
             'quantity.*' => 'required|numeric', 
         ]);
@@ -93,6 +95,16 @@ class OrderController extends Controller
             $user = User::findOrFail($validated["user_id"]);
             $locationId = $user->company->location_id;
 
+            $companyID = $user->company_id;
+
+            // if the P.O. doesnt exists yet.
+            $purchaseOrder = PurchaseOrder::firstOrCreate([
+                'company_id' => $companyID,
+                'po_number' => $validated['purchase_order_id'], // not actually an ID yet but the po_number itself
+            ]);        
+
+            $validated['purchase_order_id'] = $purchaseOrder->id; // here we gonna get the actual ID now
+
             $deals = ExclusiveDeal::with('product')
             ->whereIn('id', $validated['exclusive_deal_id'])
             ->get()
@@ -129,6 +141,7 @@ class OrderController extends Controller
     
                 // START OF SIGRAE'S CODE
                 $orders[] = [
+                    'purchase_order_id' => $validated['purchase_order_id'],
                     'user_id' => $validated['user_id'],
                     'exclusive_deal_id' => $deal_id,
                     'quantity' => $validated['quantity'][$index],

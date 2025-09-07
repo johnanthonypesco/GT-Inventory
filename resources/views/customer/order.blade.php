@@ -116,7 +116,15 @@
                 <p class="hidden" id="user_id" data-value="{{auth()->user()->id}}"> </p>
                 
                 <div class="flex items-center justify-between pb-4 border-b">
-                    <h1 class="font-bold text-2xl text-gray-800">Order Summary</h1>
+                    <div class="flex flex-col">
+                        <h1 class="font-bold text-2xl text-gray-800">Order Summary</h1>
+                        
+                        <div class="flex flex-row gap-2">
+                            <label for="purchase_order_id">P.O. Number:</label>
+                            <input type="number" required min="1" name="purchase_order_id" placeholder="Enter P.O. Number" class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none outline-[#005382]">
+                        </div>
+                    </div>
+
                     <button onclick="viewOrderSummary()" class="lg:hidden p-3 rounded-full border border-gray-400 text-gray-600 transition-all duration-300 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300">
                         <i id="ordersummaryicon" class="fa-solid fa-angles-up"></i>
                     </button>
