@@ -293,6 +293,7 @@ Route::middleware(['auth:superadmin,admin,staff'])->group(function () {
 
     //8///////////////////////// << CURRENT ORDER ROUTES >> //////////////////////////////8//
     Route::get('admin/order', [OrderController::class, 'showOrder'])->name('admin.order');
+    Route::post('admin/orders', [OrderController::class, 'storeOrder'])->name('admin.order.store');
     Route::put('admin/orders/{order}', [OrderController::class, 'updateOrder'])->name('admin.order.update');
     //8///////////////////////// << CURRENT ORDER ROUTES >> //////////////////////////////8//
 

@@ -19,7 +19,7 @@ class ManageorderController extends Controller
 
         $pageNum = 10;
         
-        $orders = Order::where('user_id', auth('web')->id());
+        $orders = Order::with('purchase_order')->where('user_id', auth('web')->id());
 
         if ($searchFilter && count($searchFilter) === 5) {
             $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($searchFilter) {

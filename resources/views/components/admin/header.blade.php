@@ -102,6 +102,7 @@
                         'superadmin.reviews.index' => 'review.mp4',
                         'admin.history' => 'admin-order-history.mp4',
                         'admin.historylog' => 'history-logs.mp4',
+                        'blocked-ips.index' => 'history-logs.mp4',
                         'admin.stafflocation' => 'staff-location.mp4',
                     ];
                 @endphp

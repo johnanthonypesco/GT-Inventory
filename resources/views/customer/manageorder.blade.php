@@ -179,6 +179,7 @@
                         <table class="mb-6">
                             <thead>
                                 <tr>
+                                    <th>P.O.</th>
                                     <th>Generic Name</th>
                                     <th>Brand Name</th>
                                     <th>Form</th>
@@ -196,6 +197,7 @@
                                         $totes += $calc;
                                     @endphp
                                     <tr class="text-center">
+                                        <td>{{ $item->purchase_order->po_number }}</td>
                                         <td>{{ $item->exclusive_deal->product->generic_name }}</td>
                                         <td class="text-black/80">{{ $item->exclusive_deal->product->brand_name }}</td>
                                         <td>{{ $item->exclusive_deal->product->form }}</td>

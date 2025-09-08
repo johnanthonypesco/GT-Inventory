@@ -13,6 +13,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
+use App\Events\NewMessageReceived;
+
 
 class ChatController extends Controller
 {
@@ -236,7 +238,7 @@ class ChatController extends Controller
             $filePath = $subfolder . '/' . $fileName;
         }
         if (!$request->message && !$filePath) { return redirect()->back()->with('error', 'Message or file is required.'); }
-        Conversation::create([
+    $conversation = Conversation::create([
             'sender_id' => $user->id,
             'sender_type' => $senderType,
             'receiver_id' => $request->receiver_id,
@@ -244,6 +246,9 @@ class ChatController extends Controller
             'message' => $request->message ?: '',
             'file_path' => $filePath,
         ]);
+
+        NewMessageReceived::dispatch($conversation); // <-- UPDATE THIS LINE
+
         return redirect()->back();
     }
 }

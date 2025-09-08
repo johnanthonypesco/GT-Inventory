@@ -22,7 +22,7 @@ class ProductFactory extends Factory
         $medicines   = require database_path('factories/sample_datas/product_samples.php');
         $allCombos   = [];
         $forms       = ['Oral', 'Injectables'];
-        $strengths   = ['Weak', 'Strong'];
+        $strengths   = ['12mg', '65mg'];
 
         foreach ($medicines['generic_names'] as $i => $generic) {
             $brand = $medicines['brand_names'][$i] ?? null;

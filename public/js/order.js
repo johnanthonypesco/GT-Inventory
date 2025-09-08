@@ -1,129 +1,62 @@
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+function companyChosen() {
+    const company = document.getElementById('company-select');
+    const hiddenInputsDiv = document.getElementById('create-order-hidden-inputs');
 
+    hiddenInputsDiv.className = 'flex flex-col gap-3';
 
-function viewOrder(id) {
-    var viewOrderModal = document.getElementById("order-modal-" + id);
-    viewOrderModal.classList.replace("hidden", "flex");
-}
-function closeOrderModal(id) {
-    var viewOrderModal = document.getElementById("order-modal-" + id);
-    viewOrderModal.classList.replace("flex", "hidden");
+    const userInput = document.querySelector('[name="user_id"]');
+    const dealsInput = document.querySelector('[name="exclusive_deal_id"]');
+
+    userInput.setAttribute('list', `create-suggestions-${company.value}`);
+    dealsInput.setAttribute('list', `available-deals-${company.value}`);
 }
 
-function addneworder() {
-    var addOrderModal = document.querySelector(".add-new-order-modal");
-    addOrderModal.style.display = "block";
-}
-function closeaddneworder() {
-    var addOrderModal = document.querySelector(".add-new-order-modal");
-    addOrderModal.style.display = "none";
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#add-new-order-submit');
+    if (!btn) return;
+    e.preventDefault();
+    const form = btn.closest('#add-new-order-form');
+    if(form) showsweetalert(form);
+});
+
+
+function showsweetalert(form) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, submit it!',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            form.submit();
+        }
+    });
 }
 
-function uploadqr() {
-    var uploadQrModal = document.querySelector(".upload-qr-modal");
-    uploadQrModal.style.display = "block";
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const successMessage = window.successMessage;
+    const errorMessage = window.errorMessage;
 
-function closeuploadqrmodal() {
-    var uploadQrModal = document.querySelector(".upload-qr-modal");
-    uploadQrModal.style.display = "none";
-}
-
-function showInsufficients() {
-    const summaryDiv = document.getElementById("insufficientsModal");
-
-    if(summaryDiv.classList.contains("hidden")) {
-        summaryDiv.classList.replace("hidden", "flex");
-    } else {
-        summaryDiv.classList.replace("flex", "hidden");
+    if (document.getElementById('successAlert')) {
+        document.getElementById('successMessage').textContent = successMessage;
+        setTimeout(() => {
+            document.getElementById('successAlert').remove();
+        }, 3000);
+    } else if (document.getElementById('errorAlert')) {
+        document.getElementById('errorMessage').textContent = errorMessage;
+        setTimeout(() => {
+            document.getElementById('errorAlert').remove();
+        }, 3000);
     }
-}
-
-function showChangeStatusModal(id, motherDiv, archivingDetails) {    
-    const summaryDiv = document.getElementById("change-status-modal");
-    const motherInput = document.getElementById("mother-id"); 
-    const statusInputId = document.getElementById("id-container"); // the damn order ID
-
-    const province = document.getElementById("archive-province");
-    const company = document.getElementById("archive-company");
-    const employee = document.getElementById("archive-employee");
-    const date = document.getElementById("archive-date-ordered");
-    const generic = document.getElementById("archive-generic-name");
-    const brand = document.getElementById("archive-brand-name");
-    const form = document.getElementById("archive-form");
-    const quantity = document.getElementById("archive-quantity");
-    const price = document.getElementById("archive-price");
-    const subtotal = document.getElementById("archive-subtotal");
-
-    if(summaryDiv.classList.contains("hidden")) {
-        summaryDiv.classList.replace("hidden", "flex");
-
-        statusInputId.dataset.id = id;
-        statusInputId.value = id;
-        motherInput.value = motherDiv;
-
-        province.value = archivingDetails.province;
-        company.value = archivingDetails.company;
-        employee.value = archivingDetails.employee;       // ✅ FIXED
-        date.value = archivingDetails.date_ordered;
-        generic.value = archivingDetails.generic_name; // ✅ FIXED
-        brand.value = archivingDetails.brand_name;     // ✅ FIXED
-        form.value = archivingDetails.form;
-        quantity.value = archivingDetails.quantity;
-        price.value = archivingDetails.price;
-        subtotal.value = archivingDetails.subtotal;
-    } else {
-        summaryDiv.classList.replace("flex", "hidden");
-}
-        statusInputId.dataset.id = 0;
-        motherInput.value = 0;
-
-        province.value = '';
-        company.value = '';
-        employee.value = '';
-        date.value = '';
-        generic.value = '';
-        brand.value = '';
-        form.value = '';
-        quantity.value = 0;
-        price.value = 0;
-        subtotal.value = 0;
-    }
-
-
-function changeStatus(form, statusType) {
-    const idContainer = document.getElementById("id-container");
-    const statusID = document.getElementById("status-id");
-
-    statusID.value = statusType.toLowerCase();
-
-    // ayoko gumamit ng pattern finder algoritmn so i-deconstruct ko nalang string :)
-    const separated = form.action.split("admin/orders")
-    
-    // yung separed[0] is yung http://127.0.0.1:8000/
-    form.action = separated[0] + "admin/orders/" +  idContainer.dataset.id;
-
-    confirm("Change Status??? are you sure???") ? form.submit() : null
-}
-
-
-
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
-// THIS FILE IS NOW USELESS BECAUSE ALL THE CODE HAS BEEN TRANSFERRED TO inventory.blade.php
+});

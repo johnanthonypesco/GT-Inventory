@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Order;
@@ -13,6 +14,7 @@ use App\Mail\OrderNotificationMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Events\OrderPlaced;
 
 class OrderController extends Controller
 {
@@ -53,6 +55,7 @@ class OrderController extends Controller
     public function storeOrder(Request $request){
         $validated = $request->validate([
             'user_id' => 'required|numeric',
+            'purchase_order_id' => 'required|numeric|min:1',
             'exclusive_deal_id.*' => 'required|numeric',
             'quantity.*' => 'required|numeric', 
         ]);
@@ -92,6 +95,16 @@ class OrderController extends Controller
             $user = User::findOrFail($validated["user_id"]);
             $locationId = $user->company->location_id;
 
+            $companyID = $user->company_id;
+
+            // if the P.O. doesnt exists yet.
+            $purchaseOrder = PurchaseOrder::firstOrCreate([
+                'company_id' => $companyID,
+                'po_number' => $validated['purchase_order_id'], // not actually an ID yet but the po_number itself
+            ]);        
+
+            $validated['purchase_order_id'] = $purchaseOrder->id; // here we gonna get the actual ID now
+
             $deals = ExclusiveDeal::with('product')
             ->whereIn('id', $validated['exclusive_deal_id'])
             ->get()
@@ -128,6 +141,7 @@ class OrderController extends Controller
     
                 // START OF SIGRAE'S CODE
                 $orders[] = [
+                    'purchase_order_id' => $validated['purchase_order_id'],
                     'user_id' => $validated['user_id'],
                     'exclusive_deal_id' => $deal_id,
                     'quantity' => $validated['quantity'][$index],
@@ -140,17 +154,19 @@ class OrderController extends Controller
             Order::insert($orders);
             // END OF SIGRAE'S CODE
     
-            // Notify admins
-            $admins = Admin::all();
-            $superadmins = SuperAdmin::all();
+            // // Notify admins
+            // $admins = Admin::all();
+            // $superadmins = SuperAdmin::all();
 
-            foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
-            }
+            // foreach ($admins as $admin) {
+            // Mail::to($admin->email)->send(new OrderNotificationMail($orderDetails));
+            // }
 
-            foreach ($superadmins as $superadmin) {
-            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
-            }
+            // foreach ($superadmins as $superadmin) {
+            // Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetails));
+            // }
+                OrderPlaced::dispatch($orderDetails);
+
     
             return to_route('customer.order')->with('success', 'Order placed successfully.');
         } else {
@@ -237,15 +253,16 @@ class OrderController extends Controller
         Order::insert($newOrdersPayload);
 
         // 7. Send email notifications to admins, just like in storeOrder().
-        $admins = Admin::all();
-        $superadmins = SuperAdmin::all();
+        // $admins = Admin::all();
+        // $superadmins = SuperAdmin::all();
 
-        foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
-        }
-        foreach ($superadmins as $superadmin) {
-            Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
-        }
+        // foreach ($admins as $admin) {
+        //     Mail::to($admin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        // }
+        // foreach ($superadmins as $superadmin) {
+        //     Mail::to($superadmin->email)->send(new OrderNotificationMail($orderDetailsForEmail));
+        // }
+    OrderPlaced::dispatch($orderDetailsForEmail);
 
         // 8. Redirect with a success message.
         return redirect()->route('customer.dashboard')->with('success', 'Successfully re-ordered your last purchase.');

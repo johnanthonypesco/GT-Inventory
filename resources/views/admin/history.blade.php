@@ -172,7 +172,7 @@
                             </select> --}}
                             {{-- i will add this feature once client starts paying --}}
 
-                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-exportx', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
+                            <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
                             <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
@@ -250,7 +250,8 @@
                                         <div class="overflow-x-auto">
                                             <table class="w-full mt-2 text-sm">
                                                 <thead class="bg-gray-50">
-                                                    <tr class="text-left">
+                                                    <tr class="text-center">
+                                                        <th class="p-2">P.O.</th>
                                                         <th class="p-2">Generic Name</th>
                                                         <th class="p-2">Brand Name</th>
                                                         <th class="p-2">Form</th>
@@ -262,7 +263,8 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach($orderItems as $item)
-                                                        <tr class="border-b">
+                                                        <tr class="border-b text-center">
+                                                            <td class="p-2">{{ $item->purchase_order_no }}</td>
                                                             <td class="p-2">{{ $item->generic_name }}</td>
                                                             <td class="p-2">{{ $item->brand_name }}</td>
                                                             <td class="p-2">{{ $item->form }}</td>
@@ -298,7 +300,7 @@
                                                             @endphp
                                                             @if(is_array($batches))
                                                                 @foreach ($batches as $batch)
-                                                                    <tr class="border-b">
+                                                                    <tr class="border-b text-center">
                                                                         <td class="p-2">{{ $batch['batch_number'] ?? 'N/A' }}</td>
                                                                         <td class="p-2">{{ isset($batch['expiry_date']) ? Carbon::parse($batch['expiry_date'])->format('M d, Y') : 'N/A' }}</td>
                                                                         <td class="p-2 text-center">{{ $batch['deducted_quantity'] ?? 'N/A' }}</td>

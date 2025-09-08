@@ -12,10 +12,6 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-
-
-
 
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     <title>Inventory</title>
@@ -771,32 +767,48 @@
     {{-- EDIT STOCK MODAL --}}
 
 
-   {{-- Transfer Inventory Modal --}}
-<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 z-50">
-    <div class="modal bg-white p-6 rounded-lg w-full max-w-md m-auto mt-10">
+{{-- Transfer Inventory Modal --}}
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 z-50 flex items-center justify-center">
+    <div class="modal bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
         <form id="transferForm">
+            {{-- Hidden input for the inventory ID --}}
             <input type="hidden" name="inventory_id" id="transfer_inventory_id">
             
-            <p class="text-gray-600 mb-2">Batch Number: <span id="transfer_batch_number"></span></p>
-            <p class="text-gray-600 mb-2">Product: <span id="transfer_product_name"></span></p>
-            <p class="text-gray-600 mb-2">Current Location: <span id="transfer_current_location"></span></p>
+            {{-- Display inventory details --}}
+            <p class="text-gray-600 mb-2">Batch Number: <span id="transfer_batch_number" class="font-semibold"></span></p>
+            <p class="text-gray-600 mb-2">Product: <span id="transfer_product_name" class="font-semibold"></span></p>
+            <p class="text-gray-600 mb-2">Current Location: <span id="transfer_current_location" class="font-semibold"></span></p>
+            <p class="text-gray-600 mb-4">Available Quantity: <span id="transfer_current_quantity" class="font-semibold"></span></p>
 
-            <label for="new_location" class="text-gray-600">New Location</label>
-            <select id="new_location" name="new_location" class="w-full border rounded-md px-3 py-2 mt-2">
-                @foreach ($locations as $location)
-                    <option value="{{ $location->id }}">{{ $location->province }}</option>
-                @endforeach
-            </select>
+            {{-- New Location Dropdown --}}
+            <div class="mb-4">
+                <label for="new_location" class="block text-gray-700 text-sm font-bold mb-2">New Location</label>
+                <select id="new_location" name="new_location" class="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {{-- The @foreach directive assumes you are passing a $locations variable from your controller to the view --}}
+                    @foreach ($locations as $location)
+                        <option value="{{ $location->id }}">{{ $location->province }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-            <div class="flex justify-between mt-4">
-                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer" onclick="closeTransferModal()">Cancel</button>
-                <button type="submit" id="confirmtransferbutton" class="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer">Confirm Transfer</button>
+            {{-- Quantity to Transfer Input --}}
+            <div class="mb-4">
+                <label for="transfer_quantity" class="block text-gray-700 text-sm font-bold mb-2">Quantity to Transfer</label>
+                {{-- This input will be validated on the backend. The 'max' attribute should be set dynamically via JavaScript when the modal is opened. --}}
+                <input type="number" id="transfer_quantity" name="transfer_quantity" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" required>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex justify-end items-center gap-4 mt-6">
+                <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded-md cursor-pointer transition-colors duration-200" onclick="closeTransferModal()">Cancel</button>
+                <button type="submit" id="confirmtransferbutton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md cursor-pointer transition-colors duration-200">Confirm Transfer</button>
             </div>
         </form>
     </div>
 </div>
+
 
 {{-- loader --}}
 <x-loader />
@@ -963,26 +975,60 @@
 
 
 <script>
-function openTransferModal(inventoryId, batchNumber, productName, currentLocation) {
+function openTransferModal(inventoryId, batchNumber, productName, currentLocation, currentQuantity) {
+    // Populate the static info fields in the modal
     document.getElementById('transfer_inventory_id').value = inventoryId;
     document.getElementById('transfer_batch_number').textContent = batchNumber;
     document.getElementById('transfer_product_name').textContent = productName;
     document.getElementById('transfer_current_location').textContent = currentLocation;
+    document.getElementById('transfer_current_quantity').textContent = currentQuantity;
 
-    document.getElementById('transferInventoryModal').classList.remove('hidden'); // Show modal
+    // --- NEW ---
+    // Set the max attribute on the quantity input to prevent user error
+    const quantityInput = document.getElementById('transfer_quantity');
+    quantityInput.max = currentQuantity;
+    quantityInput.value = ''; // Clear previous value
+
+    // Show the modal
+    document.getElementById('transferInventoryModal').classList.remove('hidden');
 }
 
+/**
+ * Closes the transfer inventory modal.
+ */
 function closeTransferModal() {
     document.getElementById('transferInventoryModal').classList.add('hidden'); // Hide modal
 }
-document.getElementById('transferForm').addEventListener('submit', function(event) {
-    event.preventDefault();
 
+// Attach an event listener to the form's submit event.
+document.getElementById('transferForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // --- UPDATED ---
+    // Collect form data, now including the transfer quantity
     let formData = {
         inventory_id: document.getElementById('transfer_inventory_id').value,
-        new_location: document.getElementById('new_location').value, // Ensure this is an `id` from `locations`
+        new_location: document.getElementById('new_location').value,
+        transfer_quantity: document.getElementById('transfer_quantity').value, // Add the quantity
     };
 
+    // --- NEW ---
+    // Simple client-side validation before sending
+    const availableQty = parseInt(document.getElementById('transfer_current_quantity').textContent, 10);
+    const transferQty = parseInt(formData.transfer_quantity, 10);
+
+    if (transferQty > availableQty) {
+        Swal.fire("Error", "Transfer quantity cannot be greater than the available stock.", "error");
+        return; // Stop the function
+    }
+    
+    if (transferQty <= 0) {
+        Swal.fire("Error", "Please enter a valid quantity to transfer.", "error");
+        return; // Stop the function
+    }
+
+
+    // Use SweetAlert for confirmation
     Swal.fire({
         title: "Are you sure?",
         text: "This action will transfer the inventory to a new location.",
@@ -992,12 +1038,13 @@ document.getElementById('transferForm').addEventListener('submit', function(even
         cancelButtonText: "No, cancel!"
     }).then((result) => {
         if (result.isConfirmed) {
-            // Proceed with the transfer
-            fetch("{{ route('admin.inventory.transfer') }}", {
-                method: "PUT",
+            // Proceed with the transfer if confirmed
+            fetch("{{ route('admin.inventory.transfer') }}", { // Make sure this route is correctly resolved in your Blade file
+                method: "PUT", // Or POST, depending on your route definition
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify(formData)
             })
@@ -1010,10 +1057,14 @@ document.getElementById('transferForm').addEventListener('submit', function(even
                     Swal.fire("Error", data.message || "Transfer failed.", "error");
                 }
             })
-            .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
+            .catch((error) => {
+                console.error('Fetch Error:', error);
+                Swal.fire("Error", "Failed to connect to the server.", "error")
+            });
         }
     });
 });
+
 
 //     fetch("{{ route('admin.inventory.transfer') }}", {
 //         method: "PUT",

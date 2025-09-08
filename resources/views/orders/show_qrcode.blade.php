@@ -49,6 +49,7 @@
 
         <div class="flex flex-col sm:flex-row items-start justify-between gap-6 sm:gap-10">
             <div class="text-xs sm:text-sm w-full sm:w-1/2">
+                <p><strong>Purchase Order Number:</strong> {{ $order->purchase_order->po_number }}</p>
                 <p><strong>Order ID:</strong> {{ $order->id }}</p>
                 <p><strong>Customer ID:</strong> {{ $order->user->id }}</p>
                 <p><strong>Customer Name:</strong> {{ $order->user->name }}</p>

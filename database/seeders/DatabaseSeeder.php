@@ -13,6 +13,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\ManageContents;
 use App\Models\ImmutableHistory;
+use App\Models\PurchaseOrder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -45,8 +46,7 @@ class DatabaseSeeder extends Seeder
         // Create exclusive deals
         ExclusiveDeal::factory()->count(20)->create();
 
-        // Seed seasonal data - moved before additional orders
-        // $this->call(SeasonalDataSeeder::class);
+        PurchaseOrder::factory()->count(40)->create();
 
         // Create additional orders
         Order::factory()->count(120)->create(); // number of random orders

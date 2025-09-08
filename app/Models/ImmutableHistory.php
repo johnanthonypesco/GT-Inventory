@@ -22,6 +22,7 @@ class ImmutableHistory extends Model
         'quantity',
         'price',
         'subtotal',
+        'purchase_order_no',
         'order_id',
         'user_id',
         'company_id'

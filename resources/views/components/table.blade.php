@@ -55,8 +55,9 @@
                             onclick="openTransferModal(
                                 @js($inv->inventory_id), 
                                 @js($inv->batch_number), 
-                                @js($inv->product->name), 
-                                @js($inv->location->province)
+                                @js($inv->product->generic_name), 
+                                @js($inv->location->province),
+                                @js($inv->quantity)
                             )"
                         >
                         <i class="fa-solid fa-share"></i>

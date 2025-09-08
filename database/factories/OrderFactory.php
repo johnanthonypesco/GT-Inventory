@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\ExclusiveDeal;
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,6 +16,7 @@ class OrderFactory extends Factory
 
         return [
             'user_id' => $user,
+            'purchase_order_id' => PurchaseOrder::where('company_id', $company_id)->pluck('id')->random(),
             'exclusive_deal_id' => ExclusiveDeal::where('company_id', $company_id)->pluck('id')->random(),
             'date_ordered' => fake()->dateTimeBetween('-1 Year', 'now'),
             'status' => fake()->randomElement([

@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
-            {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-
     <title>Sales Report</title>
 </head>
 <body class="flex flex-col md:flex-row m-0 p-0">
@@ -27,13 +24,10 @@
                     <h3 class="text-lg font-medium text-gray-800">Generate Sales Report</h3>
                 </div>
                 <div class="p-6">
-                    {{-- Form remains the same --}}
                     <form method="post" action="{{ route('admin.sales.generate') }}" class="space-y-4" id="report-form">
                         @csrf
                         <div class="form-group">
-                            
                             <div class="flex flex-col md:flex-row items-stretch md:items-end gap-4 w-full">
-                                <!-- From Date -->
                                 <div class="flex-1">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">From:</label>
                                     <input type="date" name="start_date"
@@ -41,14 +35,12 @@
                                         value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
                                 </div>
 
-                                <!-- Arrow -->
                                 <div class="flex justify-center items-center md:pb-1">
                                     <span class="flex items-center justify-center p-2 bg-gray-100 text-gray-500 rounded-md rotate-90 md:rotate-0">
                                         <i class="fas fa-arrow-right"></i>
                                     </span>
                                 </div>
 
-                                <!-- To Date -->
                                 <div class="flex-1">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">To:</label>
                                     <input type="date" name="end_date"
@@ -56,7 +48,6 @@
                                         value="{{ request('end_date', now()->format('Y-m-d')) }}">
                                 </div>
                             </div>
-
                         </div>
                         
                         <div class="form-group">
@@ -66,6 +57,18 @@
                                 @foreach($all_companies as $company)
                                     <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
                                         {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Product</label>
+                            <select name="product_id" class="form-select rounded-md shadow-sm w-full border border-gray-300">
+                                <option value="">All Products</option>
+                                @foreach($all_products as $product)
+                                    <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>
+                                        {{ $product->generic_name }} ({{ $product->brand_name }}) - {{ $product->strength }} {{ $product->form }}
                                     </option>
                                 @endforeach
                             </select>
@@ -86,7 +89,6 @@
                 </div>
             </div>
 
-            {{-- UPDATED REPORT SECTION --}}
             @isset($histories)
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold mb-4">
@@ -94,8 +96,11 @@
                     @if($selected_company_name)
                         - {{ $selected_company_name }}
                     @endif
+                    @if($selected_product)
+                        - {{ $selected_product->generic_name }}
+                    @endif
                 </h3>
-                <p class="mb-6">Showing results from <strong>{{ $start_date }}</strong> to <strong>{{ $end_date }}</strong></p>
+                <p class="mb-6">Showing results from <strong>{{ \Carbon\Carbon::parse($start_date)->format('F d, Y') }}</strong> to <strong>{{ \Carbon\Carbon::parse($end_date)->format('F d, Y') }}</strong></p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div class="bg-blue-50 p-4 rounded-lg"><h4 class="text-sm font-medium text-blue-800">Total Sales</h4><p class="text-2xl font-bold text-blue-600">₱{{ number_format($total_sales, 2) }}</p></div>
@@ -150,9 +155,10 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($histories as $history)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->date_ordered->format('Y-m-d') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($history->date_ordered)->format('Y-m-d') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $history->employee }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->generic_name }}</td>
+                                {{-- <td class="px-6 py-4 whitespace-nowrap">{{ $history->generic_name }}</td> --}}
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $history->generic_name }} ({{ $history->brand_name }}) - {{ $history->strength }} {{ $history->form }}</td>
                                 @if(!$company_id)
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $history->company }}</td>
                                 @endif
@@ -171,7 +177,6 @@
         </div>
     </main>
 
-    {{-- AJAX script for PDF download remains the same --}}
     <script>
     $(document).ready(function() {
         $('#generate-pdf-btn').on('click', function(e) {
@@ -194,7 +199,6 @@
                     tempLink.style.display = 'none';
                     tempLink.href = blobUrl;
                     
-                    // Extract filename from header if possible, otherwise use a default
                     let filename = "sales-report.pdf";
                     const disposition = xhr.getResponseHeader('Content-Disposition');
                     if (disposition && disposition.indexOf('attachment') !== -1) {
@@ -222,8 +226,6 @@
     });
     </script>
 
-{{-- loader --}}
-<x-loader />
-{{-- loader --}}
+    <x-loader />
 </body>
 </html>

@@ -2,6 +2,7 @@
 
 use App\Models\ExclusiveDeal;
 use App\Models\GroupedOrder;
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(PurchaseOrder::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(ExclusiveDeal::class)->constrained()->cascadeOnDelete();
             $table->integer("quantity")->default(0);

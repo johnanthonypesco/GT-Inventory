@@ -21,6 +21,7 @@ class QrCodeController extends Controller
 
         // ✅ Fetch the exclusive deal from the order
         $deal = $order->exclusive_deal;
+
         $qrData = [];
 
         if ($deal && $deal->product) {
@@ -42,6 +43,7 @@ class QrCodeController extends Controller
                 // ✅ Prepare JSON data for the QR code
                 $qrData = [
                     'order_id'      => $order->id,
+                    'purchase_order_id' => $order->purchase_order->id,
                     'company_id'      => $order->user->company->id,
                     'user_id'      => $order->user->id,
                     'user_name'     => $order->user->name,

@@ -24,7 +24,7 @@
             font-size: 11px;
         }
 
-        /* NEW: Footer Styling for page numbers */
+        /* Footer Styling for page numbers */
         .footer {
             position: fixed;
             bottom: -20px;
@@ -126,7 +126,7 @@
         .currency {
             font-family: sans-serif;
         }
-        /* NEW: Text alignment classes */
+        /* Text alignment classes */
         .text-right { text-align: right; }
         .text-center { text-align: center; }
     </style>
@@ -139,7 +139,7 @@
     @endphp
     
     <div class="footer">
-        Sales Report &copy; {{ date('Y') }} {{-- Your Company Name --}} | Generated on: {{ \Carbon\Carbon::now()->format('F d, Y, h:i A') }}
+        Sales Report &copy; {{ date('Y') }} | Generated on: {{ \Carbon\Carbon::now()->format('F d, Y, h:i A') }}
         <script type="text/php">
             if (isset($pdf)) {
                 $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
@@ -166,6 +166,9 @@
             {{ \Carbon\Carbon::parse($start_date)->format('F d, Y') }} to {{ \Carbon\Carbon::parse($end_date)->format('F d, Y') }}
             @if($selected_company_name)
                 <br><strong>Company: {{ $selected_company_name }}</strong>
+            @endif
+            @if($selected_product)
+                <br><strong>Product: {{ $selected_product->generic_name }} ({{ $selected_product->brand_name }}) - {{ $selected_product->strength }} {{ $selected_product->form }}</strong>
             @endif
         </p>
     </div>
@@ -229,9 +232,9 @@
         <tbody>
             @forelse($histories as $history)
             <tr>
-                <td>{{ $history->date_ordered->format('Y-m-d') }}</td>
+                <td>{{ \Carbon\Carbon::parse($history->date_ordered)->format('Y-m-d') }}</td>
                 <td>{{ $history->employee }}</td>
-                <td>{{ $history->generic_name }}</td>
+                <td>{{ $history->generic_name }} ({{ $history->brand_name }}) - {{ $history->strength }} {{ $history->form }}</td>
                 @if(!$company_id)
                 <td>{{ $history->company }}</td>
                 @endif

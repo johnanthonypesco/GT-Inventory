@@ -93,7 +93,7 @@
             </li>
 
             <li>
-                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/historylog') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/historylog') || request()->is('blocked-ips') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-circle-user-clock text-base"></i>
                     <span>History Log</span>
                 </a>
