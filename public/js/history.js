@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const showFiltersBtn = document.getElementById('show-filters-btn');
 
     if (modal.classList.contains("flex")) {
-        toggleModal(true);
+        toggleModal(false);
     }
 
     if (showFiltersBtn) {
