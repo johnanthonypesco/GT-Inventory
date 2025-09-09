@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -44,10 +45,14 @@ class HistoryController extends Controller
             $orders = $orders->where('company', $companyFilter);
         }
 
-        if ( $orderDateFilter !== 'all' && $orderDateFilter[0] !== null && $orderDateFilter[1] !== null) {
+        if ( $orderDateFilter !== 'all' && $orderDateFilter[0] !== null) {
             $orders = $orders->whereBetween('date_ordered', 
-                [$orderDateFilter[0], $orderDateFilter[1]]
+                [$orderDateFilter[0], $orderDateFilter[1] ?? Carbon::today()->format('Y-m-d')]
             );
+
+            if ($orderDateFilter[1] === null) {
+                $orderDateFilter[1] = Carbon::today()->format('Y-m-d');
+            }
         }
 
         if ($orderProductFilter !== 'all') {

@@ -276,14 +276,26 @@
                             {{-- DATE FILTER --}}
                             <div class="flex flex-col gap-2 items-center justify-center">
                                 <div class="flex justify-between w-full">
+                                    {{-- 
+                                    WAG MONG IDE-DELETE ITONG COMMENT NATO PESCO
+
+                                    mind you, the reason why im doing "a" & "l" is because the date filter 
+                                    defaults to "all" so index 0 is "a" and index 1 is "l" 
+                                    --}}
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        From: {{ $isDatePresent[0] !== null && $isDatePresent[1] !== null ? Carbon::parse($current_filters['date']["start"])->format('M d, Y') : "" }}
+                                        From: {{ $current_filters['date']["start"] !== "a" && $current_filters['date']["start"] !== null
+                                        ? 
+                                        Carbon::parse($current_filters['date']["start"])->format('M d, Y') 
+                                        : 
+                                        "" }}
                                     </label>
 
                                     <span class="p-2 opacity-0 bg-white rounded-lg flex items-center"><i class="fa-regular fa-angles-right"></i></span>
 
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        To: {{ $isDatePresent[0] !== null && $isDatePresent[1] !== null ? Carbon::parse($current_filters['date']["end"])->format('M d, Y') : "" }}
+                                        To: {{ $current_filters['date']["end"] !== "l" && $current_filters['date']["end"] !== null ?
+                                        Carbon::parse($current_filters['date']["end"])->format('M d, Y') : 
+                                        "" }}
                                     </label>
                                 </div>
 
@@ -376,8 +388,8 @@
                         Ordered In: {{ $provinceName }}
                     </span>
                 </h1>
-                <div class="table-container mt-2 flex flex-col gap-8 pt-5 bg-white p-5 rounded-lg relative" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                    <div class="flex justify-end items-center">
+                <div class="table-container mt-2 flex flex-col gap-8 bg-white p-5 rounded-lg relative" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
+                    <div class="absolute top-4 right-5 justify-end items-center">
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
                             {{-- i will add this feature once client starts paying --}}
                             {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
