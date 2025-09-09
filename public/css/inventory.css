@@ -80,8 +80,12 @@ form input::placeholder{
     font-size: 15px;
 }
 .modal{
-    animation-name: animatetop;
+    animation-name: fadein;
     animation-duration: 0.4s
+}
+@keyframes fadein {
+    from {opacity: 0}
+    to {opacity: 1}
 }
 @keyframes animatetop {
     from {top: -300px; opacity: 0}

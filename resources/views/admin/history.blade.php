@@ -213,7 +213,7 @@
                 </div>
 
                 {{-- MODAL SEARCH FILTERS --}}
-                <div id="filter-modal" class="w-full h-full bg-black/30 fixed top-0 left-0 z-50 p-5 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
+                <div id="filter-modal" class="w-full h-full bg-black/60 fixed top-0 left-0 z-50 p-5 backdrop-blur-sm flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
                     <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative">
                         <div class="flex items-center justify-between w-full">
                             <h1 class="text-black/70 text-2xl font-bold">Search Filters:</h1>
@@ -342,10 +342,10 @@
         @foreach ($provinces as $companies)
             @foreach ($companies as $employees)
                 @foreach ($employees as $employeeNameAndDate => $statuses)
-                    <div id="order-modal-{{ e($employeeNameAndDate) }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center p-5 z-50">
+                    <div id="order-modal-{{ e($employeeNameAndDate) }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center p-5 z-50 backdrop-blur-sm">
                         <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
                             <x-modalclose closeType="order-history" :variable="$employeeNameAndDate"/>
-                            <h1 class="text-xl font-bold uppercase mb-6 w-[70%] md:w-full truncate">
+                            <h1 class="text-xl font-bold uppercase mb-6 mt-5">
                                 @php
                                     $separatedInModal = explode('|', $employeeNameAndDate);
                                 @endphp

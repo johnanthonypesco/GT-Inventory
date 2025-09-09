@@ -133,7 +133,7 @@
         {{-- MODALS --}}
 
         {{-- Add Account Modal --}}
-        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto z-50 {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
+        <div id="addAccountModal" class="fixed inset-0 bg-black/50 p-5 md:p-20 overflow-auto z-50 backdrop-blur-sm {{ $errors->hasBag('addAccount') ? 'flex' : 'hidden' }}">
             <div class="modal bg-white w-full max-w-lg md:max-w-xl mt-5 m-auto p-10 rounded-lg shadow-xl relative">
                 <x-modalclose click="closeAddAccountModal"/>
 
@@ -294,7 +294,7 @@
         </div>
 
         {{-- Edit Account Modal --}}
-        <div id="editAccountModal" class="fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto z-50 {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
+        <div id="editAccountModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm p-10 md:p-20 items-center justify-center overflow-auto z-50 {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
             <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
                 {{-- <form method="POST" id="editaccountform"> error show if we use this "The PUT method is not supported for route manageaccounts. Supported methods: GET, HEAD, POST."--}}
@@ -380,7 +380,7 @@
         
 
 {{-- Company List Modal (Step 1) --}}
-<div id="companyListModal" class="hidden fixed inset-0 bg-black/60 p-5 md:p-20 items-center justify-center overflow-auto z-50">
+<div id="companyListModal" class="hidden fixed inset-0 bg-black/60 p-5 md:p-20 items-center justify-center overflow-auto z-50 backdrop-blur-sm">
     <div class="modal w-full lg:w-1/2 h-fit bg-white rounded-lg relative m-auto p-10">
         <x-modalclose click="closeCompanyListModal()"/>
         
@@ -431,7 +431,7 @@
 
 
 {{-- Edit/Archive Company Modal --}}
-<div id="editCompanyModal" class="hidden fixed inset-0 bg-black/60 p-10 md:p-20 items-center justify-center overflow-auto z-50">
+<div id="editCompanyModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm p-10 md:p-20 items-center justify-center overflow-auto z-50">
     <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
         <x-modalclose click="closeEditCompanyModal()"/>
         
@@ -497,7 +497,7 @@
 </div>
 
 {{-- Archived Companies Modal --}}
-<div id="archivedCompaniesModal" class="hidden fixed inset-0 bg-black/60 p-5 md:p-20 items-center justify-center overflow-auto z-50">
+<div id="archivedCompaniesModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm p-5 md:p-20 items-center justify-center overflow-auto z-50">
     <div class="modal w-full lg:w-1/2 h-fit bg-white rounded-lg relative m-auto p-10">
         <x-modalclose click="closeArchivedCompaniesModal()"/>
         
@@ -544,7 +544,7 @@
 
 
         {{-- Archived Modal --}}
-        <div id="archivedModal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 p-5 flex justify-center z-50">
+        <div id="archivedModal" class="hidden fixed bg-black/70 backdrop-blur-sm w-full h-full top-0 left-0 p-5 flex justify-center z-50">
             <div class="modal absolute mt-10 bg-white w-[80%] rounded-lg p-5 shadow-lg">
                 <x-modalclose click="closeArchivedModal"/>
                 <h2 class="text-xl font-bold text-gray-800">Archived Accounts</h2>

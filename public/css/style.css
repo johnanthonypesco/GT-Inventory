@@ -148,6 +148,10 @@ input[type='search']:focus {
     from {opacity: 0}
     to {opacity: 1}
 }
+@keyframes slidetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
 table thead th{
     background-color: #00528237;
     font-weight: semibold;
