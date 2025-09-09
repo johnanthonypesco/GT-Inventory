@@ -181,14 +181,14 @@
                         $explodedIDNameDate = explode('|', $employeeNameAndDate);
                     @endphp
                     <div class="order-modal hidden fixed top-0 left-0 pt-[5px] w-full h-full
-                                items-center justify-center px-4 z-50"
+                                items-center justify-center px-4 z-50 backdrop-blur-sm"
                         id="order-modal-{{ $explodedIDNameDate[0] . '-' . $explodedIDNameDate[2] }}">
                         <div class="modal order-modal-content mx-company w-full lg:w-[70%] bg-white p-5
                                     rounded-lg relative shadow-lg">
                             {{-- Close button, etc. --}}
                             <x-modalclose closeType="orders-admin-view" click="closeOrderModal" :variable="$explodedIDNameDate[0] . '-' . $explodedIDNameDate[2]" />
 
-                            <h1 class="text-xl font-bold uppercase mb-6">
+                            <h1 class="text-xl font-bold uppercase mb-6 mt-5">
                                 Orders By:
                                 <span class="text-blue-800">
                                     {{ $explodedIDNameDate[1] }} -
@@ -411,7 +411,7 @@
         var errorMessage = @json(session('manualUpdateFailed'));
         alert(errorMessage);
     </script>
-@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+@endif        <div id="change-status-modal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50 backdrop-blur-sm">
             <div class="modal bg-white w-full md:w-[30%] h-fit mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="addneworderclose" click="showChangeStatusModal"/>
                 <h1 class="text-[28px] text-center text-[#005382] font-bold">Change Order's Status:</h1>
@@ -493,7 +493,7 @@
         {{-- Update Order Status Modal --}}
 
         {{-- Upload qr code modal --}}
-        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+        <div class="upload-qr-modal hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50 backdrop-blur-sm">
             <div class="modal bg-white w-full lg:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
                 <x-modalclose id="uploadqrmodalclose" click="closeuploadqrmodal"/>
                 <!-- Title -->
@@ -512,7 +512,7 @@
     </main>
 
     {{-- FOR ACTION MAPS --}}
-    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+    <div id="insufficientsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50 backdrop-blur-sm">
         <div class="modal bg-white w-full md:w-[80%] mx-auto p-5 rounded-lg relative shadow-lg">
             <x-modalclose click="showInsufficients"/>
 
@@ -572,7 +572,7 @@
         </div>
     </div>
 
-    <div id="insufficientProductsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50">
+    <div id="insufficientProductsModal" class="hidden fixed w-full h-full top-0 left-0 p-5 bg-black/50 pt-[50px] z-50 backdrop-blur-sm">
         <div class="modal bg-white w-full md:w-[60%] mx-auto p-5 rounded-lg relative shadow-lg">
             <x-modalclose click="showInsufficientProducts"/>
     

@@ -169,7 +169,7 @@
         </div>
 
         {{-- Terms and Conditions Agreement --}}
-        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 z-50" id="termsAndConditions">
+        <div class="fixed bg-black/40 w-full h-full top-0 left-0 p-10 z-50 backdrop-blur-sm" id="termsAndConditions">
             <div class="modal w-full md:w-[40%] bg-white rounded-lg p-5 flex flex-col gap-2 m-auto">
                 <h1 class="text-[#005382] text-2xl font-bold">Terms and Conditions</h1>
                 <hr class="border border-gray-200">

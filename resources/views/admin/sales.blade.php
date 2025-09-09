@@ -31,7 +31,7 @@
                                 <div class="flex-1">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">From:</label>
                                     <input type="date" name="start_date"
-                                        class="form-input rounded-md shadow-sm w-full border border-gray-300"
+                                        class="form-input rounded-md shadow-sm w-full border border-gray-300 p-2"
                                         value="{{ request('start_date', now()->subDays(7)->format('Y-m-d')) }}">
                                 </div>
 
@@ -44,7 +44,7 @@
                                 <div class="flex-1">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">To:</label>
                                     <input type="date" name="end_date"
-                                        class="form-input rounded-md shadow-sm w-full border border-gray-300"
+                                        class="form-input rounded-md shadow-sm w-full border border-gray-300 p-2"
                                         value="{{ request('end_date', now()->format('Y-m-d')) }}">
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                         
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Company</label>
-                            <select name="company_id" class="form-select rounded-md shadow-sm w-full border border-gray-300">
+                            <select name="company_id" class="form-select rounded-md shadow-sm w-full border border-gray-300 p-2">
                                 <option value="">All Companies</option>
                                 @foreach($all_companies as $company)
                                     <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
@@ -64,7 +64,7 @@
                         
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Product</label>
-                            <select name="product_id" class="form-select rounded-md shadow-sm w-full border border-gray-300">
+                            <select name="product_id" class="form-select rounded-md shadow-sm w-full border border-gray-300 p-2">
                                 <option value="">All Products</option>
                                 @foreach($all_products as $product)
                                     <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>

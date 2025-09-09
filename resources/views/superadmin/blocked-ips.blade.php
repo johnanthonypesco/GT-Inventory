@@ -16,7 +16,7 @@
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>
 
-    <main class="md:w-full lg:ml-[15%] opacity-0 px-4">
+    <main class="md:w-full lg:ml-[16%] opacity-0 px-4">
         <x-admin.header title="Manage Blocked IPs" icon="fa-solid fa-ban"/>
         
         <div class="flex flex-col md:flex-row justify-between items-center mt-24">

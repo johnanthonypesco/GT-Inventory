@@ -25,11 +25,11 @@
 
         <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
+            <div class="flex flex-col items-start lg:flex-row lg:justify-between lg:items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
                 {{-- <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>       --}}
 
-                <div class="w-full lg:w-[50%] bg-white flex flex-col lg:flex-row gap-3 items-center rounded-lg p-2">
+                <div class="w-full lg:w-[50%] items-start bg-white flex flex-col lg:flex-row gap-3 lg:items-center rounded-lg p-2">
 
                 @php
                     $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
@@ -126,11 +126,11 @@
         @endphp
 
         {{-- mag repopup lang modal nato if nag edit, delete, paginate, search ka dun sa modal nayun --}}
-        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 flex items-center justify-center z-50 overflow-auto" id="view-listings-{{ $companyID }}">
+        <div class="w-full {{ session('edit-success') && $companyName === session('company-success') || session("reSummon") === $companyName || request('reSummon') === $companyName || $current_search['deal_company'] === $companyName ? 'block' : 'hidden'}} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 flex items-center justify-center z-50 overflow-auto" id="view-listings-{{ $companyID }}">
             
             <div class="modal w-full lg:max-w-3xl h-fit rounded-lg m-auto mt-10 bg-white p-5 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyID"/>
-                <div class="flex flex-col lg:flex-row md:justify-between items-center">
+                <div class="flex flex-col lg:flex-row md:justify-between items-center pt-5">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
                             $companyName
@@ -241,11 +241,11 @@
     {{-- VIew Product Listing --}}
 
     {{-- Modal for Add Product Listing --}}
-    <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="addproductlisting">
+    <div class="w-full hidden h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 md:p-20 z-50" id="addproductlisting">
         <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
-            <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">
+            <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%] pt-5" id="addproductlistingform">
                 @csrf
 
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product Deal</h1>
@@ -292,7 +292,7 @@
                 $strength = $deal->product->strength ?? 'No Strenth';
             @endphp
 
-            <div class="w-full -mt-[4000px] h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="edit-listing-{{ $deal->id }}">
+            <div class="w-full -mt-[4000px] h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 md:p-20 z-50" id="edit-listing-{{ $deal->id }}">
                 <div class="modal w-full lg:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
                     <x-modalclose :variable="$deal->id" closeType="edit-product-deal" />
                     {{-- Form --}}
@@ -323,7 +323,7 @@
     @endforeach
 
     {{-- ARCHIVED EXCLUSIVE DEAL POPUP MODAL --}}
-    <div class="w-full {{ session("unarchived") ? 'block' : 'hidden' }} h-screen bg-black/70 fixed top-0 left-0 p-5 md:p-10 lg:p-20 z-50 overflow-y-auto flex items-center justify-center" id="view-archived-listings">
+    <div class="w-full {{ session("unarchived") ? 'block' : 'hidden' }} h-screen bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 md:p-10 lg:p-20 z-50 overflow-y-auto flex items-center justify-center" id="view-archived-listings">
         <div class="modal w-full lg:w-[80%] max-w-6xl h-fit m-auto rounded-lg bg-white p-5 md:p-10 relative my-10">
             <x-modalclose click="viewArchivedDeals" closeType="customer-deals-archive" />
             <h1 class="text-3xl sm:text-4xl uppercase font-semibold text-[#005382] mb-5 sm:mb-9">

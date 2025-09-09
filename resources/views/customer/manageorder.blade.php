@@ -94,7 +94,7 @@
                     <input type="hidden" name="search_filter" value="{{ $current_filters['search'] ? $current_filters['search'][0] . " - " . $current_filters['search'][1] . ' - ' . $current_filters['search'][2] . ' - ' . $current_filters['search'][3] . ' - ' . $current_filters['search'][4] : '' }}">
                 @endif
                 
-                <select onchange="document.getElementById('status-form').submit()" name="status_filter" id="location" class="border p-2 rounded-lg mt-2 text-[#005382] font-bold bg-white outline-none">
+                <select onchange="document.getElementById('status-form').submit()" name="status_filter" id="location" class="border p-2 rounded-lg mt-2 font-normal bg-white outline-none" style="box-shadow: 0 0px 2px rgba(0, 0, 0, 0.389)">
                     <option @selected($isStatusPresent === 'all') value="all">All Orders Statuses</option>
                     <option @selected($isStatusPresent === 'pending') value="pending">All Pending Orders</option>
                     <option @selected($isStatusPresent === 'packed') value="packed">All Packed Orders</option>
@@ -147,9 +147,9 @@
     {{-- loader --}}
 
     @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
-        <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
+        <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50 backdrop-blur-sm">
             <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
-                <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-xl font-bold w-fit text-black/80 transition-all duration-300 p-2 rounded-full hover:bg-gray-200 right-2 top-2 cursor-pointer"><i class="fa-regular fa-xmark"></i></span>
                 <h1 class="text-xl font-semibold text-[#005382]">
                     Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}}
                 </h1>
@@ -228,9 +228,9 @@
     @endforeach
 
     {{-- Real-Time Tracking Modal --}}
-<div id="tracking-modal" class="hidden fixed bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
+<div id="tracking-modal" class="hidden fixed bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50 backdrop-blur-sm">
     <div class="modal w-full lg:w-[60%] h-[80vh] m-auto rounded-lg bg-white p-5 relative flex flex-col">
-        <span onclick="closeTrackingModal()" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+        <span onclick="closeTrackingModal()" class="absolute text-xl font-bold w-fit text-black/80 transition-all duration-300 p-2 rounded-full hover:bg-gray-200 right-2 top-2 cursor-pointer"><i class="fa-regular fa-xmark"></i></span>
         <h1 class="text-xl font-semibold text-[#005382] mb-4">
             Live Order Tracking
         </h1>

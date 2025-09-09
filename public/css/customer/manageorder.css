@@ -23,8 +23,16 @@ table tbody tr{
     border-bottom: 2px solid #0052825e;
 }
 .modal{
-    animation-name: animatetop;
+    animation-name: fadein;
     animation-duration: 0.4s;
+}
+@keyframes fadein {
+    from{
+        opacity: 0;
+    }
+    to{
+        opacity: 1;
+    }
 }
 @keyframes animatetop {
     from{

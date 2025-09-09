@@ -1,8 +1,8 @@
 .modal{
-    animation-name: animatetop;
+    animation-name: fadein;
     animation-duration: 0.4s
 }
-@keyframes animatetop {
-    from {top: -300px; opacity: 0}
-    to {top: 0; opacity: 1}
+@keyframes fadein {
+    from {opacity: 0}
+    to {opacity: 1}
 }

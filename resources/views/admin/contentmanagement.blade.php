@@ -71,7 +71,7 @@
             </div>     
         </div>
 
-        <div id="editmodal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto z-50">
+        <div id="editmodal" class="hidden fixed bg-black/70 w-full h-full top-0 left-0 overflow-auto z-50 backdrop-blur-sm">
             <div class="modal bg-white w-[90%] md:w-[80%] lg:w-[60%] mx-auto mt-10 p-5 rounded-md relative">
                 <x-modalclose click="closeeditmodal"/>
                 <h1 class="text-left text-[#005382] text-2xl font-bold mb-5">Edit Content</h1>

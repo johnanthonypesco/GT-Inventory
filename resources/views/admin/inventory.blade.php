@@ -207,7 +207,7 @@
         </div>
     </main>
     {{-- Modal for View All Products --}}
-    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto p-5" id="viewallproductmodal">
+    <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto p-5" id="viewallproductmodal">
         <div class="modal w-full lg:w-[75%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct" />
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
@@ -280,7 +280,7 @@
     {{-- Modal for View All Products --}}
 
     {{-- VIEW ARCHIVE MENU MODAL --}}
-    <div class="hidden w-full h-full bg-black/70 fixed top-0 left-0 z-50 p-5 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
+    <div class="hidden w-full h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 z-50 p-5 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="viewArchiveMenuModal">
         <div class="modal w-full h-fit lg:max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative">
             <x-modalclose click="viewArchivedMenu" />
 
@@ -310,7 +310,7 @@
     </div>
 
     {{-- Modal for View All ARCHIVED Products --}}
-    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 z-50" id="viewAllArchivedProducts">
+    <div class="w-full {{ session('prod-unarchived') ? 'flex' : 'hidden'}} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 md:p-20 z-50" id="viewAllArchivedProducts">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="viewArchivedProducts"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Archived Products</h1>
@@ -392,7 +392,7 @@
     {{-- Modal for View All ARCHIVED Products --}}
 
     {{-- Modal for View All ARCHIVED Stocks --}}
-    <div class="w-full {{ str_contains(request()->fullUrl(), 'archive_page_in') ? 'flex' : 'hidden'}} h-full bg-black/70 fixed top-0 left-0 p-10 md:p-20 z-50" id="viewAllArchivedStocks">
+    <div class="w-full {{ str_contains(request()->fullUrl(), 'archive_page_in') ? 'flex' : 'hidden'}} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-10 md:p-20 z-50" id="viewAllArchivedStocks">
         <div class="modal w-full lg:w-[80%] h-fit md:h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose id="viewallproductclose" click="viewArchivedStocks"/>
             <h1 class="font-bold text-2xl text-[#005382]">All Archived Stocks</h1>
@@ -450,7 +450,7 @@
         $failedToRegister = $errors->hasAny(['generic_name', 'brand_name', 'form', 'strength', 'DUPLICATE']);
     @endphp
 
-    <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 fixed top-0 left-0 z-50 p-5 sm:p-5 flex justify-center" id="registerproductmodal">
+    <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 z-50 p-5 sm:p-5 flex justify-center" id="registerproductmodal">
         <div class="modal w-full lg:max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative mt-10">
             <x-modalclose click="closeregisterproductmodal" />
 
@@ -497,10 +497,10 @@
         $failedToAddStock = session('stockFailType') === 'single' ? true : false;
     @endphp
 
-    <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 p-10 z-50">
+    <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed backdrop-blur-sm w-full h-full top-0 left-0 p-10 z-50">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
             <x-modalclose click="closeaddstock"/>
-            <h1 class="text-[#005382] text-xl font-bold">
+            <h1 class="text-[#005382] text-xl font-bold mt-8">
                 Add Stock in: <span id="single_add_name" class="text-black"> Current Product </span>
             </h1>
             <form action="{{ route('admin.inventory.store', ['addType' => 'single']) }}" method="POST" id="addspecificstock">
@@ -531,7 +531,7 @@
         $addMultiStockFailed = session('stockFailType') === 'multiple' ? true : false;
     @endphp
 
-    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 w-full h-full left-0 top-0 p-10 pt-18 fixed overflow-auto z-50">
+    <div id="addmultiplestock" class="{{ $addMultiStockFailed ? '' : 'hidden'}} bg-black/70 backdrop-blur-sm w-full h-full left-0 top-0 p-10 pt-18 fixed overflow-auto z-50">
         <div class="modal bg-white p-10 m-auto rounded-lg w-full lg:w-[40%] relative pb-20">
             <x-modalclose click="closeaddmultiplestock"/>
             <h1 class="text-[#005382] font-bold text-xl">Add Multiple Stocks</h1>
@@ -668,7 +668,7 @@
     @php
         $errorPresentInEdit = old('form_type') === 'edit-product';
     @endphp
-    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll z-50" id="edit-registered">        
+    <div class="w-full {{ $errorPresentInEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]' }} transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 backdrop-blur-sm md:p-20 overflow-y-scroll z-50" id="edit-registered">        
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="editRegisteredProduct" />
 
@@ -725,7 +725,7 @@
     @php
         $errorPresentInStockEdit = old('form_type') === 'edit-stock';
     @endphp
-    <div class="w-full {{ $errorPresentInStockEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]'}}   transition-all duration-200 h-full bg-black/70 fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll z-50" id="edit-stock">        
+    <div class="w-full {{ $errorPresentInStockEdit && $errors->any() ? '-mt-[0px]' : '-mt-[4000px]'}}   transition-all duration-200 h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 p-5 md:p-20 overflow-y-scroll z-50" id="edit-stock">        
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="openStockEditModal" />
 
@@ -768,7 +768,7 @@
 
 
 {{-- Transfer Inventory Modal --}}
-<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 z-50 flex items-center justify-center">
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="modal bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
