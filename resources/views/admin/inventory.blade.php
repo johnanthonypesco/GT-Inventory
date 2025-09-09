@@ -672,7 +672,7 @@
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="editRegisteredProduct" />
 
-            <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
+            <form action="{{ route('admin.edit.product') }}" class="mt-4" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')  
 

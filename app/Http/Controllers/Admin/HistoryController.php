@@ -7,7 +7,9 @@ use App\Models\Company;
 use App\Models\ImmutableHistory;
 use App\Models\Location;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -23,6 +25,7 @@ class HistoryController extends Controller
         $orderDateFilter = $request->input('date_filter', 'all');
         $orderProductFilter = $request->input('product_filter', 'all');
         $companyFilter = $request->input('company_filter', 'all');
+        $poFilter = $request->input('po_filter', 'all');
 
         $orders = ImmutableHistory::with(['ScannedQrCode']);
 
@@ -36,24 +39,33 @@ class HistoryController extends Controller
 
             $orders = $orders->where('employee', $employeeName)
             ->where('company', $companyName);
-            
         }
         
         if ($companyFilter !== 'all') {
             $orders = $orders->where('company', $companyFilter);
         }
 
-        if ($orderDateFilter !== 'all') {
+        if ( $orderDateFilter !== 'all' && $orderDateFilter[0] !== null) {
             $orders = $orders->whereBetween('date_ordered', 
-                [$orderDateFilter[0], $orderDateFilter[1]]
+                [$orderDateFilter[0], $orderDateFilter[1] ?? Carbon::today()->format('Y-m-d')]
             );
+
+            if ($orderDateFilter[1] === null) {
+                $orderDateFilter[1] = Carbon::today()->format('Y-m-d');
+            }
         }
 
         if ($orderProductFilter !== 'all') {
-            $orders = $orders->where('generic_name', $orderProductFilter[0])
-            ->where('brand_name', $orderProductFilter[1])
-            ->where('form', $orderProductFilter[2])
-            ->where('strength', $orderProductFilter[3]);
+            $product = Product::findOrFail($orderProductFilter);
+
+            $orders = $orders->where('generic_name', $product->generic_name)
+            ->where('brand_name', $product->brand_name)
+            ->where('form', $product->form)
+            ->where('strength', $product->strength);
+        }
+        
+        if ($poFilter !== 'all' && $poFilter !== null) {
+            $orders = $orders->where('purchase_order_no', $poFilter);
         }
 
         switch ($orderStatusFilter) {
@@ -125,7 +137,8 @@ class HistoryController extends Controller
             "provinces" => $provinces,
 
             "dropdownLocationOptions" => Location::get()->pluck('province'),
-            "dropDownCompanyOptions" => Company::all(),
+            "dropDownCompanyOptions" => Company::all()->sortBy('name'),
+            "dropDownProductOptions" => Product::all()->sortBy('generic_name'),
 
             'current_filters' => [
                 'search' => $employeeSearch,
@@ -136,7 +149,8 @@ class HistoryController extends Controller
                     "start" => $orderDateFilter[0],
                     "end" => $orderDateFilter[1]
                 ],
-                'product' => $orderProductFilter
+                'product' => $orderProductFilter,
+                'po' => $poFilter,
             ],
             
             'customersSearchSuggestions' => ImmutableHistory::select(['employee', 'company'])->distinct()->get(),
