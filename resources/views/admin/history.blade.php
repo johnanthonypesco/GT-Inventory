@@ -1,5 +1,7 @@
 @php
     use Carbon\Carbon;
+
+    $blueBTN = "bg-[#005382] text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm transition-all duration-150 hover:bg-[#00436a] hover:-translate-y-1 show-lg shadow-black/90 active:-translate-y-0";
 @endphp
 
 <!DOCTYPE html>
@@ -33,6 +35,7 @@
             $isStatusPresent = request()->query('status_filter');
             $isDatePresent = request()->query('date_filter');
             $isProductPresent = request()->query('product_filter');
+            $isPoPresent = request()->query('po_filter');
         @endphp
 
         <div class="mt-24 flex flex-col items-start lg:items-center lg:flex-row justify-between">
@@ -43,6 +46,7 @@
                 @endphp
 
                 {{-- STATUS FILTER --}}
+
                 {{-- ALL STATUS FORM --}}
                 <form action="{{ route('admin.history') }}" method="GET">
                     <input type="hidden" name="status_filter" value="all">
@@ -64,6 +68,14 @@
 
                     @if ($isProvincePresent)
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    @endif
+
+                    @if ($isProductPresent)
+                        <input type="hidden" name="product_filter" value="{{ $current_filters['product'] ? $current_filters['product'] : '' }}">
+                    @endif
+
+                    @if ($isPoPresent)
+                        <input type="hidden" name="po_filter" value="{{ $current_filters['po'] ? $current_filters['po'] : '' }}">
                     @endif
 
                     <button type="submit" class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'all' || !request()->query('status_filter')  ? $activeCSS : $inactiveCSS }}">All Orders</button>
@@ -92,6 +104,14 @@
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
                     @endif
 
+                    @if ($isProductPresent)
+                        <input type="hidden" name="product_filter" value="{{ $current_filters['product'] ? $current_filters['product'] : '' }}">
+                    @endif
+
+                    @if ($isPoPresent)
+                        <input type="hidden" name="po_filter" value="{{ $current_filters['po'] ? $current_filters['po'] : '' }}">
+                    @endif
+
                     <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'delivered' ? $activeCSS : $inactiveCSS }}">Delivered</button>
                 </form>
 
@@ -116,6 +136,14 @@
 
                     @if ($isProvincePresent)
                         <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                    @endif
+
+                    @if ($isProductPresent)
+                        <input type="hidden" name="product_filter" value="{{ $current_filters['product'] ? $current_filters['product'] : '' }}">
+                    @endif
+
+                    @if ($isPoPresent)
+                        <input type="hidden" name="po_filter" value="{{ $current_filters['po'] ? $current_filters['po'] : '' }}">
                     @endif
 
                     <button class="text-xl font-semibold hover:text-[#005382] {{ request()->query('status_filter') === 'cancelled' ? $activeCSS : $inactiveCSS }}">Cancelled</button>
@@ -151,9 +179,22 @@
                     <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
                 @endif
 
-                <div class="flex gap-2 items-center">
-                    <button id="show-filters-btn" type="button" onclick="showFilters()" class="bg-white h-fit w-fit py-2 px-5 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-150 flex items-center gap-2" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);">
-                        <i class="fa-regular fa-filters"></i> Filter
+                @if ($isProductPresent)
+                    <input type="hidden" name="product_filter" value="{{ $current_filters['product'] ? $current_filters['product'] : '' }}">
+                @endif
+
+                @if ($isPoPresent)
+                    <input type="hidden" name="po_filter" value="{{ $current_filters['po'] ? $current_filters['po'] : '' }}">
+                @endif
+
+                @php
+                    $wasFiltersUsed = $isCompanyPresent || $isDatePresent || $isProductPresent || $isPoPresent;
+                @endphp
+                <div class="flex gap-2 items-center" id="filter-state" data-state="{{ $wasFiltersUsed ? "used" : "unused" }}">
+                    <button id="show-filters-btn" type="button" class="{{ $wasFiltersUsed ? $blueBTN : "bg-white h-fit w-fit py-2 px-5 rounded-lg hover:text-white hover:bg-[#005382] hover:-translate-y-1 transition-all duration-150 flex items-center gap-2" }}" 
+                    style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);">
+                        <i class="fa-regular fa-filters"></i> 
+                        Filter{{ $wasFiltersUsed ? "s Activated" : "" }}
                     </button>
 
                     <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2.5 rounded-lg mt-2 font-regular bg-white outline-none mb-2 text-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);">
@@ -216,7 +257,7 @@
                 <div id="filter-modal" class="w-full h-full bg-black/30 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
                     <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative">
                         <div class="flex items-center justify-between w-full">
-                            <h1 class="text-black/70 text-2xl font-bold">Search Filters:</h1>
+                            <h1 class="text-[#005382] text-2xl font-bold">Display Filters:</h1>
                             <x-modalclose id="close-modal-btn" />
                         </div>
 
@@ -224,7 +265,7 @@
                             <div class="flex flex-col">
                                 <label for="company_filter" class="font-semibold text-lg text-black/80">Company:</label>
                                 <select name="company_filter" id="company-filter" class="pr-9 border p-2 rounded-lg mt-2 font-regular bg-white outline-none mb-2" disabled>
-                                    <option value="all">All</option>
+                                    <option value="all">All Companies</option>
                                     @foreach ($dropDownCompanyOptions as $company)
                                         <option @selected($isCompanyPresent === $company->name) value="{{ $company->name }}">
                                             {{ $company->name }}
@@ -233,33 +274,72 @@
                                 </select>
                             </div>
                             {{-- DATE FILTER --}}
-                            <div class="flex gap-2 items-center justify-center">
-                                <div class="flex flex-col gap-2 w-1/2">
-                                    <label for="date_filter" class="font-regular text-sm text-black/80">From:</label>
-                                    
-                                    <input type="date" name="date_filter[]" id="date-filter-start"
-                                    value="{{ $isDatePresent ? $current_filters['date']["start"] : Carbon::now()->subYear()->format('Y-m-d') }}"
-                                    class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
-                                    disabled>
+                            <div class="flex flex-col gap-2 items-center justify-center">
+                                <div class="flex justify-between w-full">
+                                    <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
+                                        From: {{ $isDatePresent[0] !== null && $isDatePresent[1] !== null ? Carbon::parse($current_filters['date']["start"])->format('M d, Y') : "" }}
+                                    </label>
+
+                                    <span class="p-2 opacity-0 bg-white rounded-lg flex items-center"><i class="fa-regular fa-angles-right"></i></span>
+
+                                    <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
+                                        To: {{ $isDatePresent[0] !== null && $isDatePresent[1] !== null ? Carbon::parse($current_filters['date']["end"])->format('M d, Y') : "" }}
+                                    </label>
                                 </div>
 
-                                <span class="p-2 bg-white rounded-lg flex items-center mt-6" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
+                                
+                                <div class="flex justify-between items-center w-full">
+                                    <input type="date" name="date_filter[]" id="date-filter-start"
+                                    value="{{ $isDatePresent ? $current_filters['date']["start"] : '' }}"
+                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                    disabled>
 
-                                <div class="flex flex-col gap-2 w-1/2">
-                                    <label for="date_filter" class="font-regular text-sm text-black/80">To:</label>
+                                    <span class="p-2 bg-white rounded-lg flex items-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
                                     
                                     <input type="date" name="date_filter[]" id="date-filter-end"
-                                    class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
-                                    value="{{ $isDatePresent ? $current_filters['date']["end"] : Carbon::now()->format('Y-m-d') }}"
+                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                    value="{{ $isDatePresent ? $current_filters['date']["end"] : '' }}"
                                     disabled>
                                 </div>
                             </div>
                             {{-- END DATE FILTER --}}
-                        </div>
 
-                        @php
-                            $blueBTN = "bg-[#005382] text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm transition-all duration-150 hover:bg-[#00436a] hover:-translate-y-1 show-lg shadow-black/90 active:-translate-y-0";
-                        @endphp
+                            {{-- START PRODUCT FILTER --}}
+                            <div class="flex flex-col">
+                                <label for="product" class="font-semibold text-lg text-black/80">
+                                    Product:
+                                </label>
+
+                                <select name="product_filter" id="product-filter" class="pr-9 border p-2 rounded-lg mt-2 font-regular bg-white outline-none mb-2" disabled>
+                                    <option value="all">All Products</option>
+                                    @foreach ($dropDownProductOptions as $product)
+                                        <option
+                                            @if ($isProductPresent == $product->id)
+                                                selected
+                                            @endif
+
+                                            value="{{ $product->id }}">
+                                            {{ $product->generic_name }} - {{ $product->brand_name }} - {{ $product->form }} - {{ $product->strength }} -
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            {{-- END PRODUCT FILTER --}}
+
+                            {{-- START P.O. FILTER --}}
+                            <div class="flex flex-col gap-2">
+                                <label for="po_filter" class="font-semibold text-lg text-black/80">
+                                    P.O. Number:
+                                </label>
+
+                                <input type="number" name="po_filter" id="po-filter"
+                                class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                placeholder="Enter number here"
+                                value="{{ $isPoPresent ? $current_filters['po'] : '' }}"
+                                disabled>
+                            </div>
+                            {{-- END P.O. FILTER --}}
+                        </div>
 
                         <div class="flex gap-4 mt-5">
                             <button type="submit" class="{{$blueBTN}}">
@@ -269,7 +349,7 @@
                             @if ($isDatePresent || $isCompanyPresent)
                                 <button type="button" onclick="window.location.href = '{{ route('admin.history') }}'"
                                         class="bg-red-500/80 text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm">
-                                    <i class="fa-solid fa-xmark"></i> Reset Filters
+                                    <i class="fa-solid fa-xmark"></i> Deactivate Filters
                                 </button>
                             @endif
                         </div>
@@ -279,7 +359,7 @@
             </form>
             
             {{-- Reset Button --}}
-            @if ($isSearchPresent !== null || $isDatePresent || $isProductPresent)
+            @if ($isSearchPresent !== null)
                 <button onclick="window.location.href = '{{ route('admin.history') }}'"
                     class="bg-red-500/80 text-white font-semibold shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm">
                     <i class="fa-solid fa-xmark"></i> Reset Search

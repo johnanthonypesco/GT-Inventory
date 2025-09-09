@@ -30,30 +30,47 @@ function isInSuggestionEmployee () {
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
 
+function toggleFilterState(state) {
+    const filters = [
+        document.getElementById('date-filter-start'),
+        document.getElementById('date-filter-end'),
+        document.getElementById('company-filter'),
+        document.getElementById('product-filter'),
+        document.getElementById('po-filter'),
+    ];
+
+    if (state === "enabled") {
+        filters.forEach(filter => {
+            filter.disabled = false;
+        });
+    }
+
+    else if (state === "disabled") {
+        filters.forEach(filter => {
+            filter.disabled = true;
+        });
+    }
+}
+
 function toggleModal(show) {
     const modal = document.getElementById('filter-modal');
-    const filterBtnText = document.getElementById('show-filters-btn');
-    const dateStartInput = document.getElementById('date-filter-start');
-    const dateEndInput = document.getElementById('date-filter-end');
-    const companyInput = document.getElementById('company-filter');
 
     if (show) {
         modal.classList.replace('hidden', 'flex');
-        dateStartInput.disabled = false;
-        dateEndInput.disabled = false;
-        companyInput.disabled = false;
+
+        toggleFilterState('enabled');
     } else {
-        modal.classList.replace('flex', 'hidden');
-        dateStartInput.disabled = true;
-        dateEndInput.disabled = true;
-        companyInput.disabled = true;
+        modal.classList.replace('flex', 'hidden');        
     }
 }
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById('filter-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const showFiltersBtn = document.getElementById('show-filters-btn');
+    const filterState = document.getElementById('filter-state');
 
     if (modal.classList.contains("flex")) {
         toggleModal(false);
@@ -69,6 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
         closeModalBtn.addEventListener('click', () => {
             toggleModal(false);
         });
+    }
+
+    if (filterState.dataset.state === 'used') {
+        toggleFilterState('enabled');
     }
 
     window.addEventListener('click', (event) => {
