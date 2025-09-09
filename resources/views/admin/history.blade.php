@@ -35,8 +35,8 @@
             $isProductPresent = request()->query('product_filter');
         @endphp
 
-        <div class="mt-24 flex flex-col items-start lg:items-center lg:flex-row justify-between">
-            <div class="flex gap-5 m-auto lg:m-0">
+        <div class="mt-24 flex flex-col items-center sm:flex-row justify-between">
+            <div class="flex gap-5">
                 @php
                     $activeCSS = "text-[#005382] border-b-2 border-[#005382] font-semibold";
                     $inactiveCSS = "text-gray-500";
@@ -213,7 +213,7 @@
                 </div>
 
                 {{-- MODAL SEARCH FILTERS --}}
-                <div id="filter-modal" class="w-full h-full bg-black/30 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
+                <div id="filter-modal" class="w-full h-full bg-black/30 fixed top-0 left-0 z-50 p-5 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
                     <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative">
                         <div class="flex items-center justify-between w-full">
                             <h1 class="text-black/70 text-2xl font-bold">Search Filters:</h1>
@@ -233,8 +233,8 @@
                                 </select>
                             </div>
                             {{-- DATE FILTER --}}
-                            <div class="flex gap-2 items-center justify-center">
-                                <div class="flex flex-col gap-2 w-1/2">
+                            <div class="flex flex-col md:flex-row gap-2 items-center justify-center">
+                                <div class="flex flex-col gap-2 w-full md:w-1/2">
                                     <label for="date_filter" class="font-regular text-sm text-black/80">From:</label>
                                     
                                     <input type="date" name="date_filter[]" id="date-filter-start"
@@ -243,9 +243,9 @@
                                     disabled>
                                 </div>
 
-                                <span class="p-2 bg-white rounded-lg flex items-center mt-6" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
+                                <span class="p-2 bg-white rounded-lg flex items-center mt-6 rotate-90 md:rotate-0" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
 
-                                <div class="flex flex-col gap-2 w-1/2">
+                                <div class="flex flex-col gap-2 w-full md:w-1/2">
                                     <label for="date_filter" class="font-regular text-sm text-black/80">To:</label>
                                     
                                     <input type="date" name="date_filter[]" id="date-filter-end"
@@ -258,7 +258,7 @@
                         </div>
 
                         @php
-                            $blueBTN = "bg-[#005382] text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm transition-all duration-150 hover:bg-[#00436a] hover:-translate-y-1 show-lg shadow-black/90 active:-translate-y-0";
+                            $blueBTN = "bg-[#005382] text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-fit sm:w-fit whitespace-nowrap text-sm transition-all duration-150 hover:bg-[#00436a] hover:-translate-y-1 show-lg shadow-black/90 active:-translate-y-0";
                         @endphp
 
                         <div class="flex gap-4 mt-5">
@@ -297,7 +297,7 @@
                     </span>
                 </h1>
                 <div class="table-container mt-2 flex flex-col gap-8 pt-5 bg-white p-5 rounded-lg relative" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                    <div class="absolute top-4 right-5 justify-end items-center">
+                    <div class="flex justify-end items-center">
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
                             {{-- i will add this feature once client starts paying --}}
                             {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
@@ -345,7 +345,7 @@
                     <div id="order-modal-{{ e($employeeNameAndDate) }}" class="order-modal hidden bg-black/60 fixed top-0 left-0 w-full h-full items-center justify-center p-5 z-50">
                         <div class="modal order-modal-content mx-auto w-full lg:w-[70%] bg-white p-5 rounded-lg relative shadow-lg">
                             <x-modalclose closeType="order-history" :variable="$employeeNameAndDate"/>
-                            <h1 class="text-xl font-bold uppercase mb-6">
+                            <h1 class="text-xl font-bold uppercase mb-6 w-[70%] md:w-full truncate">
                                 @php
                                     $separatedInModal = explode('|', $employeeNameAndDate);
                                 @endphp

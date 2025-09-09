@@ -25,11 +25,11 @@
 
         <div class="w-full mt-24 bg-white p-5 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
             {{-- Customer List Search Function --}}
-            <div class="flex flex-col lg:flex-row justify-between items-center mb-5">
+            <div class="flex flex-col items-start lg:flex-row lg:justify-between lg:items-center mb-5">
                 <h1 class="font-bold text-2xl text-[#005382] ">Company List</h1>
                 {{-- <x-input name="search" placeholder="Search Companies by Name" classname="fa fa-magnifying-glass" divclass="w-full lg:w-[40%] bg-white relative rounded-lg "/>       --}}
 
-                <div class="w-full lg:w-[50%] bg-white flex flex-col lg:flex-row gap-3 items-center rounded-lg p-2">
+                <div class="w-full lg:w-[50%] items-start bg-white flex flex-col lg:flex-row gap-3 lg:items-center rounded-lg p-2">
 
                 @php
                     $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
@@ -130,7 +130,7 @@
             
             <div class="modal w-full lg:max-w-3xl h-fit rounded-lg m-auto mt-10 bg-white p-5 relative">
                 <x-modalclose click="closeproductlisting" closeType="customer-deals" :variable="$companyID"/>
-                <div class="flex flex-col lg:flex-row md:justify-between items-center">
+                <div class="flex flex-col lg:flex-row md:justify-between items-center pt-5">
                     <h1 class="text-3xl font-semibold text-[#005382]">
                         Exclusive Deals: {{ 
                             $companyName
@@ -245,7 +245,7 @@
         <div class="modal w-full lg:w-[40%] h-full m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="closeaddproductlisting"/>
             {{-- Form --}}
-            <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%]" id="addproductlistingform">
+            <form action=" {{ route('admin.productlisting.create') }} " method="POST" class="h-[75%] pt-5" id="addproductlistingform">
                 @csrf
 
                 <h1 class="text-center font-bold text-3xl text-[#005382]">List New Product Deal</h1>
