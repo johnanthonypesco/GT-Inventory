@@ -500,7 +500,7 @@
     <div id="addstock" class="bg-black/70 {{ $failedToAddStock ? '' : 'hidden'}} fixed w-full h-full top-0 left-0 p-10 z-50">
         <div class="modal bg-white p-5 m-auto rounded-lg w-full lg:w-[40%] relative">
             <x-modalclose click="closeaddstock"/>
-            <h1 class="text-[#005382] text-xl font-bold">
+            <h1 class="text-[#005382] text-xl font-bold mt-8">
                 Add Stock in: <span id="single_add_name" class="text-black"> Current Product </span>
             </h1>
             <form action="{{ route('admin.inventory.store', ['addType' => 'single']) }}" method="POST" id="addspecificstock">
