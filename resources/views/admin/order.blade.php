@@ -322,10 +322,10 @@
             <datalist id="create-suggestions-{{ $companyID }}">
                 @foreach ($users as $user)
                     <option value="{{ $user->id }}">
-                        {{ $user->name }} - {{$user->company->name}}
+                        {{ $user->name }} - {{ $user->company->name }}
                     </option>
                 @endforeach
-            </datalist>            
+            </datalist>
         @endforeach
 
         @foreach ($availableDealsByCompany as $companyID => $availableDeals)
@@ -338,66 +338,72 @@
             </datalist>
         @endforeach
 
-        <div class="add-new-order-modal {{ $errors->any() ? '' : 'hidden' }} fixed w-full h-full top-0 left-0 p-5 z-[53] bg-black/50 pt-[50px]">
-            <div class="modal bg-white w-full md:w-[30%] mx-auto p-5 rounded-lg relative shadow-lg">
-                <x-modalclose id="addneworderclose" click="closeaddneworder"/>
-                <h1 class="text-[18px] text-[#005382] font-bold">Create a New Order</h1>
+        <div class="add-new-order-modal {{ $errors->any() ? '' : 'hidden' }} fixed inset-0 z-[53] flex items-center justify-center bg-black/50 p-5 backdrop-blur-sm overflow-auto">
+            <div class="m-auto mt-5 modal w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl transition-transform duration-300 ease-out sm:p-8 md:w-[30%] relative">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-semibold text-gray-800">Create a New Order</h1>
+                    <x-modalclose click="closeaddneworder"/>
+                </div>
 
-                <form action="{{  route('admin.order.store') }}" id="add-new-order" class="overflow-y-auto max-h-[400px] flex flex-col mt-5" method="POST">
+                <form action="{{ route('admin.order.store') }}" id="add-new-order-form" class="mt-6 flex flex-col space-y-5" method="POST">
                     @csrf
                     @method("POST")
 
-                    <div class="flex flex-col gap-2 items-center px-5 pb-10" id="order-form-input">
-                        <div class="flex flex-col gap-3">
-                            <label>Choose a Company</label>
-                            <select id="company-select" class="row-span-1" onchange="companyChosen()">
-                                <option value="No Company Selected" selected disabled>Select Company</option>
-                                @foreach ($kompanies as $kompany)
-                                    <option value="{{ $kompany->id }}">
-                                        {{ $kompany->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                    <div class="grid grid-cols-1 gap-5">
+                        {{-- Company Selection --}}
+                        <div class="flex flex-col gap-2">
+                            <label for="company-select" class="text-sm font-medium text-gray-700">Choose a Company</label>
+                            <div class="relative">
+                                <select id="company-select" class="w-full rounded-lg border border-gray-300 p-3 text-gray-900 transition-shadow duration-200 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" onchange="companyChosen()">
+                                    <option value="No Company Selected" selected disabled>Select Company</option>
+                                    @foreach ($kompanies as $kompany)
+                                        <option value="{{ $kompany->id }}">
+                                            {{ $kompany->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </span>
+                            </div>
                         </div>
-                        
-                        <div class="hidden" id="create-order-hidden-inputs">
-                            <x-label-input list="" label="User ID:" name="user_id" type="number" for="user_id" divclass="row-span-1" placeholder="Enter name & company" errorChecker="{{ $errors->first('user_id') }}"/>
-                            
-                            <x-label-input label="Purchase Order Number:" name="purchase_order_id" type="text" for="purchase_order_no" divclass="row-span-1" placeholder="Enter P.O. Number" errorChecker="{{ $errors->first('purchase_order_no') }}"/>
-                            
-                            <x-label-input list="" label="Product Deal:" name="exclusive_deal_id" type="text" for="exclusive_deal_id" divclass="row-span-1" placeholder="Enter company & deal number" errorChecker="{{ $errors->first('exclusive_deal_id') }}"/>
-                            
+
+                        {{-- Hidden Inputs --}}
+                        <div class="hidden space-y-5" id="create-order-hidden-inputs">
+                            <x-label-input list="" label="User ID:" name="user_id" type="number" for="user_id" placeholder="Enter name & company" errorChecker="{{ $errors->first('user_id') }}"/>
+                            <x-label-input label="Purchase Order Number:" name="purchase_order_id" type="text" for="purchase_order_no" placeholder="Enter P.O. Number" errorChecker="{{ $errors->first('purchase_order_no') }}"/>
+                            <x-label-input list="" label="Product Deal:" name="exclusive_deal_id" type="text" for="exclusive_deal_id" placeholder="Enter company & deal number" errorChecker="{{ $errors->first('exclusive_deal_id') }}"/>
                         </div>
 
-                        <x-label-input label="Quantity:" name="quantity" type="number" for="quantity" divclass="row-span-1" placeholder="Enter Quantity" errorChecker="{{ $errors->first('quantity') }}"/>
+                        <x-label-input label="Quantity:" name="quantity" type="number" for="quantity" placeholder="Enter Quantity" errorChecker="{{ $errors->first('quantity') }}"/>
+                        <x-label-input label="Date Ordered:" name="date_ordered" type="date" for="date_ordered" errorChecker="{{ $errors->first('date_ordered') }}"/>
 
-                        <x-label-input label="Date Ordered:" name="date_ordered" type="date" for="date_ordered" divclass="row-span-1" errorChecker="{{ $errors->first('date_ordered') }}"/>
-
-                        <div class="flex flex-col gap-3">
-                            <select name="status" class="row-span-1">
-                                <option value="pending" selected>Pending</option>
-                                <option value="packed">Packed</option>
-                                {{-- <option value="out for delivery">Out for Delivery</option> --}}
-                            </select>
+                        {{-- Status Selection --}}
+                        <div class="flex flex-col gap-2">
+                            <label for="status-select" class="text-sm font-medium text-gray-700">Order Status</label>
+                            <div class="relative">
+                                <select name="status" id="status-select" class="w-full rounded-lg border border-gray-300 p-3 text-gray-900 transition-shadow duration-200 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="packed">Packed</option>
+                                    {{-- <option value="out for delivery">Out for Delivery</option> --}}
+                                </select>
+                                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex justify-between absolute bottom-0 w-full p-2 bg-white left-0">
-                        {{-- WILL ADD THIS FEATURE LATER ON --}}
-                        {{-- <button id="addnewworder-button" class="bg-white flex items-center">
-                            <i class="fa-solid fa-plus"></i>Add More
-                        </button> --}}
-
-                        <button type="submit" class="bg-white p-2 rounded-lg flex items-center">
-                            <img src="{{ asset('image/image 51.png') }}" class="w-[20px]">
-                            Submit
-                        </button>
+                    <div class="mt-6 flex justify-end">
+                        <x-submit-button id="add-new-order-submit"/>
                     </div>
                 </form>
             </div>
         </div>
-        {{-- Add New Order Modal --}}
-        
         {{-- Update Order Status Modal --}}
 @if (session("manualUpdateFailed"))
     <script>
