@@ -71,7 +71,7 @@
         </div>
 
         {{-- Edit Account Modal --}}
-        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 p-5 overflow-auto z-50" id="editAccountModal">
+        <div class="fixed hidden top-0 left-0 w-full h-full bg-black/50 p-5 overflow-auto z-50 backdrop-blur-sm" id="editAccountModal">
             <div class="modal bg-white p-8 rounded-lg w-[80%] lg:w-[60%] m-auto mt-5 relative">
                 <x-modalclose click="closeEditAccount"/>
                 <p class="text-2xl font-semibold text-center text-[#005382]">Edit Account</p>

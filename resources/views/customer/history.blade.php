@@ -141,9 +141,9 @@
 
         {{-- View Order Modal --}}
         @foreach ($groupedOrdersByDate as $dateName => $statuses)
-            <div id="view-order-modal-{{ $dateName }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50">
+            <div id="view-order-modal-{{ $dateName }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50 backdrop-blur-sm">
                 <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
-                    <span onclick="closeOrderModal('{{ $dateName }}')" class="absolute text-6xl text-red-500 font-bold w-fit -right-4 -top-8 cursor-pointer">&times;</span>
+                    <span onclick="closeOrderModal('{{ $dateName }}')" class="absolute text-xl font-bold w-fit text-black/80 transition-all duration-300 p-2 rounded-full hover:bg-gray-200 right-2 top-2 cursor-pointer"><i class="fa-regular fa-xmark"></i></span>
                     <h1 class="text-xl font-semibold text-[#005382]">
                         Orders in: {{ Carbon::parse($dateName)->translatedFormat('M d, Y')}}
                     </h1>
