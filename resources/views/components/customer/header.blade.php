@@ -32,7 +32,7 @@ if(auth('web')->check()) {
     </a>
 @endif
 
-    <div class="relative group inline-block">
+    {{-- <div class="relative group inline-block">
         <button class="flex gap-2 justify-center items-center font-semibold text-xl rounded-lg bg-green-600/80 text-white w-fit p-2 hover:bg-green-600 transition-all duration-150"
             onclick="showTutorial()"
         >
@@ -44,7 +44,7 @@ if(auth('web')->check()) {
         <span class="absolute -left-4 -bottom-28 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none animate-bounce z-50 w-[140px] text-center">
             Will show a user manual video for this page.
         </span>
-    </div>
+    </div> --}}
 
     <div class="hidden lg:flex gap-2 items-center cursor-pointer hover:bg-gray-200/50 hover:scale-105 transition-all duration-150 px-2 py-1 rounded-lg group">
         
@@ -90,7 +90,7 @@ if(auth('web')->check()) {
 </div>
 </header>
 
-<div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="tutorialModal">
+{{-- <div class="w-full hidden h-full bg-black/70 fixed top-0 left-0 z-50 p-4 sm:p-6 md:p-10 lg:p-20 overflow-auto" id="tutorialModal">
     <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative">
         <x-modalclose click="showTutorial" />
 
@@ -101,7 +101,7 @@ if(auth('web')->check()) {
             <img src="{{ asset("image/yahoo-baby.png") }}" alt="byahoo" class="w-[100%] h-[100%] object-fill">
         </div>
     </div>
-</div>
+</div> --}}
 
 <script>
     function showTutorial() {

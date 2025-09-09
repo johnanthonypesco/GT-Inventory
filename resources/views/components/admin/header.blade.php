@@ -41,7 +41,7 @@
                     </button>
 
                     <!-- Tooltip -->
-                    <span class="absolute -left-4 -bottom-28 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none animate-bounce z-50 w-[140px] text-center">
+                    <span class="absolute -left-4 -bottom-24 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 w-[140px] text-center">
                         Will show a tutorial video for this page.
                     </span>
                 </div>
