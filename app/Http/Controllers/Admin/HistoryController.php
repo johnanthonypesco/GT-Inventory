@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\ImmutableHistory;
 use App\Models\Location;
 use App\Models\Order;
@@ -19,9 +20,12 @@ class HistoryController extends Controller
         $employeeSearch = $request->input('employee_search', null);
         $orderProvinceFilter = $request->input('province_filter', 'all');
         $orderStatusFilter = $request->input('status_filter', 'all');
-        
+        $orderDateFilter = $request->input('date_filter', 'all');
+        $orderProductFilter = $request->input('product_filter', 'all');
+        $companyFilter = $request->input('company_filter', 'all');
+
         $orders = ImmutableHistory::with(['ScannedQrCode']);
-        
+
         // If may search then add another gyad damn condition
         if ($employeeSearch !== null) {
             $employeeSearch = explode(' - ', $employeeSearch);
@@ -32,6 +36,24 @@ class HistoryController extends Controller
 
             $orders = $orders->where('employee', $employeeName)
             ->where('company', $companyName);
+            
+        }
+        
+        if ($companyFilter !== 'all') {
+            $orders = $orders->where('company', $companyFilter);
+        }
+
+        if ($orderDateFilter !== 'all') {
+            $orders = $orders->whereBetween('date_ordered', 
+                [$orderDateFilter[0], $orderDateFilter[1]]
+            );
+        }
+
+        if ($orderProductFilter !== 'all') {
+            $orders = $orders->where('generic_name', $orderProductFilter[0])
+            ->where('brand_name', $orderProductFilter[1])
+            ->where('form', $orderProductFilter[2])
+            ->where('strength', $orderProductFilter[3]);
         }
 
         switch ($orderStatusFilter) {
@@ -50,7 +72,6 @@ class HistoryController extends Controller
             $orders = $orders->where('province', $orderProvinceFilter);
         }
 
-        // dd(session('order-type'));
         $orders = $orders->orderByDesc('date_ordered')
         ->get();
 
@@ -104,11 +125,18 @@ class HistoryController extends Controller
             "provinces" => $provinces,
 
             "dropdownLocationOptions" => Location::get()->pluck('province'),
+            "dropDownCompanyOptions" => Company::all(),
 
             'current_filters' => [
                 'search' => $employeeSearch,
+                'company' => $companyFilter,
                 'location' => $orderProvinceFilter,
                 'status' => $orderStatusFilter,
+                'date' => [
+                    "start" => $orderDateFilter[0],
+                    "end" => $orderDateFilter[1]
+                ],
+                'product' => $orderProductFilter
             ],
             
             'customersSearchSuggestions' => ImmutableHistory::select(['employee', 'company'])->distinct()->get(),

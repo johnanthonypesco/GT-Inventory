@@ -29,3 +29,46 @@ function isInSuggestionEmployee () {
     }
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
+
+function showFilters() {
+    const motherDiv = document.getElementById('hidden-filters');
+    const filterBtnText = document.getElementById('show-filters-btn');
+    const dateStartInput = document.getElementById('date-filter-start');
+    const dateEndInput = document.getElementById('date-filter-end');
+    const companyInput = document.getElementById('company-filter');
+
+    if (motherDiv.classList.contains('hidden')) {
+        motherDiv.classList.replace('hidden', 'flex');
+
+        filterBtnText.innerHTML = '<i class="fa-solid fa-close"></i> Disable Search Filters';
+
+        dateStartInput.disabled = false;
+        dateEndInput.disabled = false;
+        companyInput.disabled = false;
+    } else {
+        motherDiv.classList.replace('flex', 'hidden');
+
+        filterBtnText.innerHTML = '<i class="fa-solid fa-filter"></i> Enable Search Filters';
+
+        dateStartInput.disabled = true;
+        dateEndInput.disabled = true;
+        companyInput.disabled = true;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const filterDiv = document.getElementById('hidden-filters');
+    const filterBtnText = document.getElementById('show-filters-btn');
+    
+    const dateStartInput = document.getElementById('date-filter-start');
+    const dateEndInput = document.getElementById('date-filter-end');
+    const companyInput = document.getElementById('company-filter');
+
+    if (filterDiv.classList.contains("flex")) {
+        filterBtnText.innerHTML = '<i class="fa-solid fa-close"></i> Disable Search Filters';
+
+        dateStartInput.disabled = false;
+        dateEndInput.disabled = false;
+        companyInput.disabled = false;
+    }
+});
