@@ -30,26 +30,20 @@ function isInSuggestionEmployee () {
 }
 // SIGRAE EMPLOYEE SEARCH SUGGESTION CODES
 
-function showFilters() {
-    const motherDiv = document.getElementById('hidden-filters');
+function toggleModal(show) {
+    const modal = document.getElementById('filter-modal');
     const filterBtnText = document.getElementById('show-filters-btn');
     const dateStartInput = document.getElementById('date-filter-start');
     const dateEndInput = document.getElementById('date-filter-end');
     const companyInput = document.getElementById('company-filter');
 
-    if (motherDiv.classList.contains('hidden')) {
-        motherDiv.classList.replace('hidden', 'flex');
-
-        filterBtnText.innerHTML = '<i class="fa-solid fa-close"></i> Disable Search Filters';
-
+    if (show) {
+        modal.classList.replace('hidden', 'flex');
         dateStartInput.disabled = false;
         dateEndInput.disabled = false;
         companyInput.disabled = false;
     } else {
-        motherDiv.classList.replace('flex', 'hidden');
-
-        filterBtnText.innerHTML = '<i class="fa-solid fa-filter"></i> Enable Search Filters';
-
+        modal.classList.replace('flex', 'hidden');
         dateStartInput.disabled = true;
         dateEndInput.disabled = true;
         companyInput.disabled = true;
@@ -57,18 +51,29 @@ function showFilters() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const filterDiv = document.getElementById('hidden-filters');
-    const filterBtnText = document.getElementById('show-filters-btn');
-    
-    const dateStartInput = document.getElementById('date-filter-start');
-    const dateEndInput = document.getElementById('date-filter-end');
-    const companyInput = document.getElementById('company-filter');
+    const modal = document.getElementById('filter-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const showFiltersBtn = document.getElementById('show-filters-btn');
 
-    if (filterDiv.classList.contains("flex")) {
-        filterBtnText.innerHTML = '<i class="fa-solid fa-close"></i> Disable Search Filters';
-
-        dateStartInput.disabled = false;
-        dateEndInput.disabled = false;
-        companyInput.disabled = false;
+    if (modal.classList.contains("flex")) {
+        toggleModal(false);
     }
+
+    if (showFiltersBtn) {
+        showFiltersBtn.addEventListener('click', () => {
+            toggleModal(modal.classList.contains('hidden'));
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            toggleModal(false);
+        });
+    }
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            toggleModal(false);
+        }
+    });
 });
