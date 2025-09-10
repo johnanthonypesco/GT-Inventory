@@ -102,13 +102,13 @@
             @endphp
 
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
-                <button class="w-full px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+                <button class="w-full px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Data  
                 </button>
                 
-                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
-                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
+                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
+                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
             </div>
         </div>
         {{-- Filters Location --}}

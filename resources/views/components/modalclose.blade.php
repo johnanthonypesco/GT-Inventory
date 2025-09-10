@@ -7,20 +7,27 @@
 ])
 <style>
     .closemodal:hover i {
-      animation: rotate 2s infinite;
+      animation: rotate 2.5s infinite;
     }
     .closemodal:hover{
       box-shadow: 0 0 6px rgba(6, 6, 6, 0.635)2;
     }
     .closemodal i {
       transition: all 0.9s;
+
     }
     @keyframes rotate {
       20% {
-        transform: rotate(-30deg);
+        transform: rotate(30deg);
+=        scale: 0.9;
       }
-      100% {
-        transform: rotate(360deg);
+      80% {
+        transform: rotate(-360deg);
+        scale: 1.3;
+      }
+      20% {
+        transform: rotate(0deg);
+        scale: 0.9;
       }
     }
 </style>
