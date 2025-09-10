@@ -295,7 +295,7 @@
 
         {{-- Edit Account Modal --}}
         <div id="editAccountModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm p-10 md:p-20 items-center justify-center overflow-auto z-50 {{ $errors->hasBag('editAccount') ? 'flex' : 'hidden' }}">
-            <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative m-auto p-10">
+            <div class="modal w-full lg:w-[40%] h-fit bg-white rounded-lg relative mx-auto p-10">
                 <x-modalclose click="closeEditAccountModal"/>
                 {{-- <form method="POST" id="editaccountform"> error show if we use this "The PUT method is not supported for route manageaccounts. Supported methods: GET, HEAD, POST."--}}
                     <form method="POST" id="editaccountform" 

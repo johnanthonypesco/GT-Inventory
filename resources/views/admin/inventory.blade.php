@@ -208,7 +208,7 @@
     </main>
     {{-- Modal for View All Products --}}
     <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto p-5" id="viewallproductmodal">
-        <div class="modal w-full lg:w-[75%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
+        <div class="modal w-full lg:w-[75%] max-w-7xl h-fit mx-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct" />
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
 

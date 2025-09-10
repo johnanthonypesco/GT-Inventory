@@ -92,9 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleFilterState('enabled');
     }
 
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            toggleModal(false);
-        }
-    });
+    // window.addEventListener('click', (event) => {
+    //     if (event.target === modal) {
+    //         toggleModal(false);
+    //     }
+    // });
 });
