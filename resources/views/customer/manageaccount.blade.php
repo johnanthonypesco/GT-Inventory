@@ -164,13 +164,21 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Do you want to save these changes?',
-            icon: 'question',
+            text: "This action can't be undone. Please confirm if you want to proceed.",
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, save it!',
-            cancelButtonText: 'No, cancel'
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 let formData = new FormData(form);
@@ -185,29 +193,45 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        Swal.fire({
-                            title: 'Saved!',
-                            text: 'Your account has been successfully updated.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => { location.reload(); });
-                    } else {
-                        let errorHtml = '<div class="text-left text-sm"><ul class="list-disc list-inside space-y-1">';
-                        if (data.errors) {
-                            Object.values(data.errors).forEach(errorArray => {
-                                errorArray.forEach(errorMessage => { errorHtml += `<li>${errorMessage}</li>`; });
-                            });
-                        } else {
-                            errorHtml += `<li>${data.message || "Something went wrong!"}</li>`;
+                    Swal.fire({
+                        title: 'Saved!',
+                        text: 'Your account has been successfully updated.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content', 
+                            confirmButton: 'swal-confirm-button',
+                            cancelButton: 'swal-cancel-button',
                         }
-                        errorHtml += '</ul></div>';
-                        Swal.fire({
-                            title: "Update Failed!",
-                            html: errorHtml,
-                            icon: "error",
-                            confirmButtonText: "OK"
+                    }).then(() => { location.reload(); });
+                    } else {
+                    let errorHtml = '<div class="text-left text-sm"><ul class="list-disc list-inside space-y-1">';
+                    if (data.errors) {
+                        Object.values(data.errors).forEach(errorArray => {
+                            errorArray.forEach(errorMessage => { errorHtml += `<li>${errorMessage}</li>`; });
                         });
+                    } else {
+                        errorHtml += `<li>${data.message || "Something went wrong!"}</li>`;
                     }
+                    errorHtml += '</ul></div>';
+                    Swal.fire({
+                        title: "Update Failed!",
+                        html: errorHtml,
+                        icon: "error",
+                        confirmButtonText: "OK",
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content', 
+                            confirmButton: 'swal-confirm-button',
+                            cancelButton: 'swal-cancel-button',
+                        }
+                    });
+                }
                 })
                 .catch(error => {
                     console.error("Fetch Error:", error);

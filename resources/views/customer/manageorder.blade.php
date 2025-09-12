@@ -149,7 +149,7 @@
     @foreach ($groupedOrdersByDate as $groupedOrdersByStatus)
         <div id="view-order-modal-{{ $groupedOrdersByStatus->first()->first()->date_ordered }}" class="fixed hidden bg-black/60 w-full h-full top-0 left-0 p-5 pt-20 z-50 backdrop-blur-sm">
             <div class="modal w-full lg:w-[80%] m-auto rounded-lg bg-white p-5 relative">
-                <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="absolute text-xl font-bold w-fit text-black/80 transition-all duration-300 p-2 rounded-full hover:bg-gray-200 right-2 top-2 cursor-pointer"><i class="fa-regular fa-xmark"></i></span>
+                <span onclick="closevieworder('{{ $groupedOrdersByStatus->first()->first()->date_ordered }}')" class="text-xl font-semibold transition-all duration-150 text-black/80 hover:bg-gray-300 w-10 h-10 flex justify-center items-center rounded-full cursor-pointer absolute right-2 top-2 bg-gray-200 closemodal"><i class="fa-regular fa-xmark"></i></span>
                 <h1 class="text-xl font-semibold text-[#005382]">
                     Orders in: {{ Carbon::parse($groupedOrdersByStatus->first()->first()->date_ordered)->translatedFormat('M d, Y')}}
                 </h1>
