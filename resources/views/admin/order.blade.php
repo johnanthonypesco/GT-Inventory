@@ -688,6 +688,12 @@
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
 
@@ -940,6 +946,12 @@ async function changeStatus(form, statusType) {
                     title: 'Processing...',
                     text: 'Please wait while we update the order status.',
                     allowOutsideClick: false,
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        confirmButton: 'swal-confirm-button'
+                    },
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -954,6 +966,12 @@ async function changeStatus(form, statusType) {
                 title: 'Processing...',
                 text: 'Please wait while we update the order status.',
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
                 }

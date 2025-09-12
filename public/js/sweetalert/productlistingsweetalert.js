@@ -47,6 +47,12 @@ function sweetalert(form) {
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
                     
