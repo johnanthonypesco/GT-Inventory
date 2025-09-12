@@ -15,8 +15,18 @@ function showsweetalert(form) {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, submit it!',
-        allowOutsideClick: false
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({

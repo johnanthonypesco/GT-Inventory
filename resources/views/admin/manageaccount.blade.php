@@ -729,13 +729,22 @@ document.addEventListener("DOMContentLoaded", function() {
     window.confirmDelete = (button) => {
         const accountId = button.getAttribute('data-account-id');
         Swal.fire({
-            title: "Are you sure?",
-            text: "This account will be archived, not deleted permanently.",
-            icon: "warning",
+            title: 'Are you sure?',
+            text: "This account will be archived and can be restored if needed.",
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, archive it!"
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 // document.getElementById(`deleteaccountform-${accountId}`).submit();
@@ -794,13 +803,22 @@ window.closeEditCompanyModal = () => {
 // Function to confirm archiving with SweetAlert
 window.confirmCompanyArchive = () => {
     Swal.fire({
-        title: "Are you sure?",
-        text: "Archiving this company will also archive all of its associated user accounts. This action can be reversed.",
-        icon: "warning",
+        title: 'Are you sure?',
+        text: "This company will be archived and can be restored if needed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, archive it!"
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             // If confirmed, submit the hidden archive form
@@ -813,12 +831,22 @@ window.confirmCompanyArchive = () => {
 document.getElementById('editCompanyForm').addEventListener('submit', function (event) {
     event.preventDefault();
     Swal.fire({
-        title: 'Save Company Changes?',
-        icon: 'question',
+        title: 'Are you sure?',
+        text: "This action can't be undone. Please confirm if you want to proceed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, save changes!'
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => { 
         if (result.isConfirmed) { 
             this.submit(); 
@@ -863,13 +891,22 @@ document.querySelectorAll('.restore-company-form').forEach(form => {
         event.preventDefault(); // Stop the form from submitting immediately
         
         Swal.fire({
-            title: 'Restore this company?',
-            text: "This will also restore all of its users and exclusive deals.",
-            icon: 'question',
+            title: 'Are you sure?',
+            text: "This action can't be undone. Please confirm if you want to proceed.",
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, restore it!'
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 this.submit(); // If confirmed, submit the form
@@ -1070,18 +1107,22 @@ document.querySelectorAll('.restore-company-form').forEach(form => {
         addAccountForm.addEventListener('submit', function (event) {
             event.preventDefault();
             Swal.fire({
-                title: 'Save New Account?',
-                text: 'Do you want to save this account?',
-                icon: 'question',
-                // --- ITO ANG IDINAGDAG ---
-                customClass: {
-                    icon: 'swal-icon-pulse'
-                },
-                // -------------------------
+                title: 'Are you sure?',
+                text: "A new account will be created with the provided details.",
+                icon: 'info',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, save it!'
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content', 
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => { if (result.isConfirmed) { this.submit(); } });
         });
     }
@@ -1090,18 +1131,22 @@ document.querySelectorAll('.restore-company-form').forEach(form => {
         editAccountForm.addEventListener('submit', function (event) {
             event.preventDefault();
             Swal.fire({
-                title: 'Save Changes?',
-                text: 'Do you want to save the changes to this account?',
-                icon: 'question',
-                // --- ITO ANG IDINAGDAG ---
-                customClass: {
-                    icon: 'swal-icon-pulse'
-                },
-                // -------------------------
+                title: 'Are you sure?',
+                text: "The account details will be updated.",
+                icon: 'info',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, save changes!'
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content', 
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => { if (result.isConfirmed) { this.submit(); } });
         });
     }
@@ -1111,13 +1156,22 @@ document.querySelectorAll('.restore-company-form').forEach(form => {
 
         restoreButton.addEventListener('click', () => {
             Swal.fire({
-                title: "Restore Account?",
-                text: "Do you want to restore this account?",
-                icon: "question",
+                title: 'Are you sure?',
+                text: "This action can't be undone. Please confirm if you want to proceed.",
+                icon: 'info',
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, restore it!"
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content', 
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({

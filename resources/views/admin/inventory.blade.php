@@ -1018,24 +1018,58 @@ document.getElementById('transferForm').addEventListener('submit', function(even
     const transferQty = parseInt(formData.transfer_quantity, 10);
 
     if (transferQty > availableQty) {
-        Swal.fire("Error", "Transfer quantity cannot be greater than the available stock.", "error");
-        return; // Stop the function
+        Swal.fire({
+            title: "Error",
+            text: "Transfer quantity cannot be greater than the available stock.",
+            icon: "error",
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
+        });
+        return;
     }
     
     if (transferQty <= 0) {
-        Swal.fire("Error", "Please enter a valid quantity to transfer.", "error");
+        Swal.fire({
+            title: "Error",
+            text: "Please enter a valid quantity to transfer.",
+            icon: "error",
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
+        });
         return; // Stop the function
     }
 
 
     // Use SweetAlert for confirmation
     Swal.fire({
-        title: "Are you sure?",
-        text: "This action will transfer the inventory to a new location.",
-        icon: "warning",
+        title: 'Are you sure?',
+        text: "This action can't be undone. Please confirm if you want to proceed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonText: "Yes, transfer it!",
-        cancelButtonText: "No, cancel!"
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             // Proceed with the transfer if confirmed
@@ -1049,18 +1083,62 @@ document.getElementById('transferForm').addEventListener('submit', function(even
                 body: JSON.stringify(formData)
             })
             .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         Swal.fire("Success", data.message, "success")
+            //             .then(() => window.location.reload()); // Reload to reflect changes
+            //     } else {
+            //         Swal.fire("Error", data.message || "Transfer failed.", "error");
+            //     }
+            // })
+            // .catch((error) => {
+            //     console.error('Fetch Error:', error);
+            //     Swal.fire("Error", "Failed to connect to the server.", "error")
+            // });
             .then(data => {
-                if (data.success) {
-                    Swal.fire("Success", data.message, "success")
-                        .then(() => window.location.reload()); // Reload to reflect changes
-                } else {
-                    Swal.fire("Error", data.message || "Transfer failed.", "error");
+            if (data.success) {
+                Swal.fire({
+                    title: "Success",
+                    text: data.message,
+                    icon: "success",
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        title: 'swal-title',
+                        icon: 'swal-icon',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: data.message || "Transfer failed.",
+                    icon: "error",
+                    confirmButtonText: 'Okay',
+                    customClass: {
+                        title: 'swal-title',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.error('Fetch Error:', error);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to connect to the server.",
+                icon: "error",
+                confirmButtonText: 'Okay',
+                customClass: {
+                    customClass: {
+                        title: 'swal-title',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
                 }
-            })
-            .catch((error) => {
-                console.error('Fetch Error:', error);
-                Swal.fire("Error", "Failed to connect to the server.", "error")
             });
+        });
         }
     });
 });
