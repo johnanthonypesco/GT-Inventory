@@ -687,11 +687,13 @@
         if (result.isConfirmed) {
             Swal.fire({
                 title: 'Processing...',
+                text: "Please wait, your request is being processed.",
                 allowOutsideClick: false,
                 customClass: {
                     container: 'swal-container',
                     popup: 'swal-popup',
                     title: 'swal-title',
+                    htmlContainer: 'swal-content', 
                     confirmButton: 'swal-confirm-button'
                 },
                 didOpen: () => {

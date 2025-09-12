@@ -749,8 +749,16 @@ document.addEventListener("DOMContentLoaded", function() {
             if (result.isConfirmed) {
                 // document.getElementById(`deleteaccountform-${accountId}`).submit();
                 Swal.fire({
-                    title: ' Processing...',
+                    title: 'Processing...',
+                    text: "Please wait, your request is being processed.",
                     allowOutsideClick: false,
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content', 
+                        confirmButton: 'swal-confirm-button'
+                    },
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -766,6 +774,14 @@ document.addEventListener("DOMContentLoaded", function() {
             title: 'Action Failed',
             text: '{{ session('error') }}',
             confirmButtonColor: '#d33'
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
         });
     @endif
     // Add these new functions inside your script tag, preferably near the other modal functions
@@ -1175,8 +1191,16 @@ document.querySelectorAll('.restore-company-form').forEach(form => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Restoring...',
+                        title: 'Processing...',
+                        text: "Please wait, your request is being processed.",
                         allowOutsideClick: false,
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content', 
+                            confirmButton: 'swal-confirm-button'
+                        },
                         didOpen: () => {
                             Swal.showLoading();
                         }
