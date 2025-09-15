@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Historylogs;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -28,14 +29,20 @@ class OrderController extends Controller
     public function showOrder(Request $request)
     {
         $employeeSearch = $request->input('employee_search', null);
-        
+        $companySearch = $request->input('company_filter', 'all');
+        $dateSearch = $request->input('date_filter', 'all');
+        $productSearch = $request->input('product_filter', 'all');
+        $poSearch = $request->input('po_filter', 'all');
+        $statusSearch = $request->input('status_filter', 'all');
+        $provinceSearch = $request->input('province_filter', 'all');
+
         $orders = Order::with([
             'user.company.location',
             'exclusive_deal.product',
             'purchase_order',
         ]);
         
-        // If may search then add another gyad damn condition
+        // START OF FILTER SECTION
         if ($employeeSearch !== null) {
             $employeeSearch = explode(' - ', $employeeSearch);
 
@@ -46,6 +53,53 @@ class OrderController extends Controller
                     });
             });
         }
+
+        if ($provinceSearch !== 'all') {
+            $orders = $orders->whereHas('user.company.location', function ($query) use ($provinceSearch) {
+                $query->where('province', $provinceSearch);
+            });
+        }
+
+        if ($companySearch !== 'all') {
+            $orders = $orders->whereHas('user.company', function ($query) use ($companySearch) {
+                $query->where('name', $companySearch);
+            });
+        }
+
+        if ($dateSearch !== 'all' && $dateSearch[0] !== null) {
+            $orders = $orders->whereBetween('date_ordered', [
+                $dateSearch[0],
+                $dateSearch[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            if ($dateSearch[1] === null) {
+                $dateSearch[1] = Carbon::today()->format('Y-m-d');
+            }
+        }
+
+        if ($statusSearch !== 'all') {
+            $orders = $orders->where('status', $statusSearch);
+        }
+
+        if ($productSearch !== 'all') {
+            $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($productSearch) {
+                $product = Product::findOrFail($productSearch);
+                
+                $query->where('brand_name', $product->brand_name);
+                $query->where('generic_name', $product->generic_name);
+                $query->where('form', $product->form);
+                $query->where('strength', $product->strength);
+            });
+        }
+
+        if ($poSearch !== 'all' && $poSearch !== null) {
+            $orders = $orders->whereHas('purchase_order', function ($query) use ($poSearch) {
+                $query->where('po_number', $poSearch);
+            });
+        }
+        // END OF FILTER SECTION
+
 
         $orders = $orders->whereNotIn('status', ['delivered','cancelled'])
         ->orderBy('date_ordered','desc')
@@ -200,6 +254,11 @@ class OrderController extends Controller
             'customersSearchSuggestions' => User::with('company')->get(),
             'current_search' => [
                 'query' => $employeeSearch,
+                'date' => [
+                    'start' => $dateSearch[0],
+                    'end' => $dateSearch[1],
+                ],
+                'po' => $poSearch,
             ],
 
             'authGuard' => Auth::guard('staff')->check(),
@@ -209,6 +268,9 @@ class OrderController extends Controller
             'kompanies' => Company::all()->sortBy('name'),
             'availableDealsByCompany' => ExclusiveDeal::with('product', 'company')
             ->get()->groupBy("company_id"),
+
+            // for filters
+            'dropDownProductOptions' => Product::all()->sortBy('generic_name'),
         ]);
     }
 

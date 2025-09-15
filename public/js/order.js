@@ -76,3 +76,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 });
+
+// filter logic
+function toggleFilterState(state) {
+    const filters = [
+        document.getElementById('date-filter-start'),
+        document.getElementById('date-filter-end'),
+        document.getElementById('company-filter'),
+        document.getElementById('product-filter'),
+        document.getElementById('po-filter'),
+        document.getElementById('status-filter'),
+        document.getElementById('province-filter'),
+    ];
+
+    if (state === "enabled") {
+        filters.forEach(filter => {
+            filter.disabled = false;
+        });
+    }
+
+    else if (state === "disabled") {
+        filters.forEach(filter => {
+            filter.disabled = true;
+        });
+    }
+}
+
+function toggleModal(show) {
+    const modal = document.getElementById('filter-modal');
+
+    if (show) {
+        modal.classList.replace('hidden', 'flex');
+
+        toggleFilterState('enabled');
+    } else {
+        modal.classList.replace('flex', 'hidden');        
+    }
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById('filter-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const showFiltersBtn = document.getElementById('show-filters-btn');
+    const filterState = document.getElementById('filter-state');
+
+    if (modal.classList.contains("flex")) {
+        toggleModal(false);
+    }
+
+    if (showFiltersBtn) {
+        showFiltersBtn.addEventListener('click', () => {
+            toggleModal(modal.classList.contains('hidden'));
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            toggleModal(false);
+        });
+    }
+
+    if (filterState.dataset.state === 'used') {
+        toggleFilterState('enabled');
+    }
+
+    // window.addEventListener('click', (event) => {
+    //     if (event.target === modal) {
+    //         toggleModal(false);
+    //     }
+    // });
+});
