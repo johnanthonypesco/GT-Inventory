@@ -134,7 +134,7 @@
                                     defaults to "all" so index 0 is "a" and index 1 is "l" 
                                     --}}
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        From: {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
+                                        From (expiry date): {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
                                         ? 
                                         Carbon::parse($currentSearch['date']["start"])->format('M d, Y') 
                                         : 
@@ -144,7 +144,7 @@
                                     <span class="p-2 opacity-0 bg-white rounded-lg flex items-center"><i class="fa-regular fa-angles-right"></i></span>
 
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        To: {{ $currentSearch['date']["end"] !== "l" && $currentSearch['date']["end"] !== null ?
+                                        To (expiry date): {{ $currentSearch['date']["end"] !== "l" && $currentSearch['date']["end"] !== null ?
                                         Carbon::parse($currentSearch['date']["end"])->format('M d, Y') : 
                                         "" }}
                                     </label>
