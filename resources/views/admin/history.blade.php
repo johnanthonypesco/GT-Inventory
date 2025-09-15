@@ -197,11 +197,11 @@
                         Filter{{ $wasFiltersUsed ? "s Activated" : "" }}
                     </button>
 
-                    <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pr-9 border p-2.5 rounded-lg mt-2 font-regular bg-white outline-none mb-2 text-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);">
-                        <option value="all">All Location</option>
+                    <select onchange="document.getElementById('province-form').submit()" name="province_filter" id="location" class="pl-5 pr-4 border p-2.5 rounded-lg mt-2 font-regular bg-white outline-none mb-2 text-center flex items-center justify-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);">
+                        <option value="all" class="text-start" style="text-align: start;">All Location</option>
 
                         @foreach ($dropdownLocationOptions as $location)
-                            <option @selected($isProvincePresent === $location) value="{{ $location }}">{{ $location }}</option>
+                            <option @selected($isProvincePresent === $location) value="{{ $location }}" class="text-start" style="text-align: start;">{{ $location }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -254,7 +254,7 @@
                 </div>
 
                 {{-- MODAL SEARCH FILTERS --}}
-                <div id="filter-modal" class="w-full h-full bg-black/30 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
+                <div id="filter-modal" class="w-full h-full bg-black/60 backdrop-blur-sm p-5 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent || $isProductPresent ? 'flex' : 'hidden' }} ">
                     <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative">
                         <div class="flex items-center justify-between w-full">
                             <h1 class="text-[#005382] text-2xl font-bold">Display Filters:</h1>

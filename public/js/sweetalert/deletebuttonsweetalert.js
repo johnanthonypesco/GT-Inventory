@@ -51,18 +51,34 @@ document.addEventListener('click', (e) => {
 function sweetalert(form) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'question',
+        text: "This action can't be undone. Please confirm if you want to proceed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, save it!',
-        allowOutsideClick: false
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
                 title: 'Processing...',
+                text: "Please wait, your request is being processed.",
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content', 
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
                 }

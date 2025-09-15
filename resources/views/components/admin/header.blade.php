@@ -83,7 +83,7 @@
         <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
-            <div class="w-full h-fit overflow-scroll flex-col justify-center items-center p2">
+            <div class="w-full h-fit flex-col justify-center items-center p2">
                 <h1 class="text-2xl uppercase font-semibold text-[#005382] text-center mb-3">
                     Tutorial For This Page:
                 </h1>
@@ -109,7 +109,7 @@
 
                 <video id="tutorialVideo" 
                 controls
-                class="w-full h-auto rounded-lg shadow-md">
+                class="w-full h-auto rounded-lg" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.785)">
                     @foreach ($routesForVids as $routeName => $fileName)
                         @if ($routeIs($routeName))
                             @php

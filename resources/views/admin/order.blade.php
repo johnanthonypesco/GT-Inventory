@@ -654,24 +654,48 @@
             icon: 'error',
             title: 'No File Selected',
             text: 'Please select a QR code file to upload.',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+            }
         });
         return;
     }
 
     Swal.fire({
         title: 'Are you sure?',
-        text: "You are about to upload a QR code.",
-        icon: 'warning',
+        text: "This action can't be undone. Please confirm if you want to proceed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, upload it!'
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
                 title: 'Processing...',
+                text: "Please wait, your request is being processed.",
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content', 
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
 
@@ -687,15 +711,51 @@
                     .then(data => {
                         Swal.close(); 
                         if (data.message.includes('❌') || data.message.toLowerCase().includes('error')) {
-                            Swal.fire("Error", data.message, "error");
+                            Swal.fire({
+                                title: "Error",
+                                text: data.message,
+                                icon: "error",
+                                customClass: {
+                                    container: 'swal-container',
+                                    popup: 'swal-popup',
+                                    title: 'swal-title',
+                                    htmlContainer: 'swal-content', 
+                                    confirmButton: 'swal-confirm-button',
+                                    cancelButton: 'swal-cancel-button',
+                                }
+                            });
                         } else {
-                            Swal.fire("Success", data.message, "success");
+                            Swal.fire({
+                                title: "Success",
+                                text: data.message,
+                                icon: "success",
+                                customClass: {
+                                    container: 'swal-container',
+                                    popup: 'swal-popup',
+                                    title: 'swal-title',
+                                    htmlContainer: 'swal-content',
+                                    confirmButton: 'swal-confirm-button',
+                                    cancelButton: 'swal-cancel-button',
+                                }
+                            });
                             form.reset();
                         }
                     })
                     .catch(error => {
                         console.error("Error:", error);
-                        Swal.fire("Error", "Failed to process QR code upload.", "error");
+                        Swal.fire({
+                        title: "Error",
+                        text: "Failed to process QR code upload.",
+                        icon: "error",
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content', 
+                            confirmButton: 'swal-confirm-button',
+                            cancelButton: 'swal-cancel-button',
+                        }
+                        });
                     });
                 }
             });
@@ -845,7 +905,15 @@ async function changeStatus(form, statusType) {
             title: 'Error',
             text: 'Order ID is missing or invalid.',
             confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                icon: 'swal-icon'
+            }
         });
         return;
     }
@@ -859,7 +927,18 @@ async function changeStatus(form, statusType) {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, change it!'
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then(async (result) => {
         if (!result.isConfirmed) return;
 
@@ -869,6 +948,12 @@ async function changeStatus(form, statusType) {
                     title: 'Processing...',
                     text: 'Please wait while we update the order status.',
                     allowOutsideClick: false,
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        confirmButton: 'swal-confirm-button'
+                    },
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -883,6 +968,12 @@ async function changeStatus(form, statusType) {
                 title: 'Processing...',
                 text: 'Please wait while we update the order status.',
                 allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    confirmButton: 'swal-confirm-button'
+                },
                 didOpen: () => {
                     Swal.showLoading();
                 }

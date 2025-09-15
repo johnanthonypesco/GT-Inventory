@@ -351,7 +351,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 icon: 'error',
                 title: 'Sorry',
                 text: 'Please agree to the terms and conditions to proceed!',
-                confirmButtonColor: "#005382"
+                confirmButtonColor: "#005382",
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                }
             });
         }
     });
@@ -361,7 +369,15 @@ document.addEventListener("DOMContentLoaded", function () {
             icon: 'error',
             title: 'Sorry',
             text: 'You have declined the terms and conditions. You will be redirected.',
-            confirmButtonColor: "#005382"
+            confirmButtonColor: "#005382",
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content',
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
         }).then(() => {
             window.location.href = "{{ route('customer.order') }}";
         });

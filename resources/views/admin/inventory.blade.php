@@ -90,7 +90,7 @@
                     <input type="hidden" name="current_search" value="{{ $currentSearch['query'][0] . " - " . $currentSearch['query'][1] . " - " . $currentSearch['query'][2] . " - " . $currentSearch['query'][3] }}">    
                 @endif
 
-                <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center text-[#005382] font-bold bg-white outline-none">
+                <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center font-semibold text-black/90 bg-white outline-none">
                     <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
                     <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
                     <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
@@ -102,13 +102,13 @@
             @endphp
 
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
-                <button class="w-full lg:w-fit px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+                <button class="w-full px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Data  
                 </button>
                 
-                <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
-                <button class="w-full lg:w-fit bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-start gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
+                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
+                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
             </div>
         </div>
         {{-- Filters Location --}}
@@ -208,7 +208,7 @@
     </main>
     {{-- Modal for View All Products --}}
     <div class="w-full {{ session('registeredProductSearch') || request()->has('registered_product_page') || session('editProductSuccess') || session('prod-arhived') ? '' : 'hidden' }} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 flex items-center justify-center z-50 overflow-y-auto p-5" id="viewallproductmodal">
-        <div class="modal w-full lg:w-[75%] max-w-7xl h-fit m-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative my-10">
+        <div class="modal w-full lg:w-[75%] max-w-7xl h-fit mx-auto rounded-lg bg-white p-5 sm:p-8 md:p-10 relative">
             <x-modalclose id="viewallproductclose" click="closeviewallproduct" />
             <h1 class="font-bold text-2xl text-[#005382]">All Registered Products</h1>
 
@@ -672,7 +672,7 @@
         <div class="modal w-full md:w-[40%] h-fit m-auto rounded-lg bg-white p-10 relative">
             <x-modalclose click="editRegisteredProduct" />
 
-            <form action="{{ route('admin.edit.product') }}" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
+            <form action="{{ route('admin.edit.product') }}" class="mt-4" method="POST" id="edit-prod-reset" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')  
 
@@ -1018,24 +1018,58 @@ document.getElementById('transferForm').addEventListener('submit', function(even
     const transferQty = parseInt(formData.transfer_quantity, 10);
 
     if (transferQty > availableQty) {
-        Swal.fire("Error", "Transfer quantity cannot be greater than the available stock.", "error");
-        return; // Stop the function
+        Swal.fire({
+            title: "Error",
+            text: "Transfer quantity cannot be greater than the available stock.",
+            icon: "error",
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
+        });
+        return;
     }
     
     if (transferQty <= 0) {
-        Swal.fire("Error", "Please enter a valid quantity to transfer.", "error");
+        Swal.fire({
+            title: "Error",
+            text: "Please enter a valid quantity to transfer.",
+            icon: "error",
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content', 
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+            }
+        });
         return; // Stop the function
     }
 
 
     // Use SweetAlert for confirmation
     Swal.fire({
-        title: "Are you sure?",
-        text: "This action will transfer the inventory to a new location.",
-        icon: "warning",
+        title: 'Are you sure?',
+        text: "This action can't be undone. Please confirm if you want to proceed.",
+        icon: 'info',
         showCancelButton: true,
-        confirmButtonText: "Yes, transfer it!",
-        cancelButtonText: "No, cancel!"
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
+        allowOutsideClick: false,
+        customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content', 
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             // Proceed with the transfer if confirmed
@@ -1049,18 +1083,62 @@ document.getElementById('transferForm').addEventListener('submit', function(even
                 body: JSON.stringify(formData)
             })
             .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         Swal.fire("Success", data.message, "success")
+            //             .then(() => window.location.reload()); // Reload to reflect changes
+            //     } else {
+            //         Swal.fire("Error", data.message || "Transfer failed.", "error");
+            //     }
+            // })
+            // .catch((error) => {
+            //     console.error('Fetch Error:', error);
+            //     Swal.fire("Error", "Failed to connect to the server.", "error")
+            // });
             .then(data => {
-                if (data.success) {
-                    Swal.fire("Success", data.message, "success")
-                        .then(() => window.location.reload()); // Reload to reflect changes
-                } else {
-                    Swal.fire("Error", data.message || "Transfer failed.", "error");
+            if (data.success) {
+                Swal.fire({
+                    title: "Success",
+                    text: data.message,
+                    icon: "success",
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        title: 'swal-title',
+                        icon: 'swal-icon',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: data.message || "Transfer failed.",
+                    icon: "error",
+                    confirmButtonText: 'Okay',
+                    customClass: {
+                        title: 'swal-title',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.error('Fetch Error:', error);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to connect to the server.",
+                icon: "error",
+                confirmButtonText: 'Okay',
+                customClass: {
+                    customClass: {
+                        title: 'swal-title',
+                        popup: 'swal-popup',
+                        confirmButton: 'swal-confirm-button'
+                    }
                 }
-            })
-            .catch((error) => {
-                console.error('Fetch Error:', error);
-                Swal.fire("Error", "Failed to connect to the server.", "error")
             });
+        });
         }
     });
 });
