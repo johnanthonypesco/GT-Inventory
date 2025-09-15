@@ -28,8 +28,9 @@ class InventoryController extends Controller
         $form_data = $request->input('form_data', null); // results ng sinearch
         $search_type = $request->input('search_type', null); // stock = yung una na table. product = yung nasa loob ng "view products" modal
         $location_filter = $request->input('location_filter', 'All'); // Ginagamit ng dropdown location select & search function
+        $date_filter = $request->input('date_filter', 'all');
+        $batch_filter = $request->input('batch_filter', 'all');
         // THE route('', []) PARAMS FOR THIS FUNCTION
-
 
         // PARA SA REGISTERED PRODUCTS IF MAY SEARCH
         if ($search_type === "product") {
@@ -86,6 +87,26 @@ class InventoryController extends Controller
                     ->where('strength', '=', $searched_name[3]);
                 });
             }
+
+            // if ginamit yung filters
+            if ($date_filter !== "all" && $date_filter[0] !== null) {
+                $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]
+                ->whereBetween('expiry_date', [
+                    $date_filter[0], 
+                    $date_filter[1] ?? 
+                    Carbon::today()->format('Y-m-d'),
+                ]);
+
+                if ($date_filter[1] === null) {
+                    $date_filter[1] = Carbon::today()->format('Y-m-d');
+                }
+            }
+
+            if ($batch_filter !== "all" && $batch_filter[0] !== null) {
+                $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]
+                ->where('batch_number', $batch_filter);
+            }
+            // if ginamit yung filters
             
             // makes the query paginatable now
             $inventoriesByLocation[$loc->province] = $inventoriesByLocation[$loc->province]->paginate($perPage, ['*'], $pageKey)
@@ -167,7 +188,16 @@ class InventoryController extends Controller
             'locations' => Location::all(),
 
             // The current state of the page (Dito sinesetup lahat ng filters)
-            'currentSearch' => ['query' => $searched_name, 'type' => $search_type, 'location' => $location_filter],
+            'currentSearch' => [
+                'query' => $searched_name, 
+                'type' => $search_type, 
+                'location' => $location_filter,
+                'date' => [
+                    'start' => $date_filter[0],
+                    'end' => $date_filter[1],
+                ],
+                'batch' => $batch_filter,
+            ],
 
             // for the inventory stock notifications
             'stockMonitor' => $inventory = Inventory::whereHas('product', function ($query) {
@@ -212,6 +242,9 @@ class InventoryController extends Controller
             'current_search' => 'nullable|string',
         ]);
 
+        $date_filter = $request->input('date_filter');
+        $batch_filter = $request->input('batch_filter');
+
         $validated = array_map('strip_tags', $validated);
         $searchPresent = isset($validated['current_search']);
 
@@ -225,6 +258,8 @@ class InventoryController extends Controller
                     'location_filter' => "Tarlac",
                     'searched_name' => $searchPresent ? $validatedSearch : null,
                     'search_type' => $searchPresent ? 'stock' : null,
+                    'date_filter' => $date_filter,
+                    'batch_filter' => $batch_filter
             ]);
 
             case 'Nueva Ecija':
@@ -232,9 +267,14 @@ class InventoryController extends Controller
                     'location_filter' => "Nueva Ecija",
                     'searched_name' => $searchPresent ? $validatedSearch : null,
                     'search_type' => $searchPresent ? 'stock' : null,
+                    'date_filter' => $date_filter,
+                    'batch_filter' => $batch_filter
                 ]);
             default:
-                return redirect()->route('admin.inventory');
+                return redirect()->route('admin.inventory', [
+                    'date_filter' => $date_filter,
+                    'batch_filter' => $batch_filter
+                ]);
         }
     }
 

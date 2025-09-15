@@ -389,7 +389,7 @@
                     </span>
                 </h1>
                 <div class="table-container mt-2 flex flex-col gap-8 bg-white p-5 rounded-lg relative" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
-                    <div class="absolute top-4 right-5 justify-end items-center">
+                    <div class="flex justify-start items-center lg:absolute lg:top-5 lg:right-5 lg:mt-0">
                         <div class="table-button flex gap-4 mt-5 lg:mt-0">
                             {{-- i will add this feature once client starts paying --}}
                             {{-- <select name="company" class="rounded-lg px-4 py-2 outline-none" style="box-shadow: 0 0 5px #00528288;">
