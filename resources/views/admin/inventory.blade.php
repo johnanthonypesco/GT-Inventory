@@ -1,3 +1,15 @@
+@php
+    use Carbon\Carbon;
+
+    $blueBTN = "bg-[#005382] text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm transition-all duration-150 hover:bg-[#00436a] hover:-translate-y-1 show-lg shadow-black/90 active:-translate-y-0 cursor-pointer";
+
+    // these variables are used to control the saving of filters in url query
+    $isDatePresent = request()->query('date_filter');
+    $isBatchPresent = request()->query('batch_filter');
+
+    $wasFiltersUsed = $isDatePresent || $isBatchPresent;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,6 +95,7 @@
                 {{-- Shows An Overview Modal for Certain Product Categories --}}
                 {{-- Filters Location --}}
         <div class="flex justify-between flex-col lg:flex-row mt-5">
+            {{-- START FILTER FORM --}}
             <form action="{{ route('admin.inventory.location') }}" method="POST">
                 @csrf @method("POST")
 
@@ -95,7 +108,97 @@
                     <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
                     <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
                 </select>
+
+                <button id="show-filters-btn" type="button" 
+                class="{{ $wasFiltersUsed ? $blueBTN : "bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" }}">
+                    <i class="fa-regular fa-filters"></i> 
+                    Filter{{ $wasFiltersUsed ? "s Activated" : "s" }}
+                </button>
+
+                {{-- MODAL DISPLAY FILTERS --}}
+                <div id="filter-modal" class="w-full h-full bg-black/60 backdrop-blur-sm p-5 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent ? 'flex' : 'hidden' }} ">
+                    <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative" id="filter-state" data-state="{{ $wasFiltersUsed ? "used" : "unused" }}">
+                        <div class="flex items-center justify-between w-full">
+                            <h1 class="text-[#005382] text-2xl font-bold">Display Filters:</h1>
+                            <x-modalclose id="close-modal-btn" />
+                        </div>
+
+                        <div class="flex flex-col gap-4 mt-4">
+                            {{-- DATE FILTER --}}
+                            <div class="flex flex-col gap-2 items-center justify-center">
+                                <div class="flex justify-between w-full">
+                                    {{-- 
+                                    WAG MONG IDE-DELETE ITONG COMMENT NATO PESCO
+
+                                    mind you, the reason why im doing "a" & "l" is because the date filter 
+                                    defaults to "all" so index 0 is "a" and index 1 is "l" 
+                                    --}}
+                                    <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
+                                        From: {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
+                                        ? 
+                                        Carbon::parse($currentSearch['date']["start"])->format('M d, Y') 
+                                        : 
+                                        "" }}
+                                    </label>
+
+                                    <span class="p-2 opacity-0 bg-white rounded-lg flex items-center"><i class="fa-regular fa-angles-right"></i></span>
+
+                                    <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
+                                        To: {{ $currentSearch['date']["end"] !== "l" && $currentSearch['date']["end"] !== null ?
+                                        Carbon::parse($currentSearch['date']["end"])->format('M d, Y') : 
+                                        "" }}
+                                    </label>
+                                </div>
+
+                                
+                                <div class="flex justify-between items-center w-full">
+                                    <input type="date" name="date_filter[]" id="date-filter-start"
+                                    value="{{ $isDatePresent ? $currentSearch['date']["start"] : '' }}"
+                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                    disabled>
+
+                                    <span class="p-2 bg-white rounded-lg flex items-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
+                                    
+                                    <input type="date" name="date_filter[]" id="date-filter-end"
+                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                    value="{{ $isDatePresent ? $currentSearch['date']["end"] : '' }}"
+                                    disabled>
+                                </div>
+                            </div>
+                            {{-- END DATE FILTER --}}
+
+                            {{-- START BATCH NUMBER FILTER --}}
+                            <div class="flex flex-col gap-2">
+                                <label for="batch_filter" class="font-semibold text-lg text-black/80">
+                                    Batch Number:
+                                </label>
+
+                                <input type="text" name="batch_filter" id="batch-filter"
+                                class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                placeholder="Enter batch number here"
+                                value="{{ $isBatchPresent ? $currentSearch['batch'] : '' }}"
+                                disabled>
+                            </div>
+                            {{-- END BATCH NUMBER FILTER --}}
+                        </div>
+
+                        <div class="flex gap-4 mt-5">
+                            <button type="submit" class="{{$blueBTN}}">
+                                Update Filters
+                            </button>
+
+                            @if ($isDatePresent || $isBatchPresent)
+                                <button type="button" onclick="window.location.href = '{{ route('admin.inventory') }}'"
+                                        class="bg-red-500/80 text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm">
+                                    <i class="fa-solid fa-xmark"></i> Deactivate Filters
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                {{-- END MODAL DISPLAY FILTERS --}}
             </form>
+            {{-- END FILTER FORM --}}
 
             @php
                 $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
@@ -134,7 +237,6 @@
                 $groupedStocks = $inventories[$loc->province];
 
                 // dd($groupedStocks->items());
-
             @endphp
 
         <div class="table-container bg-white mt-2 mb-5 p-3 px-6 rounded-lg" style="box-shadow: 0 5px 8px rgba(0, 0, 0, 0.389)">
@@ -1164,6 +1266,68 @@ document.getElementById('transferForm').addEventListener('submit', function(even
 //     })
 //     .catch(() => Swal.fire("Error", "Failed to connect to the server.", "error"));
 // });
+
+
+// FILTER SECTION
+function toggleFilterState(state) {
+    const filters = [
+        document.getElementById('date-filter-start'),
+        document.getElementById('date-filter-end'),
+        document.getElementById('batch-filter'),
+    ];
+
+    if (state === "enabled") {
+        filters.forEach(filter => {
+            filter.disabled = false;
+        });
+    }
+
+    else if (state === "disabled") {
+        filters.forEach(filter => {
+            filter.disabled = true;
+        });
+    }
+}
+
+function toggleModal(show) {
+    const modal = document.getElementById('filter-modal');
+
+    if (show) {
+        modal.classList.replace('hidden', 'flex');
+
+        toggleFilterState('enabled');
+    } else {
+        modal.classList.replace('flex', 'hidden');        
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById('filter-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const showFiltersBtn = document.getElementById('show-filters-btn');
+    const filterState = document.getElementById('filter-state');
+
+    if (modal.classList.contains("flex")) {
+        toggleModal(false);
+    }
+
+    if (showFiltersBtn) {
+        showFiltersBtn.addEventListener('click', () => {
+            toggleModal(modal.classList.contains('hidden'));
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            toggleModal(false);
+        });
+    }
+
+    if (filterState.dataset.state === 'used') {
+        toggleFilterState('enabled');
+    }
+});
+// FILTER SECTION
 
 </script>
 </body>

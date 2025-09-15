@@ -15,6 +15,10 @@
         @switch($category)
             {{-- inventory --}}
             @case($category === 'inventory')
+                @if (count($variable) <= 0)
+                    <tr><td colspan="8" class="text-center py-4">No inventory found.</td></tr>    
+                @endif
+
                 @foreach ($variable as $inv)
                     <tr class="text-center">
                         <td>{{ $inv->batch_number }}</td>
