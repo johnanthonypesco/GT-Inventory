@@ -105,6 +105,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th colspan="2">Batch Number</th>
                         <th colspan="2">Generic Name</th>
                         <th colspan="2">Brand Name</th>
                         <th colspan="2">Form</th>
@@ -118,6 +119,7 @@
                 <tbody>
                     @foreach ($stocks as $stock)
                         <tr class="text-center">
+                            <td colspan="2">{{ $stock->batch_number }}</td>
                             <td colspan="2">{{ $stock->product->generic_name }}</td>
                             <td colspan="2">{{ $stock->product->brand_name }}</td>
                             <td colspan="2">{{ $stock->product->form }}</td>
@@ -135,19 +137,21 @@
         <table>
             <thead>
                 <tr>
+                    <th colspan="2">Batch Number</th>
                     <th colspan="2">Generic Name</th>
                     <th colspan="2">Brand Name</th>
                     <th colspan="2">Form</th>
                     <th colspan="2">Strength</th>
                     <th colspan="2">Quantity</th>
                     <th colspan="2">Expiry Date</th>
-                    <th colspan="2">Date Created</th>
+                    <th colspan="2">Date Inputted</th>
                 </tr>
             </thead>
             
             <tbody>
                 @foreach ($inventory as $stock)
                     <tr class="text-center">
+                        <td colspan="2">{{ $stock->batch_number }}</td>
                         <td colspan="2">{{ $stock->product->generic_name }}</td>
                         <td colspan="2">{{ $stock->product->brand_name }}</td>
                         <td colspan="2">{{ $stock->product->form }}</td>

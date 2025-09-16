@@ -4,8 +4,21 @@
 
 {{-- SHOWS ALL IN-STOCK, LOW-STOCK, AND NO STOCK PRODUCTS IN A MODAL --}}
 
-@props(['modalType' => "none", 'variable' => null])
+@props([
+    'modalType' => "none", 
+    'variable' => null,
 
+    'currentSearch' => [
+        'date' => [
+            'start' => "all",
+            'end' => "all"
+        ],
+    ],
+    'exportQuery' => [
+        'isDatePresent' => false,
+        'isBatchPresent' => false,
+    ]
+])
 
 <div id="{{$modalType}}-modal" class="w-full h-full fixed bg-black/70 top-0 backdrop-blur-sm left-0 flex justify-center p-5 hidden sm:px-5 z-51">
     <div class="modal w-full lg:max-w-3xl h-fit md:h-fit m-auto rounded-lg bg-white p-5 relative">
@@ -57,6 +70,16 @@
                         Stocks About to Expire Next Month 
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "near-expiry-summary"]) }}" method="get">
+                            @if ($exportQuery['isDatePresent'])
+                                <input type="hidden" name="date_filter_start" value="{{ $exportQuery['isDatePresent'] ? $currentSearch["date"]["start"] : Carbon::now()->subYear()->format('Y-m-d') }}">
+                                
+                                <input type="hidden" name="date_filter_end" value="{{ $exportQuery['isDatePresent'] ? $currentSearch["date"]["end"] : Carbon::now()->format('Y-m-d')}}">
+                            @endif
+
+                            @if ($exportQuery['isBatchPresent'])
+                                <input type="hidden" name="batch_filter" value="{{ $exportQuery['isBatchPresent'] }}">
+                            @endif
+
                             <button type="submit" class="flex gap-2 items-center shadow-sm shadow-[#0052829e] px-4 py-1 rounded-lg text-black hover:bg-[#005282] hover:text-white font-semibold transition duration-150"><i class="fa-solid fa-download"></i>Export</button>
                         </form>
                     </div>
@@ -66,6 +89,17 @@
                         Currently Expired Stocks in Inventory
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "expired-summary"]) }}" method="get">
+                            
+                            @if ($exportQuery['isDatePresent'])
+                                <input type="hidden" name="date_filter_start" value="{{ $exportQuery['isDatePresent'] ? $currentSearch["date"]["start"] : Carbon::now()->subYear()->format('Y-m-d') }}">
+                                
+                                <input type="hidden" name="date_filter_end" value="{{ $exportQuery['isDatePresent'] ? $currentSearch["date"]["end"] : Carbon::now()->format('Y-m-d')}}">
+                            @endif
+
+                            @if ($exportQuery['isBatchPresent'])
+                                <input type="hidden" name="batch_filter" value="{{ $exportQuery['isBatchPresent'] }}">
+                            @endif
+
                             <button type="submit" class="flex gap-2 items-center shadow-sm shadow-[#0052829e] px-4 py-1 rounded-lg text-black hover:bg-[#005282] hover:text-white font-semibold transition duration-150"><i class="fa-solid fa-download"></i>Export</button>
                         </form>
                     </div>

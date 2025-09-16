@@ -40,9 +40,7 @@ class ExportController extends Controller
             'status_filter' => 'nullable|string',
             'po_filter' => 'nullable|string',
         ]);
-
-        // $validated = array_map('strip_tags', $validated);
-        
+        // dd($validated);
         // universal filters
         $province_filter = $request->input('province_filter') ?? null;
         $date_filter_start = $request->input('date_filter_start') ?? null;
@@ -64,18 +62,46 @@ class ExportController extends Controller
         switch (strtolower($exportType)) {
             case 'all':
                 $fileName = 'all-stocks-[' . date('Y-m-d') . '].xlsx';
-                $inventory = Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                $inventory = Inventory::with('product');
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderBy('created_at', 'desc')->get();
                 break;
             case 'tarlac':
                 $tarlacID = Location::where('province', 'Tarlac')->value('id');
-                $inventory = Inventory::with('product')->where('location_id', $tarlacID)
-                ->orderByDesc('created_at')->get();
+                $inventory = Inventory::with('product')->where('location_id', $tarlacID);
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('created_at')->get();
                 $fileName = 'tarlac-stocks-[' . date('Y-m-d') . '].xlsx';
                 break;
             case 'nueva ecija':
                 $nuevaID = Location::where('province', 'Nueva Ecija')->value('id');
-                $inventory = Inventory::with('product')->where('location_id', $nuevaID)
-                ->orderByDesc('created_at')->get();
+                $inventory = Inventory::with('product')->where('location_id', $nuevaID);
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('created_at')->get();
                 $fileName = 'nueva-ecija-stocks-[' . date('Y-m-d') . '].xlsx';
                 break;
 
@@ -99,9 +125,21 @@ class ExportController extends Controller
 
             case 'near-expiry-summary':
                 $inventory = Inventory::with('product')
-                    ->where('quantity', '>', 0)
-                    ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
-                    ->orderByDesc('expiry_date')->get()
+                ->whereHas('product', function ($query) {
+                    $query->where('is_archived', false);
+                })
+                ->where('quantity', '>', 0)
+                ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()]);
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('expiry_date')->get()
                     ->groupBy(function ($stocks) {
                         return $stocks->location->province;
                     });
@@ -110,12 +148,24 @@ class ExportController extends Controller
 
             case 'expired-summary':
                 $inventory = Inventory::with('product')
-                    ->where('quantity', '>', 0)
-                    ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
-                    ->orderByDesc('expiry_date')->get()
-                    ->groupBy(function ($stocks) {
-                        return $stocks->location->province;
-                    });
+                ->whereHas('product', function ($query) {
+                    $query->where('is_archived', false);
+                })
+                ->where('quantity', '>', 0)
+                ->whereDate('expiry_date', '<', Carbon::now()->toDateString());
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+                
+                $inventory = $inventory->orderByDesc('expiry_date')->get()
+                ->groupBy(function ($stocks) {
+                    return $stocks->location->province;
+                });
                 $fileName = 'expired-stocks-[' . date('Y-m-d') . '].xlsx';                
                 break;
 
