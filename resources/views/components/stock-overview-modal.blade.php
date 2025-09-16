@@ -93,6 +93,7 @@
     
                     <table>
                         <thead>
+                            <th>Expiry Date</th>
                             <th>Generic Name</th>
                             <th>Brand Name</th>
                             <th>Form</th>
@@ -103,6 +104,7 @@
                             @foreach ($trioArray as $generalInfo)
                                 <tr>
                                     @foreach ($generalInfo['inventory'] as $stock)
+                                        <td>{{ Carbon::parse($stock->expiry_date)->translatedFormat('M d, Y') }}</td>
                                         <td> {{ $stock->product->generic_name }} </td>
                                         <td class="text-black/80"> {{ $stock->product->brand_name }} </td>
                                         <td> {{ $stock->product->form }} </td>
