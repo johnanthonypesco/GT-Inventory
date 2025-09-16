@@ -94,30 +94,38 @@
                 <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
                 {{-- Shows An Overview Modal for Certain Product Categories --}}
                 {{-- Filters Location --}}
-        <div class="flex justify-between flex-col lg:flex-row mt-5">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mt-5 gap-6">
             {{-- START FILTER FORM --}}
-            <form action="{{ route('admin.inventory.location') }}" method="POST">
+            <form action="{{ route('admin.inventory.location') }}" method="POST" class="w-full lg:w-auto">
                 @csrf @method("POST")
 
                 @if (request()->has('searched_name'))
-                    <input type="hidden" name="current_search" value="{{ $currentSearch['query'][0] . " - " . $currentSearch['query'][1] . " - " . $currentSearch['query'][2] . " - " . $currentSearch['query'][3] }}">    
+                    <input type="hidden" name="current_search" 
+                        value="{{ $currentSearch['query'][0] . ' - ' . $currentSearch['query'][1] . ' - ' . $currentSearch['query'][2] . ' - ' . $currentSearch['query'][3] }}">    
                 @endif
 
-                <select onchange="this.form.submit()" name="location" id="location" class="w-full md:w-fit border p-2 py-2 rounded-lg mt-10 sm:mt-2 h-10 text-center font-semibold text-black/90 bg-white outline-none">
-                    <option value="all" @selected($current_inventory === "All")>All Delivery Locations</option>
-                    <option value="Tarlac" @selected($current_inventory === "Tarlac")>Tarlac</option>
-                    <option value="Nueva Ecija" @selected($current_inventory === "Nueva Ecija")>Nueva Ecija</option>
-                </select>
+                <div class="flex items-center gap-3">
+                    {{-- LOCATION SELECT --}}
+                    <select onchange="this.form.submit()" name="location" id="location" 
+                        class="w-full lg:min-w-[200px] border px-4 py-2 rounded-lg font-semibold text-black/80 bg-white outline-none shadow-sm transition">
+                        <option value="all" @selected($current_inventory === 'All')>All Delivery Locations</option>
+                        <option value="Tarlac" @selected($current_inventory === 'Tarlac')>Tarlac</option>
+                        <option value="Nueva Ecija" @selected($current_inventory === 'Nueva Ecija')>Nueva Ecija</option>
+                    </select>
 
-                <button id="show-filters-btn" type="button" 
-                class="{{ $wasFiltersUsed ? $blueBTN : "bg-white p-2 px-4 rounded-lg shadow-sm shadow-[#005382] hover:bg-[#005382] hover:text-white hover:-translate-y-1 hover:shadow-md trasition-all duration-500 ease-in-out" }}">
-                    <i class="fa-regular fa-filters"></i> 
-                    Filter{{ $wasFiltersUsed ? "s Activated" : "s" }}
-                </button>
+                    {{-- FILTER BUTTON --}}
+                    <button id="show-filters-btn" type="button"
+                        class="{{ $wasFiltersUsed 
+                            ? $blueBTN 
+                            : 'flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm hover:-translate-y-1 hover:bg-[#005382] hover:text-white transition-all duration-300 ease-in-out w-full lg:w-fit cursor-pointer' }}">
+                        <i class="fa-solid fa-filter"></i>
+                        Filter{{ $wasFiltersUsed ? 's Activated' : 's' }}
+                    </button>
+                </div>
 
                 {{-- MODAL DISPLAY FILTERS --}}
-                <div id="filter-modal" class="w-full h-full bg-black/60 backdrop-blur-sm p-5 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent ? 'flex' : 'hidden' }} ">
-                    <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-md shadow-md shadow-black/50 relative" id="filter-state" data-state="{{ $wasFiltersUsed ? "used" : "unused" }}">
+                <div id="filter-modal" class="w-full h-full bg-black/60 backdrop-blur-sm p-5 fixed top-0 left-0 z-50 flex items-center justify-center {{ $isDatePresent ? 'flex' : 'hidden' }}">
+                    <div class="modal max-w-lg w-full flex-col gap-2 items-center justify-center mt-2 bg-white p-5 border-none rounded-lg shadow-lg relative" id="filter-state" data-state="{{ $wasFiltersUsed ? 'used' : 'unused' }}">
                         <div class="flex items-center justify-between w-full">
                             <h1 class="text-[#005382] text-2xl font-bold">Display Filters:</h1>
                             <x-modalclose id="close-modal-btn" />
@@ -129,67 +137,63 @@
                                 <div class="flex justify-between w-full">
                                     {{-- 
                                     WAG MONG IDE-DELETE ITONG COMMENT NATO PESCO
-
+    
                                     mind you, the reason why im doing "a" & "l" is because the date filter 
                                     defaults to "all" so index 0 is "a" and index 1 is "l" 
                                     --}}
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        From (expiry date): {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
-                                        ? 
-                                        Carbon::parse($currentSearch['date']["start"])->format('M d, Y') 
-                                        : 
-                                        "" }}
+                                        From (expiry date): 
+                                        {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
+                                            ? Carbon::parse($currentSearch['date']["start"])->format('M d, Y') 
+                                            : "" }}
                                     </label>
 
                                     <span class="p-2 opacity-0 bg-white rounded-lg flex items-center"><i class="fa-regular fa-angles-right"></i></span>
 
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
-                                        To (expiry date): {{ $currentSearch['date']["end"] !== "l" && $currentSearch['date']["end"] !== null ?
-                                        Carbon::parse($currentSearch['date']["end"])->format('M d, Y') : 
-                                        "" }}
+                                        To (expiry date): 
+                                        {{ $currentSearch['date']["end"] !== "l" && $currentSearch['date']["end"] !== null
+                                            ? Carbon::parse($currentSearch['date']["end"])->format('M d, Y') 
+                                            : "" }}
                                     </label>
                                 </div>
-
                                 
                                 <div class="flex justify-between items-center w-full">
                                     <input type="date" name="date_filter[]" id="date-filter-start"
-                                    value="{{ $isDatePresent ? $currentSearch['date']["start"] : '' }}"
-                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
-                                    disabled>
+                                        value="{{ $isDatePresent ? $currentSearch['date']["start"] : '' }}"
+                                        class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                        disabled>
 
-                                    <span class="p-2 bg-white rounded-lg flex items-center" style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);"><i class="fa-regular fa-angles-right"></i></span>
+                                    <span class="p-2 bg-white rounded-lg flex items-center shadow"><i class="fa-regular fa-angles-right"></i></span>
                                     
                                     <input type="date" name="date_filter[]" id="date-filter-end"
-                                    class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
-                                    value="{{ $isDatePresent ? $currentSearch['date']["end"] : '' }}"
-                                    disabled>
+                                        class="w-[42%] pl-3 p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                        value="{{ $isDatePresent ? $currentSearch['date']["end"] : '' }}"
+                                        disabled>
                                 </div>
                             </div>
                             {{-- END DATE FILTER --}}
 
                             {{-- START BATCH NUMBER FILTER --}}
                             <div class="flex flex-col gap-2">
-                                <label for="batch_filter" class="font-semibold text-lg text-black/80">
-                                    Batch Number:
-                                </label>
-
+                                <label for="batch_filter" class="font-semibold text-lg text-black/80">Batch Number:</label>
                                 <input type="text" name="batch_filter" id="batch-filter"
-                                class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
-                                placeholder="Enter batch number here"
-                                value="{{ $isBatchPresent ? $currentSearch['batch'] : '' }}"
-                                disabled>
+                                    class="w-full p-2 border border-[#005382] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005382]"
+                                    placeholder="Enter batch number here"
+                                    value="{{ $isBatchPresent ? $currentSearch['batch'] : '' }}"
+                                    disabled>
                             </div>
                             {{-- END BATCH NUMBER FILTER --}}
                         </div>
 
-                        <div class="flex gap-4 mt-5">
-                            <button type="submit" class="{{$blueBTN}}">
+                        <div class="flex flex-col sm:flex-row gap-4 mt-5 w-full">
+                            <button type="submit" class="{{ $blueBTN }} w-full sm:w-auto">
                                 Update Filters
                             </button>
 
                             @if ($isDatePresent || $isBatchPresent)
                                 <button type="button" onclick="window.location.href = '{{ route('admin.inventory') }}'"
-                                        class="bg-red-500/80 text-white font-regular tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center gap-2 w-full sm:w-fit whitespace-nowrap text-sm">
+                                    class="bg-red-500/80 text-white tracking-wider shadow-sm px-4 py-2 rounded-lg uppercase flex items-center justify-center gap-2 w-full sm:w-auto text-sm hover:bg-red-600 transition">
                                     <i class="fa-solid fa-xmark"></i> Deactivate Filters
                                 </button>
                             @endif
@@ -200,20 +204,29 @@
             </form>
             {{-- END FILTER FORM --}}
 
+            {{-- ACTION BUTTONS --}}
             @php
-                $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-200 hover:-mt-1 hover:mb-1 hover:shadow-lg';
+                $hoverButtonEffect = 'hover:bg-[#005382] hover:text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg';
             @endphp
 
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
-                <button class="w-full px-5 py-2 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer relative {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full lg:w-auto">
+                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
                     <i class="fa-solid fa-box-archive"></i>
                     View Archived Data  
                 </button>
-                
-                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()"><i class="fa-regular fa-eye"></i>View All Products</button>
-                <button class="w-full bg-white text-sm font-semibold shadow-sm shadow-blue-400 px-5 py-2 rounded-lg uppercase flex items-center justify-center lg:justify-center gap-2 cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()"><i class="fa-solid fa-plus"></i>Register New Product</button>
+
+                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()">
+                    <i class="fa-regular fa-eye"></i>
+                    View All Products
+                </button>
+
+                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()">
+                    <i class="fa-solid fa-plus"></i>
+                    Register New Product
+                </button>
             </div>
         </div>
+
         {{-- Filters Location --}}
 
         {{-- CHECKS IF THE SEARCH RESULTS TURNED OUT EMPTY HANDED --}}
