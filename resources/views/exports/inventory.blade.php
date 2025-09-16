@@ -236,6 +236,7 @@
                     <td></td> 
                     <td>COMPANY</td>
                     <td></td>
+                    <td>P.O. NUM</td>
                     <td>EMPLOYEE NAME</td>
                     <td></td>
                     <td>GENERIC NAME</td>
@@ -265,6 +266,7 @@
                         <td></td>
                         <td>{{ $order->company }}</td>
                         <td></td>
+                        <td>{{ $order->purchase_order_no }}</td>
                         <td>{{ $order->employee }}</td>
                         <td></td>
                         <td>{{ $order->generic_name }}</td>

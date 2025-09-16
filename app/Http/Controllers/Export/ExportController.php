@@ -11,17 +11,52 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Exports\InventoryExport;
 use App\Models\Order;
+use App\Models\Product;
 use Str;
 
 class ExportController extends Controller
 {
-    public function export(Request $request, $exportType = 'all', $exportSpecification = null, $secondaryExportSpecification = null)
-    {
+    public function export(Request $request, 
+    $exportType = 'all', 
+    $exportSpecification = null, 
+    $secondaryExportSpecification = null,
+    ){
+
         $validated = $request->validate([
-            'array' => 'nullable'
+            'array' => 'nullable',
+
+            // universal filters
+            'province_filter' => 'nullable|string',            
+            'date_filter_start' => 'nullable|date',
+            'date_filter_end' => 'nullable|date',
+            
+            // exclusive inventory filters
+            'batch_filter' => 'nullable|string',
+
+            // exclusive order filters
+            'employee_search' => 'nullable|string',
+            'company_filter' => 'nullable|string',
+            'product_filter' => 'nullable',
+            'status_filter' => 'nullable|string',
+            'po_filter' => 'nullable|string',
         ]);
 
-        $validated = array_map('strip_tags', $validated);
+        // $validated = array_map('strip_tags', $validated);
+        
+        // universal filters
+        $province_filter = $request->input('province_filter') ?? null;
+        $date_filter_start = $request->input('date_filter_start') ?? null;
+        $date_filter_end = $request->input('date_filter_end') ?? null;
+
+        // exclusive inventory filters
+        $batch_filter = $request->input('batch_filter') ?? null;
+
+        // exclusive order filters
+        $status_filter = $request->input('status_filter') ?? null;
+        $employee_search = $request->input('employee_search') ?? null;
+        $company_filter = $request->input('company_filter') ?? null;
+        $product_filter = $request->input('product_filter') ?? null;
+        $po_filter = $request->input('po_filter') ?? null;
 
         $fileName = '';
         $export = null;
@@ -104,8 +139,43 @@ class ExportController extends Controller
             
             case "immutable-export":
                 $historyOrders = ImmutableHistory::whereIn('status', ['delivered', 'cancelled'])
-                ->where('province', $exportSpecification)
-                ->orderByDesc('date_ordered')
+                ->where('province', $exportSpecification);
+
+                if (!in_array($employee_search, ['all', 'All', null], true)) {
+                    $employee_search_filter = explode(' - ', $employee_search);
+                    $emp_name = $employee_search_filter[0];
+                    $company_name = $employee_search_filter[1];
+
+                    $historyOrders = $historyOrders->where('employee', $emp_name)
+                    ->where('company', $company_name);
+                }
+
+                if (!in_array($status_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('status', $status_filter);
+                }
+
+                if (!in_array($company_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('company', $company_filter);
+                }
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $historyOrders = $historyOrders->whereBetween('date_ordered', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($product_filter, ['all', 'All', null], true)) {
+                    $product = Product::findOrFail($product_filter);
+                    
+                    $historyOrders = $historyOrders->where('generic_name', $product->generic_name)
+                    ->where('brand_name', $product->brand_name)
+                    ->where('form', $product->form)
+                    ->where('strength', $product->strength);
+                }
+
+                if (!in_array($po_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('purchase_order_no', $po_filter);
+                }
+
+                $historyOrders = $historyOrders->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 

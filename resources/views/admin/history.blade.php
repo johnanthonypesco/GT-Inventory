@@ -403,6 +403,38 @@
                             <form action="{{ route('admin.inventory.export', ['exportType' => 'immutable-export', 'exportSpecification' => $provinceName, 'secondaryExportSpecification' => 'past-tense']) }}" method="get">
                             @csrf
 
+                            @if ($isProvincePresent)
+                                <input type="hidden" name="province_filter" value="{{ $current_filters['location'] ? $current_filters['location'] : '' }}">
+                            @endif
+
+                            @if ($isSearchPresent)
+                                <input type="hidden" name="employee_search" value="{{ $isSearchPresent !== null ? $current_filters['search'][0] . " - " . $current_filters['search'][1] : '' }}">
+                            @endif
+
+                            @if ($isCompanyPresent)
+                                <input type="hidden" name="company_filter" value="{{ $current_filters['company'] ? $current_filters['company'] : '' }}">
+                            @endif
+                            
+                            @if ($isDatePresent)
+                                <input type="hidden" name="date_filter_start" 
+                                value="{{ $isDatePresent ? $current_filters["date"]["start"] : Carbon::now()->subYear()->format('Y-m-d') }}">
+                                
+                                <input type="hidden" name="date_filter_end" 
+                                value="{{ $isDatePresent ? $current_filters["date"]["end"] : Carbon::now()->format('Y-m-d')}}">
+                            @endif
+
+                            @if ($isStatusPresent)
+                                <input type="hidden" name="status_filter" value="{{ $current_filters['status'] ? $current_filters['status'] : '' }}">
+                            @endif
+
+                            @if ($isProductPresent)
+                                <input type="hidden" name="product_filter" value="{{ $current_filters['product'] ? $current_filters['product'] : '' }}">
+                            @endif
+
+                            @if ($isPoPresent)
+                                <input type="hidden" name="po_filter" value="{{ $current_filters['po'] ? $current_filters['po'] : '' }}">
+                            @endif
+
                             <button type="submit" class="flex items-center gap-1 hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                         </div>
