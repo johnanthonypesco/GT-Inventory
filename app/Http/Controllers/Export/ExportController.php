@@ -122,14 +122,59 @@ class ExportController extends Controller
             case 'order-export':
                 $orders = Order::with([
                     'user.company.location',
-                    'exclusive_deal.product'
+                    'exclusive_deal.product',
+                    'purchase_order',
                 ]);
                 
                 $orders = $orders->whereNotIn('status', ['delivered', 'cancelled'])
                 ->whereHas('user.company.location', function ($query) use ($exportSpecification) {
                     $query->where('province', $exportSpecification);
-                })
-                ->orderByDesc('date_ordered')
+                });
+
+                if (!in_array($employee_search, ['all', 'All', null], true)) {
+                    $employee_search_filter = explode(' - ', $employee_search);
+                    $emp_name = $employee_search_filter[0];
+                    $company_name = $employee_search_filter[1];
+
+                    $orders = $orders->whereHas('user', function ($query) use ($emp_name, $company_name) {
+                        $query->where("name", $emp_name)->whereHas('company', function ($query) use ($company_name) {
+                            $query->where("name", $company_name);
+                        });
+                    });
+                }
+
+                if (!in_array($status_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->where('status', $status_filter);
+                }
+
+                if (!in_array($company_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->whereHas('user.company',  function ($query) use ($company_filter) {
+                        $query->where('name', $company_filter);
+                    });
+                }
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $orders = $orders->whereBetween('date_ordered', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($product_filter, ['all', 'All', null], true)) {
+                    $product = Product::findOrFail($product_filter);
+                    
+                    $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($product) { 
+                        $query->where('generic_name', $product->generic_name)
+                        ->where('brand_name', $product->brand_name)
+                        ->where('form', $product->form)
+                        ->where('strength', $product->strength);
+                    });
+                }
+
+                if (!in_array($po_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->whereHas('purchase_order', function ($query) use ($po_filter) { 
+                        $query->where('po_number', $po_filter);
+                    });
+                }
+
+                $orders = $orders->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 

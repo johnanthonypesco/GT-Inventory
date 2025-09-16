@@ -173,6 +173,7 @@
                     <td></td> 
                     <td>COMPANY</td>
                     <td></td>
+                    <td>P.O. NUM</td>
                     <td>EMPLOYEE NAME</td>
                     <td></td>
                     <td>GENERIC NAME</td>
@@ -203,6 +204,7 @@
                         <td></td>
                         <td>{{ $pending->user->company->name }}</td>
                         <td></td>
+                        <td>{{ $pending->purchase_order->po_number }}</td>
                         <td>{{ $pending->user->name }}</td>
                         <td></td>
                         <td>{{ $product->generic_name }}</td>
