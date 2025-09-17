@@ -138,24 +138,74 @@ class InventoryController extends Controller
             ->appends($request->except([$archivePageKey, "registered_product_page"])); // keep other filters/search params sa URL 
         }
 
-
+        $stockMonitorData = Inventory::whereHas('product', function ($query) {
+            $query->where('is_archived', false);
+        })
+        ->where('expiry_date', '>=', Carbon::now()->toDateString())
+        ->with('product', 'location'); // Ensure 'location' is eager-loaded
 
         // THE TOTAL INFORMATION FOR EXPIRY
         $totalExpiredStock = Inventory::whereHas('product', function ($query) {
             $query->where('is_archived', false);
         })
         ->with(['location', 'product'])->where('quantity', '>', 0)
-        ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
-        ->orderBy('expiry_date', 'desc')->get();
+        ->whereDate('expiry_date', '<', Carbon::now()->toDateString());
 
         $totalNearExpiry = Inventory::whereHas('product', function ($query) {
             $query->where('is_archived', false);
         })
         ->with(['location', 'product'])->where('quantity', '>', 0)
-        ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
-        ->orderBy('expiry_date', 'desc')->get();
+        ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()]);
+        
+        // start ng filters for countcards
+        if ($location_filter !== "All" && $location_filter !== null) {
+            $stockMonitorData = $stockMonitorData->whereHas('location', function ($query) use ($location_filter) {
+                $query->where("province", $location_filter);
+            });
+
+            $totalExpiredStock = $totalExpiredStock->whereHas('location', function ($query) use ($location_filter) {
+                $query->where("province", $location_filter);
+            });
+
+            $totalNearExpiry = $totalNearExpiry->whereHas('location', function ($query) use ($location_filter) {
+                $query->where("province", $location_filter);
+            });
+        }
+
+        if ($date_filter !== "all" && $date_filter[0] !== null) {
+            $stockMonitorData = $stockMonitorData->whereBetween('expiry_date', [
+                $date_filter[0], 
+                $date_filter[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $totalExpiredStock = $totalExpiredStock->whereBetween('expiry_date', [
+                $date_filter[0], 
+                $date_filter[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $totalNearExpiry = $totalNearExpiry->whereBetween('expiry_date', [
+                $date_filter[0], 
+                $date_filter[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+        }
+
+        if ($batch_filter !== "all" && $batch_filter[0] !== null) {
+            $stockMonitorData = $stockMonitorData->where('batch_number', $batch_filter);
+
+            $totalExpiredStock = $totalExpiredStock->where('batch_number', $batch_filter);
+
+            $totalNearExpiry = $totalNearExpiry->where('batch_number', $batch_filter);
+        }
+        // end ng filters for countcards
+
 
         // DISPLAYED EXPIRY DATA
+        $totalExpiredStock = $totalExpiredStock->orderBy('expiry_date', 'desc')->get();
+        $totalNearExpiry = $totalNearExpiry->orderBy('expiry_date', 'desc')->get();
+
         $expiredStocks = $totalExpiredStock->groupBy(function ($stocks) {
             return $stocks->location->province;
         });
@@ -200,11 +250,9 @@ class InventoryController extends Controller
             ],
 
             // for the inventory stock notifications
-            'stockMonitor' => $inventory = Inventory::whereHas('product', function ($query) {
-                $query->where('is_archived', false);
-            })
-            ->with('product', 'location') // Ensure 'location' is eager-loaded
+            'stockMonitor' => $stockMonitorData
             ->get() // Get all inventory records
+            ->sortBy('expiry_date')
             ->groupBy('location.province') // First, group by province
             ->map(function ($provinceGroup) { // Map each province group
                 return $provinceGroup->groupBy(function ($stock) {
@@ -212,7 +260,7 @@ class InventoryController extends Controller
                 })
                 ->map(function ($group) { // Calculate totals for each product grouping
                     $total = $group->sum('quantity');
-                    $status = $total > 50 ? 'in-stock' : ($total > 0 ? 'low-stock' : 'no-stock');
+                    $status = $total > 200 ? 'in-stock' : ($total > 0 && $total <= 200 ? 'low-stock' : 'no-stock');
 
                     return [
                         'total' => $total,

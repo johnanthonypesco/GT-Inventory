@@ -291,6 +291,38 @@
                         <form action="{{ route('admin.inventory.export', ['exportType' => 'order-export', 'exportSpecification' => $provinceName]) }}" method="get">
                             @csrf
 
+                            @if ($isProvincePresent)
+                                <input type="hidden" name="province_filter" value="{{ $isProvincePresent }}">
+                            @endif
+
+                            @if ($isSearchPresent)
+                                <input type="hidden" name="employee_search" value="{{ $isSearchPresent !== null ? $current_search['query'][0] . " - " . $current_search['query'][1] : '' }}">
+                            @endif
+
+                            @if ($isCompanyPresent)
+                                <input type="hidden" name="company_filter" value="{{ $isCompanyPresent }}">
+                            @endif
+                            
+                            @if ($isDatePresent)
+                                <input type="hidden" name="date_filter_start" 
+                                value="{{ $isDatePresent ? $current_search["date"]["start"] : Carbon::now()->subYear()->format('Y-m-d') }}">
+                                
+                                <input type="hidden" name="date_filter_end" 
+                                value="{{ $isDatePresent ? $current_search["date"]["end"] : Carbon::now()->format('Y-m-d')}}">
+                            @endif
+
+                            @if ($isStatusPresent)
+                                <input type="hidden" name="status_filter" value="{{ $isStatusPresent }}">
+                            @endif
+
+                            @if ($isProductPresent)
+                                <input type="hidden" name="product_filter" value="{{ $isProductPresent }}">
+                            @endif
+
+                            @if ($isPoPresent)
+                                <input type="hidden" name="po_filter" value="{{ $current_search['po'] ? $current_search['po'] : '' }}">
+                            @endif
+
                             <button type="submit" class="flex items-end gap-1 p-2 px-4 shadow-sm shadow-[#005382] rounded-lg hover:bg-[#005382] hover:text-white hover:-translate-y-1 trasition-all duration-500 ease-in-out"><i class="fa-solid fa-download"></i>Export All</button>
                         </form>
                     </div>

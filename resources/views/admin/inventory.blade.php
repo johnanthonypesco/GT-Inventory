@@ -90,8 +90,35 @@
                 <x-stock-overview-modal  modalType="low-stock" :variable="collect($lowStockProducts)->groupBy('province')" />
                 <x-stock-overview-modal  modalType="out-stock" :variable="collect($noStockProducts)->groupBy('province')" /> 
                 
-                <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" /> 
-                <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" /> 
+                <x-stock-overview-modal  modalType="near-expiry-stock" :variable="$expiredDatasets['nearExpiry']" 
+                :currentSearch="[
+                    'date' => [
+                        'start' => $currentSearch['date']['start'],
+                        'end' => $currentSearch['date']['end']
+                    ],
+                    'batch_filter' => $isBatchPresent,
+                ]"
+
+                :exportQuery="[
+                    'isDatePresent' => $isDatePresent,
+                    'isBatchPresent' => $isBatchPresent
+                ]"
+                /> 
+                <x-stock-overview-modal  modalType="expired-stock" :variable="$expiredDatasets['expired']" 
+                
+                :currentSearch="[
+                    'date' => [
+                        'start' => $currentSearch['date']['start'],
+                        'end' => $currentSearch['date']['end']
+                    ],
+                    'batch_filter' => $isBatchPresent,
+                ]"
+
+                :exportQuery="[
+                    'isDatePresent' => $isDatePresent,
+                    'isBatchPresent' => $isBatchPresent
+                ]"
+                /> 
                 {{-- Shows An Overview Modal for Certain Product Categories --}}
                 {{-- Filters Location --}}
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mt-5 gap-6">
@@ -135,6 +162,12 @@
                             {{-- DATE FILTER --}}
                             <div class="flex flex-col gap-2 items-center justify-center">
                                 <div class="flex justify-between w-full">
+                                    {{-- 
+                                    WAG MONG IDE-DELETE ITONG COMMENT NATO PESCO
+    
+                                    mind you, the reason why im doing "a" & "l" is because the date filter 
+                                    defaults to "all" so index 0 is "a" and index 1 is "l" 
+                                    --}}
                                     <label for="date_filter" class="w-[42%] font-semibold text-lg text-black/80">
                                         From (expiry date): 
                                         {{ $currentSearch['date']["start"] !== "a" && $currentSearch['date']["start"] !== null
@@ -282,6 +315,16 @@
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
+
+                            @if ($isDatePresent)
+                                <input type="hidden" name="date_filter_start" value="{{ $isDatePresent ? $currentSearch["date"]["start"] : Carbon::now()->subYear()->format('Y-m-d') }}">
+                                
+                                <input type="hidden" name="date_filter_end" value="{{ $isDatePresent ? $currentSearch["date"]["end"] : Carbon::now()->format('Y-m-d')}}">
+                            @endif
+
+                            @if ($isBatchPresent)
+                                <input type="hidden" name="batch_filter" value="{{ $isBatchPresent }}">
+                            @endif
 
                             <button type="submit" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
                                 <span class="group-hover:text-white">

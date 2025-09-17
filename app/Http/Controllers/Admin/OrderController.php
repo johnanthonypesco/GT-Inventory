@@ -41,6 +41,37 @@ class OrderController extends Controller
             'exclusive_deal.product',
             'purchase_order',
         ]);
+
+        // For the Count Card Components
+        $normalOrdersThisWeek = Order::with([
+            'user.company.location',
+            'exclusive_deal.product',
+            'purchase_order',
+        ])
+        ->whereIn('status', ['pending', 'packed', 'out for delivery'])
+        ->whereBetween('date_ordered', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek(),
+        ]);
+
+        $archivedOrdersThisWeek = ImmutableHistory::whereIn('status', ['cancelled', 'delivered'])
+        ->whereBetween('date_ordered', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek(),
+        ]);
+
+        $currentPendings = Order::with([
+            'user.company.location',
+            'exclusive_deal.product',
+            'purchase_order',
+        ])
+        ->where('status', 'pending');
+
+        // this array will be used for the insufficients data
+        $orderArray = Order::with(['user.company.location', 'exclusive_deal.product', 'purchase_order']) 
+        ->whereNotIn('status', ['delivered', 'cancelled']);
+        // For the Count Card Components
+
         
         // START OF FILTER SECTION
         if ($employeeSearch !== null) {
@@ -52,10 +83,48 @@ class OrderController extends Controller
                         $q->where('name', $employeeSearch[1]);
                     });
             });
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereHas('user', function ($query) use ($employeeSearch) {
+                $query->where('name', $employeeSearch[0])
+                    ->whereHas('company', function ($q) use ($employeeSearch) {
+                        $q->where('name', $employeeSearch[1]);
+                });
+            });
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where('employee', $employeeSearch[0])
+            ->where('company', $employeeSearch[1]);
+
+            $currentPendings = $currentPendings->whereHas('user', function ($query) use ($employeeSearch) {
+                $query->where('name', $employeeSearch[0])
+                    ->whereHas('company', function ($q) use ($employeeSearch) {
+                        $q->where('name', $employeeSearch[1]);
+                });
+            });
+
+            $orderArray = $orderArray->whereHas('user', function ($query) use ($employeeSearch) {
+                $query->where('name', $employeeSearch[0])
+                    ->whereHas('company', function ($q) use ($employeeSearch) {
+                        $q->where('name', $employeeSearch[1]);
+                });
+            });
         }
 
         if ($provinceSearch !== 'all') {
             $orders = $orders->whereHas('user.company.location', function ($query) use ($provinceSearch) {
+                $query->where('province', $provinceSearch);
+            });
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereHas('user.company.location', function ($query) use ($provinceSearch) {
+                $query->where('province', $provinceSearch);
+            });
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where('province', $provinceSearch);
+
+            $currentPendings = $currentPendings->whereHas('user.company.location', function ($query) use ($provinceSearch) {
+                $query->where('province', $provinceSearch);
+            });
+
+            $orderArray = $orderArray->whereHas('user.company.location', function ($query) use ($provinceSearch) {
                 $query->where('province', $provinceSearch);
             });
         }
@@ -64,10 +133,48 @@ class OrderController extends Controller
             $orders = $orders->whereHas('user.company', function ($query) use ($companySearch) {
                 $query->where('name', $companySearch);
             });
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereHas('user.company', function ($query) use ($companySearch) {
+                $query->where('name', $companySearch);
+            });
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where('company', $companySearch);
+
+            $currentPendings = $currentPendings->whereHas('user.company', function ($query) use ($companySearch) {
+                $query->where('name', $companySearch);
+            });
+
+            $orderArray = $orderArray->whereHas('user.company', function ($query) use ($companySearch) {
+                $query->where('name', $companySearch);
+            });
         }
 
         if ($dateSearch !== 'all' && $dateSearch[0] !== null) {
             $orders = $orders->whereBetween('date_ordered', [
+                $dateSearch[0],
+                $dateSearch[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereBetween('date_ordered', [
+                $dateSearch[0],
+                $dateSearch[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->whereBetween('date_ordered', [
+                $dateSearch[0],
+                $dateSearch[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $currentPendings = $currentPendings->whereBetween('date_ordered', [
+                $dateSearch[0],
+                $dateSearch[1] ?? 
+                Carbon::today()->format('Y-m-d'),
+            ]);
+
+            $orderArray = $orderArray->whereBetween('date_ordered', [
                 $dateSearch[0],
                 $dateSearch[1] ?? 
                 Carbon::today()->format('Y-m-d'),
@@ -80,12 +187,46 @@ class OrderController extends Controller
 
         if ($statusSearch !== 'all') {
             $orders = $orders->where('status', $statusSearch);
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->where('status', $statusSearch);
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where('status', $statusSearch);
+
+            $currentPendings = $currentPendings->where('status', $statusSearch);
+
+            $orderArray = $orderArray->where('status', $statusSearch);
         }
 
         if ($productSearch !== 'all') {
-            $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($productSearch) {
-                $product = Product::findOrFail($productSearch);
-                
+            $product = Product::findOrFail($productSearch);
+
+            $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($product) {
+                $query->where('brand_name', $product->brand_name);
+                $query->where('generic_name', $product->generic_name);
+                $query->where('form', $product->form);
+                $query->where('strength', $product->strength);
+            });
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereHas('exclusive_deal.product', function ($query) use ($product) {                
+                $query->where('brand_name', $product->brand_name);
+                $query->where('generic_name', $product->generic_name);
+                $query->where('form', $product->form);
+                $query->where('strength', $product->strength);
+            });
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where("brand_name", $product->brand_name)
+            ->where("generic_name", $product->generic_name)
+            ->where("form", $product->form)
+            ->where("strength", $product->strength);
+
+            $currentPendings = $currentPendings->whereHas('exclusive_deal.product', function ($query) use ($product) {
+                $query->where('brand_name', $product->brand_name);
+                $query->where('generic_name', $product->generic_name);
+                $query->where('form', $product->form);
+                $query->where('strength', $product->strength);
+            });
+
+            $orderArray = $orderArray->whereHas('exclusive_deal.product', function ($query) use ($product) {
                 $query->where('brand_name', $product->brand_name);
                 $query->where('generic_name', $product->generic_name);
                 $query->where('form', $product->form);
@@ -97,9 +238,29 @@ class OrderController extends Controller
             $orders = $orders->whereHas('purchase_order', function ($query) use ($poSearch) {
                 $query->where('po_number', $poSearch);
             });
+
+            $normalOrdersThisWeek = $normalOrdersThisWeek->whereHas('purchase_order', function ($query) use ($poSearch) {
+                $query->where('po_number', $poSearch);
+            });
+
+            $archivedOrdersThisWeek = $archivedOrdersThisWeek->where('purchase_order_no', $poSearch);
+
+            $currentPendings = $currentPendings->whereHas('purchase_order', function ($query) use ($poSearch) {
+                $query->where('po_number', $poSearch);
+            });
+
+            $orderArray = $orderArray->whereHas('purchase_order', function ($query) use ($poSearch) {
+                $query->where('po_number', $poSearch);
+            });
         }
         // END OF FILTER SECTION
 
+        // For the Count Card Components
+        $normalOrdersThisWeek = $normalOrdersThisWeek->count();
+        $archivedOrdersThisWeek = $archivedOrdersThisWeek->count();
+        $ordersThisWeek = $archivedOrdersThisWeek + $normalOrdersThisWeek;
+
+        $currentPendings = $orders->get()->count();
 
         $orders = $orders->whereNotIn('status', ['delivered','cancelled'])
         ->orderBy('date_ordered','desc')
@@ -149,27 +310,24 @@ class OrderController extends Controller
                     return [$companyName => $grouped];
                 });
         });
-// dd($provinces->toArray());
 
-    $currentStocks = Inventory::with(["product", "location"])
-    ->get()
-    ->groupBy(function ($stock) {
-        return $stock->product->generic_name . "|" . $stock->product->brand_name . "|" . $stock->product->form . "|" . $stock->product->strength . "|" . $stock->location->province;
-    })
-    ->map(function ($productStocks) {
-        $nonExpired = $productStocks->where('expiry_date', '>=', now());
+        $currentStocks = Inventory::with(["product", "location"])
+        ->get()
+        ->groupBy(function ($stock) {
+            return $stock->product->generic_name . "|" . $stock->product->brand_name . "|" . $stock->product->form . "|" . $stock->product->strength . "|" . $stock->location->province;
+        })
+        ->map(function ($productStocks) {
+            $nonExpired = $productStocks->where('expiry_date', '>=', now());
 
-        if ($nonExpired->isEmpty()) {
-            return 'expired';
-        }
+            if ($nonExpired->isEmpty()) {
+                return 'expired';
+            }
 
-        return $nonExpired->sum('quantity');
-    });
-    // dd($currentStocks);
-        // To get only the orders grouped by name
-        $orderArray = Order::with(['user.company.location', 'exclusive_deal.product', 'purchase_order']) 
-        ->whereNotIn('status', ['delivered', 'cancelled'])
-        ->orderBy('date_ordered', 'desc')
+            return $nonExpired->sum('quantity');
+        });
+  
+        // To get only the orders grouped by name (will be used for the insufficients)
+        $orderArray = $orderArray->orderBy('date_ordered', 'desc')
         ->get()
         ->groupBy(function ($order) {
             if (!$order->exclusive_deal || !$order->exclusive_deal->product) {
@@ -209,20 +367,6 @@ class OrderController extends Controller
             return "rejecteds";
         })->forget('rejecteds');
 
-        // For the Count Card Components
-        $normalOrdersThisWeek = Order::whereIn('status', ['pending', 'packed', 'out for delivery'])
-        ->whereBetween('date_ordered', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek(),
-        ])->count();
-        $archivedOrdersThisWeek = ImmutableHistory::whereIn('status', ['cancelled', 'delivered'])
-        ->whereBetween('date_ordered', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek(),
-        ])->count();
-        $ordersThisWeek = $archivedOrdersThisWeek + $normalOrdersThisWeek;
-
-        $currentPendings = Order::where('status', 'pending')->get()->count();
         $currentInsufficientsproducts = $insufficients->count(); 
         $currentInsufficientsorders = $insufficients->flatten(1)->count();
 

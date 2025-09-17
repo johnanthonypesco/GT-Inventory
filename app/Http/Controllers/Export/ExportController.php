@@ -11,17 +11,50 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Exports\InventoryExport;
 use App\Models\Order;
+use App\Models\Product;
 use Str;
 
 class ExportController extends Controller
 {
-    public function export(Request $request, $exportType = 'all', $exportSpecification = null, $secondaryExportSpecification = null)
-    {
-        $validated = $request->validate([
-            'array' => 'nullable'
-        ]);
+    public function export(Request $request, 
+    $exportType = 'all', 
+    $exportSpecification = null, 
+    $secondaryExportSpecification = null,
+    ){
 
-        $validated = array_map('strip_tags', $validated);
+        $validated = $request->validate([
+            'array' => 'nullable',
+
+            // universal filters
+            'province_filter' => 'nullable|string',            
+            'date_filter_start' => 'nullable|date',
+            'date_filter_end' => 'nullable|date',
+            
+            // exclusive inventory filters
+            'batch_filter' => 'nullable|string',
+
+            // exclusive order filters
+            'employee_search' => 'nullable|string',
+            'company_filter' => 'nullable|string',
+            'product_filter' => 'nullable',
+            'status_filter' => 'nullable|string',
+            'po_filter' => 'nullable|string',
+        ]);
+        // dd($validated);
+        // universal filters
+        $province_filter = $request->input('province_filter') ?? null;
+        $date_filter_start = $request->input('date_filter_start') ?? null;
+        $date_filter_end = $request->input('date_filter_end') ?? null;
+
+        // exclusive inventory filters
+        $batch_filter = $request->input('batch_filter') ?? null;
+
+        // exclusive order filters
+        $status_filter = $request->input('status_filter') ?? null;
+        $employee_search = $request->input('employee_search') ?? null;
+        $company_filter = $request->input('company_filter') ?? null;
+        $product_filter = $request->input('product_filter') ?? null;
+        $po_filter = $request->input('po_filter') ?? null;
 
         $fileName = '';
         $export = null;
@@ -29,18 +62,46 @@ class ExportController extends Controller
         switch (strtolower($exportType)) {
             case 'all':
                 $fileName = 'all-stocks-[' . date('Y-m-d') . '].xlsx';
-                $inventory = Inventory::with('product')->orderBy('created_at', 'desc')->get();
+                $inventory = Inventory::with('product');
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderBy('created_at', 'desc')->get();
                 break;
             case 'tarlac':
                 $tarlacID = Location::where('province', 'Tarlac')->value('id');
-                $inventory = Inventory::with('product')->where('location_id', $tarlacID)
-                ->orderByDesc('created_at')->get();
+                $inventory = Inventory::with('product')->where('location_id', $tarlacID);
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('created_at')->get();
                 $fileName = 'tarlac-stocks-[' . date('Y-m-d') . '].xlsx';
                 break;
             case 'nueva ecija':
                 $nuevaID = Location::where('province', 'Nueva Ecija')->value('id');
-                $inventory = Inventory::with('product')->where('location_id', $nuevaID)
-                ->orderByDesc('created_at')->get();
+                $inventory = Inventory::with('product')->where('location_id', $nuevaID);
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('created_at')->get();
                 $fileName = 'nueva-ecija-stocks-[' . date('Y-m-d') . '].xlsx';
                 break;
 
@@ -64,9 +125,21 @@ class ExportController extends Controller
 
             case 'near-expiry-summary':
                 $inventory = Inventory::with('product')
-                    ->where('quantity', '>', 0)
-                    ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()])
-                    ->orderByDesc('expiry_date')->get()
+                ->whereHas('product', function ($query) {
+                    $query->where('is_archived', false);
+                })
+                ->where('quantity', '>', 0)
+                ->whereBetween('expiry_date', [Carbon::now(), Carbon::now()->addMonth()]);
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+
+                $inventory = $inventory->orderByDesc('expiry_date')->get()
                     ->groupBy(function ($stocks) {
                         return $stocks->location->province;
                     });
@@ -75,26 +148,83 @@ class ExportController extends Controller
 
             case 'expired-summary':
                 $inventory = Inventory::with('product')
-                    ->where('quantity', '>', 0)
-                    ->whereDate('expiry_date', '<', Carbon::now()->toDateString())
-                    ->orderByDesc('expiry_date')->get()
-                    ->groupBy(function ($stocks) {
-                        return $stocks->location->province;
-                    });
+                ->whereHas('product', function ($query) {
+                    $query->where('is_archived', false);
+                })
+                ->where('quantity', '>', 0)
+                ->whereDate('expiry_date', '<', Carbon::now()->toDateString());
+                
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $inventory = $inventory->whereBetween('expiry_date', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($batch_filter, [null, 'all', 'All'], true)) {
+                    $inventory = $inventory->where('batch_number', $batch_filter);
+                }
+                
+                $inventory = $inventory->orderByDesc('expiry_date')->get()
+                ->groupBy(function ($stocks) {
+                    return $stocks->location->province;
+                });
                 $fileName = 'expired-stocks-[' . date('Y-m-d') . '].xlsx';                
                 break;
 
             case 'order-export':
                 $orders = Order::with([
                     'user.company.location',
-                    'exclusive_deal.product'
+                    'exclusive_deal.product',
+                    'purchase_order',
                 ]);
                 
                 $orders = $orders->whereNotIn('status', ['delivered', 'cancelled'])
                 ->whereHas('user.company.location', function ($query) use ($exportSpecification) {
                     $query->where('province', $exportSpecification);
-                })
-                ->orderByDesc('date_ordered')
+                });
+
+                if (!in_array($employee_search, ['all', 'All', null], true)) {
+                    $employee_search_filter = explode(' - ', $employee_search);
+                    $emp_name = $employee_search_filter[0];
+                    $company_name = $employee_search_filter[1];
+
+                    $orders = $orders->whereHas('user', function ($query) use ($emp_name, $company_name) {
+                        $query->where("name", $emp_name)->whereHas('company', function ($query) use ($company_name) {
+                            $query->where("name", $company_name);
+                        });
+                    });
+                }
+
+                if (!in_array($status_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->where('status', $status_filter);
+                }
+
+                if (!in_array($company_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->whereHas('user.company',  function ($query) use ($company_filter) {
+                        $query->where('name', $company_filter);
+                    });
+                }
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $orders = $orders->whereBetween('date_ordered', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($product_filter, ['all', 'All', null], true)) {
+                    $product = Product::findOrFail($product_filter);
+                    
+                    $orders = $orders->whereHas('exclusive_deal.product', function ($query) use ($product) { 
+                        $query->where('generic_name', $product->generic_name)
+                        ->where('brand_name', $product->brand_name)
+                        ->where('form', $product->form)
+                        ->where('strength', $product->strength);
+                    });
+                }
+
+                if (!in_array($po_filter, ['all', 'All', null], true)) {
+                    $orders = $orders->whereHas('purchase_order', function ($query) use ($po_filter) { 
+                        $query->where('po_number', $po_filter);
+                    });
+                }
+
+                $orders = $orders->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 
@@ -104,8 +234,43 @@ class ExportController extends Controller
             
             case "immutable-export":
                 $historyOrders = ImmutableHistory::whereIn('status', ['delivered', 'cancelled'])
-                ->where('province', $exportSpecification)
-                ->orderByDesc('date_ordered')
+                ->where('province', $exportSpecification);
+
+                if (!in_array($employee_search, ['all', 'All', null], true)) {
+                    $employee_search_filter = explode(' - ', $employee_search);
+                    $emp_name = $employee_search_filter[0];
+                    $company_name = $employee_search_filter[1];
+
+                    $historyOrders = $historyOrders->where('employee', $emp_name)
+                    ->where('company', $company_name);
+                }
+
+                if (!in_array($status_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('status', $status_filter);
+                }
+
+                if (!in_array($company_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('company', $company_filter);
+                }
+
+                if ($date_filter_start !== null && $date_filter_end !== null) {
+                    $historyOrders = $historyOrders->whereBetween('date_ordered', [$date_filter_start, $date_filter_end]);
+                }
+
+                if (!in_array($product_filter, ['all', 'All', null], true)) {
+                    $product = Product::findOrFail($product_filter);
+                    
+                    $historyOrders = $historyOrders->where('generic_name', $product->generic_name)
+                    ->where('brand_name', $product->brand_name)
+                    ->where('form', $product->form)
+                    ->where('strength', $product->strength);
+                }
+
+                if (!in_array($po_filter, ['all', 'All', null], true)) {
+                    $historyOrders = $historyOrders->where('purchase_order_no', $po_filter);
+                }
+
+                $historyOrders = $historyOrders->orderByDesc('date_ordered')
                 ->get()
                 ->groupBy('status');
 
