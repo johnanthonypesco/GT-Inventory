@@ -46,7 +46,7 @@
                 <div>
                     <div class="flex justify-between items-center">
                         <label for="password" class="text-xs text-black/80 font-medium">Password:</label>
-                        <a href="{{ route('superadmin.password.request') }}" class="text-xs text-[#005382] font-semibold">Forgot Password?</a>
+                        {{-- <a href="{{ route('superadmin.password.request') }}" class="text-xs text-[#005382] font-semibold">Forgot Password?</a> --}}
                     </div>
                     <div class="relative">
                         <input type="password" name="password" id="password" placeholder="Enter Your Password" 
