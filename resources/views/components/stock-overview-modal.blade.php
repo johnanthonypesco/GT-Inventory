@@ -21,7 +21,7 @@
 ])
 
 <div id="{{$modalType}}-modal" class="w-full h-full fixed bg-black/70 top-0 backdrop-blur-sm left-0 flex justify-center p-5 hidden sm:px-5 z-51">
-    <div class="modal w-full lg:max-w-3xl h-fit md:h-fit m-auto rounded-lg bg-white p-5 relative">
+    <div class="modal w-full lg:max-w-6xl h-fit md:h-fit m-auto rounded-lg bg-white p-5 relative">
         <x-modalclose click="showStockModals('{{ $modalType }}')" />
         <h1 class="text-xl font-bold text-[#005382]">
             @switch($modalType)
