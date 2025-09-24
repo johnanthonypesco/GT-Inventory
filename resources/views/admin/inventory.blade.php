@@ -920,7 +920,7 @@
 
 
 {{-- Transfer Inventory Modal --}}
-{{-- <div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="modal bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
@@ -952,7 +952,7 @@
             </div>
         </form>
     </div>
-</div> --}}
+</div>
 
 
 {{-- loader --}}
