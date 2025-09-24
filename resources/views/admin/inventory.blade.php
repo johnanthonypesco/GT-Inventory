@@ -22,11 +22,11 @@
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/inventory.css')}}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
-    <title>Inventory</title>
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
 
@@ -121,7 +121,7 @@
                 /> 
                 {{-- Shows An Overview Modal for Certain Product Categories --}}
                 {{-- Filters Location --}}
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mt-5 gap-6">
+        <div class="flex flex-col-reverse lg:flex-row-reverse justify-between items-start lg:items-center mt-5 gap-6">
             {{-- START FILTER FORM --}}
             <form action="{{ route('admin.inventory.location') }}" method="POST" class="w-full lg:w-auto">
                 @csrf @method("POST")
@@ -133,12 +133,12 @@
 
                 <div class="flex items-center gap-3">
                     {{-- LOCATION SELECT --}}
-                    <select onchange="this.form.submit()" name="location" id="location" 
+                    {{-- <select onchange="this.form.submit()" name="location" id="location" 
                         class="w-full lg:min-w-[200px] border px-4 py-2 rounded-lg font-semibold text-black/80 bg-white outline-none shadow-sm transition">
                         <option value="all" @selected($current_inventory === 'All')>All Delivery Locations</option>
                         <option value="Tarlac" @selected($current_inventory === 'Tarlac')>Tarlac</option>
                         <option value="Nueva Ecija" @selected($current_inventory === 'Nueva Ecija')>Nueva Ecija</option>
-                    </select>
+                    </select> --}}
 
                     {{-- FILTER BUTTON --}}
                     <button id="show-filters-btn" type="button"
@@ -237,19 +237,19 @@
             @endphp
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full lg:w-auto">
-                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
-                    <i class="fa-solid fa-box-archive"></i>
-                    View Archived Data  
+                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()">
+                    <i class="fa-solid fa-plus"></i>
+                    Register New Product
                 </button>
-
+                
                 <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="viewallproduct()">
                     <i class="fa-regular fa-eye"></i>
                     View All Products
                 </button>
-
-                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="registerproduct()">
-                    <i class="fa-solid fa-plus"></i>
-                    Register New Product
+                
+                <button class="flex items-center justify-center gap-2 px-5 py-2 bg-white text-sm font-semibold shadow-sm rounded-lg uppercase cursor-pointer {{ $hoverButtonEffect }}" onclick="viewArchivedMenu()">
+                    <i class="fa-solid fa-box-archive"></i>
+                    View Archived Data  
                 </button>
             </div>
         </div>
@@ -920,46 +920,39 @@
 
 
 {{-- Transfer Inventory Modal --}}
-<div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+{{-- <div id="transferInventoryModal" class="hidden fixed w-full h-full top-0 left-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="modal bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Transfer Inventory</h2>
         
         <form id="transferForm">
-            {{-- Hidden input for the inventory ID --}}
             <input type="hidden" name="inventory_id" id="transfer_inventory_id">
             
-            {{-- Display inventory details --}}
             <p class="text-gray-600 mb-2">Batch Number: <span id="transfer_batch_number" class="font-semibold"></span></p>
             <p class="text-gray-600 mb-2">Product: <span id="transfer_product_name" class="font-semibold"></span></p>
             <p class="text-gray-600 mb-2">Current Location: <span id="transfer_current_location" class="font-semibold"></span></p>
             <p class="text-gray-600 mb-4">Available Quantity: <span id="transfer_current_quantity" class="font-semibold"></span></p>
 
-            {{-- New Location Dropdown --}}
             <div class="mb-4">
                 <label for="new_location" class="block text-gray-700 text-sm font-bold mb-2">New Location</label>
                 <select id="new_location" name="new_location" class="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    {{-- The @foreach directive assumes you are passing a $locations variable from your controller to the view --}}
                     @foreach ($locations as $location)
                         <option value="{{ $location->id }}">{{ $location->province }}</option>
                     @endforeach
                 </select>
             </div>
 
-            {{-- Quantity to Transfer Input --}}
             <div class="mb-4">
                 <label for="transfer_quantity" class="block text-gray-700 text-sm font-bold mb-2">Quantity to Transfer</label>
-                {{-- This input will be validated on the backend. The 'max' attribute should be set dynamically via JavaScript when the modal is opened. --}}
                 <input type="number" id="transfer_quantity" name="transfer_quantity" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" required>
             </div>
 
-            {{-- Action Buttons --}}
             <div class="flex justify-end items-center gap-4 mt-6">
                 <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded-md cursor-pointer transition-colors duration-200" onclick="closeTransferModal()">Cancel</button>
                 <button type="submit" id="confirmtransferbutton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md cursor-pointer transition-colors duration-200">Confirm Transfer</button>
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 
 
 {{-- loader --}}

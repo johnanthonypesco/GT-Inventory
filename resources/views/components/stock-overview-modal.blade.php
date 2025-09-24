@@ -23,10 +23,10 @@
 <div id="{{$modalType}}-modal" class="w-full h-full fixed bg-black/70 top-0 backdrop-blur-sm left-0 flex justify-center p-5 hidden sm:px-5 z-51">
     <div class="modal w-full lg:max-w-3xl h-fit md:h-fit m-auto rounded-lg bg-white p-5 relative">
         <x-modalclose click="showStockModals('{{ $modalType }}')" />
-        <h1 class="text-xl font-bold text-[#005382] mt-8">
+        <h1 class="text-xl font-bold text-[#005382]">
             @switch($modalType)
                 @case("in-stock")
-                    <div class="flex justify-between items-center mr-5">
+                    <div class="flex flex-col gap-2 p-2">
                         Products In Stock
 
                         <form action="{{ route('admin.inventory.export', ['exportType' => "in-summary"]) }}" method="POST">
@@ -40,7 +40,7 @@
                     
                     @break
                 @case("low-stock")
-                    <div class="flex justify-between items-center mr-5">
+                    <div class="flex flex-col gap-2 p-2">
                         Products Low on Stock
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "low-summary"]) }}" method="POST">
@@ -53,7 +53,7 @@
                     </div>
                     @break
                 @case("out-stock")
-                    <div class="flex justify-between items-center mr-5">
+                    <div class="flex flex-col gap-2 p-2">
                         Products Out of Stock
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "out-summary"]) }}" method="POST">
@@ -66,7 +66,7 @@
                     </div>
                     @break
                 @case("near-expiry-stock")
-                    <div class="flex justify-between items-center mr-5">
+                    <div class="flex flex-col gap-2 p-2">
                         Stocks About to Expire Next Month 
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "near-expiry-summary"]) }}" method="get">
@@ -85,7 +85,7 @@
                     </div>
                     @break
                 @case("expired-stock")
-                    <div class="flex justify-between items-center mr-5">
+                    <div class="flex flex-col gap-2 p-2">
                         Currently Expired Stocks in Inventory
                         
                         <form action="{{ route('admin.inventory.export', ['exportType' => "expired-summary"]) }}" method="get">

@@ -1,11 +1,12 @@
 <x-fontawesome/>
 
 <nav id="sidebar" class="md:w-[16%] w-full hidden lg:flex flex-col fixed h-screen shadow-sm z-[48] bg-white opacity-0">
-    <div class="p-4 flex flex-col">
-        <img src="{{ asset('image/Logowname.png') }}" alt="" class="w-[110px] self-center">
+    <div class="p-4 flex gap-2 items-center justify-center">
+        <img src="{{ asset('image/gtlogo.png') }}" alt="" class="w-12">
+        <h1 class="font-bold text-lg tracking-wide text-black/75">GTIMS</h1>
     </div>
 
-    <ul class="list-none flex flex-col py-2 gap-[1px] overflow-y-auto">
+    <ul class="list-none flex flex-col py-2 gap-3 overflow-y-auto">
 
         {{-- DASHBOARD (ALL ROLES) --}}
         <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold flex items-center justify-between gap-2">Home</div>
@@ -25,7 +26,7 @@
                 </a>
             </li>
 
-            <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Communication</div>
+            {{-- <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Communication</div>
             <li class="">
                 <a href="{{ route('admin.chat.index') }}" id="chatNav" class="mt-1 relative flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/chat*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-comment-captions text-base"></i>
@@ -38,7 +39,7 @@
                         </div>
                     @endif
                 </a>
-            </li>
+            </li> --}}
 
             <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Management</div>
             <li class="">
@@ -48,12 +49,12 @@
                 </a>
             </li>
             
-            <li class="">
+            {{-- <li class="">
                 <a href="{{ route('admin.productlisting') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/productlisting') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-building-memo text-base"></i>
                     <span>Product Deals</span>
                 </a>
-            </li>
+            </li> --}}
 
             <li class="">
                 <a href="{{ route('admin.order') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/order*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
@@ -69,21 +70,21 @@
                 </a>
             </li>
 
-            <li>
+            {{-- <li>
                 <a href="{{ route('admin.contentmanagement') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/contentmanagement') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-file-circle-plus text-base"></i>
                     <span>Manage Content</span>
                 </a>
-            </li>
+            </li> --}}
 
-            <li>
+            {{-- <li>
                 <a href="{{ route('superadmin.reviews.index') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('superadmin/reviews*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-star-sharp-half-stroke text-base"></i>
                     <span>Review Manager</span>
                 </a>
-            </li>
+            </li> --}}
 
-            <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">History & Staff</div>
+            <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">History</div>
             
             <li class="">
                 <a href="{{ route('admin.history') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/history') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
@@ -99,16 +100,16 @@
                 </a>
             </li>
 
-            <li>
+            {{-- <li>
                 <a href="{{ route('admin.stafflocation') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/stafflocation') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-location-dot text-base"></i>
                     <span>Staff Location</span>
                 </a>
-            </li>
+            </li> --}}
         @endif
 
         {{-- STAFF MENUS --}}
-        @if (auth('staff')->check())
+        {{-- @if (auth('staff')->check())
             <li class="">
                 <a href="{{ route('admin.order') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/order*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
                     <i class="fa-regular fa-cart-circle-check text-base"></i>
@@ -127,7 +128,7 @@
                     @endif
                 </a>
             </li>
-        @endif
+        @endif --}}
     </ul>
 
     {{-- LOGOUT --}}

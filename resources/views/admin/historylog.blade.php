@@ -7,12 +7,12 @@
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
-    <title>History Log</title>
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>

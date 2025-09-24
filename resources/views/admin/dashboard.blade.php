@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -15,7 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    <title>Dashboard</title>
+    <title>General Tinio Inventory System</title>
     <style>
         /* Styles for the AI Analysis Section */
         .anomaly-item.positive { border-left-color: #16a34a; }

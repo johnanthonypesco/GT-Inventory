@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manageaccount.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
-    <title>Manage Accounts</title>
+    <title>General Tinio Inventory System</title>
 
     <style>
          @keyframes swal-pulse {

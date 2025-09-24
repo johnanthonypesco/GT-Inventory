@@ -7,9 +7,13 @@ body {
     min-height: 100vh;
     margin: 0;
     overflow: hidden;
+    background: #bdc3c7;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top, #2c3e50, #bdc3c7);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, #2c3e50, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
 }
 
-body::before {
+/* body::before {
     content: "";
     position: absolute;
     top: 0;
@@ -22,8 +26,10 @@ body::before {
     background-position: center;
     filter: blur(8px);
     z-index: -1;
-    background-color: rgba(0, 0, 0, 0.4);
     background-blend-mode: darken;
+} */
+#logincontainer{
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 input:focus{
     outline: 1px solid #005382;
@@ -37,4 +43,14 @@ margin: 0;
 
 .TwoFA_num_inputs[type=number] {
     -moz-appearance: textfield;
+}
+#flip::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(20, 78, 117, 0.482);
+    z-index: 1;
 }

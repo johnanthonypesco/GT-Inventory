@@ -29,7 +29,7 @@
 
 
     <div class="flex items-center gap-2">
-        @if (auth('superadmin')->check() || auth('admin')->check() || (auth('staff')->check() && !request()->routeIs('admin.dashboard')))
+        {{-- @if (auth('superadmin')->check() || auth('admin')->check() || (auth('staff')->check() && !request()->routeIs('admin.dashboard')))
             @if (!request()->routeIs('admin.chat.*'))
                 <div class="relative group">
                     <button id="help" class="flex gap-2 justify-center items-center font-semibold text-xl rounded-full py-1 bg-green-600/80 text-white w-fit px-2 cursor-pointer hover:bg-green-600 transition-all duration-150"
@@ -37,16 +37,14 @@
                     >
                         <i class="fa-regular fa-circle-question text-xl"></i>
                         HELP
-                        {{-- HELP --}}
                     </button>
 
-                    <!-- Tooltip -->
                     <span class="absolute -left-4 -bottom-24 mt-2 px-3 py-1 text-base text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 w-[140px] text-center">
                         Will show a tutorial video for this page.
                     </span>
                 </div>
             @endif
-        @endif
+        @endif --}}
 
 
         {{-- Ensure user info container is visible in all breakpoints where needed --}}
@@ -79,7 +77,7 @@
     {{-- TUTORIAL POPUP MODAL --}}
     {{-- BTW KUNG NAG TATAKA KAYO KUNG BAKIT AYAW GUMANA NG TIME SCROLLER HINDI KASI SUPPORTED
     NG php artisan serve YUNG PAG HANDLE NG GANUNG REQUEST. BAKA GUMANA SYA SA HOSTINGER? --}}
-    <div class="w-full hidden h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
+    {{-- <div class="w-full hidden h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 z-50 p-8 lg:p-20 overflow-auto" id="tutorialModal">
         <div class="modal w-full max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 pb-11 sm:p-8 relative h-fit">
             <x-modalclose click="showTutorial" />
 
@@ -137,7 +135,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     {{-- TUTORIAL POPUP MODAL --}}
 
 
@@ -175,18 +173,18 @@
             }
         }
 
-        const header = document.getElementById("header");
-        const frenchFries = 20;
+        // const header = document.getElementById("header");
+        // const frenchFries = 20;
 
-        window.addEventListener("scroll", () => {
-            if (window.scrollY >= frenchFries) {
-                header.classList.add("shadow-lg", "shadow-black/55");
-                header.classList.replace("md:py-2", "md:py-[12px]");
-            } 
-            else if (window.scrollY === 0) {
-                header.classList.remove("shadow-lg", "shadow-black/55");
-                header.classList.replace("md:py-[12px]", "md:py-2");
-            }
-        });
+        // window.addEventListener("scroll", () => {
+        //     if (window.scrollY >= frenchFries) {
+        //         header.classList.add("shadow-lg", "shadow-black/55");
+        //         header.classList.replace("md:py-2", "md:py-[12px]");
+        //     } 
+        //     else if (window.scrollY === 0) {
+        //         header.classList.remove("shadow-lg", "shadow-black/55");
+        //         header.classList.replace("md:py-[12px]", "md:py-2");
+        //     }
+        // });
     </script>
 </header>

@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
-    <title>Sales Report</title>
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row m-0 p-0">
     

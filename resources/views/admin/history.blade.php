@@ -13,13 +13,13 @@
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{asset ('css/style.css')}}">
     <link rel="stylesheet" href="{{asset ('css/history.css')}}">
     <script src="https://cdn.tailwindcss.com"></script>
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
-    <title>Orders</title>
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4">
     <x-admin.navbar/>

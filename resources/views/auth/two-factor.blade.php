@@ -7,16 +7,17 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-    <title>Two-Factor Authentication</title>
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
     <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:max-w-3xl max-h-screen">
         <div class="flex flex-col gap-1 w-full lg:w-1/2 p-6 md:p-10">
-            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
-                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
-            </h1>
+            <div class="flex flex-col items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/gtlogo.png') }}" alt="logo" class="w-12">
+                <span>Municipality of General Tinio</span>
+            </div>
 
             <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Secure Your Login with Two-Factor Authentication</h1>
             <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Enter the 6-digit code sent to you.</h1>
@@ -81,7 +82,7 @@
         </div>
 
         <div id="flip" class="hidden lg:block w-1/2 transform scale-x-[-1]">
-            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
+            <img src="{{ asset('image/Gtcover.jpg') }}" alt="bg" class="w-full h-full object-cover">
         </div>
     </div>
 

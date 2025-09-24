@@ -7,20 +7,23 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     {{-- <script src="https://kit.fontawesome.com/aed89df169.js" crossorigin="anonymous"></script> --}}
     <x-fontawesome/>
-    <link rel="icon" href="{{ asset('image/Logolandingpage.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-    <title>Super Admin Login</title>
+    <title>General Tinio Inventory System</title>
 </head>
 <body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
-    <div class="flex flex-col lg:flex-row shadow-lg rounded-lg bg-white w-full lg:max-w-3xl max-h-screen">
+    <div id="logincontainer" class="flex flex-col lg:flex-row rounded-lg bg-white w-full lg:max-w-3xl max-h-screen overflow-hidden">
         
         <div class="flex flex-col gap-2 w-full lg:w-1/2 p-6 md:p-10">
-            <h1 class="font-bold text-sm flex items-center gap-2 text-[#005382]">
-                <img src="{{ asset('image/Logolandingpage.png') }}" alt="logo" class="w-10">RCT MED PHARMA
-            </h1>
+            <div class="flex flex-col items-center gap-2 text-[#005382]">
+                <img src="{{ asset('image/gtlogo.png') }}" alt="logo" class="w-15">
+                <span>
+                    Municipality of General Tinio
+                </span>
+            </div>
 
-            <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in to your Super Admin Account</h1>
-            <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1>
+            <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in to your Account</h1>
+            {{-- <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1> --}}
 
             <form method="POST" action="{{ route('superadmin.login.store') }}" class="mt-10 space-y-5">
                 @csrf
@@ -72,8 +75,11 @@
             </form>
         </div>
 
-        <div id="flip" class="hidden lg:block w-1/2 transform scale-x-[-1]">
-            <img src="{{ asset('image/loginpagebg.png') }}" alt="bg" class="w-full h-full object-cover">
+        <div id="flip" class="hidden lg:block w-1/2 relative">
+            <img src="{{ asset('image/Gtcover.jpg') }}" alt="bg" class="w-full h-full object-cover">
+            {{-- <h1 class="w-full px-4 absolute bottom-5 left-5 text-white text-left z-10 font-sembold tracking-wide text-2xl">
+                Medication Inventory Management System
+            </h1> --}}
         </div>
     </div>
 </body>

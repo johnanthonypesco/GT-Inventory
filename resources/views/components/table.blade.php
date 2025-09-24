@@ -34,7 +34,7 @@
                             </button> --}}
 
                             <div class="relative group inline-block">
-                                <button class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl flex justify-center items-center" onclick="openStockEditModal(@js(
+                                <button class="cursor-pointer bg-blue-600/60 hover:bg-blue-600 hover:-translate-y-1 transition-all duration-200 text-white p-3 rounded-xl flex justify-center items-center" onclick="openStockEditModal(@js(
                                     [ 
                                         "id" => $inv->inventory_id,
                                         "batch_number" => $inv->batch_number,
@@ -48,13 +48,13 @@
                                 </button>
                                 
                                 <!-- Tooltip -->
-                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block group-hover:animate-bounce
+                                {{-- <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block group-hover:animate-bounce
                                             bg-gray-800 text-white text-lg px-2 py-1 rounded-md whitespace-nowrap z-10">
                                     Edit the Stock Info
-                                </div>
+                                </div> --}}
                             </div>
 
-                          <button 
+                          {{-- <button 
                             class="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
                             onclick="openTransferModal(
                                 @js($inv->inventory_id), 
@@ -66,7 +66,7 @@
                         >
                         <i class="fa-solid fa-share"></i>
                             Transfer
-                        </button>
+                        </button> --}}
                         </td>
                     </tr>
                 @endforeach
