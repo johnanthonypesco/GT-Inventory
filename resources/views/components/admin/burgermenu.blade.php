@@ -25,7 +25,7 @@
         {{-- ADMIN & SUPERADMIN MENUS --}}
         @if (auth('superadmin')->check() || auth('admin')->check())
             <li class="">
-                <a href="{{ route('admin.sales') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 relative hover:bg-gray-100 hover:text-black {{ request()->is('admin/sales*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.sales') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 relative hover:bg-gray-100 hover:text-black {{ request()->is('admin/sales*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-sembold' : '' }}">
                     <i class="fa-regular fa-file-chart-column text-base"></i>
                     <span>Sales Reports</span>
                 </a>
@@ -46,7 +46,7 @@
 
             <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">Management</div>
             <li class="">
-                <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.inventory') }}" class="mt-1 flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is(['admin/inventory', 'admin/ocr-files']) ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-semibold' : '' }}">
                     <i class="fa-regular fa-warehouse text-base"></i>
                     <span>Inventory</span>
                 </a>
@@ -60,14 +60,14 @@
             </li> --}}
 
             <li class="">
-                <a href="{{ route('admin.order') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/order*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.order') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/order*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-semibold' : '' }}">
                     <i class="fa-regular fa-cart-circle-check text-base"></i>
                     <span>Orders</span>
                 </a>
             </li>
 
             <li class="">
-                <a href="{{ route('superadmin.account.index') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('manageaccounts*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('superadmin.account.index') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('manageaccounts*') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-semibold' : '' }}">
                     <i class="fa-regular fa-users-gear text-base"></i>
                     <span>Manage Accounts</span>
                 </a>
@@ -90,14 +90,14 @@
             <div class="text-[13px] capitalize p-1 w-full text-gray-500 font-semibold mt-2 flex items-center justify-between">History</div>
             
             <li class="">
-                <a href="{{ route('admin.history') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/history') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.history') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/history') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-semibold' : '' }}">
                     <i class="fa-regular fa-clock-rotate-left text-base"></i>
                     <span>Order History</span>
                 </a>
             </li>
 
             <li>
-                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/historylog') || request()->is('blocked-ips') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600' : '' }}">
+                <a href="{{ route('admin.historylog') }}" class="flex items-center gap-4 p-3 text-sm text-gray-600 font-regular transition-all duration-300 hover:bg-gray-100 hover:text-black {{ request()->is('admin/historylog') || request()->is('blocked-ips') ? 'bg-[#0052821b] text-black border-l-4 border-blue-600 font-semibold' : '' }}">
                     <i class="fa-regular fa-circle-user-clock text-base"></i>
                     <span>History Log</span>
                 </a>
@@ -135,11 +135,11 @@
     </ul>
 
     {{-- LOGOUT --}}
-    @if (Auth::guard('superadmin')->check())
+     @if (Auth::guard('superadmin')->check())
         <form id="logout-form" method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-regular transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>
@@ -147,7 +147,7 @@
         <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-medium transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>
@@ -155,7 +155,7 @@
         <form id="logout-form" method="POST" action="{{ route('staff.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="logout w-full text-sm text-left flex items-center gap-4 p-4 font-medium transition-all duration-300 relative bg-gray-100 text-black border-l-4 border-blue-600 hover:bg-gray-200">
-                <i class="fa-medium fa-right-from-bracket text-base"></i>
+                <i class="fa-regular fa-right-from-bracket"></i>
                 <span>Logout ...</span>
             </button>
         </form>

@@ -23,7 +23,7 @@
             </div>
 
             <h1 class="text-center mt-12 font-medium tracking-wide text-lg md:text-2xl">Sign in to your Account</h1>
-            {{-- <h1 class="text-sm md:text-lg text-center text-[#005382]/85">Manage your Medication Effortlessly Anytime, Anywhere</h1> --}}
+            <h1 class="text-sm md:text-lg text-center text-[#005382]/85">General Tinio Inventory Management System</h1>
 
             <form method="POST" action="{{ route('superadmin.login.store') }}" class="mt-10 space-y-5">
                 @csrf
@@ -54,7 +54,7 @@
                     <div class="relative">
                         <input type="password" name="password" id="password" placeholder="Enter Your Password" 
                             class="border border-gray-300 bg-white w-full p-3 rounded-lg outline-none mt-2 text-sm">
-                        <button type="button" onclick="showpassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
+                        <button type="button" onclick="showpassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer">
                             <i id="eye" class="fa-solid fa-eye mt-2"></i>
                         </button>
                     </div>
