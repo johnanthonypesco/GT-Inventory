@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
-    <title>General Tinio Inventory System</title>
+    <title>General Tinio - Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row m-0 p-0">
     <x-admin.navbar/>

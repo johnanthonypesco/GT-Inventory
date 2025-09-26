@@ -15,7 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
             {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
-    <title>General Tinio Inventory System</title>
+    <title>General Tinio - Inventory System</title>
 
     <style>
          @keyframes swal-pulse {

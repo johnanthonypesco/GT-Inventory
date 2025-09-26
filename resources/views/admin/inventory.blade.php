@@ -26,7 +26,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
-    <title>General Tinio Inventory System</title>
+    <title>General Tinio - Inventory System</title>
 </head>
 <body class="flex flex-col md:flex-row gap-4 h-[100vh]">
 
@@ -306,12 +306,12 @@
                     {{-- Search --}}
 
                     <div class="button flex items-center gap-3 mt-3 lg:mt-0 m-auto md:m-0">
-                       <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
+                       {{-- <button onclick="window.location.href='{{ route('upload.receipt') }}?location={{ $provinceName }}'" class="flex items-center gap-1 group {{ $hoverButtonEffect }}">
                             <span class="group-hover:text-white">
                                 <i class="fa-regular fa-qrcode-read"></i>
                                 Scan Receipt
                             </span>
-                        </button>
+                        </button> --}}
                         {{-- <button class="flex items-center gap-1"><i class="fa-solid fa-list"></i>Filter</button> --}}
                         <form action="{{ route('admin.inventory.export', ['exportType' => $provinceName]) }}" method="get">
                             @csrf
@@ -453,10 +453,10 @@
 
                 <br>
                 
-                <a href="{{ route('admin.file-ocr.index') }}" class="outline-2  outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
+                {{-- <a href="{{ route('admin.file-ocr.index') }}" class="outline-2  outline-[#005382] w-full px-10 py-4 bg-white text-sm font-semibold shadow-sm shadow-blue-400 rounded-lg uppercase flex justify-center items-center gap-2 cursor-pointer {{ $hoverButtonEffect }}">
                     <i class="fa-solid fa-folder-open"></i>
                     View Scanned Receipts
-                </a>
+                </a> --}}
             </div>
         </div>
     </div>
@@ -603,7 +603,7 @@
     @endphp
 
     <div class="w-full {{ $failedToRegister && old('form_type') !== 'edit-product' ? '' : 'hidden' }} h-full bg-black/70 backdrop-blur-sm fixed top-0 left-0 z-50 p-5 sm:p-5 flex justify-center" id="registerproductmodal">
-        <div class="modal w-full lg:max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative mt-10">
+        <div class="modal w-full lg:max-w-xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-8 relative mt-10">
             <x-modalclose click="closeregisterproductmodal" />
 
             <!-- Register New Product Form -->

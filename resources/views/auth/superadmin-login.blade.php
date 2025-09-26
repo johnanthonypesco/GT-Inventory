@@ -9,7 +9,7 @@
     <x-fontawesome/>
     <link rel="icon" href="{{ asset('image/gtlogo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-    <title>General Tinio Inventory System</title>
+    <title>General Tinio - Inventory System</title>
 </head>
 <body class="flex items-center justify-center min-h-screen h-screen p-5 lg:p-0">
     <div id="logincontainer" class="flex flex-col lg:flex-row rounded-lg bg-white w-full lg:max-w-3xl max-h-screen overflow-hidden">

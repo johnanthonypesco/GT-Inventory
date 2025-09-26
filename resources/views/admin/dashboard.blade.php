@@ -15,7 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    <title>General Tinio Inventory System</title>
+    <title>General Tinio - Inventory System</title>
     <style>
         /* Styles for the AI Analysis Section */
         .anomaly-item.positive { border-left-color: #16a34a; }
