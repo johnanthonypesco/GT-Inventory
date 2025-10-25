@@ -18,8 +18,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // General dashboard for all logged-in users
-    Route::get('/dashboard', function () {
-        return view('dashboard');
+    Route::get('admin/dashboard', function () {
+        return view('admin.dashboard');
     })->name('dashboard');
 
     // Profile routes (para sa lahat ng logged-in)
@@ -34,10 +34,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::middleware('can:be-superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         
-        // Halimbawa: /superadmin/users -> superadmin.users.index
-        // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index'); 
+        // URL: /admin/dashboard -> Name: admin.dashboard
+        Route::get('/dashboard', [DashboardController::class, 'showdashboard'])->name('dashboard');
         
-        // Dito mo ilagay ang iba pang superadmin routes
+        // URL: /admin/productmovement -> Name: admin.productmovement
+        Route::get('/productmovement', [ProductMovementController::class, 'showproductmovement'])->name('productmovement');
+        
+        // URL: /admin/inventory -> Name: admin.inventory
+        Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
+        
+        // URL: /admin/patientrecords -> Name: admin.patientrecords
+        Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+        
+        // URL: /admin/historylog -> Name: admin.historylog
+        Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
         
     });
 
@@ -63,7 +73,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // URL: /admin/historylog -> Name: admin.historylog
         Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
     });
+    // add route for encoder
+    Route::middleware('can:be-encoder')->prefix('admin')->name('admin.')->group(function () {
 
+        // URL: /admin/dashboard -> Name: admin.dashboard
+        Route::get('/dashboard', [DashboardController::class, 'showdashboard'])->name('dashboard');
+        
+        // URL: /admin/productmovement -> Name: admin.productmovement
+        Route::get('/productmovement', [ProductMovementController::class, 'showproductmovement'])->name('productmovement');
+        
+        // URL: /admin/inventory -> Name: admin.inventory
+        Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
+        
+        // URL: /admin/patientrecords -> Name: admin.patientrecords
+        Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+        
+        // URL: /admin/historylog -> Name: admin.historylog
+        // Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
+
+
+    });
 });
 
 require __DIR__.'/auth.php';
