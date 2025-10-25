@@ -229,10 +229,19 @@
           <div class="w-1/2">
             <label for="brand" class="text-sm font-semibold text-gray-600">Brand Name:</label>
             <input type="text" name="brand_name" id="brand_name" placeholder="Enter Brand Name" class="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            @error ('brand_name')
+              <p class="text-red-500 text-sm mt-1">{{$message}}</p>
+            @enderror
           </div>
           <div class="w-1/2">
             <label for="generic_name" class="text-sm font-semibold text-gray-600">Product Name:</label>
             <input type="text" name="generic_name" id="generic_name" placeholder="Enter Product Name" class="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            @error ('generic_name')
+              <p class="text-red-500 text-sm mt-1">{{$message}}</p>
+              <script>
+                document.getElementById('addnewproductmodal').classList.remove('hidden')
+              </script>
+            @enderror
           </div>
         </div>
 
@@ -240,10 +249,22 @@
           <div class="w-1/2">
             <label for="form" class="text-sm font-semibold text-gray-600">Form:</label>
             <input type="text" name="form" id="form" placeholder="Form" class="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            @error ('form')
+              <p class="text-red-500 text-sm mt-1">{{$message}}</p>
+              <script>
+                document.getElementById('addnewproductmodal').classList.remove('hidden')
+              </script>
+            @enderror
           </div>
           <div class="w-1/2">
             <label for="strength" class="text-sm font-semibold text-gray-600">Strength:</label>
             <input type="text" name="strength" id="strength" placeholder="500mg" class="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            @error ('strength')
+              <p class="text-red-500 text-sm mt-1">{{$message}}</p>
+              <script>
+                document.getElementById('addnewproductmodal').classList.remove('hidden')
+              </script>
+            @enderror
           </div>
         </div>
 
@@ -276,22 +297,32 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
+            {{-- if empty display no products availbale --}}
+            @if ($products->isEmpty())
+              <tr>
+                <td colspan="3" class="p-3 text-center">No Products Available</td>
+              </tr>
+            @endif
+            @foreach ($products as $product )
             <tr class="hover:bg-gray-50"
-                data-product-id="1"
-                data-brand="Arcimet"
-                data-product="Ceftriaxone"
-                data-form="Tablet"
-                data-strength="500mg">
-              <td class="p-3">1</td>
+                data-product-id="{{ $product->id }}"
+                data-brand="{{ $product->brand_name }}"
+                data-product="{{ $product->generic_name }}"
+                data-form="{{ $product->form }}"
+                data-strength="{{ $product->strength }}">
+              <td class="p-3">
+                {{-- increment only the number --}}
+                {{ $loop->iteration }}
+              </td>
               <td class="p-3">
                 <div class="flex gap-4">
                   <div>
-                    <p class="font-semibold text-gray-700">Ceftriaxone</p>
-                    <p class="italic text-gray-500">Arcimet</p>
+                    <p class="font-semibold text-gray-700">{{ $product->brand_name }}</p>
+                    <p class="italic text-gray-500">{{ $product->generic_name }}</p>
                   </div>
                   <div>
-                    <p class="font-semibold text-gray-700">500mg</p>
-                    <p class="italic text-gray-500">Tablet</p>
+                    <p class="font-semibold text-gray-700">{{ $product->strength }}</p>
+                    <p class="italic text-gray-500">{{ $product->form }}</p>
                   </div>
                 </div>
               </td>
@@ -307,70 +338,7 @@
                 </button>
               </td>
             </tr>
-
-            <tr class="hover:bg-gray-50"
-                data-product-id="2"
-                data-brand="Pfizer"
-                data-product="Amoxicillin"
-                data-form="Capsule"
-                data-strength="250mg">
-              <td class="p-3">2</td>
-              <td class="p-3">
-                <div class="flex gap-4">
-                  <div>
-                    <p class="font-semibold text-gray-700">Amoxicillin</p>
-                    <p class="italic text-gray-500">Pfizer</p>
-                  </div>
-                  <div>
-                    <p class="font-semibold text-gray-700">250mg</p>
-                    <p class="italic text-gray-500">Capsule</p>
-                  </div>
-                </div>
-              </td>
-              <td class="p-3 flex items-center justify-center gap-2 font-semibold">
-                <button class="add-stock-btn bg-blue-100 text-blue-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-blue-600 hover:text-white transition-all mr-2">
-                  <i class="fa-regular fa-plus mr-1"></i>Add Stock
-                </button>
-                <button class="edit-product-btn bg-green-100 text-green-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-green-600 hover:text-white transition-all">
-                  <i class="fa-regular fa-pen-to-square mr-1"></i>Edit
-                </button>
-                <button class="delete-product-btn bg-red-100 text-red-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-red-600 hover:text-white transition-all">
-                  <i class="fa-regular fa-trash mr-1"></i>Delete
-                </button>
-              </td>
-            </tr>
-
-            <tr class="hover:bg-gray-50"
-                data-product-id="3"
-                data-brand="Unilab"
-                data-product="Paracetamol"
-                data-form="Tablet"
-                data-strength="500mg">
-              <td class="p-3">3</td>
-              <td class="p-3">
-                <div class="flex gap-4">
-                  <div>
-                    <p class="font-semibold text-gray-700">Paracetamol</p>
-                    <p class="italic text-gray-500">Unilab</p>
-                  </div>
-                  <div>
-                    <p class="font-semibold text-gray-700">500mg</p>
-                    <p class="italic text-gray-500">Tablet</p>
-                  </div>
-                </div>
-              </td>
-              <td class="p-3 flex items-center justify-center gap-2 font-semibold">
-                <button class="add-stock-btn bg-blue-100 text-blue-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-blue-600 hover:text-white transition-all mr-2">
-                  <i class="fa-regular fa-plus mr-1"></i>Add Stock
-                </button>
-                <button class="edit-product-btn bg-green-100 text-green-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-green-600 hover:text-white transition-all">
-                  <i class="fa-regular fa-pen-to-square mr-1"></i>Edit
-                </button>
-                <button class="delete-product-btn bg-red-100 text-red-700 p-2 rounded-lg hover:-translate-y-1 duration-300 hover:bg-red-600 hover:text-white transition-all">
-                  <i class="fa-regular fa-trash mr-1"></i>Delete
-                </button>
-              </td>
-            </tr>
+            @endforeach
           </tbody>
         </table>
       </div>
