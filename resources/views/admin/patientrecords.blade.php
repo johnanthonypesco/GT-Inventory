@@ -260,7 +260,7 @@
         </main>
     </div>
 </body>
-{{-- <x-admin.loader /> --}}
+<x-admin.loader />
 </html>
 <script src="{{ asset('js/spa-navigation.js') }}"></script>
 
