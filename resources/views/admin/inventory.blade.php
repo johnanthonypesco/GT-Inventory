@@ -16,7 +16,7 @@
 
   <div id="content-wrapper" class="transition-all duration-300 lg:ml-64 md:ml-20">
     <x-admin.header/>
-    <main class="pt-20 p-4 lg:p-8 min-h-screen">
+    <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
       <div class="mb-6 pt-16">
         <p class="text-sm text-gray-600">Home / <span class="text-red-700 font-medium">Inventory</span></p>
       </div>
@@ -504,5 +504,5 @@
   {{-- end edit stock modal --}}
   </body>
 </html>
-
+<script src="{{ asset('js/spa-navigation.js') }}"></script>
 <script src="{{ asset('js/inventory.js') }}"></script>

@@ -1,3 +1,5 @@
+// public/js/sidebar.js (ANG MALINIS NA VERSION)
+
 document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const sidebar = document.getElementById('sidebar');
@@ -7,9 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     const navLinks = document.querySelectorAll('.nav-text');
     const navIcons = document.querySelectorAll('.nav-icon');
-    const navLinkElements = document.querySelectorAll('.nav-link');
-    const currentUrl = window.location.pathname;
 
+    // --- Mobile Menu Functions ---
     const openSidebar = () => {
         sidebar.classList.remove('translate-x-[-100%]');
         overlay.classList.remove('hidden');
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     overlay?.addEventListener('click', closeSidebar);
 
+    // --- Desktop Collapse Function ---
     desktopCollapseBtn?.addEventListener('click', () => {
         const isCollapsed = sidebar.classList.toggle('lg:w-20');
         sidebar.classList.toggle('lg:w-64', !isCollapsed);
@@ -43,28 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.classList.toggle('fa-chevron-right', isCollapsed);
     });
 
-    navLinkElements.forEach(link => {
-        const linkHref = link.getAttribute('href');
-        if (!linkHref || linkHref === '#') return;
-
-        let linkPath = linkHref;
-        try {
-            linkPath = new URL(linkHref, window.location.origin).pathname;
-        } catch (e) {}
-
-        const isActive = linkPath === currentUrl || (currentUrl.startsWith(linkPath) && linkPath !== '/');
-
-        if (isActive) {
-            link.classList.add('bg-red-50', 'text-red-600');
-            link.classList.remove('hover:bg-gray-50');
-            link.querySelector('i')?.classList.add('text-red-600');
-            link.querySelector('span')?.classList.add('text-red-600');
-        } else {
-            link.classList.remove('bg-red-50', 'text-red-600');
-            link.classList.add('hover:bg-gray-50');
-            link.querySelector('i')?.classList.remove('text-red-600');
-            link.querySelector('span')?.classList.remove('text-red-600');
-            link.querySelector('span')?.classList.add('text-gray-700');
-        }
-    });
+    // --- TINANGGAL NA NATIN 'YUNG navLinkElements.forEach DITO ---
+    // --- DAHIL SA SPA-NAVIGATION.JS NA 'YAN GAGAWIN ---
 });
