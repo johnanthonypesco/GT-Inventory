@@ -9,13 +9,22 @@ use App\Models\Inventory;
 
 class InventoryController extends Controller
 {
+    
     public function showinventory(Request $request)
     {
-        $products = Product::where('is_archived', false)->get();
-        $inventories = Inventory::all();
+        $products = Product::where('is_archived', 2)->get();
+        $inventories = Inventory::where('is_archived', 2)->get();
+        $archiveproducts = Product::where('is_archived', 1)->get();
+        $archivedstocks = Inventory::where('is_archived', 1)->get();
 
-        return view('admin.inventory', ['products' => $products, 'inventories' => $inventories]);
+        return view('admin.inventory', [
+            'products' => $products, 
+            'inventories' => $inventories,
+            'archiveproducts' => $archiveproducts,
+            'archivedstocks' => $archivedstocks,
+        ]);
     }
+    // ADD PRODUCT
 
     public function addProduct(Request $request, Product $product) {
         $validated = $request->validateWithBag( 'addproduct', [
@@ -34,6 +43,8 @@ class InventoryController extends Controller
 
         return to_route('admin.inventory')->with('success', 'Product added successfully.');
     }
+    
+    // UPDATE PRODUCT
 
     public function updateProduct(Request $request) {
         $validated = $request->validateWithBag( 'updateproduct', [
@@ -61,6 +72,53 @@ class InventoryController extends Controller
 
         return redirect()->route('admin.inventory')->with('success', 'Product updated successfully.');
     }
+
+    // ARCHIVE PRODUCT
+
+    public function archiveProduct(Request $request) {
+        $validated = $request->validateWithBag('archiveproduct', [
+            'product_id' => 'required|exists:products,id',
+        ], [
+            'product_id.required' => 'Product ID is required.',
+            'product_id.exists' => 'The selected product does not exist.',
+        ]);
+
+        $product = Product::findOrFail($validated['product_id']);
+        $product->update([
+            'is_archived' => 1,
+        ]);
+
+        // Archive stock that belongs to the product
+        Inventory::where('product_id', $product->id)->update([
+            'is_archived' => 1,
+        ]);
+
+        return redirect()->route('admin.inventory')->with('success', 'Product archived successfully.');
+    }
+
+    // UNARCHIVE PRODUCT
+
+    public function unarchiveProduct(Request $request) {
+        $validated = $request->validateWithBag('unarchiveproduct', [
+            'product_id' => 'required|exists:products,id',
+        ], [
+            'product_id.required' => 'Product ID is required.',
+            'product_id.exists' => 'The selected product does not exist.',
+        ]);
+
+        $product = Product::findOrFail($validated['product_id']);
+        $product->update([
+            'is_archived' => 2,
+        ]);
+
+        // Unarchive stock that belongs to the product
+        Inventory::where('product_id', $product->id)->update([
+            'is_archived' => 2,
+        ]);
+
+        return redirect()->route('admin.inventory')->with('success', 'Product unarchived successfully.');
+    }
+    // ADD STOCK
 
     public function addStock(Request $request) {
         $validated = $request->validateWithBag( 'addstock', [
@@ -94,6 +152,8 @@ class InventoryController extends Controller
 
         return to_route('admin.inventory')->with('success', 'Stock added successfully.');
     }
+
+    // EDIT STOCK
 
     public function editStock (Request $request) {
         $validated = $request->validateWithBag( 'editstock', [
