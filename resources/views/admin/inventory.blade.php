@@ -172,7 +172,7 @@
                 </td>
                 <td class="p-3 text-sm text-gray-700 text-center font-semibold">{{ Carbon::parse($inventory->expiry_date)->format('M d, Y') }}</td>
                 <td class="p-3">
-                  <button class="edit-stock-btn bg-green-100 text-green-700 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-green-600 hover:text-white font-semibold text-sm">
+                  <button class="edit-stock-btn bg-blue-100 text-blue-700 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 hover:text-white font-semibold text-sm">
                     <i class="fa-regular fa-pen-to-square mr-1"></i>Edit Stock
                   </button>
                 </td>
@@ -253,9 +253,9 @@
         </button>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto h-fit max-h-[70vh]">
         <table class="w-full text-sm text-left">
-          <thead class="bg-gray-200 text-gray-700 uppercase text-xs">
+          <thead class="bg-gray-200 text-gray-700 uppercase text-xs sticky top-0">
             <tr>
               <th class="p-3">#</th>
               <th class="p-3">Product Details</th>
