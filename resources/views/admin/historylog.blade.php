@@ -38,7 +38,7 @@
                     </div>
                 </div>
                
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto p-5">
                     <table class="min-w-full table-auto border-collapse">
                         <thead class="bg-gray-200 text-gray-700 sticky top-0">
                             <tr>
