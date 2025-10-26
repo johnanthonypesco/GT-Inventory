@@ -186,6 +186,7 @@
                           </td>
                           <td class="p-3">
                               <button class="edit-stock-btn bg-blue-100 text-blue-700 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 hover:text-white font-semibold text-sm">
+                                <i class="fa-regular fa-pen-to-square mr-1"></i>
                                   Edit Stock
                               </button>
                           </td>

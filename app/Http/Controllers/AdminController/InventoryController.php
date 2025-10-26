@@ -157,27 +157,35 @@ class InventoryController extends Controller
 
     // EDIT STOCK
 
-    public function editStock (Request $request) {
-        $validated = $request->validateWithBag( 'editstock', [
-            'inventory_id' => 'required|exists:products,id',
+    public function editStock(Request $request)
+    {
+        $validated = $request->validateWithBag('editstock', [
+            'inventory_id' => 'required|exists:inventories,id',
             'batchnumber' => 'required|min:3|max:120',
-            'quantity' => 'required|numeric',
-            'expiry' => 'required|date',
+            'quantity' => 'required|numeric|min:0',
+            'expiry' => 'required|date|after:today',
         ], [
-            'inventory_id.required'=> 'Product ID is required.',
-            'batchnumber.required'=> 'Batch number is required.',
-            'quantity.required'=> 'Quantity is required.',
-            'expiry.required'=> 'Expiry date is required.',
+            'inventory_id.required' => 'Product ID is required.',
+            'inventory_id.exists'   => 'The selected stock does not exist.',
+            'batchnumber.required'  => 'Batch number is required.',
+            'quantity.required'     => 'Quantity is required.',
+            'quantity.numeric'      => 'Quantity must be a number.',
+            'expiry.required'       => 'Expiry date is required.',
+            'expiry.date'           => 'Expiry date must be a valid date.',
+            'expiry.after'          => 'Expiry date cannot be in the past.',
         ]);
 
         $inventory = Inventory::findOrFail($validated['inventory_id']);
+
         $inventory->update([
             'batch_number' => $validated['batchnumber'],
-            'quantity' => $validated['quantity'],
-            'expiry_date' => $validated['expiry'],
-        ], 'edit-stock');
+            'quantity'     => $validated['quantity'],
+            'expiry_date'  => $validated['expiry'],
+        ]);
 
-        return redirect()->route('admin.inventory')->with('success', 'Stock updated successfully.');
+        return redirect()
+            ->route('admin.inventory')
+            ->with('success', 'Stock updated successfully.');
     }
 
 }
