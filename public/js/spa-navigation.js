@@ -1,17 +1,10 @@
-// SPA for navigation - Single Page Application 
-
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. Kunin ang mga importanteng elements
     const mainContent = document.getElementById('main-content');
     const navLinks = document.querySelectorAll('.nav-link');
 
-    // ---
-    // 2. Function para mag-load ng bagong page
-    // ---
     const loadPage = async (url, pushState = true) => {
         
-        // Ipakita ang SKELETON LOADER
         if (mainContent) {
             mainContent.innerHTML = `
             <div class="pt-20 p-4 lg:p-8 min-h-screen">
@@ -19,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mb-6 pt-16">
                     <div class="h-4 bg-gray-200 rounded-md w-1/3 animate-pulse"></div>
                 </div>
-        
+    
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                         <div class="flex items-center justify-between animate-pulse">
@@ -63,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="h-10 w-full sm:w-48 bg-gray-200 rounded-lg animate-pulse"></div>
                     <div class="h-10 w-full sm:w-48 bg-gray-200 rounded-lg animate-pulse"></div>
                 </div>
-        
+    
                 <div class="mt-5 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-4 border-b border-gray-200 flex items-center justify-between">
                         <div class="h-10 w-1/2 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -102,23 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
         
-        // I-set ang active link sa sidebar
         setActiveLink(url);
 
         try {
-            // ================== ITO ANG DINAGDAG NATIN ==================
-            // 1. Simulan ang pag-fetch ng data
             const fetchPromise = fetch(url);
-            
-            // 2. Simulan ang 5-second (5000ms) timer
             const timeoutPromise = new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // 3. Hintayin na matapos ang pareho (ang naunang matapos ay maghihintay)
-            //    Ang 'response' ay galing sa fetchPromise
             const [response] = await Promise.all([fetchPromise, timeoutPromise]);
-            // ==========================================================
 
-            // (Ito 'yung dati nang code)
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -129,16 +112,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const newContent = doc.getElementById('main-content').innerHTML;
             const newTitle = doc.querySelector('title').innerText;
 
-            // Palitan ang content at title ng kasalukuyang page
             if (mainContent) {
                 mainContent.innerHTML = newContent;
             }
             document.title = newTitle;
 
-            // I-update ang URL sa browser
             if (pushState) {
                 history.pushState({ path: url }, newTitle, url);
             }
+
+            if (typeof initializeInventoryPage === 'function' && url.includes('/inventory')) {
+                initializeInventoryPage();
+            }
+
+            const newScripts = doc.querySelectorAll('script');
+            newScripts.forEach(script => {
+                if (!script.src && (script.innerText.includes('errors.addproduct') || script.innerText.includes('errors.addstock'))) {
+                    const newScript = document.createElement('script');
+                    newScript.text = script.innerText;
+                    document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                }
+            });
 
         } catch (error) {
             console.error('Failed to load page:', error);
@@ -146,9 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // ---
-    // 3. Function para i-set ang "Active" link (Gamit ang RED classes)
-    // ---
     const setActiveLink = (url) => {
         
         let targetPathname;
@@ -171,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const span = link.querySelector('span');
 
             if (linkPathname === targetPathname) {
-                // Set as ACTIVE
                 link.classList.add('bg-red-50', 'text-red-600');
                 link.classList.remove('hover:bg-gray-50', 'text-gray-700', 'md:text-gray-700');
                 if (icon) icon.classList.add('text-red-600');
@@ -180,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     span.classList.remove('text-gray-700');
                 }
             } else {
-                // Set as INACTIVE
                 link.classList.remove('bg-red-50', 'text-red-600');
                 link.classList.add('hover:bg-gray-50', 'text-gray-700', 'md:text-gray-700');
                 if (icon) icon.classList.remove('text-red-600');
@@ -192,9 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ---
-    // 4. Idagdag ang Click Listener sa LAHAT ng nav-link
-    // ---
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             if (link.href === window.location.href) {
@@ -206,16 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ---
-    // 5. Handle ang Back/Forward buttons ng browser
-    // ---
     window.addEventListener('popstate', () => {
         loadPage(location.href, false);
     });
     
-    // ---
-    // 6. I-set ang tamang active link sa unang pag-load ng page
-    // ---
     setActiveLink(window.location.href);
 
 });
