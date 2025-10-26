@@ -19,18 +19,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // =================== 1. ANG LOGIN REDIRECTOR ===================
     // Ito ang sasalubong sa LAHAT ng user pagka-login.
-    // Ipadadala niya ang LAHAT (superadmin, admin, encoder) sa 'admin.dashboard'.
     
     Route::get('/dashboard', function () {
         
-        // I-check kung may permission siyang pumasok sa admin panel
-        // gamit ang Gate na ginawa natin sa AppServiceProvider
-        if (Auth::user()->can('can-access-admin-panel')) {
+        // ---- BINAGO NATIN TO ----
+        // I-check kung ang level ay 1, 2, o 3 (Superadmin, Admin, o Encoder)
+        // (Ito ay kapareho ng logic ng 'level.all' middleware)
+        if (Auth::user() && in_array(Auth::user()->user_level_id, [1, 2, 3])) {
              // Papuntang /admin/dashboard
             return redirect()->route('admin.dashboard');
         }
 
-        // Kung wala (halimbawa, ibang role na hindi kasama), logout
+        // Kung wala (level 4, 5, atbp), logout
         Auth::logout();
         return redirect('/login')->with('error', 'You do not have permission.');
 
@@ -45,49 +45,48 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // =================== 3. ANG IISANG (SHARED) ADMIN PANEL ===================
-    // Pinagsama-sama na natin ang lahat dito.
-    // Dito papasok si SUPERADMIN, ADMIN, at ENCODER.
-    
-    Route::middleware('can:can-access-admin-panel') // <-- Gamit ang bagong Gate
-         ->prefix('admin') // <-- Lahat ay /admin/...
-         ->name('admin.') // <-- Lahat ay may pangalang admin....
-         ->group(function () {
+    //
+    // ---- ITO NA ANG MALINIS NA VERSION GAMIT ANG MGA GINAWA NATING MIDDLEWARE ----
+    //
+    Route::prefix('admin')
+          ->name('admin.')
+          ->middleware('level.all') // <-- CHECK MUNA KUNG LEVEL 1, 2, o 3
+          ->group(function () {
         
-        // == SHARED ROUTES PARA SA SUPERADMIN, ADMIN, AT ENCODER ==
-        
-        // URL: /admin/dashboard -> Name: admin.dashboard
+        // == ROUTE PARA SA LAHAT (Level 1, 2, 3) ==
+        // (Automatic pwede na sila dito)
         Route::get('/dashboard', [DashboardController::class, 'showdashboard'])->name('dashboard');
         
-        // URL: /admin/productmovement -> Name: admin.productmovement
-        Route::get('/productmovement', [ProductMovementController::class, 'showproductmovement'])->name('productmovement');
-        
-        // URL: /admin/inventory -> Name: admin.inventory
-        Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
-        Route::post('/inventory', [InventoryController::class, 'addProduct'])->name('inventory.addproduct');
-        Route::put('/inventory/update', [InventoryController::class, 'updateProduct'])->name('inventory.updateproduct');
-        Route::post('/inventory/addstock', [InventoryController::class, 'addStock'])->name('inventory.addstock');
-        Route::put('/inventory/editstock', [InventoryController::class, 'editStock'])->name('inventory.editstock');
-        Route::put('/inventory/archive', [InventoryController::class, 'archiveProduct'])->name('inventory.archiveproduct');
-        Route::put('/inventory/unarchive', [InventoryController::class, 'unarchiveProduct'])->name('inventory.unarchiveproduct');
-        // URL: /admin/patientrecords -> Name: admin.patientrecords
-        Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
-        
-        // URL: /admin/historylog -> Name: admin.historylog
-        Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
+        // == ROUTES PARA SA ADMIN at SUPERADMIN (Level 1, 2) ==
+        Route::middleware('level.admin') // <-- CHECK KUNG LEVEL 1 o 2
+             ->group(function () {
+            
+            Route::get('/productmovement', [ProductMovementController::class, 'showproductmovement'])->name('productmovement');
+            
+            // --- Inventory Routes ---
+            Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
+            Route::post('/inventory', [InventoryController::class, 'addProduct'])->name('inventory.addproduct');
+            Route::put('/inventory/update', [InventoryController::class, 'updateProduct'])->name('inventory.updateproduct');
+            Route::post('/inventory/addstock', [InventoryController::class, 'addStock'])->name('inventory.addstock');
+            Route::put('/inventory/editstock', [InventoryController::class, 'editStock'])->name('inventory.editstock');
+            Route::put('/inventory/archive', [InventoryController::class, 'archiveProduct'])->name('inventory.archiveproduct');
+            Route::put('/inventory/unarchive', [InventoryController::class, 'unarchiveProduct'])->name('inventory.unarchiveproduct');
+            
+            // --- Iba pang Admin Routes ---
+            Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+            Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
+        });
 
-        
-        // == ROUTE NA PARA SA SUPERADMIN LANG ==
-        // Nasa loob pa rin ng /admin/ path, pero may extra check
-        
-        // URL: /admin/manageaccount -> Name: admin.manageaccount
-        Route::get('/manageaccount' , [ManageaccountController::class, 'showManageaccount'])
-             ->middleware('can:be-superadmin') // <-- Dito chine-check kung superadmin
-             ->name('manageaccount');
-    });
+        // == ROUTE PARA SA SUPERADMIN LANG (Level 1) ==
+        Route::middleware('level.superadmin') // <-- CHECK KUNG LEVEL 1 LANG
+             ->group(function () {
 
-    // WALA NA DITO 'YUNG MGA HIWALAY NA ROUTE GROUP PARA SA
-    // 'superadmin', 'admin', at 'encoder' DAHIL PINAG-ISA NA SA TAAS.
+            Route::get('/manageaccount' , [ManageaccountController::class, 'showManageaccount'])
+                  ->name('manageaccount');
+        });
+    
+    }); // <-- End ng buong /admin group
 
-});
+}); // <-- End ng buong auth middleware group
 
 require __DIR__.'/auth.php';

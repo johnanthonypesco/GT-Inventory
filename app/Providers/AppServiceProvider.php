@@ -48,27 +48,31 @@ class AppServiceProvider extends ServiceProvider
          * Gate para sa mga feature na SUPERADMIN LANG ang pwedeng gumamit
          * (Tulad ng 'manage accounts')
          */
-        Gate::define('be-superadmin', function (User $user) {
-            // Check kung 'yung name sa level niya ay 'superadmin'
-            return $user->level && $user->level->name == 'superadmin';
-        });
-        Gate::define('be-admin', function (User $user) {
-            // Check kung 'yung name sa level niya ay 'admin'
-            return $user->level && $user->level->name == 'admin';
-        });
+        // Gate::define('be-superadmin', function (User $user) {
+        //     // Check kung 'yung name sa level niya ay 'superadmin'
+        //     return $user->level && $user->level->name == 'superadmin';
+        // });
+        // Gate::define('be-admin', function (User $user) {
+        //     // Check kung 'yung name sa level niya ay 'admin'
+        //     return $user->level && $user->level->name == 'admin';
+        // });
+        // Gate::define('be-encoder', function (User $user) {
+        //     // Check kung 'yung name sa level niya ay 'encoder'
+        //     return $user->level && $user->level->name == 'encoder';
+        // });
 
-        /**
-         * Gate para sa LAHAT ng pwedeng pumasok sa shared admin panel
-         * (superadmin, admin, AT encoder)
-         */
-        Gate::define('can-access-admin-panel', function (User $user) {
-            // Pwedeng pumasok basta 'superadmin', 'admin', O 'encoder'
-            return $user->level && in_array($user->level->name, [
-                'superadmin', 
-                'admin',
-                'encoder'
-            ]);
-        });
+        // /**
+        //  * Gate para sa LAHAT ng pwedeng pumasok sa shared admin panel
+        //  * (superadmin, admin, AT encoder)
+        //  */
+        // Gate::define('can-access-admin-panel', function (User $user) {
+        //     // Pwedeng pumasok basta 'superadmin', 'admin', O 'encoder'
+        //     return $user->level && in_array($user->level->name, [
+        //         'superadmin', 
+        //         'admin',
+        //         'encoder'
+        //     ]);
+        // });
         
         // (Wala na dito 'yung 'be-admin' at 'be-encoder' GATES
         // dahil pinalitan na natin ng 'can-access-admin-panel')

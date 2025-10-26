@@ -7,52 +7,52 @@
         </button>
     </div>
     <ul class="flex flex-col flex-1 mt-6 space-y-2">
-        
-        <li>
-            <a href="{{ route('admin.dashboard') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-house-chimney nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Dashboard</span>
-            </a>
-        </li>
         @auth
-        @if(auth()->user()->user_level_id == 1 || auth()->user()->user_level_id == 2)
-        <li>
-            <a href="{{ route('admin.inventory') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-cubes-stacked nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Inventory</span>
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('admin.productmovement') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-file-spreadsheet nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Product Movement</span>
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('admin.patientrecords') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-book-user nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Reports</span>
-            </a>
-        </li>
-        
+            @if(in_array(auth()->user()->user_level_id, [1, 2, 3]))
+            <li>
+                <a href="{{ route('admin.dashboard') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-house-chimney nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Dashboard</span>
+                </a>
+            </li>
+            @endif
+            @if(in_array(auth()->user()->user_level_id, [1, 2]))
+            <li>
+                <a href="{{ route('admin.inventory') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-cubes-stacked nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Inventory</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.productmovement') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-file-spreadsheet nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Product Movement</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.patientrecords') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-book-user nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Reports</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.historylog') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-clock-rotate-left nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">History Logs</span>
+                </a>
+            </li>
+            @endif
+            @if(auth()->user()->user_level_id == 1)
+            <li>
+                <a href="{{ route('admin.manageaccount') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
+                    <i class="fa-regular fa-users nav-icon w-5 text-center text-gray-600"></i>
+                    <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Manage Account</span>
+                </a>
+            </li>
+            @endif
             
-        @if(auth()->user()->user_level_id == 1)
-        <li>
-            <a href="{{ route('admin.manageaccount') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-users nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">Manage Account</span>
-            </a>
-        </li>
-        @endif
-        <li>
-            <a href="{{ route('admin.historylog') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 md:text-gray-700">
-                <i class="fa-regular fa-clock-rotate-left nav-icon w-5 text-center text-gray-600"></i>
-                <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700">History Logs</span>
-            </a>
-        </li>
-        @endif
-    @endauth
-    </ul>
+        @endauth
+        </ul>
     <ul class="mt-auto space-y-1 border-t pt-4 border-gray-200">
         <li>
             <a href="#" class="w-full flex items-center px-3 py-2.5 hover:bg-gray-50 rounded-lg text-gray-700">
