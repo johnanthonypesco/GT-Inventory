@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Inventory;
+// use pagination
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class InventoryController extends Controller
 {
     
     public function showinventory(Request $request)
     {
-        $products = Product::where('is_archived', 2)->get();
-        $inventories = Inventory::where('is_archived', 2)->get();
+        $products = Product::where('is_archived', 2)->paginate(10);
+        $inventories = Inventory::where('is_archived', 2)->paginate(10);
         $archiveproducts = Product::where('is_archived', 1)->get();
         $archivedstocks = Inventory::where('is_archived', 1)->get();
 
