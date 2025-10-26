@@ -14,13 +14,32 @@ class InventoryController extends Controller
     
     public function showinventory(Request $request)
     {
-        // Kunin ang data para sa pagination
-        $inventories = Inventory::where('is_archived', 2)->paginate(10);
+        // Kunin ang search term mula sa URL (e.g., ?search=amoxicillin)
+        $search = $request->input('search', '');
+
+        // Simulan ang query
+        $inventoryQuery = Inventory::where('is_archived', 2);
+
+        // Kung may search term, i-filter ang query
+        if (!empty($search)) {
+            $inventoryQuery->where(function ($query) use ($search) {
+                $query->where('batch_number', 'like', "%{$search}%")
+                    ->orWhereHas('product', function ($q) use ($search) {
+                        $q->where('generic_name', 'like', "%{$search}%")
+                            ->orWhere('brand_name', 'like', "%{$search}%")
+                            ->orWhere('form', 'like', "%{$search}%")
+                            ->orWhere('strength', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Paginate the results
+        // Gagamitin natin ang withQueryString() para maalala ng pagination links ang search query
+        $inventories = $inventoryQuery->paginate(10)->withQueryString();
 
         // Suriin kung ito ay isang AJAX request
         if ($request->ajax()) {
             // Kung AJAX, ibalik lang ang partial view ng table
-            // Gagawa tayo ng file na ito sa Step 2
             return view('admin.partials._inventory_table', ['inventories' => $inventories])->render();
         }
 
@@ -32,12 +51,11 @@ class InventoryController extends Controller
         // Ibalik ang buong view
         return view('admin.inventory', [
             'products' => $products, 
-            'inventories' => $inventories,
+            'inventories' => $inventories, // Ito ay filtered na kung may search
             'archiveproducts' => $archiveproducts,
             'archivedstocks' => $archivedstocks,
         ]);
     }
-    // ADD PRODUCT
 
     public function addProduct(Request $request, Product $product) {
         $validated = $request->validateWithBag( 'addproduct', [

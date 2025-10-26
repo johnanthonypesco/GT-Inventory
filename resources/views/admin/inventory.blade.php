@@ -115,7 +115,7 @@
         <div class="p-4 border-b border-gray-200 flex items-center justify-between">
           <div class="relative w-1/2">
             <i class="fa-regular fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="text" placeholder="Search products..." class="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm">
+            <input type="text" id="inventory-search-input" placeholder="Search products..." class="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm" value="{{ request('search') }}">
           </div>
           
           {{-- export button --}}
@@ -146,7 +146,7 @@
   @include('components.admin.modals.inventory.archived-stocks', [
       'archivedstocks' => $archivedstocks,
   ])
-  
+
   {{-- add new product modal--}}
   @include('components.admin.modals.inventory.add-new-product')
 

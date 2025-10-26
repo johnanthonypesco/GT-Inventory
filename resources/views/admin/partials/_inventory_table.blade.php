@@ -1,4 +1,4 @@
-{{-- Ang file na ito ay naglalaman LAMANG ng table at pagination --}}
+{{-- partials/_inventory_table.blade.php --}}
 <table class="w-full">
     <thead class="sticky top-0 bg-gray-200">
         <tr>
@@ -102,45 +102,38 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Hanapin ang container ng table
+
+    // --- Error Handling Script (yung dati mong script) ---
+    @if ($errors->addproduct->any())
+        document.getElementById('addnewproductmodal').classList.remove('hidden');
+    @elseif ($errors->addstock->any() && old('product_id', null, 'addstock'))
+        document.getElementById('viewallproductsmodal').classList.remove('hidden');
+        document.getElementById('addstockmodal').classList.remove('hidden');
+    @elseif ($errors->updateproduct->any() && old('product_id', null, 'updateproduct'))
+        document.getElementById('viewallproductsmodal').classList.remove('hidden');
+        document.getElementById('editproductmodal').classList.remove('hidden');
+    @elseif ($errors->editstock->any() && old('inventory_id', null, 'editstock'))
+        document.getElementById('editstockmodal').classList.remove('hidden');
+    @endif
+
+    // --- AJAX Script para sa Search at Pagination ---
+
     const tableContainer = document.getElementById('inventory-data-container');
-
-    // Gumamit ng 'event delegation' para pakinggan ang clicks sa pagination links
-    tableContainer.addEventListener('click', function (event) {
-        
-        // Tignan kung ang pinindot ay isang <a> tag sa loob ng .pagination-links
-        if (event.target.tagName === 'A' && event.target.closest('.pagination-links')) {
-            
-            // Pigilan ang default behavior (full page reload)
-            event.preventDefault();
-
-            let url = event.target.href;
-
-            // Gumawa ng AJAX request (gamit ang Fetch API)
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Ito ang nagsasabi sa Laravel na AJAX request ito
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                // Palitan ang laman ng container ng bagong HTML galing sa server
-                tableContainer.innerHTML = html;
-
-                // I-update ang URL sa browser
-                window.history.pushState({path: url}, '', url);
-
-                // MAHALAGA: Kung ang iyong 'Edit Stock' button ay may JavaScript,
-                // kailangan mong i-re-attach ang event listeners dito dahil bago na ang HTML.
-                // Halimbawa: initEditStockButtons(); 
-            })
-            .catch(error => console.error('Error fetching pagination data:', error));
+    
+    // --- Debounce Function (para hindi mag-request sa bawat type) ---
+    let debounceTimer;
+    function debounce(func, delay) {
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
         }
-    });
+    }
 
-    // Handle ang paggamit ng Back/Forward button ng browser
-    window.addEventListener('popstate', function () {
-        fetch(location.href, { // location.href ay ang URL na pinuntahan (mula sa history)
+    // --- Pangunahing Function para mag-Fetch ng Data ---
+    function fetchInventory(url) {
+        fetch(url, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
@@ -148,9 +141,48 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.text())
         .then(html => {
             tableContainer.innerHTML = html;
-            // I-re-attach din ang listeners dito
+            // I-update ang URL sa browser
+            window.history.pushState({path: url}, '', url);
+            
+            // Dito mo i-re-attach ang listeners para sa "Edit Stock" buttons
+            // Halimbawa: initEditStockButtonListeners();
         })
-        .catch(error => console.error('Error fetching popstate data:', error));
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // --- 1. AJAX Pagination Handler ---
+    // Gagamit tayo ng 'event delegation' para gumana pa rin kahit magpalit ang HTML
+    tableContainer.addEventListener('click', function (event) {
+        // Tignan kung ang pinindot ay isang <a> tag sa loob ng .pagination-links
+        if (event.target.tagName === 'A' && event.target.closest('.pagination-links')) {
+            event.preventDefault(); // Pigilan ang full page reload
+            let url = event.target.href;
+            fetchInventory(url);
+        }
+    });
+
+    // --- 2. AJAX Search Handler ---
+    const searchInput = document.getElementById('inventory-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', debounce(function (event) {
+            const searchValue = event.target.value;
+            
+            // Kunin ang base URL ng page (walang query string)
+            const baseUrl = window.location.origin + window.location.pathname;
+            
+            // Gumawa ng bagong URL na may search query.
+            // Ito ay awtomatikong magre-reset sa page 1, na tama para sa bagong search.
+            const url = new URL(baseUrl);
+            url.searchParams.set('search', searchValue);
+
+            fetchInventory(url.href);
+        }, 300)); // 300ms delay bago mag-search
+    }
+
+    // --- 3. Browser Back/Forward Button Handler ---
+    window.addEventListener('popstate', function () {
+        // Kunin ang data para sa URL na pinuntahan (mula sa history)
+        fetchInventory(location.href); 
     });
 });
 </script>
