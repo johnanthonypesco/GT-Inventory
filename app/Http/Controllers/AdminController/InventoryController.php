@@ -14,11 +14,22 @@ class InventoryController extends Controller
     
     public function showinventory(Request $request)
     {
-        $products = Product::where('is_archived', 2)->get();
+        // Kunin ang data para sa pagination
         $inventories = Inventory::where('is_archived', 2)->paginate(10);
+
+        // Suriin kung ito ay isang AJAX request
+        if ($request->ajax()) {
+            // Kung AJAX, ibalik lang ang partial view ng table
+            // Gagawa tayo ng file na ito sa Step 2
+            return view('admin.partials._inventory_table', ['inventories' => $inventories])->render();
+        }
+
+        // Para sa normal page load, kunin ang lahat ng data
+        $products = Product::where('is_archived', 2)->get();
         $archiveproducts = Product::where('is_archived', 1)->get();
         $archivedstocks = Inventory::where('is_archived', 1)->get();
 
+        // Ibalik ang buong view
         return view('admin.inventory', [
             'products' => $products, 
             'inventories' => $inventories,
