@@ -297,7 +297,7 @@
               </table>
           </div>
 
-          <div class="p-2 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+          {{-- <div class="p-2 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
               <p class="text-sm text-gray-600">
                   Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} results
               </p>
@@ -322,7 +322,7 @@
                       <span class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-400 cursor-not-allowed">Next</span>
                   @endif
               </div>
-          </div>
+          </div> --}}
       </div>
   </div>
   {{-- end view all products modal--}}

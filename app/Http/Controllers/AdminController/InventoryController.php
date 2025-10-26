@@ -14,7 +14,7 @@ class InventoryController extends Controller
     
     public function showinventory(Request $request)
     {
-        $products = Product::where('is_archived', 2)->paginate(10);
+        $products = Product::where('is_archived', 2)->get();
         $inventories = Inventory::where('is_archived', 2)->paginate(10);
         $archiveproducts = Product::where('is_archived', 1)->get();
         $archivedstocks = Inventory::where('is_archived', 1)->get();
