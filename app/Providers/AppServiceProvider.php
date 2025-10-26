@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+         $hosting = env('APP_HOSTING', 'local'); // default to 'local'
+
+        // Detect Cloudflare tunnel / proxy (X-Forwarded-Proto)
+        if ($hosting === 'cloudflare') {
+            if (request()->header('X-Forwarded-Proto') === 'https') {
+                URL::forceScheme('https');
+            }
+        }
+
+        // Detect Hostinger environment (direct HTTPS)
+        elseif ($hosting === 'hostinger') {
+            if (request()->isSecure()) {
+                URL::forceScheme('https');
+            }
+        }
+
+        // (Optional) Always force HTTPS in production
+        elseif (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
         // $this->registerPolicies();
 
         /**
