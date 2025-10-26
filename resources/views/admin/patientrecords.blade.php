@@ -262,6 +262,7 @@
 </body>
 <x-admin.loader />
 </html>
+<script src="{{asset('js/patientrecords.js')}}"></script>
 <script src="{{ asset('js/spa-navigation.js') }}"></script>
 
 
