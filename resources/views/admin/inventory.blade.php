@@ -2,6 +2,9 @@
   use Carbon\Carbon;
 @endphp
 <x-app-layout>
+  <x-slot name="title">
+        Inventory - General Tinio
+    </x-slot>
 <body class="bg-gray-50">
 
   <x-admin.sidebar/>
@@ -147,7 +150,7 @@
   @include('components.admin.modals.inventory.edit-stock')
 </body>
 </html>
-<script src="{{ asset('js/spa-navigation.js') }}"></script>
+
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
