@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Inventory;
+use App\Models\HistoryLog; // <-- added
 use Carbon\Carbon;
 // use pagination
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth; // <-- added
 
 class InventoryController extends Controller
 {
@@ -106,7 +108,20 @@ class InventoryController extends Controller
             'strength.required.message' => 'Strength is required.',
         ]);
 
-        $product->create($validated);
+        // keep assignment so we can log the created product
+        $newProduct = $product->create($validated);
+
+        // minimal logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'REGISTERED PRODUCT',
+            'description' => "Registered a new product: {$newProduct->generic_name} ({$newProduct->brand_name} {$newProduct->form} - {$newProduct->strength})",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $newProduct->id,
+            ],
+        ]);
 
         return to_route('admin.inventory')->with('success', 'Product added successfully.');
     }
@@ -130,11 +145,27 @@ class InventoryController extends Controller
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
+
+        // capture old values for logging
+        $old = $product->only(['generic_name', 'brand_name', 'form', 'strength']);
+
         $product->update([
             'generic_name' => $validated['generic_name'],
             'brand_name' => $validated['brand_name'],
             'form' => $validated['form'],
             'strength' => $validated['strength'],
+        ]);
+
+        // minimal logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT UPDATED',
+            'description' => "Updated the product details for " . $old['generic_name'] . " " . $old['brand_name'] . " (" . $old['form'] . " - " . $old['strength'] . ") into " . $validated['generic_name'] . " " . $validated['brand_name'] . " (" . $validated['form'] . " - " . $validated['strength'] . ')',
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
         ]);
 
         return redirect()->route('admin.inventory')->with('success', 'Product updated successfully.');
@@ -160,6 +191,18 @@ class InventoryController extends Controller
             'is_archived' => 1,
         ]);
 
+        // logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT ARCHIVED',
+            'description' => "{$product->generic_name} {$product->brand_name} ({$product->form} - {$product->strength}) has been archived and its corressponding stocks assigned to it.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
+        ]);
+
         return redirect()->route('admin.inventory')->with('success', 'Product archived successfully.');
     }
 
@@ -181,6 +224,18 @@ class InventoryController extends Controller
         // Unarchive stock that belongs to the product
         Inventory::where('product_id', $product->id)->update([
             'is_archived' => 2,
+        ]);
+
+        // logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT UNARCHIVED',
+            'description' => "{$product->generic_name} {$product->brand_name} ({$product->form} - {$product->strength}) has been unarchived and its corressponding stocks assigned to it.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
         ]);
 
         return redirect()->route('admin.inventory')->with('success', 'Product unarchived successfully.');
@@ -205,15 +260,52 @@ class InventoryController extends Controller
             ->where('expiry_date', $validated['expiry'])
             ->first();
 
+        $user = Auth::user(); // for logging
+
         if ($existingStock) {
+            $oldStock = $existingStock->quantity;
             $existingStock->quantity += $validated['quantity'];
             $existingStock->save();
+
+            $product = Product::findOrFail($validated['product_id']);
+            $oldQty = number_format($oldStock);
+            $plannedQty = number_format($validated['quantity']);
+            $addedQty = number_format($existingStock->quantity);
+
+            // logging for quantity addition
+            HistoryLog::create([
+                'action' => 'STOCK ADDED',
+                'description' => "Added additional stock (+{$plannedQty}) in batch no. {$existingStock->batch_number} (Product: {$product->generic_name} {$product->brand_name} [{$product->form} - {$product->strength}]). From {$oldQty} to {$addedQty}.",
+                'user_id' => $user?->id,
+                'user_name' => $user?->name ?? 'System',
+                'metadata' => [
+                    'inventory_id' => $existingStock->id,
+                    'product_id' => $existingStock->product_id,
+                ],
+            ]);
         } else {
             $addstock = Inventory::create([
                 'product_id' => $validated['product_id'],
                 'batch_number' => $validated['batchnumber'],
                 'quantity' => $validated['quantity'],
                 'expiry_date' => $validated['expiry'],
+            ]);
+
+            // logging for new stock creation
+            $prod = Product::findOrFail($validated['product_id']);
+
+            $expry = Carbon::parse($addstock->expiry_date)->translatedFormat('M d, Y');
+            $qty = number_format($addstock->quantity);
+
+            HistoryLog::create([
+                'action' => 'STOCK ADDED',
+                'description' => "Created a new batch for {$prod->generic_name} {$prod->brand_name} ({$prod->form} - {$prod->strength}). Batch No. {$addstock->batch_number} with a qty of {$qty}. Expires in: {$expry}.",
+                'user_id' => $user?->id,
+                'user_name' => $user?->name ?? 'System',
+                'metadata' => [
+                    'inventory_id' => $addstock->id,
+                    'product_id' => $addstock->product_id,
+                ],
             ]);
         }
 
@@ -240,12 +332,32 @@ class InventoryController extends Controller
             'expiry.after'          => 'Expiry date cannot be in the past.',
         ]);
 
-        $inventory = Inventory::findOrFail($validated['inventory_id']);
+        $inventory = Inventory::with('product')
+        ->findOrFail($validated['inventory_id']);
+
+        // capture old values for logging
+        $old = $inventory->only(['batch_number', 'quantity', 'expiry_date']);
 
         $inventory->update([
             'batch_number' => $validated['batchnumber'],
             'quantity'     => $validated['quantity'],
             'expiry_date'  => $validated['expiry'],
+        ]);
+
+        // logging
+        $prod = $inventory->product;
+        $user = Auth::user();
+        $expry = Carbon::parse($validated['expiry'])->translatedFormat('M d, Y');
+
+        HistoryLog::create([
+            'action' => 'STOCK UPDATED',
+            'description' => "Updated the stock details from {$old['batch_number']} to {$validated['batchnumber']} (Product: {$prod->generic_name} {$prod->brand_name} [{$prod->form} - {$prod->strength}]). From qty {$old['quantity']} to {$validated['quantity']}. Now expires in: {$expry}.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'inventory_id' => $inventory->id,
+                'product_id' => $inventory->product_id,
+            ],
         ]);
 
         return redirect()
@@ -254,4 +366,3 @@ class InventoryController extends Controller
     }
 
 }
-
