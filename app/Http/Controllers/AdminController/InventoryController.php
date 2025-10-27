@@ -35,7 +35,7 @@ class InventoryController extends Controller
 
         // Paginate the results
         // Gagamitin natin ang withQueryString() para maalala ng pagination links ang search query
-        $inventories = $inventoryQuery->paginate(10)->withQueryString();
+        $inventories = $inventoryQuery->paginate(20)->withQueryString();
 
         // Suriin kung ito ay isang AJAX request
         if ($request->ajax()) {
@@ -47,6 +47,7 @@ class InventoryController extends Controller
         $products = Product::where('is_archived', 2)->get();
         $archiveproducts = Product::where('is_archived', 1)->get();
         $archivedstocks = Inventory::where('is_archived', 1)->paginate(20);
+        $inventorycount = Inventory::where('is_archived', 2)->get();
 
         // Ibalik ang buong view
         return view('admin.inventory', [
@@ -54,6 +55,7 @@ class InventoryController extends Controller
             'inventories' => $inventories, // Ito ay filtered na kung may search
             'archiveproducts' => $archiveproducts,
             'archivedstocks' => $archivedstocks,
+            'inventorycount' => $inventorycount
         ]);
     }
 
