@@ -18,7 +18,9 @@ class HistorylogController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('action', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('user_name', 'like', "%{$search}%");
+                  ->orWhere('user_name', 'like', "%{$search}%")
+                  ->orWhereRaw("DATE_FORMAT(created_at, '%M %e, %Y %l:%i %p') LIKE ?", ["%{$search}%"])
+                  ->orWhereRaw("DATE_FORMAT(created_at, '%Y-%m-%d') LIKE ?", ["%{$search}%"]);
             });
         }
 
