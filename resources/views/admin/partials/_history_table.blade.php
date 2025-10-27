@@ -56,8 +56,8 @@
 </table>
 
 <div class="p-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
-    <p class="text-sm text-gray-600">Showing {{ $historyLogs->firstItem() ?? 0 }} to {{ $historyLogs->lastItem() ?? 0 }} of {{ $historyLogs->total() }} results</p>
-    <div class="flex space-x-2">
+    <p class="text-sm text-gray-600 mr-3">Showing {{ $historyLogs->firstItem() ?? 0 }} to {{ $historyLogs->lastItem() ?? 0 }} of {{ $historyLogs->total() }} results</p>
+    <div class="flex space-x-2 pagination">
         {{ $historyLogs->links() }}
     </div>
 </div>

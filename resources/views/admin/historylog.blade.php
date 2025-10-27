@@ -10,7 +10,9 @@
         <x-admin.header/>
         <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
             <div class="mb-6 pt-16">
-                <p class="text-sm text-gray-600">Home / <span class="text-red-700 font-medium">History Logs</span></p>
+                <p class="text-sm text-gray-600">
+                    Home / <span class="text-red-700 font-medium">History Logs</span>
+                </p>
             </div>
  
             <div class="bg-white rounded-xl shadow-lg overflow-hidden mt-6">
@@ -32,13 +34,14 @@
                         <input 
                             id="searchInput"
                             type="text" 
-                            placeholder="Search logs..." 
+                            placeholder="Search activity..." 
                             class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
                         >
                         
                         <!-- Tip Indicator -->
                         <p class="text-xs text-gray-400 mt-1 pl-1 italic">
-                            Tip: You can search by <span class="font-medium text-gray-500">action</span>, 
+                            Tip: You can search by 
+                            <span class="font-medium text-gray-500">action</span>, 
                             <span class="font-medium text-gray-500">user</span>, 
                             <span class="font-medium text-gray-500">details</span>, or 
                             <span class="font-medium text-gray-500">date & time</span>.
@@ -46,9 +49,17 @@
                     </div>
                 </div>
 
-               
-                <div id="history-table" class="overflow-x-auto p-5">
-                    @include('admin.partials._history_table')
+                <!-- Table wrapper (static container) -->
+                <div class="relative overflow-x-auto p-5">
+                    <!-- Loader Overlay (stays fixed here, not replaced) -->
+                    <div id="table-loader" class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm hidden z-10">
+                        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+
+                    <!-- Dynamic table content -->
+                    <div id="history-table">
+                        @include('admin.partials._history_table')
+                    </div>
                 </div>
             </div>
         </main>
