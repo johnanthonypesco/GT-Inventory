@@ -78,11 +78,11 @@ class InventoryController extends Controller
                 $rowNumber = ($archivedstocks->currentPage() - 1) * $archivedstocks->perPage() + $key + 1;
                 $expiryDate = Carbon::parse($stock->expiry_date)->format('M d, Y');
                 
-                $html .= "<tr class=\"hover:bg-gray-50 dark:hover:bg-gray-700\">
-                            <td class=\"text-left p-3 dark:text-gray-300\">{$rowNumber}</td>
-                            <td class=\"text-left font-semibold text-gray-700 dark:text-gray-200\">{$stock->batch_number}</td>
-                            <td class=\"text-left font-semibold text-gray-500 dark:text-gray-400\">{$stock->quantity}</td>
-                            <td class=\"text-center font-semibold text-gray-500 dark:text-gray-400\">{$expiryDate}</td>
+                $html .= "<tr class=\"hover:bg-gray-50\">
+                            <td class=\"text-left p-3\">{$rowNumber}</td>
+                            <td class=\"text-left font-semibold text-gray-700\">{$stock->batch_number}</td>
+                            <td class=\"text-left font-semibold text-gray-500 \">{$stock->quantity}</td>
+                            <td class=\"text-center font-semibold text-gray-500\">{$expiryDate}</td>
                           </tr>";
             }
         }
