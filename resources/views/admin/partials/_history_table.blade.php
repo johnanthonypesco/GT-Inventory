@@ -5,7 +5,19 @@
             <th class="p-4 text-gray-600 uppercase text-xs font-bold text-left tracking-wider border-b border-gray-200 text-center">Action</th>
             <th class="p-4 text-gray-600 uppercase text-xs font-bold text-center tracking-wider border-b border-gray-200">User</th>
             <th class="p-4 text-gray-600 uppercase text-xs font-bold text-left tracking-wider border-b border-gray-200">Details</th>
-            <th class="p-4 text-gray-600 uppercase text-xs font-bold text-left tracking-wider border-b border-gray-200">Date</th>
+            <th class="p-4 text-gray-600 uppercase text-xs font-bold text-left tracking-wider border-b border-gray-200">
+                <button id="sortDateBtn" class="flex items-center gap-1 select-none hover:text-blue-600 transition">
+                    Date
+                    @php
+                        $currentSort = request('sort', 'desc');
+                    @endphp
+                    @if ($currentSort === 'asc')
+                        <i class="fas fa-arrow-up text-xs"></i>
+                    @else
+                        <i class="fas fa-arrow-down text-xs"></i>
+                    @endif
+                </button>
+            </th>
         </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">

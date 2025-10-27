@@ -30,20 +30,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachModalEvents();
 
-    // === Toggle Filter Panel ===
+    // === Toggle Filter Panel with Smooth Animation ===
     toggleFilterBtn.addEventListener('click', () => {
-        const isOpen = filterPanel.classList.contains('max-h-[1000px]');
+        const isHidden = filterPanel.classList.contains('max-h-0');
         
-        if (isOpen) {
-            filterPanel.classList.remove('max-h-[1000px]', 'p-4');
-            filterPanel.classList.add('max-h-0');
-            toggleFilterBtn.innerHTML = '<i class="fas fa-filter text-xs"></i> Show Filters';
-        } else {
-            filterPanel.classList.remove('max-h-0');
-            filterPanel.classList.add('max-h-[1000px]', 'p-4'); // allow space for expansion
+        if (isHidden) {
+            filterPanel.classList.remove('max-h-0', 'opacity-0', 'p-0');
+            filterPanel.classList.add('max-h-[1000px]', 'opacity-100', 'p-4');
+            filterPanel.style.transition = 'all 0.4s ease';
             toggleFilterBtn.innerHTML = '<i class="fas fa-xmark text-xs"></i> Hide Filters';
+        } else {
+            filterPanel.classList.remove('max-h-[1000px]', 'opacity-100', 'p-4');
+            filterPanel.classList.add('max-h-0', 'opacity-0', 'p-0');
+            filterPanel.style.transition = 'all 0.4s ease';
+            toggleFilterBtn.innerHTML = '<i class="fas fa-filter text-xs"></i> Show Filters';
         }
     });
+
+    // Initialize default state
+    filterPanel.classList.add('transition-all', 'duration-500', 'ease-in-out', 'overflow-hidden', 'max-h-0', 'opacity-0', 'p-0');
 
     // === Live Search ===
     searchInput.addEventListener('input', () => {
@@ -92,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tableContainer.innerHTML = html;
             attachModalEvents();
             attachPaginationEvents();
+            attachSortEvent();
             window.history.pushState({}, '', targetUrl); // Update browser URL
         })
         .catch(err => console.error('AJAX error:', err))
@@ -109,6 +115,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === Sort by Date Handling ===
+    function attachSortEvent() {
+        const sortBtn = document.getElementById('sortDateBtn');
+        if (!sortBtn) return;
+
+        sortBtn.addEventListener('click', () => {
+            const currentUrl = new URL(window.location.href);
+            const params = new URLSearchParams(currentUrl.search);
+            const currentSort = params.get('sort') || 'desc';
+            const newSort = currentSort === 'desc' ? 'asc' : 'desc';
+            params.set('sort', newSort);
+            currentUrl.search = params.toString();
+            performSearch(currentUrl.toString());
+        });
+    }
+
     // === Loader Functions ===
     function showLoader() {
         if (loader) loader.classList.remove('hidden');
@@ -118,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loader) loader.classList.add('hidden');
     }
 
-    // Initialize pagination listeners on page load
+    // Initialize pagination and sorting listeners on page load
     attachPaginationEvents();
+    attachSortEvent();
 });

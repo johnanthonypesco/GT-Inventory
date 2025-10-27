@@ -17,7 +17,8 @@ class HistorylogController extends Controller
         $from = $request->input('from', '');
         $to = $request->input('to', '');
 
-        $query = HistoryLog::query()->orderBy('created_at', 'desc');
+        $sort = $request->input('sort', 'desc');
+        $query = HistoryLog::query()->orderBy('created_at', $sort);
 
         // === Search Filter ===
         if (!empty($search)) {
@@ -63,7 +64,7 @@ class HistorylogController extends Controller
         
         $actions = HistoryLog::select('action')->distinct()->pluck('action');
         $users = HistoryLog::select('user_name')->distinct()->pluck('user_name');
-        
+
         return view('admin.historylog', compact('historyLogs', 'actions', 'users'));
     }
 }
