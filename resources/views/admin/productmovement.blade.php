@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>General Tinio - Inventory System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v7.1.0/css/all.css">
-    <link rel="icon" type="image/png" href="{{ asset('images/gtlogo.png') }}">
-</head>
+<x-app-layout>
+    <x-slot name="title">
+        Product Movement - General Tinio
+    </x-slot>
 <body class="bg-gray-50">
 
     <x-admin.sidebar/>
@@ -23,4 +16,4 @@
     </div>
 <script src="{{ asset('js/spa-navigation.js') }}"></script>
 </body>
-</html>
+</x-app-layout>

@@ -6,28 +6,88 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Inventory;
-// use pagination
+use App\Models\HistoryLog; // <-- added
+use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth; // <-- added
 
 class InventoryController extends Controller
 {
     
+    // show inventory
     public function showinventory(Request $request)
     {
+        $search = $request->input('search', '');
+        $inventoryQuery = Inventory::where('is_archived', 2);
+
+        if (!empty($search)) {
+            $inventoryQuery->where(function ($query) use ($search) {
+                $query->where('batch_number', 'like', "%{$search}%")
+                    ->orWhereHas('product', function ($q) use ($search) {
+                        $q->where('generic_name', 'like', "%{$search}%")
+                            ->orWhere('brand_name', 'like', "%{$search}%")
+                            ->orWhere('form', 'like', "%{$search}%")
+                            ->orWhere('strength', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $inventories = $inventoryQuery->paginate(20)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('admin.partials._inventory_table', ['inventories' => $inventories])->render();
+        }
+
         $products = Product::where('is_archived', 2)->get();
-        $inventories = Inventory::where('is_archived', 2)->paginate(10);
         $archiveproducts = Product::where('is_archived', 1)->get();
-        $archivedstocks = Inventory::where('is_archived', 1)->get();
+        $inventorycount = Inventory::where('is_archived', 2)->get();
 
         return view('admin.inventory', [
             'products' => $products, 
             'inventories' => $inventories,
             'archiveproducts' => $archiveproducts,
-            'archivedstocks' => $archivedstocks,
+            'inventorycount' => $inventorycount,
         ]);
     }
-    // ADD PRODUCT
 
+    // fetch archived stocks
+    public function fetchArchivedStocks(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $productId = $request->input('product_id');
+        
+        $archivedstocks = Inventory::where('is_archived', 1)
+            ->where('product_id', $productId)
+            ->orderBy('expiry_date', 'desc')
+            ->paginate(20);
+
+        $html = '';
+        if ($archivedstocks->isEmpty() && $request->page == 1) {
+            $html = '<tr><td colspan="4" class="p-3 text-center text-red-500">No Archived Stocks Available</td></tr>';
+        } else {
+            foreach ($archivedstocks as $key => $stock) {
+                $rowNumber = ($archivedstocks->currentPage() - 1) * $archivedstocks->perPage() + $key + 1;
+                $expiryDate = Carbon::parse($stock->expiry_date)->format('M d, Y');
+                
+                $html .= "<tr class=\"hover:bg-gray-50\">
+                            <td class=\"text-left p-3\">{$rowNumber}</td>
+                            <td class=\"text-left font-semibold text-gray-700\">{$stock->batch_number}</td>
+                            <td class=\"text-left font-semibold text-gray-500 \">{$stock->quantity}</td>
+                            <td class=\"text-center font-semibold text-gray-500\">{$expiryDate}</td>
+                          </tr>";
+            }
+        }
+
+        return response()->json([
+            'html' => $html,
+            'has_more_pages' => $archivedstocks->hasMorePages(), 
+        ]);
+    }
+
+    // ADD PRODUCT
     public function addProduct(Request $request, Product $product) {
         $validated = $request->validateWithBag( 'addproduct', [
             'generic_name' => 'min:3|max:120|required',
@@ -41,7 +101,20 @@ class InventoryController extends Controller
             'strength.required.message' => 'Strength is required.',
         ]);
 
-        $product->create($validated);
+        // keep assignment so we can log the created product
+        $newProduct = $product->create($validated);
+
+        // minimal logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'REGISTERED PRODUCT',
+            'description' => "Registered a new product: {$newProduct->generic_name} ({$newProduct->brand_name} {$newProduct->form} - {$newProduct->strength})",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $newProduct->id,
+            ],
+        ]);
 
         return to_route('admin.inventory')->with('success', 'Product added successfully.');
     }
@@ -65,6 +138,10 @@ class InventoryController extends Controller
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
+
+        // capture old values for logging
+        $old = $product->only(['generic_name', 'brand_name', 'form', 'strength']);
+
         $product->update([
             'generic_name' => $validated['generic_name'],
             'brand_name' => $validated['brand_name'],
@@ -72,7 +149,19 @@ class InventoryController extends Controller
             'strength' => $validated['strength'],
         ]);
 
-        return redirect()->route('admin.inventory')->with('success', 'Product updated successfully.');
+        // minimal logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT UPDATED',
+            'description' => "Updated the product details for " . $old['generic_name'] . " " . $old['brand_name'] . " (" . $old['form'] . " - " . $old['strength'] . ") into " . $validated['generic_name'] . " " . $validated['brand_name'] . " (" . $validated['form'] . " - " . $validated['strength'] . ')',
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
+        ]);
+
+        return to_route('admin.inventory')->with('success', 'Product updated successfully.');
     }
 
     // ARCHIVE PRODUCT
@@ -95,11 +184,22 @@ class InventoryController extends Controller
             'is_archived' => 1,
         ]);
 
-        return redirect()->route('admin.inventory')->with('success', 'Product archived successfully.');
+        // logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT ARCHIVED',
+            'description' => "{$product->generic_name} {$product->brand_name} ({$product->form} - {$product->strength}) has been archived and its corressponding stocks assigned to it.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
+        ]);
+
+        return to_route('admin.inventory')->with('success', 'Product archived successfully.');
     }
 
     // UNARCHIVE PRODUCT
-
     public function unarchiveProduct(Request $request) {
         $validated = $request->validateWithBag('unarchiveproduct', [
             'product_id' => 'required|exists:products,id',
@@ -118,10 +218,22 @@ class InventoryController extends Controller
             'is_archived' => 2,
         ]);
 
-        return redirect()->route('admin.inventory')->with('success', 'Product unarchived successfully.');
-    }
-    // ADD STOCK
+        // logging
+        $user = Auth::user();
+        HistoryLog::create([
+            'action' => 'PRODUCT UNARCHIVED',
+            'description' => "{$product->generic_name} {$product->brand_name} ({$product->form} - {$product->strength}) has been unarchived and its corressponding stocks assigned to it.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'product_id' => $product->id,
+            ],
+        ]);
 
+        return to_route('admin.inventory')->with('success', 'Product unarchived successfully.');
+    }
+    
+    // ADD STOCK
     public function addStock(Request $request) {
         $validated = $request->validateWithBag( 'addstock', [
             'product_id' => 'required|exists:products,id',
@@ -140,9 +252,29 @@ class InventoryController extends Controller
             ->where('expiry_date', $validated['expiry'])
             ->first();
 
+        $user = Auth::user(); // for logging
+
         if ($existingStock) {
+            $oldStock = $existingStock->quantity;
             $existingStock->quantity += $validated['quantity'];
             $existingStock->save();
+
+            $product = Product::findOrFail($validated['product_id']);
+            $oldQty = number_format($oldStock);
+            $plannedQty = number_format($validated['quantity']);
+            $addedQty = number_format($existingStock->quantity);
+
+            // logging for quantity addition
+            HistoryLog::create([
+                'action' => 'STOCK ADDED',
+                'description' => "Added additional stock (+{$plannedQty}) in batch no. {$existingStock->batch_number} (Product: {$product->generic_name} {$product->brand_name} [{$product->form} - {$product->strength}]). From {$oldQty} to {$addedQty}.",
+                'user_id' => $user?->id,
+                'user_name' => $user?->name ?? 'System',
+                'metadata' => [
+                    'inventory_id' => $existingStock->id,
+                    'product_id' => $existingStock->product_id,
+                ],
+            ]);
         } else {
             $addstock = Inventory::create([
                 'product_id' => $validated['product_id'],
@@ -150,13 +282,29 @@ class InventoryController extends Controller
                 'quantity' => $validated['quantity'],
                 'expiry_date' => $validated['expiry'],
             ]);
+
+            // logging for new stock creation
+            $prod = Product::findOrFail($validated['product_id']);
+
+            $expry = Carbon::parse($addstock->expiry_date)->translatedFormat('M d, Y');
+            $qty = number_format($addstock->quantity);
+
+            HistoryLog::create([
+                'action' => 'STOCK ADDED',
+                'description' => "Created a new batch for {$prod->generic_name} {$prod->brand_name} ({$prod->form} - {$prod->strength}). Batch No. {$addstock->batch_number} with a qty of {$qty}. Expires in: {$expry}.",
+                'user_id' => $user?->id,
+                'user_name' => $user?->name ?? 'System',
+                'metadata' => [
+                    'inventory_id' => $addstock->id,
+                    'product_id' => $addstock->product_id,
+                ],
+            ]);
         }
 
         return to_route('admin.inventory')->with('success', 'Stock added successfully.');
     }
 
     // EDIT STOCK
-
     public function editStock(Request $request)
     {
         $validated = $request->validateWithBag('editstock', [
@@ -175,7 +323,11 @@ class InventoryController extends Controller
             'expiry.after'          => 'Expiry date cannot be in the past.',
         ]);
 
-        $inventory = Inventory::findOrFail($validated['inventory_id']);
+        $inventory = Inventory::with('product')
+        ->findOrFail($validated['inventory_id']);
+
+        // capture old values for logging
+        $old = $inventory->only(['batch_number', 'quantity', 'expiry_date']);
 
         $inventory->update([
             'batch_number' => $validated['batchnumber'],
@@ -183,10 +335,23 @@ class InventoryController extends Controller
             'expiry_date'  => $validated['expiry'],
         ]);
 
-        return redirect()
-            ->route('admin.inventory')
-            ->with('success', 'Stock updated successfully.');
+        // logging
+        $prod = $inventory->product;
+        $user = Auth::user();
+        $expry = Carbon::parse($validated['expiry'])->translatedFormat('M d, Y');
+
+        HistoryLog::create([
+            'action' => 'STOCK UPDATED',
+            'description' => "Updated the stock details from {$old['batch_number']} to {$validated['batchnumber']} (Product: {$prod->generic_name} {$prod->brand_name} [{$prod->form} - {$prod->strength}]). From qty {$old['quantity']} to {$validated['quantity']}. Now expires in: {$expry}.",
+            'user_id' => $user?->id,
+            'user_name' => $user?->name ?? 'System',
+            'metadata' => [
+                'inventory_id' => $inventory->id,
+                'product_id' => $inventory->product_id,
+            ],
+        ]);
+
+        return to_route('admin.inventory')->with('success', 'Stock updated successfully.');
     }
 
 }
-
