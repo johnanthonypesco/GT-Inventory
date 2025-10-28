@@ -82,7 +82,7 @@
                 </div>
                 
                 <button type="button" id="send-otp-button"
-                        class="bg-red-600 w-full p-3 rounded-lg text-white font-medium text-sm md:text-base hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        class="bg-green-600 w-full p-3 rounded-lg text-white font-medium text-sm md:text-base hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                     Send OTP to Email
                 </button>
                 <button type="button" id="verify-otp-button"
@@ -120,8 +120,9 @@
             }
         }
     
-        // Bagong script para sa OTP at Toggle
+        // Bagong script para sa OTP, Toggle, at Resend Timer
         document.addEventListener('DOMContentLoaded', () => {
+            // Mga Elemento
             const emailInput = document.getElementById('email');
             const passwordForm = document.getElementById('password-form');
             const otpForm = document.getElementById('otp-form');
@@ -137,9 +138,12 @@
             const successMsg = document.getElementById('ajax-success-message');
             const errorMsg = document.getElementById('ajax-error-message');
 
+            // Para sa Timer
+            let otpTimerInterval = null;
+            const resendCooldown = 60; // 60 segundo (1 minuto)
+
             // Function para magpalit ng mode
             function toggleMode(mode) {
-                // Linisin ang mga message
                 successMsg.classList.add('hidden');
                 errorMsg.classList.add('hidden');
                 
@@ -150,12 +154,8 @@
                     otpForm.classList.remove('hidden');
                     toggleToPassword.classList.remove('hidden');
                     
-                    // Reset OTP form state
-                    otpInputContainer.classList.add('hidden');
-                    verifyOtpButton.classList.add('hidden');
-                    sendOtpButton.classList.remove('hidden');
-                    sendOtpButton.disabled = false;
-                    sendOtpButton.innerText = 'Send OTP to Email';
+                    // Check agad ang timer state paglipat
+                    handleTimerTick(); 
 
                 } else { // 'password' mode
                     passwordForm.classList.remove('hidden');
@@ -165,6 +165,66 @@
                     toggleToPassword.classList.add('hidden');
                 }
             }
+
+            // --- START: Logic para sa Resend Timer ---
+            
+            function startResendCooldown() {
+                const endTime = Date.now() + resendCooldown * 1000;
+                localStorage.setItem('otpCooldownEnd', endTime);
+
+                // Ipakita agad ang OTP input
+                otpInputContainer.classList.remove('hidden');
+                verifyOtpButton.classList.remove('hidden');
+                otpInput.focus();
+
+                handleTimerTick(); // Patakbuhin agad
+
+                if (otpTimerInterval) clearInterval(otpTimerInterval); // Linisin ang lumang interval
+                otpTimerInterval = setInterval(handleTimerTick, 1000);
+            }
+
+            function handleTimerTick() {
+                const endTime = localStorage.getItem('otpCooldownEnd');
+                if (!endTime) {
+                    enableResendButton();
+                    return;
+                }
+
+                const remainingMs = endTime - Date.now();
+
+                if (remainingMs <= 0) {
+                    localStorage.removeItem('otpCooldownEnd');
+                    if (otpTimerInterval) clearInterval(otpTimerInterval);
+                    enableResendButton();
+                } else {
+                    disableResendButton(remainingMs);
+                }
+            }
+
+            function disableResendButton(remainingMs) {
+                const remainingSeconds = Math.ceil(remainingMs / 1000);
+                sendOtpButton.disabled = true;
+                sendOtpButton.innerText = `Resend OTP in ${remainingSeconds}s`;
+                sendOtpButton.classList.add('opacity-50', 'cursor-not-allowed');
+                sendOtpButton.classList.remove('hover:bg-green-700');
+            }
+
+            function enableResendButton() {
+                sendOtpButton.disabled = false;
+                
+                // Alamin kung "Send" o "Resend" ang text
+                if (otpInputContainer.classList.contains('hidden')) {
+                    sendOtpButton.innerText = 'Send OTP to Email';
+                } else {
+                    sendOtpButton.innerText = 'Resend OTP';
+                }
+                
+                sendOtpButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                sendOtpButton.classList.add('hover:bg-green-700');
+            }
+
+            // --- END: Logic para sa Resend Timer ---
+
 
             // Event Listeners para sa Toggles
             toggleToOtp.addEventListener('click', (e) => {
@@ -177,7 +237,7 @@
                 toggleMode('password');
             });
 
-            // Event Listener para sa "Send OTP"
+            // Event Listener para sa "Send/Resend OTP"
             sendOtpButton.addEventListener('click', async () => {
                 const email = emailInput.value;
                 if (!email) {
@@ -186,6 +246,7 @@
                     return;
                 }
 
+                // I-disable agad habang nagpapadala
                 sendOtpButton.disabled = true;
                 sendOtpButton.innerText = 'Sending...';
                 errorMsg.classList.add('hidden');
@@ -205,6 +266,7 @@
                     const data = await response.json();
 
                     if (!response.ok) {
+                        enableResendButton(); // I-enable ulit kung nagka-error
                         throw new Error(data.message || 'An error occurred.');
                     }
 
@@ -212,16 +274,14 @@
                     successMsg.innerText = data.message;
                     successMsg.classList.remove('hidden');
                     
-                    sendOtpButton.classList.add('hidden');
-                    otpInputContainer.classList.remove('hidden');
-                    verifyOtpButton.classList.remove('hidden');
-                    otpInput.focus();
+                    // HUWAG MUNA I-ENABLE. Hayaan ang timer ang mag-manage.
+                    // Simulan ang cooldown timer
+                    startResendCooldown();
 
                 } catch (error) {
                     errorMsg.innerText = error.message;
                     errorMsg.classList.remove('hidden');
-                    sendOtpButton.disabled = false;
-                    sendOtpButton.innerText = 'Send OTP to Email';
+                    enableResendButton(); // I-enable ulit kung nagka-error
                 }
             });
 
@@ -262,6 +322,10 @@
                     successMsg.innerText = 'Login successful! Redirecting...';
                     successMsg.classList.remove('hidden');
                     
+                    // Alisin ang timer sa localStorage para di na tumakbo
+                    localStorage.removeItem('otpCooldownEnd');
+                    if (otpTimerInterval) clearInterval(otpTimerInterval);
+
                     // Redirect to dashboard
                     window.location.href = data.redirect_url;
 
@@ -272,9 +336,17 @@
                     verifyOtpButton.innerText = 'Verify OTP & Log in';
                 }
             });
-
+            
+            // --- Patakbuhin on Page Load ---
+            // I-check kung may active cooldown timer sa localStorage
+            handleTimerTick(); // Patakbuhin agad on load
+            if (localStorage.getItem('otpCooldownEnd')) {
+                if (otpTimerInterval) clearInterval(otpTimerInterval);
+                otpTimerInterval = setInterval(handleTimerTick, 1000);
+            }
+            
+            // (Isama mo dito 'yung luma mong lockout logic galing sa login.js kung kailangan)
         });
     </script>
-
-    </body>
+</body>
 </html>
