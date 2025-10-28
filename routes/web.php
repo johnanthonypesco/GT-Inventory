@@ -19,7 +19,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // =================== 1. ANG LOGIN REDIRECTOR ===================
     // Ito ang sasalubong sa LAHAT ng user pagka-login.
-    
     Route::get('/dashboard', function () {
         
         // ---- BINAGO NATIN TO ----
