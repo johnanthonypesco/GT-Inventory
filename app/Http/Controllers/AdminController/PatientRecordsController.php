@@ -18,11 +18,13 @@ class PatientRecordsController extends Controller
     {
         $products = Inventory::with('product')->where('is_archived', 2)->get(); 
         $barangays = Barangay::all();
-        $patientrecords = Patientrecords::with(['dispensedMedications', 'barangay'])->get();
+        $patientrecords = Patientrecords::with(['dispensedMedications', 'barangay'])->paginate(20);
+        $patientrecordscard = Patientrecords::with(['dispensedMedications', 'barangay'])->get();
+
 
         // count all dispensed medications
-        $totalPeopleServed = $patientrecords->count();
-        $totalProductsDispensed = $patientrecords->sum(function ($patientrecord) {
+        $totalPeopleServed = $patientrecordscard->count();
+        $totalProductsDispensed = $patientrecordscard->sum(function ($patientrecord) {
             return $patientrecord->dispensedMedications->count();
         });
 
@@ -32,6 +34,7 @@ class PatientRecordsController extends Controller
             'patientrecords' => $patientrecords,
             'totalPeopleServed' => $totalPeopleServed,
             'totalProductsDispensed' => $totalProductsDispensed,
+            'patientrecordscard' => $patientrecordscard,
         ]);
     }
 
