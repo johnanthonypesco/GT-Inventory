@@ -11,7 +11,7 @@
 
   {{-- Sidebar --}}
   <x-admin.sidebar/>
-  
+ 
   {{-- CSRF TOKEN META TAG --}}
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -103,7 +103,6 @@
             </div>
               {{-- Forecast History Filter (Moved Here) --}}
             <div class="mt-2 sm:mt-0">
-                {{-- Removed onchange, now handled by JS --}}
               <form action="{{ route('admin.dashboard') }}" method="GET" id="forecast-filter-form" class="flex items-center gap-x-2">
                   {{-- Persist other filters --}}
                   @foreach($filterInputs as $key => $value)
@@ -205,23 +204,24 @@
         
         {{-- Main Filter Form --}}
         <form id="dashboard-filter-form" action="{{ route('admin.dashboard') }}" method="GET">
-          {{-- Hidden field for drill-down --}}
+          {{-- Hidden field for drill-down (retains value) --}}
           <input type="hidden" name="drilldown_product_id" id="drilldown_product_id" value="{{ $inputs['drilldown_product_id'] ?? '' }}">
           {{-- Hidden field for forecast days (to persist it) --}}
           <input type="hidden" name="forecast_days" value="{{ $inputs['forecast_days'] ?? 90 }}">
 
           
           <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> {{-- Adjusted to 3 columns --}}
+            {{-- Increased to 4 columns to accommodate the new filter --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> 
               
               {{-- Timespan --}}
               <div>
                 <label for="filter_timespan" class="block text-sm font-medium text-gray-700 mb-1">Time Period</label>
                 <select name="filter_timespan" id="filter_timespan" class="w-full pl-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm">
-                  <option value="7d"   @selected( ($filterInputs['filter_timespan'] ?? '30d') == '7d')>Last 7 Days</option>
+                  <option value="7d"    @selected( ($filterInputs['filter_timespan'] ?? '30d') == '7d')>Last 7 Days</option>
                   <option value="30d"  @selected( ($filterInputs['filter_timespan'] ?? '30d') == '30d')>Last 30 Days</option>
                   <option value="90d"  @selected( ($filterInputs['filter_timespan'] ?? '30d') == '90d')>Last 90 Days</option>
-                  <option value="1y"   @selected( ($filterInputs['filter_timespan'] ?? '30d') == '1y')>Last 1 Year</option>
+                  <option value="1y"    @selected( ($filterInputs['filter_timespan'] ?? '30d') == '1y')>Last 1 Year</option>
                   <option value="all"  @selected( ($filterInputs['filter_timespan'] ?? '30d') == 'all')>All Time</option>
                   <option value="custom" @selected( ($filterInputs['filter_timespan'] ?? '30d') == 'custom')>Custom Range</option>
                 </select>
@@ -240,6 +240,20 @@
                 </select>
               </div>
               
+              {{-- <--- ADDED PRODUCT FILTER HERE ---/> --}}
+              <div>
+                <label for="filter_product_id" class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                <select name="filter_product_id" id="filter_product_id" class="w-full pl-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm">
+                  <option value="">All Products</option>
+                  @foreach($filter_products as $product)
+                    <option value="{{ $product->id }}" @selected( ($filterInputs['filter_product_id'] ?? '') == $product->id)>
+                      {{ $product->generic_name }} ({{ $product->brand_name }})
+                    </option>
+                  @endforeach
+                </select>
+              </div>
+              {{-- <--- END ADDED PRODUCT FILTER ---/> --}}
+
               {{-- Grouping --}}
               <div>
                 <label for="grouping" class="block text-sm font-medium text-gray-700 mb-1">Group Trend By</label>
@@ -313,7 +327,7 @@
               </button>
             </div>
           </div>
-           {{-- Subtitle for filters --}}
+            {{-- Subtitle for filters --}}
           <p id="topProductsChartSubtitle" class="text-sm text-gray-500 mb-1"></p>
           <p class="text-sm text-gray-500 mb-3">Click on a product (bar chart only) to drill-down</p>
           <div class="relative chart-container"> {{-- Constrained Height --}}
@@ -335,13 +349,13 @@
           </div>
         </div>
 
-        {{-- === NEW: Patient Visit Trend Chart === --}}
+        {{-- Patient Visit Trend Chart --}}
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
           {{-- Title updates dynamically --}}
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1">
             <h3 id="patientVisitChartTitle" class="text-lg font-semibold text-gray-900">Patient Visit Trend</h3>
             
-            {{-- === ADDED TOGGLE === --}}
+            {{-- ADDED TOGGLE --}}
             <div id="patientVisitChartToggle" class="mt-2 sm:mt-0 flex items-center p-1 bg-gray-100 rounded-lg">
               <button data-type="line" class="chart-toggle active-toggle">
                 <i class="fa-regular fa-chart-line text-sm"></i>
@@ -350,7 +364,7 @@
                 <i class="fa-regular fa-chart-bar text-sm"></i>
               </button>
             </div>
-            {{-- === END TOGGLE === --}}
+            {{-- END TOGGLE --}}
 
           </div>
           <p id="patientVisitChartSubtitle" class="text-sm text-gray-500 mb-4"></p>
@@ -358,7 +372,6 @@
             <canvas id="patientVisitChart"></canvas>
           </div>
         </div>
-        {{-- === END NEW CHART === --}}
         
       </div>
       {{-- End Patient Charts --}}
@@ -456,7 +469,7 @@
 
   {{-- AI Response Modal --}}
   <div id="ai-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl">
       <div class="flex items-center justify-between p-4 border-b">
         <h3 class="text-lg font-semibold text-gray-900">AI Trend Analysis</h3>
         <button id="close-ai-modal" class="text-gray-400 hover:text-gray-600">
@@ -471,15 +484,17 @@
     </div>
   </div>
 
+  {{-- ADDED: Marked.js CDN for rendering AI response as HTML --}}
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   {{-- Chart.js CDN --}}
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-carbon/dist/chartjs-adapter-carbon.umd.min.js"></script>
 
-  {{-- === ADDED: Zoom Plugin === --}}
+  {{-- ADDED: Zoom Plugin --}}
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
   
-  {{-- === ADDED: Register Zoom Plugin === --}}
+  {{-- ADDED: Register Zoom Plugin --}}
   <script>
     Chart.register(window.ChartZoom);
   </script>
@@ -500,7 +515,7 @@
       color: #3b82f6; /* blue-500 */
       box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
     }
-     /* Fix for chart container height */
+      /* Fix for chart container height */
     .chart-container {
       position: relative;
       height: 20rem; /* h-80 */
@@ -515,7 +530,7 @@
     .prose-sm {
       max-width: none; /* Override prose max-width */
     }
-     /* Styling for AJAX loader */
+      /* Styling for AJAX loader */
     .ajax-loader {
       position: absolute;
       top: 50%;
@@ -543,6 +558,7 @@
       consumption: {
         labels: @json($consumptionLabels),
         data: @json($consumptionData),
+        // This is the active product ID's name (either drilldown or filter_product_id)
         productName: @json($drilldown_product_name) 
       },
       topProducts: {
@@ -555,7 +571,7 @@
           labels: @json($barangays), // All barangay names
           stackedData: @json($barangayStackedData) // Data grouped by category
         },
-        // --- NEW: Patient Visit Trend Data ---
+        // NEW: Patient Visit Trend Data
         patientVisit: {
           labels: @json($patientVisitLabels),
           data: @json($patientVisitData)
@@ -571,6 +587,8 @@
       filterLabels: {
           timespan: @json($filterTimespanLabel),
           barangay: @json($filterBarangayLabel),
+          // Use drilldown product name as the main product filter label
+          product: @json($filterProductLabel), // <--- ADDED PRODUCT LABEL
           drilldownProduct: @json($drilldown_product_name)
       }
     };
@@ -591,7 +609,7 @@
     const consumptionLineColor = 'rgb(34, 197, 94)'; // green-600
     const topProductsBarColor = 'rgba(59, 130, 246, 0.7)'; // blue-600 with alpha
     
-    // --- NEW: Patient Visit Color ---
+    // NEW: Patient Visit Color
     const patientVisitColor = 'rgb(234, 179, 8)'; // yellow-500
     
     const seasonalColor1 = 'rgb(168, 85, 247)'; // purple-600
@@ -620,12 +638,12 @@
             if (newConfig.data.datasets && newConfig.data.datasets.length > 0) {
                  // Use consistent pie colors
                  const numLabels = newConfig.data.labels.length;
-                newConfig.data.datasets[0].backgroundColor = Array.from({ length: numLabels }, (_, i) => pieColors[i % pieColors.length]);
-                newConfig.data.datasets[0].borderColor = '#ffffff';
-                newConfig.data.datasets[0].borderWidth = 1;
-                newConfig.data.datasets[0].hoverOffset = 4;
-                delete newConfig.data.datasets[0].tension; 
-                delete newConfig.data.datasets[0].fill; 
+                 newConfig.data.datasets[0].backgroundColor = Array.from({ length: numLabels }, (_, i) => pieColors[i % pieColors.length]);
+                 newConfig.data.datasets[0].borderColor = '#ffffff';
+                 newConfig.data.datasets[0].borderWidth = 1;
+                 newConfig.data.datasets[0].hoverOffset = 4;
+                 delete newConfig.data.datasets[0].tension; 
+                 delete newConfig.data.datasets[0].fill; 
             }
         } else { // Adjustments for bar/line
             newConfig.options.indexAxis = originalConfig.options.indexAxis || 'x'; 
@@ -635,7 +653,7 @@
             if (newConfig.data.datasets && newConfig.data.datasets.length > 0) {
                  const dataset = newConfig.data.datasets[0];
                  
-                // === UPDATED: Handle colors for multiple charts ===
+                 // UPDATED: Handle colors for multiple charts
                  let lineColor, barColor, barBgColor;
                  if (chartId === 'consumptionChart') {
                      lineColor = consumptionLineColor;
@@ -650,7 +668,7 @@
                      barColor = topProductsBarColor;
                      barBgColor = 'rgba(59, 130, 246, 0.1)';
                  }
-                // === END UPDATE ===
+                 // END UPDATE
 
                  dataset.borderWidth = 1;
                  if (newType === 'line') {
@@ -682,6 +700,9 @@
       showLoader('hotspots-table-body'); 
       document.getElementById('drilldown_product_id').value = productId; 
       
+      // Also clear the main product filter if a drilldown is initiated
+      document.getElementById('filter_product_id').value = '';
+      
       const form = document.getElementById('dashboard-filter-form');
       const formData = new FormData(form);
       if (productId) {
@@ -689,6 +710,8 @@
       } else {
           formData.delete('drilldown_product_id'); // Ensure it's not sent if null
       }
+      formData.append('ajax_update', 'main_charts'); // Explicitly set update type
+      
       const queryString = new URLSearchParams(formData).toString();
       const url = `${form.action}?${queryString}`;
 
@@ -704,7 +727,7 @@
           }
           const data = await response.json();
 
-          // Update Consumption Chart
+          // 1. Update Consumption Chart
           if (window.myCharts.consumptionChart) {
               window.myCharts.consumptionChart.data.labels = data.consumptionLabels;
               window.myCharts.consumptionChart.data.datasets[0].data = data.consumptionData;
@@ -716,9 +739,9 @@
               window.myCharts.consumptionChart.update();
           }
 
-          // Update Barangay Chart (Stacked)
+          // 2. Update Barangay Chart (Stacked)
           if (window.myCharts.barangayChart) {
-               // --- FIX HERE ---
+               // FIX HERE 
                window.myCharts.barangayChart.data.labels = data.barangay.labels; // Was data.barangayLabels
                const stackedData = data.barangay.stackedData; // Was data.barangayStackedData
                const categories = Object.keys(stackedData);
@@ -729,48 +752,49 @@
                    data: stackedData[category],
                    backgroundColor: categoryColors[category] || '#cccccc'
                }));
-               // --- END FIX ---
+               // END FIX
 
                updateChartSubtitle('barangayChartSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.drilldownProductName);
                window.myCharts.barangayChart.update();
           }
 
-          // Update Patient Visit Trend Chart
+          // 3. Update Patient Visit Trend Chart
           if (window.myCharts.patientVisitChart) {
-              // --- FIX HERE ---
-              window.myCharts.patientVisitChart.data.labels = data.patientVisit.labels; // Was data.patientVisitLabels
-              window.myCharts.patientVisitChart.data.datasets[0].data = data.patientVisit.data; // Was data.patientVisitData
-              // --- END FIX ---
-              
-              // Update title dynamically
-              let title = 'Patient Visit Trend';
-              if (data.filterBarangayLabel !== 'All Barangays') {
-                  title += ` in ${data.filterBarangayLabel}`;
-              }
-              document.getElementById('patientVisitChartTitle').textContent = title; // Update h3 title
-              
-              updateChartSubtitle('patientVisitChartSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.drilldownProductName);
-              window.myCharts.patientVisitChart.update();
+               // FIX HERE 
+               window.myCharts.patientVisitChart.data.labels = data.patientVisit.labels; // Was data.patientVisitLabels
+               window.myCharts.patientVisitChart.data.datasets[0].data = data.patientVisit.data; // Was data.patientVisitData
+               // END FIX
+               
+               // Update title dynamically
+               let title = 'Patient Visit Trend';
+               if (data.filterBarangayLabel !== 'All Barangays') {
+                   title += ` in ${data.filterBarangayLabel}`;
+               }
+               document.getElementById('patientVisitChartTitle').textContent = title; // Update h3 title
+               
+               updateChartSubtitle('patientVisitChartSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.drilldownProductName);
+               window.myCharts.patientVisitChart.update();
           }
           
-          // Update Hotspots Table Body
+          // 4. Update Hotspots Table Body
           document.getElementById('hotspots-table-body').innerHTML = data.hotspotsHtml;
           updateChartSubtitle('hotspotsSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.drilldownProductName);
           
-          // Update Drilldown Indicator Bar
+          // 5. Update Drilldown Indicator Bar
           updateDrilldownIndicator(data.drilldownProductName);
           
-           // Update filter labels stored in JS
-            initialChartData.filterLabels.timespan = data.filterTimespanLabel;
-            initialChartData.filterLabels.barangay = data.filterBarangayLabel;
-            initialChartData.filterLabels.drilldownProduct = data.drilldownProductName;
+           // Update filter labels stored in JS (Including product label)
+           initialChartData.filterLabels.timespan = data.filterTimespanLabel;
+           initialChartData.filterLabels.barangay = data.filterBarangayLabel;
+           initialChartData.filterLabels.product = data.drilldownProductName ?? 'All Products'; // Update main product filter label to match drilldown if set
+           initialChartData.filterLabels.drilldownProduct = data.drilldownProductName;
 
            // Update URL
            window.history.pushState({}, '', url);
 
     } catch (error) {
-          console.error("Drilldown failed:", error);
-          alert(`Could not update charts: ${error.message}`);
+           console.error("Drilldown failed:", error);
+           alert(`Could not update charts: ${error.message}`);
     } finally {
            hideLoader('consumptionChart');
            hideLoader('barangayChart');
@@ -834,6 +858,10 @@
     // --- Function to clear drilldown via AJAX ---
     async function clearDrilldown() {
         document.getElementById('drilldown_product_id').value = ''; // Clear hidden input
+        // Also ensure the main filter is cleared/reset if they were different
+        if (document.getElementById('filter_product_id').value === document.getElementById('drilldown_product_id').value) {
+           document.getElementById('filter_product_id').value = '';
+        }
         // Use the same AJAX logic as handleDrillDown, but with a null product ID
         await handleDrillDown(null); 
         // Hide the indicator bar
@@ -848,22 +876,33 @@
         window.location.href = baseUrl; // Reload the page with default filters
     }
       
-     // --- Helper function to update chart subtitles ---
+      // --- Helper function to update chart subtitles ---
     function updateChartSubtitle(elementId, timespan, barangay, drilldown) {
       const element = document.getElementById(elementId);
       if (element) {
+          let productFilter = '';
+          // Show drilldown product name if active (takes precedence over main filter)
+          if (drilldown) {
+              productFilter = `, Product: ${drilldown}`;
+          } 
+          // If no drilldown, check if the main product filter is set and display it
+          else if (document.getElementById('filter_product_id')?.value) {
+             const productSelect = document.getElementById('filter_product_id');
+             const selectedOption = productSelect.options[productSelect.selectedIndex];
+             productFilter = `, Product: ${selectedOption.textContent.trim()}`;
+          }
+          
           let subtitle = `Showing data for: ${timespan}`;
           if (barangay && barangay !== 'All Barangays') {
               subtitle += `, ${barangay}`;
           }
-          if (drilldown) {
-              subtitle += `, Product: ${drilldown}`;
-          }
+          subtitle += productFilter;
+          
           element.textContent = subtitle + '.';
       }
     }
 
-    // --- === NEW: AJAX FOR FORECAST FILTER === ---
+    // --- NEW: AJAX FOR FORECAST FILTER ---
     async function handleForecastFilterUpdate() {
         const form = document.getElementById('forecast-filter-form');
         const formData = new FormData(form);
@@ -900,13 +939,31 @@
         }
     }
 
-    // --- === NEW: AJAX FOR MAIN CHART FILTERS === ---
+    // --- NEW: AJAX FOR MAIN CHART FILTERS (Including the new Product filter) ---
     async function handleMainFilterSubmit() {
         const form = document.getElementById('dashboard-filter-form');
         const formData = new FormData(form);
         formData.append('ajax_update', 'main_charts'); // Signal to backend
         
-        const queryString = new URLSearchParams(formData).toString();
+        // If a new filter_product_id is selected, clear any active drilldown
+        const selectedProductId = document.getElementById('filter_product_id').value;
+        const drilldownProductId = document.getElementById('drilldown_product_id').value;
+        
+        if (selectedProductId && selectedProductId !== drilldownProductId) {
+             document.getElementById('drilldown_product_id').value = ''; // Clear drilldown
+             formData.delete('drilldown_product_id'); // Ensure cleared in form data
+             // The controller will now use filter_product_id as the active product ID
+        } else if (!selectedProductId && drilldownProductId) {
+             // If filter is cleared but drilldown is still active, clear drilldown too
+             document.getElementById('drilldown_product_id').value = '';
+             formData.delete('drilldown_product_id');
+        }
+        
+        // Re-read form data to get final state
+        const finalFormData = new FormData(form);
+        finalFormData.append('ajax_update', 'main_charts');
+        
+        const queryString = new URLSearchParams(finalFormData).toString();
         const url = `${form.action}?${queryString}`;
 
         // Show all relevant loaders
@@ -941,7 +998,7 @@
                 window.myCharts.topProductsChart.data.datasets[0].data = data.topProducts.data;
                 // IMPORTANT: Update the drilldown data source
                 initialChartData.topProducts.drilldown = data.topProducts.drilldown;
-                updateChartSubtitle('topProductsChartSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, null);
+                updateChartSubtitle('topProductsChartSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.filterProductLabel === 'All Products' ? null : data.filterProductLabel);
                 window.myCharts.topProductsChart.update();
             }
 
@@ -979,10 +1036,12 @@
             document.getElementById('hotspots-table-body').innerHTML = data.hotspotsHtml;
             updateChartSubtitle('hotspotsSubtitle', data.filterTimespanLabel, data.filterBarangayLabel, data.drilldownProductName);
 
-            // Update global filter labels
+            // Update global filter labels and drilldown indicator
             initialChartData.filterLabels.timespan = data.filterTimespanLabel;
             initialChartData.filterLabels.barangay = data.filterBarangayLabel;
+            initialChartData.filterLabels.product = data.filterProductLabel; // Update main product filter label
             initialChartData.filterLabels.drilldownProduct = data.drilldownProductName;
+            updateDrilldownIndicator(data.drilldownProductName); // Update drilldown indicator
 
             // Update URL
             window.history.pushState({}, '', url);
@@ -1000,7 +1059,7 @@
         }
     }
     
-    // --- === NEW: AJAX FOR SEASONAL CHART FILTER === ---
+    // --- NEW: AJAX FOR SEASONAL CHART FILTER ---
     async function handleSeasonalFilterSubmit() {
         const form = document.getElementById('seasonal-filter-form');
         const formData = new FormData(form);
@@ -1153,7 +1212,7 @@
                 mode: 'index',
                 intersect: false,
             },
-            // --- ADDED: Zoom ---
+            // ADDED: Zoom
             zoom: {
                 pan: {
                     enabled: true,
@@ -1165,7 +1224,7 @@
                     mode: 'x',
                 }
             }
-            // --- END Zoom ---
+            // END Zoom
           },
           scales: { 
               y: { beginAtZero: true, title: { display: true, text: 'Quantity' } }, 
@@ -1254,15 +1313,15 @@
                   display: true, // Show legend for categories
                   position: 'bottom' 
               },
-               title: { display: false } 
+                title: { display: false } 
             },
-             animation: { duration: 1000, easing: 'easeOutQuad' }
+              animation: { duration: 1000, easing: 'easeOutQuad' }
           }
         };
       window.myCharts.barangayChart = new Chart(barangayCtx, barangayConfig);
       window.originalChartConfigs.barangayChart = JSON.parse(JSON.stringify(barangayConfig)); 
 
-      // --- 4. NEW: Patient Visit Trend Chart (Line) ---
+      // 4. NEW: Patient Visit Trend Chart (Line)
       const patientVisitCtx = document.getElementById('patientVisitChart').getContext('2d');
       const patientVisitConfig = {
         type: 'line',
@@ -1284,17 +1343,17 @@
           maintainAspectRatio: false,
           plugins: { 
             legend: { display: false },
-             title: { 
-                 display: false, // Title is now the H3 tag
-                 text: '...',
-                 padding: { bottom: 5 }
-             },
-             tooltip: {
+              title: { 
+                  display: false, // Title is now the H3 tag
+                  text: '...',
+                  padding: { bottom: 5 }
+              },
+              tooltip: {
                 mode: 'index',
                 intersect: false,
-             },
-             // --- ADDED: Zoom ---
-             zoom: {
+              },
+              // ADDED: Zoom
+              zoom: {
                 pan: {
                     enabled: true,
                     mode: 'x',
@@ -1304,8 +1363,8 @@
                     pinch: { enabled: true },
                     mode: 'x',
                 }
-             }
-             // --- END Zoom ---
+              }
+              // END Zoom
           },
           scales: { 
               y: { beginAtZero: true, title: { display: true, text: 'Number of Patients' } }, 
@@ -1338,7 +1397,7 @@
                 mode: 'index',
                 intersect: false,
             },
-            // --- ADDED: Zoom ---
+            // ADDED: Zoom
             zoom: {
                 pan: {
                     enabled: true,
@@ -1350,22 +1409,22 @@
                     mode: 'x',
                 }
             }
-            // --- END Zoom ---
+            // END Zoom
           }, 
-           animation: { duration: 1000, easing: 'easeOutQuad' }
+          animation: { duration: 1000, easing: 'easeOutQuad' }
         }
       };
-       // Add Product 1 dataset if it exists
-       if (initialChartData.seasonal.productName && initialChartData.seasonal.data) {
-           seasonalConfig.data.datasets.push({
-             label: initialChartData.seasonal.productName,
-             data: initialChartData.seasonal.data,
-             borderColor: seasonalColor1,
-             backgroundColor: 'rgba(168, 85, 247, 0.1)',
-             fill: true,
-             tension: 0.1
-           });
-       }
+        // Add Product 1 dataset if it exists
+        if (initialChartData.seasonal.productName && initialChartData.seasonal.data) {
+            seasonalConfig.data.datasets.push({
+              label: initialChartData.seasonal.productName,
+              data: initialChartData.seasonal.data,
+              borderColor: seasonalColor1,
+              backgroundColor: 'rgba(168, 85, 247, 0.1)',
+              fill: true,
+              tension: 0.1
+            });
+        }
       // Only add comparison if data exists
       if (initialChartData.seasonal.compareName && initialChartData.seasonal.compareData && initialChartData.seasonal.compareData.length > 0) {
         seasonalConfig.data.datasets.push({
@@ -1394,7 +1453,7 @@
           const newType = btn.dataset.type;
           const parent = btn.parentElement;
           
-          // === UPDATED: To include new toggle ===
+          // UPDATED: To include new toggle
           let chartId;
           if (parent.id === 'consumptionChartToggle') {
               chartId = 'consumptionChart';
@@ -1403,12 +1462,12 @@
           } else if (parent.id === 'patientVisitChartToggle') { // <-- ADDED
               chartId = 'patientVisitChart';
           }
-          // === END UPDATE ===
+          // END UPDATE
 
           if (chartId) {
-             parent.querySelectorAll('.chart-toggle').forEach(b => b.classList.remove('active-toggle'));
-             btn.classList.add('active-toggle');
-             toggleChartType(chartId, newType);
+              parent.querySelectorAll('.chart-toggle').forEach(b => b.classList.remove('active-toggle'));
+              btn.classList.add('active-toggle');
+              toggleChartType(chartId, newType);
           }
         });
       });
@@ -1426,11 +1485,11 @@
       }
 
       aiButton.addEventListener('click', async () => {
-         // Double check if button should be enabled
-         if (!initialChartData.seasonal.productName || !initialChartData.seasonal.data || initialChartData.seasonal.data.length === 0) {
-             return; // Prevent running if disabled
-         }
-         
+           // Double check if button should be enabled
+           if (!initialChartData.seasonal.productName || !initialChartData.seasonal.data || initialChartData.seasonal.data.length === 0) {
+               return; // Prevent running if disabled
+           }
+           
         aiButton.disabled = true;
         aiButtonText.textContent = 'Analyzing...';
         aiResponseContent.innerHTML = '<p>Loading analysis...</p>';
@@ -1443,8 +1502,8 @@
           }) : [];
           
           const compareForBackend = initialChartData.seasonal.compareName && initialChartData.seasonal.labels && initialChartData.seasonal.compareData ? initialChartData.seasonal.labels.map((label, index) => {
-             // Ensure compareData has a value for the index, default to 0
-             const compareValue = (initialChartData.seasonal.compareData && index < initialChartData.seasonal.compareData.length) ? initialChartData.seasonal.compareData[index] : 0;
+               // Ensure compareData has a value for the index, default to 0
+               const compareValue = (initialChartData.seasonal.compareData && index < initialChartData.seasonal.compareData.length) ? initialChartData.seasonal.compareData[index] : 0;
             return { label: label, data: compareValue };
           }) : [];
           
@@ -1482,16 +1541,16 @@
           }
 
         } catch (error) {
-           console.error('AI Analysis Fetch Failed:', error);
-          aiResponseContent.innerHTML = `<p class="text-red-600 font-semibold">Sorry, the analysis could not be completed.</p><p class="text-sm text-gray-500 mt-2">${error.message}</p>`;
+             console.error('AI Analysis Fetch Failed:', error);
+           aiResponseContent.innerHTML = `<p class="text-red-600 font-semibold">Sorry, the analysis could not be completed.</p><p class="text-sm text-gray-500 mt-2">${error.message}</p>`;
         } finally {
           aiButton.disabled = false;
           aiButtonText.textContent = 'Get AI Analysis of this Trend';
-           // Re-disable if still no product selected
-           if (!initialChartData.seasonal.productName || !initialChartData.seasonal.data || initialChartData.seasonal.data.length === 0) {
-               aiButton.disabled = true;
-               aiButtonText.textContent = (!initialChartData.seasonal.productName) ? 'Select a Product First' : 'No Data to Analyze';
-           }
+            // Re-disable if still no product selected
+            if (!initialChartData.seasonal.productName || !initialChartData.seasonal.data || initialChartData.seasonal.data.length === 0) {
+                aiButton.disabled = true;
+                aiButtonText.textContent = (!initialChartData.seasonal.productName) ? 'Select a Product First' : 'No Data to Analyze';
+            }
         }
       });
 
@@ -1499,26 +1558,26 @@
         aiModal.classList.add('hidden');
       });
       
-       // --- Initial Drilldown Indicator Update on page load ---
+        // Initial Drilldown Indicator Update on page load
         updateDrilldownIndicator(initialChartData.consumption.productName);
-       
-        // --- Initial Subtitle Updates ---
+        
+        // Initial Subtitle Updates
         updateChartSubtitle('consumptionChartSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, initialChartData.filterLabels.drilldownProduct);
-        updateChartSubtitle('topProductsChartSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, null); // Top products ignores drilldown
+        updateChartSubtitle('topProductsChartSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, initialChartData.filterLabels.product === 'All Products' ? null : initialChartData.filterLabels.product); // Uses main product filter if no drilldown
         updateChartSubtitle('barangayChartSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, initialChartData.filterLabels.drilldownProduct);
         updateChartSubtitle('patientVisitChartSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, initialChartData.filterLabels.drilldownProduct); // <-- CHANGED
         updateChartSubtitle('hotspotsSubtitle', initialChartData.filterLabels.timespan, initialChartData.filterLabels.barangay, initialChartData.filterLabels.drilldownProduct);
 
-        // --- Event Listener for AJAX Clear Drilldown ---
-         const clearAjaxButton = document.getElementById('clear-drilldown-ajax');
-         if(clearAjaxButton) {
-             clearAjaxButton.addEventListener('click', (e) => {
-                 e.preventDefault();
-                 clearDrilldown();
-             });
-         }
+        // Event Listener for AJAX Clear Drilldown
+          const clearAjaxButton = document.getElementById('clear-drilldown-ajax');
+          if(clearAjaxButton) {
+              clearAjaxButton.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  clearDrilldown();
+              });
+          }
 
-        // --- === NEW: ADD AJAX EVENT LISTENERS === ---
+        // NEW: ADD AJAX EVENT LISTENERS
         
         // 1. Forecast Filter
         document.getElementById('forecast_days_select').addEventListener('change', handleForecastFilterUpdate);
