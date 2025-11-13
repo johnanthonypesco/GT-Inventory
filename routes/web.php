@@ -62,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // == ROUTES PARA SA ADMIN at SUPERADMIN (Level 1, 2) ==
         Route::middleware('level.admin') // <-- CHECK KUNG LEVEL 1 o 2
              ->group(function () {
-            
+             Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
 Route::get('/product-movements', [ProductMovementController::class, 'showMovements'])->name('movements');    
 Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->name('ai.analysis');        
             // --- Inventory Routes ---
@@ -87,7 +87,7 @@ Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->
              ->group(function () {
             
             // --- Patient Records para sa Doctor (Level 4) ---
-            Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+           
             Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
         });
 
