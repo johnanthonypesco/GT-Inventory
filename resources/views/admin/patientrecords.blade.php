@@ -64,7 +64,9 @@
                                     <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">Resident Details</th>
                                     <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-center tracking-wide">Resident Category</th>
                                     <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm tracking-wide">Date Dispensed</th>
+                                    @if (auth()->user()->user_level_id != 4)
                                     <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-center tracking-wide">Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -104,7 +106,10 @@
                                             <p class="font-semibold">{{ $patientrecord->date_dispensed->format('F j, Y') }}</p>
                                             <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->date_dispensed->format('h:mm A') }}</p>
                                         </td>
+                                        {{-- hide this actions to doctos --}}
+                                        
                                         <td class="p-3 flex items-center justify-center gap-2 font-semibold">
+                                            @if (auth()->user()->user_level_id != 4)
                                             <button class="view-medications-btn bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 dark:hover:bg-blue-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
                                                 <i class="fa-regular fa-eye mr-1"></i>View All
                                             </button>
@@ -114,6 +119,7 @@
                                             <button class="deleterecordbtn bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
                                                 <i class="fa-regular fa-trash mr-1"></i>Delete
                                             </button>
+                                            @endif
                                         </td>
                                     </tr>
                                     @endforeach
