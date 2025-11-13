@@ -102,7 +102,7 @@
                                         <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-center">{{ $patientrecord->category }}</td>
                                         <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-center">
                                             <p class="font-semibold">{{ $patientrecord->date_dispensed->format('F j, Y') }}</p>
-                                            <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->date_dispensed->format('h:mm A') }}</p>
+                                            <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->created_at->format('g:i A') }}</p>
                                         </td>
                                         <td class="p-3 flex items-center justify-center gap-2 font-semibold">
                                             <button class="view-medications-btn bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 dark:hover:bg-blue-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
