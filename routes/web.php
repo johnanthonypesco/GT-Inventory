@@ -83,6 +83,14 @@ Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->
             Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
         });
 
+        Route::middleware('level.doctor') // <-- CHECK KUNG LEVEL 4 LANG
+             ->group(function () {
+            
+            // --- Patient Records para sa Doctor (Level 4) ---
+            Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+            Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
+        });
+
         // == ROUTE PARA SA SUPERADMIN LANG (Level 1) ==
         Route::middleware('level.superadmin') // <-- CHECK KUNG LEVEL 1 LANG
              ->group(function () {
