@@ -80,6 +80,7 @@
                                         data-barangay="{{ $patientrecord->barangay->barangay_name ?? '' }}"
                                         data-purok="{{ $patientrecord->purok }}"
                                         data-category="{{ $patientrecord->category }}"
+                                        data-date-dispensed="{{ $patientrecord->date_dispensed->format('Y-m-d') }}"
                                         data-medications="{{ json_encode($patientrecord->dispensedMedications->map(function ($med) {
                                             return [
                                                 'batch' => $med->batch_number,
@@ -277,15 +278,19 @@
                             <i class="fa-regular fa-xmark text-gray-600 dark:text-gray-400"></i>
                         </button>
                     </div>
-                    <form id="edit-dispensation-form" action="#">
+                    <form id="edit-dispensation-form" action="#" method="POST">
                         @csrf
                         @method('PUT')
                         <input type="hidden" id="edit-record-id" name="id">
-                        <div class="flex gap-2 mb-3">
-                            <div class="flex-1">
-                                <label for="edit-patient-name" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Patient Name:</label>
-                                <input type="text" name="patient-name" id="edit-patient-name" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                            </div>
+                        <div class="w-full mb-3">
+                            <label for="edit-patient-name" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Patient Name:</label>
+                            <input type="text" name="patient-name" id="edit-patient-name" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            @error('patient-name', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                <script>
+                                    document.getElementById('editrecordmodal').classList.remove('hidden');
+                                </script>
+                            @enderror
                         </div>
                         <div class="flex gap-2 mb-3">
                             <div class="w-1/2">
@@ -296,10 +301,16 @@
                                         <option value="{{ $barangay->id }}">{{ $barangay->barangay_name }}</option>
                                     @endforeach
                                 </select>
+                                @error('barangay_id', 'editdispensation')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div class="w-1/2">
                                 <label for="edit-purok" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Purok:</label>
                                 <input type="text" name="purok" id="edit-purok" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                @error('purok', 'editdispensation')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                         <div class="mb-3">
@@ -309,8 +320,18 @@
                                 <option value="Child">Child</option>
                                 <option value="Senior">Senior</option>
                             </select>
+                            @error('category', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <button type="submit" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
+                        <div class="mb-3">
+                            <label for="edit-date-dispensed" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Date Dispensed:</label>
+                            <input type="date" name="date-dispensed" id="edit-date-dispensed" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            @error('date-dispensed', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <button type="button" id="update-dispensation-btn" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
                             <i class="fa-regular fa-check mr-1"></i> Update
                         </button>
                     </form>
@@ -334,7 +355,7 @@
                                     <th class="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Medication Details</th>
                                     <th class="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Form & Strength</th>
                                     <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity</th>
-                                    <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th>
+                                    {{-- <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th> --}}
                                 </tr>
                             </thead>
                             <tbody id="view-medications-tbody" class="divide-y divide-gray-200 dark:divide-gray-700">

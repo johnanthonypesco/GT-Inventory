@@ -151,30 +151,92 @@ function editRecord() {
             const barangayId = row.dataset.barangayId;
             const purok = row.dataset.purok;
             const category = row.dataset.category;
+            const dateDispensed = row.dataset.dateDispensed;
 
             document.getElementById('edit-record-id').value = id;
             document.getElementById('edit-patient-name').value = name;
             document.getElementById('edit-barangay_id').value = barangayId;
             document.getElementById('edit-purok').value = purok;
             document.getElementById('edit-category').value = category;
+            document.getElementById('edit-date-dispensed').value = dateDispensed;
 
             document.getElementById('edit-record-title').textContent = `Edit #${id} – ${name}`;
 
-            // Set form action dynamically (assuming route name for update)
-            form.action = `/admin/patientrecords/${id}`; // Adjust to your update route, e.g., `{{ route('admin.patientrecords.update', '') }}/${id}` if using Blade
+            // Set form action dynamically using Laravel route helper (adjust if needed for JS)
+            form.action = `/admin/patientrecords/${id}`; // Or use: form.action = '{{ route("admin.patientrecords.update", ":id") }}'.replace(':id', id);
 
             modal.classList.remove('hidden');
         });
     });
 
-    // Handle form submission (optional: add AJAX or let it submit normally)
-    form.addEventListener('submit', (e) => {
-        // If you want to handle via JS/AJAX, prevent default and submit here
-        // e.preventDefault();
-        // ... submit logic
+    // sweet alert before submitting the edit form
+    const updateBtn = document.getElementById('update-dispensation-btn');
+    updateBtn.addEventListener('click', (e) => {
+
+        // if input has no data, do not proceed
+        const patientName = document.getElementById('edit-patient-name').value.trim();
+        const barangayId = document.getElementById('edit-barangay_id').value;
+        const purok = document.getElementById('edit-purok').value.trim();
+        const category = document.getElementById('edit-category').value;
+        const dateDispensed = document.getElementById('edit-date-dispensed').value;
+
+        if (patientName === '' || barangayId === '' || purok === '' || category === '' || dateDispensed === '') {
+            Swal.fire({
+                title: 'Incomplete Data',
+                text: 'Please fill in all required fields before updating the record.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    icon: 'swal-icon'
+                }
+            });
+            return;
+        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This action can't be undone. Please confirm if you want to proceed.",
+            icon: 'info',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content',
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Processing...',
+                    text: "Please wait, your request is being processed.",
+                    allowOutsideClick: false,
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        cancelButton: 'swal-cancel-button',
+                        icon: 'swal-icon'
+                    },
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                form.submit();
+            }
+        });
     });
 }
-
 /* ========================================
    5. VIEW MEDICATIONS MODAL
    ======================================== */
@@ -210,11 +272,6 @@ function viewMedications() {
                     </td>
                     <td class="p-3 text-sm text-gray-700">${med.form}, ${med.strength}</td>
                     <td class="p-3 text-sm text-gray-700 text-center font-semibold">${med.quantity}</td>
-                    <td class="p-3 text-center">
-                        <button class="edit-med-item bg-green-100 text-green-700 p-1.5 rounded hover:bg-green-600 hover:text-white transition-all text-xs">
-                            <i class="fa-regular fa-pen-to-square"></i> Edit
-                        </button>
-                    </td>
                 `;
                 tbody.appendChild(tr);
             });

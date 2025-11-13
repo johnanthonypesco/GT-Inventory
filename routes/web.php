@@ -79,6 +79,7 @@ Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->
             // --- Iba pang Admin Routes ---
             Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
             Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
+            Route::put('/patientrecords/{id}', [PatientRecordsController::class, 'updatePatientRecord'])->name('patientrecords.update');
 
             Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
         });

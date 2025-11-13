@@ -124,4 +124,39 @@ class PatientRecordsController extends Controller
 
         return to_route('admin.patientrecords')->with('success', 'Dispensation recorded successfully.');
     }
+
+    public function updatePatientRecord(Request $request, $id)
+    {
+        $validated = $request->validateWithBag('editdispensation', [
+            'patient-name' => 'required|string|max:255',
+            'barangay_id' => 'required|exists:barangays,id',
+            'purok' => 'required|string|max:255',
+            'category' => 'required|in:Adult,Child,Senior',
+            'date-dispensed' => 'required|date',
+        ], [
+            'patient-name.required' => 'Patient name is required.',
+            'barangay_id.required' => 'Barangay is required.',
+            'purok.required' => 'Purok is required.',
+            'category.required' => 'Category is required.',
+            'date-dispensed.required' => 'Date dispensed is required.',
+        ]);
+
+        $record = Patientrecords::findOrFail($id);
+
+        // Update the patient record
+        $record->update([
+            'patient_name' => $validated['patient-name'],
+            'barangay_id' => $validated['barangay_id'],
+            'purok' => $validated['purok'],
+            'category' => $validated['category'],
+            'date_dispensed' => $validated['date-dispensed'],
+        ]);
+
+        // Optionally, update barangay_id in related dispensed medications if changed
+        if ($record->barangay_id != $validated['barangay_id']) {
+            Dispensedmedication::where('patientrecord_id', $id)->update(['barangay_id' => $validated['barangay_id']]);
+        }
+
+        return to_route('admin.patientrecords')->with('success', 'Dispensation updated successfully.');
+    }
 }
