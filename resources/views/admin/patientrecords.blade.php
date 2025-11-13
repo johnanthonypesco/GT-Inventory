@@ -121,36 +121,36 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div class="p-4 border-t bg-white dark:bg-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Showing {{ $patientrecords->firstItem() ?? 0 }} to {{ $patientrecords->lastItem() ?? 0 }} of {{ $patientrecords->total() }} results
-                    </p>
-                    <div class="flex space-x-2 pagination-links">
-                        @if ($patientrecords->onFirstPage())
-                            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Previous</span>
-                        @else
-                            <a href="{{ $patientrecords->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Previous</a>
-                        @endif
-                        @foreach ($patientrecords->links()->elements as $element)
-                            @if (is_string($element))
-                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default">{{ $element }}</span>
+                    <div class="p-4 border-t bg-white dark:bg-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 border-gray-200 dark:border-gray-700">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 order-2 sm:order-1">
+                            Showing {{ $patientrecords->firstItem() ?? 0 }} to {{ $patientrecords->lastItem() ?? 0 }} of {{ $patientrecords->total() }} results
+                        </p>
+                        <div class="flex flex-wrap justify-center sm:justify-end gap-2 pagination-links order-1 sm:order-2 w-full sm:w-auto">
+                            @if ($patientrecords->onFirstPage())
+                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Previous</span>
+                            @else
+                                <a href="{{ $patientrecords->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Previous</a>
                             @endif
-                            @if (is_array($element))
-                                @foreach ($element as $page => $url)
-                                    @if ($page == $patientrecords->currentPage())
-                                        <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg">{{ $page }}</span>
-                                    @else
-                                        <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">{{ $page }}</a>
-                                    @endif
-                                @endforeach
+                            @foreach ($patientrecords->links()->elements as $element)
+                                @if (is_string($element))
+                                    <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default whitespace-nowrap">{{ $element }}</span>
+                                @endif
+                                @if (is_array($element))
+                                    @foreach ($element as $page => $url)
+                                        @if ($page == $patientrecords->currentPage())
+                                            <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg whitespace-nowrap">{{ $page }}</span>
+                                        @else
+                                            <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">{{ $page }}</a>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
+                            @if ($patientrecords->hasMorePages())
+                                <a href="{{ $patientrecords->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Next</a>
+                            @else
+                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Next</span>
                             @endif
-                        @endforeach
-                        @if ($patientrecords->hasMorePages())
-                            <a href="{{ $patientrecords->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Next</a>
-                        @else
-                            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Next</span>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>

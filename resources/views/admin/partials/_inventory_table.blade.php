@@ -69,40 +69,40 @@
 </table>
 
 <div class="p-4 border-t bg-white dark:bg-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 border-gray-200 dark:border-gray-700">
-    <p class="text-sm text-gray-600 dark:text-gray-400">
+    <p class="text-sm text-gray-600 dark:text-gray-400 order-2 sm:order-1">
         Showing {{ $inventories->firstItem() ?? 0 }} to {{ $inventories->lastItem() ?? 0 }} of {{ $inventories->total() }} results
     </p>
     {{-- Nagdagdag ako ng class="pagination-links" dito para sa JavaScript --}}
-    <div class="flex space-x-2 pagination-links">
+    <div class="flex flex-wrap justify-center sm:justify-end gap-2 pagination-links order-1 sm:order-2 w-full sm:w-auto">
         @if ($inventories->onFirstPage())
-            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Previous</span>
+            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Previous</span>
         @else
-            <a href="{{ $inventories->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Previous</a>
+            <a href="{{ $inventories->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Previous</a>
         @endif
 
         {{-- Pagination Elements --}}
         @foreach ($inventories->links()->elements as $element)
             {{-- "Three Dots" Separator --}}
             @if (is_string($element))
-                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default">{{ $element }}</span>
+                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default whitespace-nowrap">{{ $element }}</span>
             @endif
 
             {{-- Array Of Links --}}
             @if (is_array($element))
                 @foreach ($element as $page => $url)
                     @if ($page == $inventories->currentPage())
-                        <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg">{{ $page }}</span>
+                        <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg whitespace-nowrap">{{ $page }}</span>
                     @else
-                        <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">{{ $page }}</a>
+                        <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">{{ $page }}</a>
                     @endif
                 @endforeach
             @endif
         @endforeach
 
         @if ($inventories->hasMorePages())
-            <a href="{{ $inventories->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Next</a>
+            <a href="{{ $inventories->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Next</a>
         @else
-            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Next</span>
+            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Next</span>
         @endif
     </div>
 </div>
