@@ -2,6 +2,7 @@ function clearValidation(modal) {
     const errorMessages = modal.querySelectorAll('.error-message');
     errorMessages.forEach(error => error.remove());
 }
+
 /* ========================================
    1. ADD RECORD MODAL
    ======================================== */
@@ -19,41 +20,114 @@ function addRecord() {
 }
 
 /* ========================================
-   2. ADD/REMOVE MEDICATION ROWS
+   2. SEARCHABLE MEDICINE DROPDOWN INIT
+   ======================================== */
+function initSearchableMedicine(group) {
+    const input = group.querySelector('.search-med-input');
+    const dropdown = group.querySelector('.dropdown-options');
+    const hidden = group.querySelector('.med-name-hidden');
+    const options = dropdown.querySelectorAll('.option');
+
+    // Show dropdown on focus
+    input.addEventListener('focus', () => {
+        dropdown.classList.remove('hidden');
+    });
+
+    // Filter options on input
+    input.addEventListener('input', () => {
+        const term = input.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        options.forEach(opt => {
+            const label = opt.dataset.label.toLowerCase();
+            if (label.includes(term) || term === '') {
+                opt.style.display = '';
+                visibleCount++;
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+
+        // Show dropdown if there's a match or empty
+        if (visibleCount > 0 || term === '') {
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.classList.add('hidden');
+        }
+
+        // Clear hidden if no exact match
+        if (term === '') {
+            hidden.value = '';
+        }
+    });
+
+    // Select option on click
+    options.forEach(opt => {
+        opt.addEventListener('click', () => {
+            input.value = opt.dataset.label;
+            hidden.value = opt.dataset.id;
+            dropdown.classList.add('hidden');
+            input.blur(); // Optional: lose focus after select
+        });
+    });
+
+    // Hide dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (!group.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+}
+
+/* ========================================
+   3. ADD/REMOVE MEDICATION ROWS
    ======================================== */
 function setupMedicationActions() {
     const container = document.getElementById('medication-container');
     const addBtn = document.getElementById('add-more-medication');
     let index = 1;
 
+    // Init first row
+    const firstGroup = container.querySelector('.medication-group');
+    if (firstGroup) {
+        initSearchableMedicine(firstGroup);
+    }
+
     addBtn.addEventListener('click', () => {
         const template = container.querySelector('.medication-group');
         const clone = template.cloneNode(true);
 
-        clone.querySelector('select').value = '';
-        clone.querySelector('input[type="number"]').value = '';
+        // Clear values in clone
+        const searchInput = clone.querySelector('.search-med-input');
+        const hiddenInput = clone.querySelector('.med-name-hidden');
+        const qtyInput = clone.querySelector('input[type="number"]');
+        searchInput.value = '';
+        hiddenInput.value = '';
+        qtyInput.value = '';
 
-        const select = clone.querySelector('select');
-        const input = clone.querySelector('input[type="number"]');
-        select.id = `medication-${index}`;
-        select.name = `medications[${index}][name]`;
-        input.id = `quantity-${index}`;
-        input.name = `medications[${index}][quantity]`;
+        // Update names and ids for clone
+        searchInput.name = `medications[${index}][name_display]`; // Display name (not submitted, just for UI)
+        hiddenInput.name = `medications[${index}][name]`;
+        qtyInput.name = `medications[${index}][quantity]`;
+        qtyInput.id = `quantity-${index}`;
 
+        // Add remove button
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
-        removeBtn.className = 'bg-red-500 text-white p-2 rounded-lg mt-2 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit text-sm';
+        removeBtn.className = 'bg-red-500 text-white p-2 rounded-lg mt-2 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit text-sm ml-2';
         removeBtn.innerHTML = '<i class="fa-regular fa-trash mr-1"></i> Remove';
         removeBtn.addEventListener('click', () => clone.remove());
         clone.appendChild(removeBtn);
 
+        // Append and init searchable
         container.appendChild(clone);
+        initSearchableMedicine(clone);
         index++;
     });
 }
 
 /* ========================================
-   3. EDIT RECORD
+   4. EDIT RECORD
    ======================================== */
 function editRecord() {
     const modal = document.getElementById('editrecordmodal');
@@ -102,7 +176,7 @@ function editRecord() {
 }
 
 /* ========================================
-   4. VIEW MEDICATIONS MODAL
+   5. VIEW MEDICATIONS MODAL
    ======================================== */
 function viewMedications() {
     const modal = document.getElementById('viewmedicationsmodal');
@@ -151,7 +225,7 @@ function viewMedications() {
 }
 
 /* ========================================
-   5. INIT
+   6. INIT
    ======================================== */
 document.addEventListener('DOMContentLoaded', () => {
     addRecord();

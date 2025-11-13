@@ -212,14 +212,29 @@
                             <div class="medication-group flex gap-2 items-end">
                                 <div class="flex-1">
                                     <label for="medication-0" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Medicine:</label>
-                                    <select name="medications[0][name]" id="medication-0" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                        <option value="" disabled selected>Select Medicine</option>
-                                        @foreach ($products as $inventory)
-                                            <option value="{{ $inventory->id }}" {{ old('medications.0.name') == $inventory->id ? 'selected' : '' }}>
-                                                {{ $inventory->product->generic_name ?? 'N/A' }} - {{ $inventory->product->brand_name ?? 'N/A' }} ({{ $inventory->product->form ?? 'N/A' }}, {{ $inventory->product->strength ?? 'N/A' }}) ({{ $inventory->batch_number ?? 'N/A' }}) - Available: {{ $inventory->quantity ?? 0 }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="relative">
+                                        @php
+                                            $selected_med_label_0 = '';
+                                            $old_med_id_0 = old('medications.0.name', '');
+                                            foreach ($products as $inventory) {
+                                                if ($old_med_id_0 == $inventory->id) {
+                                                    $selected_med_label_0 = ($inventory->product->generic_name ?? 'N/A') . ' - ' . ($inventory->product->brand_name ?? 'N/A') . ' (' . ($inventory->product->form ?? 'N/A') . ', ' . ($inventory->product->strength ?? 'N/A') . ') (' . ($inventory->batch_number ?? 'N/A') . ') - Available: ' . ($inventory->quantity ?? 0);
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        <input type="text" class="search-med-input mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Search Medicine..." value="{{ $selected_med_label_0 }}">
+                                        <div class="dropdown-options absolute z-50 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto hidden shadow-lg">
+                                            @foreach ($products as $inventory)
+                                                <div class="option p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-gray-100" 
+                                                    data-id="{{ $inventory->id }}" 
+                                                    data-label="{{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}">
+                                                    {{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="medications[0][name]" class="med-name-hidden" value="{{ old('medications.0.name') }}">
                                     @error('medications.0.name', 'adddispensation')
                                         <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                     @enderror
