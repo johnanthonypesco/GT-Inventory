@@ -125,8 +125,10 @@ class PatientRecordsController extends Controller
         return to_route('admin.patientrecords')->with('success', 'Dispensation recorded successfully.');
     }
 
-    public function updatePatientRecord(Request $request, $id)
+    public function updatePatientRecord(Request $request)
     {
+        $id = $request->input('id');
+
         $validated = $request->validateWithBag('editdispensation', [
             'patient-name' => 'required|string|max:255',
             'barangay_id' => 'required|exists:barangays,id',

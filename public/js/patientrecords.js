@@ -162,9 +162,6 @@ function editRecord() {
 
             document.getElementById('edit-record-title').textContent = `Edit #${id} – ${name}`;
 
-            // Set form action dynamically using Laravel route helper (adjust if needed for JS)
-            form.action = `/admin/patientrecords/${id}`; // Or use: form.action = '{{ route("admin.patientrecords.update", ":id") }}'.replace(':id', id);
-
             modal.classList.remove('hidden');
         });
     });

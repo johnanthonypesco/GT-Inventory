@@ -278,7 +278,7 @@
                             <i class="fa-regular fa-xmark text-gray-600 dark:text-gray-400"></i>
                         </button>
                     </div>
-                    <form id="edit-dispensation-form" action="#" method="POST">
+                    <form id="edit-dispensation-form" action="{{ route('admin.patientrecords.update') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <input type="hidden" id="edit-record-id" name="id">
