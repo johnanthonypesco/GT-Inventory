@@ -58,13 +58,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // == ROUTE PARA SA LAHAT (Level 1, 2, 3) ==
         // (Automatic pwede na sila dito)
         Route::get('/dashboard', [DashboardController::class, 'showdashboard'])->name('dashboard');
-        Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
-            Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
         
         // == ROUTES PARA SA ADMIN at SUPERADMIN (Level 1, 2) ==
         Route::middleware('level.admin') // <-- CHECK KUNG LEVEL 1 o 2
              ->group(function () {
-            //  Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+             Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+            Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
 Route::get('/product-movements', [ProductMovementController::class, 'showMovements'])->name('movements');    
 Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->name('ai.analysis');        
             // --- Inventory Routes ---
@@ -85,7 +84,7 @@ Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->
             Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
         });
 
-        Route::middleware('level.doctor', 'level.admin') // <-- CHECK KUNG LEVEL 4 LANG
+        Route::middleware('level.doctor') // <-- CHECK KUNG LEVEL 4 LANG
              ->group(function () {
             
             // --- Patient Records para sa Doctor (Level 4) ---
