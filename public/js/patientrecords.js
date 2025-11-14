@@ -136,6 +136,7 @@ function viewMedications() {
                     </td>
                     <td class="p-3 text-sm text-gray-700">${med.form}, ${med.strength}</td>
                     <td class="p-3 text-sm text-gray-700 text-center font-semibold">${med.quantity}</td>
+                    
                     <td class="p-3 text-center">
                         <button class="edit-med-item bg-green-100 text-green-700 p-1.5 rounded hover:bg-green-600 hover:text-white transition-all text-xs">
                             <i class="fa-regular fa-pen-to-square"></i> Edit

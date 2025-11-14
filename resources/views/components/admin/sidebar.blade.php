@@ -32,7 +32,7 @@
             @endif
 
             {{-- 3. INVENTORY & LOGS (Para sa Level 1, 2 - Superadmin at Admin lang) --}}
-            @if(in_array(auth()->user()->user_level_id, [1, 2]))
+            @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]))
             <li>
                 <a href="{{ route('admin.inventory') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fa-regular fa-cubes-stacked nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
@@ -40,6 +40,8 @@
                 </a>
             </li>
             <li>
+            @endif
+                @if(in_array(auth()->user()->user_level_id, [1, 2]))
                 <a href="{{ route('admin.movements') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fa-regular fa-file-spreadsheet nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
                     <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700 dark:text-gray-300">Product Movement</span>

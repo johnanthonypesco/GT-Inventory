@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // L1, L2, L4: Patient Records READ access. 
         // Ang access check para dito ay nasa loob ng PatientRecordsController (L1, L2, L4 allowed, L3 blocked).
         Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+        Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
         
         
         // == B. ADMIN/SUPERADMIN ROUTES (Level 1, 2 ONLY) ==
@@ -78,7 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->name('ai.analysis');        
             
             // --- Inventory Routes (Protected) ---
-            Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
+            // Route::get('/inventory', [InventoryController::class, 'showinventory'])->name('inventory');
             Route::post('/inventory', [InventoryController::class, 'addProduct'])->name('inventory.addproduct');
             Route::put('/inventory/update', [InventoryController::class, 'updateProduct'])->name('inventory.updateproduct');
             Route::post('/inventory/addstock', [InventoryController::class, 'addStock'])->name('inventory.addstock');
@@ -101,7 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/manageaccount' , [ManageaccountController::class, 'showManageaccount'])
                   ->name('manageaccount');
         });
-    
+        
     }); // <-- End ng buong /admin group
 
 }); // <-- End ng buong auth middleware group
