@@ -16,10 +16,10 @@ class PatientRecordsController extends Controller
 {
     public function showpatientrecords(Request $request)
     {
-        $products = Inventory::with('product')->where('is_archived', 2)->get(); 
+        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get(); 
         $barangays = Barangay::all();
-        $patientrecords = Patientrecords::with(['dispensedMedications', 'barangay'])->paginate(20);
-        $patientrecordscard = Patientrecords::with(['dispensedMedications', 'barangay'])->get();
+        $patientrecords = Patientrecords::with(['dispensedMedications', 'barangay'])->latest()->paginate(20);
+        $patientrecordscard = Patientrecords::with(['dispensedMedications', 'barangay'])->latest()->get();
 
 
         // count all dispensed medications
@@ -58,7 +58,6 @@ class PatientRecordsController extends Controller
             'medications.*.name.required' => 'Medicine selection is required.',
             'medications.*.quantity.required' => 'Quantity is required.',
         ]);
-        $medicationsDetails = [];
         $user_id = Auth::id(); 
 
         // Check inventory first
@@ -105,16 +104,16 @@ class PatientRecordsController extends Controller
             ]);
             // === END: LOG TO PRODUCT MOVEMENT TABLE ===
 
-            $dispensedMed = Dispensedmedication::create([
-                'patientrecord_id' => $newRecord->id,
-                'barangay_id' => $validated['barangay_id'],
-                'batch_number' => $inventory->batch_number ?? 'N/A',
-                'generic_name' => $inventory->product->generic_name ?? 'N/A',
-                'brand_name' => $inventory->product->brand_name ?? 'N/A',
-                'strength' => $inventory->product->strength ?? 'N/A',
-                'form' => $inventory->product->form ?? 'N/A',
-                'quantity' => $med['quantity'],
-            ]);
+            $dispensedMed = new Dispensedmedication;
+            $dispensedMed->patientrecord_id = $newRecord->id;
+            $dispensedMed->barangay_id = $validated['barangay_id'];
+            $dispensedMed->batch_number = $inventory->batch_number ?? 'N/A';
+            $dispensedMed->generic_name = $inventory->product->generic_name ?? 'N/A';
+            $dispensedMed->brand_name = $inventory->product->brand_name ?? 'N/A';
+            $dispensedMed->strength = $inventory->product->strength ?? 'N/A';
+            $dispensedMed->form = $inventory->product->form ?? 'N/A';
+            $dispensedMed->quantity = $med['quantity'];
+            $dispensedMed->save();
 
             $medicationsDetails[] = [
                 'id' => $dispensedMed->id,
@@ -124,5 +123,42 @@ class PatientRecordsController extends Controller
         }
 
         return to_route('admin.patientrecords')->with('success', 'Dispensation recorded successfully.');
+    }
+
+    public function updatePatientRecord(Request $request)
+    {
+        $id = $request->input('id');
+
+        $validated = $request->validateWithBag('editdispensation', [
+            'patient-name' => 'required|string|max:255',
+            'barangay_id' => 'required|exists:barangays,id',
+            'purok' => 'required|string|max:255',
+            'category' => 'required|in:Adult,Child,Senior',
+            'date-dispensed' => 'required|date',
+        ], [
+            'patient-name.required' => 'Patient name is required.',
+            'barangay_id.required' => 'Barangay is required.',
+            'purok.required' => 'Purok is required.',
+            'category.required' => 'Category is required.',
+            'date-dispensed.required' => 'Date dispensed is required.',
+        ]);
+
+        $record = Patientrecords::findOrFail($id);
+
+        // Update the patient record
+        $record->update([
+            'patient_name' => $validated['patient-name'],
+            'barangay_id' => $validated['barangay_id'],
+            'purok' => $validated['purok'],
+            'category' => $validated['category'],
+            'date_dispensed' => $validated['date-dispensed'],
+        ]);
+
+        // Optionally, update barangay_id in related dispensed medications if changed
+        if ($record->barangay_id != $validated['barangay_id']) {
+            Dispensedmedication::where('patientrecord_id', $id)->update(['barangay_id' => $validated['barangay_id']]);
+        }
+
+        return to_route('admin.patientrecords')->with('success', 'Dispensation updated successfully.');
     }
 }

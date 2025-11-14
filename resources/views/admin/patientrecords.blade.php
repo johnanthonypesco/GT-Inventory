@@ -81,6 +81,7 @@
                                         data-barangay="{{ $patientrecord->barangay->barangay_name ?? '' }}"
                                         data-purok="{{ $patientrecord->purok }}"
                                         data-category="{{ $patientrecord->category }}"
+                                        data-date-dispensed="{{ $patientrecord->date_dispensed->format('Y-m-d') }}"
                                         data-medications="{{ json_encode($patientrecord->dispensedMedications->map(function ($med) {
                                             return [
                                                 'batch' => $med->batch_number,
@@ -103,7 +104,7 @@
                                         <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-center">{{ $patientrecord->category }}</td>
                                         <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-center">
                                             <p class="font-semibold">{{ $patientrecord->date_dispensed->format('F j, Y') }}</p>
-                                            <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->date_dispensed->format('h:mm A') }}</p>
+                                            <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->created_at->format('g:i A') }}</p>
                                         </td>
                                         {{-- hide this actions to doctos --}}
                                         
@@ -127,36 +128,36 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div class="p-4 border-t bg-white dark:bg-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Showing {{ $patientrecords->firstItem() ?? 0 }} to {{ $patientrecords->lastItem() ?? 0 }} of {{ $patientrecords->total() }} results
-                    </p>
-                    <div class="flex space-x-2 pagination-links">
-                        @if ($patientrecords->onFirstPage())
-                            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Previous</span>
-                        @else
-                            <a href="{{ $patientrecords->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Previous</a>
-                        @endif
-                        @foreach ($patientrecords->links()->elements as $element)
-                            @if (is_string($element))
-                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default">{{ $element }}</span>
+                    <div class="p-4 border-t bg-white dark:bg-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 border-gray-200 dark:border-gray-700">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 order-2 sm:order-1">
+                            Showing {{ $patientrecords->firstItem() ?? 0 }} to {{ $patientrecords->lastItem() ?? 0 }} of {{ $patientrecords->total() }} results
+                        </p>
+                        <div class="flex flex-wrap justify-center sm:justify-end gap-2 pagination-links order-1 sm:order-2 w-full sm:w-auto">
+                            @if ($patientrecords->onFirstPage())
+                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Previous</span>
+                            @else
+                                <a href="{{ $patientrecords->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Previous</a>
                             @endif
-                            @if (is_array($element))
-                                @foreach ($element as $page => $url)
-                                    @if ($page == $patientrecords->currentPage())
-                                        <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg">{{ $page }}</span>
-                                    @else
-                                        <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">{{ $page }}</a>
-                                    @endif
-                                @endforeach
+                            @foreach ($patientrecords->links()->elements as $element)
+                                @if (is_string($element))
+                                    <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default whitespace-nowrap">{{ $element }}</span>
+                                @endif
+                                @if (is_array($element))
+                                    @foreach ($element as $page => $url)
+                                        @if ($page == $patientrecords->currentPage())
+                                            <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg whitespace-nowrap">{{ $page }}</span>
+                                        @else
+                                            <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">{{ $page }}</a>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
+                            @if ($patientrecords->hasMorePages())
+                                <a href="{{ $patientrecords->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Next</a>
+                            @else
+                                <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Next</span>
                             @endif
-                        @endforeach
-                        @if ($patientrecords->hasMorePages())
-                            <a href="{{ $patientrecords->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">Next</a>
-                        @else
-                            <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">Next</span>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,14 +219,29 @@
                             <div class="medication-group flex gap-2 items-end">
                                 <div class="flex-1">
                                     <label for="medication-0" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Medicine:</label>
-                                    <select name="medications[0][name]" id="medication-0" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                        <option value="" disabled selected>Select Medicine</option>
-                                        @foreach ($products as $inventory)
-                                            <option value="{{ $inventory->id }}" {{ old('medications.0.name') == $inventory->id ? 'selected' : '' }}>
-                                                {{ $inventory->product->generic_name ?? 'N/A' }} - {{ $inventory->product->brand_name ?? 'N/A' }} ({{ $inventory->product->form ?? 'N/A' }}, {{ $inventory->product->strength ?? 'N/A' }}) ({{ $inventory->batch_number ?? 'N/A' }}) - Available: {{ $inventory->quantity ?? 0 }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="relative">
+                                        @php
+                                            $selected_med_label_0 = '';
+                                            $old_med_id_0 = old('medications.0.name', '');
+                                            foreach ($products as $inventory) {
+                                                if ($old_med_id_0 == $inventory->id) {
+                                                    $selected_med_label_0 = ($inventory->product->generic_name ?? 'N/A') . ' - ' . ($inventory->product->brand_name ?? 'N/A') . ' (' . ($inventory->product->form ?? 'N/A') . ', ' . ($inventory->product->strength ?? 'N/A') . ') (' . ($inventory->batch_number ?? 'N/A') . ') - Available: ' . ($inventory->quantity ?? 0);
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        <input type="text" class="search-med-input mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Search Medicine..." value="{{ $selected_med_label_0 }}">
+                                        <div class="dropdown-options absolute z-50 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto hidden shadow-lg">
+                                            @foreach ($products as $inventory)
+                                                <div class="option p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-gray-100" 
+                                                    data-id="{{ $inventory->id }}" 
+                                                    data-label="{{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}">
+                                                    {{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="medications[0][name]" class="med-name-hidden" value="{{ old('medications.0.name') }}">
                                     @error('medications.0.name', 'adddispensation')
                                         <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                     @enderror
@@ -268,15 +284,19 @@
                             <i class="fa-regular fa-xmark text-gray-600 dark:text-gray-400"></i>
                         </button>
                     </div>
-                    <form id="edit-dispensation-form" action="#">
+                    <form id="edit-dispensation-form" action="{{ route('admin.patientrecords.update') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <input type="hidden" id="edit-record-id" name="id">
-                        <div class="flex gap-2 mb-3">
-                            <div class="flex-1">
-                                <label for="edit-patient-name" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Patient Name:</label>
-                                <input type="text" name="patient-name" id="edit-patient-name" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                            </div>
+                        <div class="w-full mb-3">
+                            <label for="edit-patient-name" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Patient Name:</label>
+                            <input type="text" name="patient-name" id="edit-patient-name" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            @error('patient-name', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                <script>
+                                    document.getElementById('editrecordmodal').classList.remove('hidden');
+                                </script>
+                            @enderror
                         </div>
                         <div class="flex gap-2 mb-3">
                             <div class="w-1/2">
@@ -287,10 +307,16 @@
                                         <option value="{{ $barangay->id }}">{{ $barangay->barangay_name }}</option>
                                     @endforeach
                                 </select>
+                                @error('barangay_id', 'editdispensation')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div class="w-1/2">
                                 <label for="edit-purok" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Purok:</label>
                                 <input type="text" name="purok" id="edit-purok" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                @error('purok', 'editdispensation')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                         <div class="mb-3">
@@ -300,8 +326,18 @@
                                 <option value="Child">Child</option>
                                 <option value="Senior">Senior</option>
                             </select>
+                            @error('category', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <button type="submit" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
+                        <div class="mb-3">
+                            <label for="edit-date-dispensed" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Date Dispensed:</label>
+                            <input type="date" name="date-dispensed" id="edit-date-dispensed" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            @error('date-dispensed', 'editdispensation')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <button type="button" id="update-dispensation-btn" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
                             <i class="fa-regular fa-check mr-1"></i> Update
                         </button>
                     </form>
@@ -325,7 +361,7 @@
                                     <th class="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Medication Details</th>
                                     <th class="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Form & Strength</th>
                                     <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity</th>
-                                    <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th>
+                                    {{-- <th class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th> --}}
                                 </tr>
                             </thead>
                             <tbody id="view-medications-tbody" class="divide-y divide-gray-200 dark:divide-gray-700">

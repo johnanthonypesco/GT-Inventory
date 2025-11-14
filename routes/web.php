@@ -87,9 +87,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/inventory/archive', [InventoryController::class, 'archiveProduct'])->name('inventory.archiveproduct');
             Route::put('/inventory/unarchive', [InventoryController::class, 'unarchiveProduct'])->name('inventory.unarchiveproduct');
             Route::get('/inventory/archived-stocks', [InventoryController::class, 'fetchArchivedStocks'])
-                 ->name('admin.inventory.fetchArchivedStocks');
+             ->name('admin.inventory.fetchArchivedStocks');
+            
+            // --- Iba pang Admin Routes ---
+            Route::get('/patientrecords', [PatientRecordsController::class, 'showpatientrecords'])->name('patientrecords');
+            Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
+            Route::put('/patientrecords', [PatientRecordsController::class, 'updatePatientRecord'])->name('patientrecords.update');
 
-            // L1, L2: History Logs (Protected)
             Route::get('/historylog', [HistorylogController::class, 'showhistorylog'])->name('historylog');
         });
 
