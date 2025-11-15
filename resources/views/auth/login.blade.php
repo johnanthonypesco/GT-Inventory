@@ -226,11 +226,23 @@
             // --- END: Logic para sa Resend Timer ---
 
 
+            // --- START: MODIFICATION ---
             // Event Listeners para sa Toggles
             toggleToOtp.addEventListener('click', (e) => {
                 e.preventDefault();
-                toggleMode('otp');
+                
+                const email = emailInput.value;
+                if (!email) {
+                    // Kung walang email, magpakita ng error
+                    errorMsg.innerText = 'Please enter your email address first.';
+                    errorMsg.classList.remove('hidden');
+                    successMsg.classList.add('hidden'); // Itago ang success message kung nakabukas
+                } else {
+                    // Kung may email, ituloy ang pag-toggle
+                    toggleMode('otp');
+                }
             });
+            // --- END: MODIFICATION ---
             
             toggleToPassword.addEventListener('click', (e) => {
                 e.preventDefault();
