@@ -11,9 +11,6 @@
 
   {{-- Sidebar --}}
   <x-admin.sidebar/>
- 
-  {{-- CSRF TOKEN META TAG --}}
-  <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <div id="content-wrapper" class="transition-all duration-300 lg:ml-64 md:ml-20">
     {{-- Header --}}
