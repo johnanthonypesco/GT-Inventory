@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             InventorySeeder::class,
             BarangaySeeder::class,
-            PatientRecordsSeeder::class
+            PatientRecordsSeeder::class,
+            BranchSeeder::class,
         ]);
         
         // \App\Models\User::factory(10)->create();
