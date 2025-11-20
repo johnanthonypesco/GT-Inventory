@@ -6,10 +6,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue; // <--- Tama ito
 
-// CHANGE: Idinagdag natin ang "implements ShouldQueue" dito
-class NewLoginNotification extends Mailable implements ShouldQueue
+class NewLoginNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,8 +28,7 @@ class NewLoginNotification extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            // Siguraduhin na meron kang file sa resources/views/emails/new-login.blade.php
-            view: 'emails.new-login', 
+            view: 'emails.new-login', // Gagawa tayo ng view na ito
         );
     }
 }
