@@ -87,12 +87,15 @@
             </div>
 
             {{-- Buttons --}}
+            {{-- IF RHU2 YUNG USER VIEW LANG PWEDE NIYA MAGAWA --}}
+            @if (auth()->user()->branch_id != 2)
             <div class="mt-6 flex flex-wrap gap-3 w-full justify-end mb-8">
                 @if (auth()->user()->user_level_id != 4)
                 <button id="addnewproductbtn" class="bg-white dark:bg-gray-800 inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300 flex-1 sm:flex-none min-w-[200px]">
                     <i class="fa-regular fa-plus mr-2"></i> Register New Product
                 </button>
                 @endif
+
                 <button id="viewallproductsbtn" class="bg-white dark:bg-gray-800 inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300 flex-1 sm:flex-none min-w-[200px]">
                     <i class="fa-regular fa-eye mr-2"></i> View All Products
                 </button>
@@ -100,6 +103,7 @@
                     <i class="fa-regular fa-box-archive mr-2"></i> View Archive Products
                 </button>
             </div>
+            @endif
 
             {{-- RHU 1 Table --}}
             <div class="mt-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
