@@ -19,7 +19,8 @@ class InventoryController extends Controller
     public function showinventory(Request $request)
     {
         $products = Product::where('is_archived', 1)->get();
-        $archiveproducts = Product::where('is_archived', 1)->get();
+        $archiveproducts = Product::where('is_archived', 2)->get();
+        $branch = 
 
         // Combined count for cards
         $inventorycount = Inventory::where('is_archived', 2)->get();
@@ -251,11 +252,13 @@ class InventoryController extends Controller
     public function addStock(Request $request) {
         $validated = $request->validateWithBag( 'addstock', [
             'product_id' => 'required|exists:products,id',
+            'branch_id' => 'required|in:1,2',
             'batchnumber' => 'required|min:3|max:120',
             'quantity' => 'required|numeric',
             'expiry' => 'required|date',
         ], [
             'product_id.required'=> 'Product ID is required.',
+            'branch_id.required'=> 'Branch ID is required.',
             'batchnumber.required'=> 'Batch number is required.',
             'quantity.required'=> 'Quantity is required.',
             'expiry.required'=> 'Expiry date is required.',
@@ -264,6 +267,7 @@ class InventoryController extends Controller
         $existingStock = Inventory::where('product_id', $validated['product_id'])
             ->where('batch_number', $validated['batchnumber'])
             ->where('expiry_date', $validated['expiry'])
+            ->where('branch_id', $validated['branch_id'])
             ->first();
 
         $user = Auth::user(); // for logging
@@ -305,9 +309,11 @@ class InventoryController extends Controller
         } else {
             $addstock = Inventory::create([
                 'product_id' => $validated['product_id'],
+                'branch_id' => $validated['branch_id'],
                 'batch_number' => $validated['batchnumber'],
                 'quantity' => $validated['quantity'],
                 'expiry_date' => $validated['expiry'],
+                'is_archived' => 2,
             ]);
 
             // === START: ADD THIS BLOCK ===
@@ -414,4 +420,69 @@ class InventoryController extends Controller
         return to_route('admin.inventory')->with('success', 'Stock updated successfully.');
     }
 
+    public function transferStock(Request $request)
+    {
+        $request->validate([
+            'inventory_id' => 'required|exists:inventories,id',
+            'quantity'     => 'required|numeric|min:1',
+            'destination_branch' => 'required|in:1,2',
+        ]);
+
+        $sourceInventory = Inventory::with('product')->findOrFail($request->inventory_id);
+
+        if ($sourceInventory->quantity < $request->quantity) {
+            return back()->with('error', 'Not enough stock to transfer.');
+        }
+
+        $sourceInventory->quantity -= $request->quantity;
+        $sourceInventory->save();
+
+        $destInventory = Inventory::where('product_id', $sourceInventory->product_id)
+            ->where('batch_number', $sourceInventory->batch_number)
+            ->where('expiry_date', $sourceInventory->expiry_date)
+            ->where('branch_id', $request->destination_branch)
+            ->first();
+
+        if ($destInventory) {
+            $oldQty = $destInventory->quantity;
+            $destInventory->quantity += $request->quantity;
+            $destInventory->save();
+        } else {
+            $newBatch = Inventory::create([
+                'product_id'    => $sourceInventory->product_id,
+                'batch_number'  => $sourceInventory->batch_number,
+                'quantity'      => $request->quantity,
+                'expiry_date'   => $sourceInventory->expiry_date,
+                'branch_id'     => $request->destination_branch,
+                'is_archived'   => 2,
+            ]);
+        }
+
+        // Add a product movement for this transfer
+        ProductMovement::create([
+            'product_id' => $sourceInventory->product_id,
+            'inventory_id' => $sourceInventory->id,
+            'user_id' => Auth::id(),
+            'type' => 'OUT',
+            'quantity' => $request->quantity,
+            'quantity_before' => $sourceInventory->quantity + $request->quantity,
+            'quantity_after' => $sourceInventory->quantity,
+            'description' => 'Stock transfer from RHU ' . ($sourceInventory->branch_id == 1 ? '1' : '2') . ' to RHU ' . ($request->destination_branch == 1 ? '1' : '2') . '.',
+        ]);
+
+        // Add another product movement for the received stock
+        ProductMovement::create([
+            'product_id' => $sourceInventory->product_id,
+            'inventory_id' => $destInventory ? $destInventory->id : $newBatch->id,
+            'user_id' => Auth::id(),
+            'type' => 'IN',
+            'quantity' => $request->quantity,
+            'quantity_before' => $destInventory ? $oldQty : 0,
+            'quantity_after' => $destInventory ? $destInventory->quantity : $newBatch->quantity,
+            'description' => 'Stock received from RHU ' . ($sourceInventory->branch_id == 1 ? '1' : '2') . ' to RHU ' . ($request->destination_branch == 1 ? '1' : '2') . '.',
+        ]);
+
+        return redirect()->route('admin.inventory')->with('success', 'Stock transferred successfully!');
+    }
 }
+
