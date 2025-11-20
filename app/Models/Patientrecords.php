@@ -15,6 +15,7 @@ class Patientrecords extends Model
         'purok',
         'category',
         'date_dispensed',
+        'branch_id', // <--- Add this
     ];
 
     protected $casts = [
@@ -30,4 +31,9 @@ class Patientrecords extends Model
     {
         return $this->hasMany(Dispensedmedication::class, 'patientrecord_id');
     }
+
+    public function branch()
+{
+    return $this->belongsTo(Branch::class);
+}
 }
