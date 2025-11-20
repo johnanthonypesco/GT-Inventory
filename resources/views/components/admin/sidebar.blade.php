@@ -36,10 +36,11 @@
                     <i class="fa-regular fa-file-spreadsheet nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
                     <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700 dark:text-gray-300">Product Movement</span>
                 </a>
+                @endif
             </li>
 
             {{-- 2. PATIENT RECORDS / DISPENSATION (Para sa Level 1, 2, 4 - Admin at Doctor) --}}
-            @if(in_array(auth()->user()->user_level_id, [1, 2, 4]) && auth()->user()->branch_id != 2)
+            @if(in_array(auth()->user()->user_level_id, [1, 2, 4]) || auth()->user()->branch_id == 2)
             <li>
                 <a href="{{ route('admin.patientrecords') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fa-regular fa-book-user nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
@@ -48,6 +49,7 @@
             </li>
             @endif
 
+            @if(in_array(auth()->user()->user_level_id, [1, 2]) && auth()->user()->branch_id != 2)
             <li>
                 <a href="{{ route('admin.historylog') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fa-regular fa-clock-rotate-left nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
@@ -75,9 +77,9 @@
             </a>
         </li>
         <li>
-        <form action="{{ route('logout') }}" method="POST" class="w-full">
+        <form action="{{ route('logout') }}" id="logout-form" method="POST" class="w-full">
             @csrf
-            <button type="submit" class="w-full flex items-center px-3 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium text-red-700 dark:text-red-300 hover:text-red-600 dark:hover:text-red-400">
+            <button id="logout-btn" type="button" class="w-full flex items-center px-3 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium text-red-700 dark:text-red-300 hover:text-red-600 dark:hover:text-red-400">
                 <i class="fa-regular fa-arrow-right-from-bracket nav-icon w-5 text-center"></i>
                 <span class="nav-text ml-3 lg:inline md:hidden">Logout</span>
             </button>
