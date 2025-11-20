@@ -86,4 +86,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set the active link when the page finishes loading
     setActiveLink();
+
+    // SWEET ALERT LOGIC PARA SA LOGOUT BTN
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        const form = document.getElementById('logout-form');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Your account will be logged out and redirected to the login page.",
+            icon: 'info',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content',
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });

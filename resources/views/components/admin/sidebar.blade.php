@@ -77,9 +77,9 @@
             </a>
         </li>
         <li>
-        <form action="{{ route('logout') }}" method="POST" class="w-full">
+        <form action="{{ route('logout') }}" id="logout-form" method="POST" class="w-full">
             @csrf
-            <button type="submit" class="w-full flex items-center px-3 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium text-red-700 dark:text-red-300 hover:text-red-600 dark:hover:text-red-400">
+            <button id="logout-btn" type="button" class="w-full flex items-center px-3 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium text-red-700 dark:text-red-300 hover:text-red-600 dark:hover:text-red-400">
                 <i class="fa-regular fa-arrow-right-from-bracket nav-icon w-5 text-center"></i>
                 <span class="nav-text ml-3 lg:inline md:hidden">Logout</span>
             </button>
