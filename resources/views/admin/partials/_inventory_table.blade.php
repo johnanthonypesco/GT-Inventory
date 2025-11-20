@@ -7,7 +7,8 @@
             <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">Quantity</th>
             <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm tracking-wide">Status</th>
             <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm tracking-wide">Expiry Date</th>
-            @if (auth()->user()->user_level_id != 4)
+            {{-- mawawala yung column nato if RHU2 yung user --}}
+            @if (auth()->user()->user_level_id != 4 && auth()->user()->branch_id != 2)
             <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">Actions</th>
             @endif
         </tr>
@@ -58,7 +59,8 @@
                 <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-center font-semibold">
                     {{ \Carbon\Carbon::parse($inventory->expiry_date)->format('M d, Y') }}
                 </td>
-                @if (auth()->user()->user_level_id != 4)
+                {{-- mawawala yung column nato if RHU2 yung  user --}}
+                @if (auth()->user()->user_level_id != 4 && auth()->user()->branch_id != 2)
                 <td class="p-3">
                     <button class="edit-stock-btn bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 dark:hover:bg-blue-800 hover:text-white font-semibold text-sm">
                         <i class="fa-regular fa-pen-to-square mr-1"></i>
