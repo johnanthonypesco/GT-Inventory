@@ -8,22 +8,58 @@ use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Patientrecords;
 use App\Models\Dispensedmedication;
-use App\Models\ProductMovement; // <-- ADD THIS
+use App\Models\ProductMovement;
 use App\Models\Barangay;
-use Illuminate\Support\Facades\Auth; // <-- ADD THIS
-use App\Models\HistoryLog; // <-- ADDED
+use App\Models\Branch; // Don't forget to import Branch
+use Illuminate\Support\Facades\Auth;
+use App\Models\HistoryLog;
 use Carbon\Carbon;
 
 class PatientRecordsController extends Controller
 {
     public function showpatientrecords(Request $request)
     {
-        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get(); 
+        // 1. Get Products (Inventory) - You might want to filter this by branch too in the future, 
+        // but for now we keep it as is to show available medicines.
+        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get();
+        
         $barangays = Barangay::all();
-        $patientrecords = Patientrecords::with(['dispensedMedications', 'barangay'])->latest()->paginate(20);
-        $patientrecordscard = Patientrecords::with(['dispensedMedications', 'barangay'])->latest()->get();
+        $branches = Branch::all(); // Get all branches for the Admin dropdown
 
-        // count all dispensed medications
+        $user = Auth::user();
+
+        // 2. Initialize the Query
+        $query = Patientrecords::with(['dispensedMedications', 'barangay', 'branch']);
+
+        // 3. Apply Authorization/Filtering Logic
+        if (in_array($user->user_level_id, [1, 2])) {
+            // === ADMIN (Level 1 & 2) ===
+            // Admin can see everything, but if they selected a filter, apply it.
+            if ($request->has('branch_filter') && $request->branch_filter != 'all') {
+                $query->where('branch_id', $request->branch_filter);
+            }
+        } else {
+            // === ENCODER / DOCTOR (Level 3 & 4) ===
+            // Can ONLY see records from their own branch
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        // 4. Fetch Paginated Results
+        $patientrecords = $query->latest()->paginate(20);
+
+        // 5. Calculate Stats (Using the same filter logic for accuracy)
+        $cardQuery = Patientrecords::with(['dispensedMedications']);
+        
+        if (in_array($user->user_level_id, [1, 2])) {
+            if ($request->has('branch_filter') && $request->branch_filter != 'all') {
+                $cardQuery->where('branch_id', $request->branch_filter);
+            }
+        } else {
+            $cardQuery->where('branch_id', $user->branch_id);
+        }
+        
+        $patientrecordscard = $cardQuery->get();
+
         $totalPeopleServed = $patientrecordscard->count();
         $totalProductsDispensed = $patientrecordscard->sum(function ($patientrecord) {
             return $patientrecord->dispensedMedications->count();
@@ -36,10 +72,13 @@ class PatientRecordsController extends Controller
             'totalPeopleServed' => $totalPeopleServed,
             'totalProductsDispensed' => $totalProductsDispensed,
             'patientrecordscard' => $patientrecordscard,
+            'branches' => $branches, // Pass branches to view
+            'currentFilter' => $request->branch_filter ?? 'all' // Pass current filter selection
         ]);
     }
 
-    public function adddispensation(Request $request) {
+    public function adddispensation(Request $request) 
+    {
         $validated = $request->validateWithBag('adddispensation', [
             'patient-name' => 'required|string|max:255',
             'barangay_id' => 'required|exists:barangays,id',
@@ -59,7 +98,8 @@ class PatientRecordsController extends Controller
             'medications.*.name.required' => 'Medicine selection is required.',
             'medications.*.quantity.required' => 'Quantity is required.',
         ]);
-        $user_id = Auth::id(); 
+
+        $user = Auth::user(); 
 
         // Check inventory first
         foreach ($validated['medications'] as $med) {
@@ -70,52 +110,51 @@ class PatientRecordsController extends Controller
         }
 
         // Create PatientRecord
+        // IMPORTANT: We explicitly set the branch_id based on the logged-in user
         $newRecord = Patientrecords::create([
             'patient_name' => $validated['patient-name'],
             'barangay_id' => $validated['barangay_id'],
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
+            'branch_id' => $user->branch_id, // <--- AUTO-ASSIGN USER'S BRANCH
         ]);
 
-        // === HISTORY LOG: PATIENT RECORD CREATED ===
-        $user = Auth::user();
+        // === HISTORY LOG ===
         HistoryLog::create([
             'action' => 'RECORD ADDED',
-            'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}).",
-            'user_id' => $user?->id,
-            'user_name' => $user?->name ?? 'System',
+            'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}) at " . ($user->branch->name ?? 'Branch ID ' . $user->branch_id) . ".",
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'metadata' => [
                 'patientrecord_id' => $newRecord->id,
+                'branch_id' => $user->branch_id
             ],
         ]);
 
-        $medicationsDetails = [];
         // Create dispensed medications and deduct inventory
         foreach ($validated['medications'] as $med) {
             $inventory = Inventory::findOrFail($med['name']);
-            // === START: CAPTURE QUANTITIES FOR LOGGING ===
+            
             $quantity_before = $inventory->quantity;
             $quantity_to_deduct = $med['quantity'];
             $quantity_after = $quantity_before - $quantity_to_deduct;
-            // === END: CAPTURE QUANTITIES ===
 
             // Deduct inventory
             $inventory->quantity = $quantity_after;
             $inventory->save();
 
-            // === START: LOG TO PRODUCT MOVEMENT TABLE ===
+            // Log Product Movement
             ProductMovement::create([
                 'product_id'      => $inventory->product_id,
                 'inventory_id'    => $inventory->id,
-                'user_id'         => $user_id,
+                'user_id'         => $user->id,
                 'type'            => 'OUT',
                 'quantity'        => $quantity_to_deduct,
                 'quantity_before' => $quantity_before,
                 'quantity_after'  => $quantity_after,
                 'description'     => "Dispensed to Patient: {$newRecord->patient_name} (Record: #{$newRecord->id})",
             ]);
-            // === END: LOG TO PRODUCT MOVEMENT TABLE ===
 
             $dispensedMed = new Dispensedmedication;
             $dispensedMed->patientrecord_id = $newRecord->id;
@@ -127,12 +166,6 @@ class PatientRecordsController extends Controller
             $dispensedMed->form = $inventory->product->form ?? 'N/A';
             $dispensedMed->quantity = $med['quantity'];
             $dispensedMed->save();
-
-            $medicationsDetails[] = [
-                'id' => $dispensedMed->id,
-                'generic_name' => $dispensedMed->generic_name,
-                'quantity' => $dispensedMed->quantity,
-            ];
         }
 
         return to_route('admin.patientrecords')->with('success', 'Dispensation recorded successfully.');
@@ -157,10 +190,15 @@ class PatientRecordsController extends Controller
         ]);
 
         $record = Patientrecords::with('barangay')->findOrFail($id);
+        $user = Auth::user();
+
+        // SECURITY CHECK: Ensure Encoders can't edit records from other branches via ID manipulation
+        if (!in_array($user->user_level_id, [1, 2]) && $record->branch_id != $user->branch_id) {
+            return back()->with('error', 'Unauthorized action.');
+        }
 
         // capture old values before updating
         $old = $record->only(['patient_name', 'barangay_id', 'purok', 'category', 'date_dispensed']);
-
         $old["barangay_name"] = $record->barangay->barangay_name;
 
         // Update the patient record
@@ -170,12 +208,11 @@ class PatientRecordsController extends Controller
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
+            // Note: We usually don't allow changing the branch_id on edit unless specifically required
         ]);
 
         // HISTORY LOG: UPDATE
-        $user = Auth::user();
         $oldDate = Carbon::parse($old["date_dispensed"])->format('F d, Y');
-
         $newDate = Carbon::parse($record->date_dispensed)->format('F d, Y');    
         $time = Carbon::parse($record->created_at)->format('h:i A');
 
@@ -189,8 +226,8 @@ class PatientRecordsController extends Controller
             - Purok: {$old['purok']} to {$record->purok}. 
             - Category: {$old['category']} to {$record->category}. 
             - Date Dispensed: {$oldDate} ({$time}) to {$newDate} ({$time}).",
-            'user_id' => $user?->id,
-            'user_name' => $user?->name ?? 'System',
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'metadata' => [
                 'patientrecord_id' => $record->id,
             ],

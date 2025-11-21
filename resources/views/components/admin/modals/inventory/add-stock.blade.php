@@ -11,6 +11,7 @@
         @csrf
         @method('POST')
         <input type="hidden" id="selected-product-id" name="product_id" value="{{ old('product_id') }}">
+        <input type="hidden" id="selected-branch-id" name="branch_id" value="1">
 
         <div class="flex gap-2 mt-2">
           <div class="w-1/2">

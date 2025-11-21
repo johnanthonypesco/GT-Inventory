@@ -4,12 +4,30 @@
         <x-admin.header/>
         
         {{-- Check for Authorization --}}
-        @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]) || auth()->user()->branch_id === 2)
+        @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]))
             {{-- AUTHORIZED VIEW --}}
             <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
-                <div class="mb-6 pt-16">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Home / <span class="text-red-700 dark:text-red-300 font-medium">Reports</span></p>
+                
+                {{-- HEADER with Branch Label --}}
+                <div class="mb-6 pt-16 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Home / <span class="text-red-700 dark:text-red-300 font-medium">Reports</span>
+                    </p>
+
+                    {{-- Current Unit Badge --}}
+                    <div class="flex items-center gap-2">
+                        <span class="hidden sm:inline text-sm text-gray-500 dark:text-gray-400">Current Unit:</span>
+                        <span class="px-3 py-1 rounded-full text-sm font-bold border flex items-center shadow-sm
+                            {{ auth()->user()->branch_id == 1 ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300' : '' }}
+                            {{ auth()->user()->branch_id == 2 ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300' : '' }}
+                            {{ auth()->user()->branch_id >= 3 ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-300' : '' }}
+                        ">
+                            <i class="fa-regular fa-building-columns mr-2"></i>
+                            {{ auth()->user()->branch->name ?? 'Unknown Branch' }}
+                        </span>
+                    </div>
                 </div>
+
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
@@ -41,30 +59,63 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Action Buttons -->
                 <div class="mt-6 flex flex-col sm:flex-row gap-3 w-full justify-end">
                     <button id="adddispensationbtn" class="bg-white dark:bg-gray-800 inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300">
                         <i class="fa-regular fa-plus mr-2"></i> Record New Dispensation
                     </button>
                 </div>
+
                 {{-- Records Table --}}
                 <div id="patientrecords-data-container">
                     <div class="mt-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        
+                        {{-- Header: Search, Filter, Export --}}
                         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <div class="relative w-full sm:w-1/2">
+                            
+                            {{-- Search Bar --}}
+                            <div class="relative w-full sm:w-1/3">
                                 <i class="fa-regular fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm"></i>
-                                <input type="text" id="patientrecords-search-input" placeholder="Search records..." class="w-full pl-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
+                                <input type="text" id="patientrecords-search-input" placeholder="Search records..." class="w-full pl-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
                             </div>
-                            <button class="bg-white dark:bg-gray-800 inline-flex items-center justify-center p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300">
-                                <i class="fa-regular fa-file-export text-lg text-green-600 dark:text-green-400"></i>
-                                <span class="ml-2">Export into CSV</span>
-                            </button>
+
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                {{-- === ADMIN FILTER DROPDOWN === --}}
+                                @if(in_array(auth()->user()->user_level_id, [1, 2]) && isset($branches)) 
+                                    <form method="GET" action="{{ route('admin.patientrecords') }}" class="flex items-center">
+                                        <div class="relative">
+                                            <i class="fa-regular fa-filter absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs"></i>
+                                            <select name="branch_filter" onchange="this.form.submit()" class="pl-8 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 cursor-pointer">
+                                                <option value="all" {{ ($currentFilter ?? 'all') == 'all' ? 'selected' : '' }}>All Branches</option>
+                                                @foreach($branches as $branch)
+                                                    <option value="{{ $branch->id }}" {{ ($currentFilter ?? '') == $branch->id ? 'selected' : '' }}>
+                                                        {{ $branch->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </form>
+                                @endif
+
+                                <button class="bg-white dark:bg-gray-800 inline-flex items-center justify-center p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300">
+                                    <i class="fa-regular fa-file-export text-lg text-green-600 dark:text-green-400"></i>
+                                    <span class="ml-2 hidden sm:inline">Export CSV</span>
+                                </button>
+                            </div>
                         </div>
+
                         <div class="overflow-x-auto p-5">
                             <table class="w-full pagination-links text-sm text-left">
                                 <thead class="sticky top-0 bg-gray-200 dark:bg-gray-700">
                                     <tr>
                                         <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">#</th>
+                                        
+                                        {{-- Show Branch Column for Admins --}}
+                                        @if(in_array(auth()->user()->user_level_id, [1, 2]))
+                                            <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">Branch</th>
+                                        @endif
+
                                         <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-left tracking-wide">Resident Details</th>
                                         <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm text-center tracking-wide">Resident Category</th>
                                         <th class="p-3 text-gray-700 dark:text-gray-300 uppercase text-sm tracking-wide">Date Dispensed</th>
@@ -74,7 +125,8 @@
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @if ($patientrecords->isEmpty())
                                         <tr>
-                                            <td colspan="5" class="p-3 text-center text-sm text-gray-500 dark:text-gray-400">No records found.</td>
+                                            {{-- Adjust colspan based on whether admin column is shown --}}
+                                            <td colspan="{{ in_array(auth()->user()->user_level_id, [1, 2]) ? 6 : 5 }}" class="p-3 text-center text-sm text-gray-500 dark:text-gray-400">No records found.</td>
                                         </tr>
                                     @else
                                         @foreach ($patientrecords as $patientrecord)
@@ -95,9 +147,20 @@
                                                     'quantity' => $med->quantity,
                                                 ];
                                             })->toArray()) }}">
+                                            
                                             <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-left">
                                                 {{ $loop->iteration + ($patientrecords->currentPage() - 1) * $patientrecords->perPage() }}
                                             </td>
+
+                                            {{-- Show Branch Name for Admins --}}
+                                            @if(in_array(auth()->user()->user_level_id, [1, 2]))
+                                                <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-left">
+                                                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-600 rounded text-xs font-semibold">
+                                                        {{ $patientrecord->branch->name ?? 'N/A' }}
+                                                    </span>
+                                                </td>
+                                            @endif
+
                                             <td class="p-3 text-sm text-gray-700 dark:text-gray-300 text-left">
                                                 <div>
                                                     <p class="font-semibold text-gray-700 dark:text-gray-200 capitalize">{{ $patientrecord->patient_name }}</p>
@@ -109,20 +172,21 @@
                                                 <p class="font-semibold">{{ $patientrecord->date_dispensed->format('F j, Y') }}</p>
                                                 <p class="italic text-gray-500 dark:text-gray-400">{{ $patientrecord->created_at->format('g:i A') }}</p>
                                             </td>
-                                            {{-- hide this actions to doctos --}}
                                             
                                             <td class="p-3 flex items-center justify-center gap-2 font-semibold">
-                                                
                                                 <button class="view-medications-btn bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 dark:hover:bg-blue-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
                                                     <i class="fa-regular fa-eye mr-1"></i>View All
                                                 </button>
                                                 @if (auth()->user()->user_level_id != 4)
-                                                <button class="editrecordbtn bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-green-600 dark:hover:bg-green-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
-                                                    <i class="fa-regular fa-pen-to-square mr-1"></i>Edit
-                                                </button>
-                                                <button class="deleterecordbtn bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
-                                                    <i class="fa-regular fa-trash mr-1"></i>Delete
-                                                </button>
+                                                    {{-- Only allow edit/delete if user is Admin OR if user is Encoder for the SAME branch --}}
+                                                    @if(in_array(auth()->user()->user_level_id, [1, 2]) || auth()->user()->branch_id == $patientrecord->branch_id)
+                                                        <button class="editrecordbtn bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-green-600 dark:hover:bg-green-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
+                                                            <i class="fa-regular fa-pen-to-square mr-1"></i>Edit
+                                                        </button>
+                                                        <button class="deleterecordbtn bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
+                                                            <i class="fa-regular fa-trash mr-1"></i>Delete
+                                                        </button>
+                                                    @endif
                                                 @endif
                                             </td>
                                         </tr>
@@ -136,34 +200,13 @@
                                 Showing {{ $patientrecords->firstItem() ?? 0 }} to {{ $patientrecords->lastItem() ?? 0 }} of {{ $patientrecords->total() }} results
                             </p>
                             <div class="flex flex-wrap justify-center sm:justify-end gap-2 pagination-links order-1 sm:order-2 w-full sm:w-auto">
-                                @if ($patientrecords->onFirstPage())
-                                    <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Previous</span>
-                                @else
-                                    <a href="{{ $patientrecords->previousPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Previous</a>
-                                @endif
-                                @foreach ($patientrecords->links()->elements as $element)
-                                    @if (is_string($element))
-                                        <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-default whitespace-nowrap">{{ $element }}</span>
-                                    @endif
-                                    @if (is_array($element))
-                                        @foreach ($element as $page => $url)
-                                            @if ($page == $patientrecords->currentPage())
-                                                <span class="px-3 py-2 text-sm bg-red-700 dark:bg-red-600 text-white rounded-lg whitespace-nowrap">{{ $page }}</span>
-                                            @else
-                                                <a href="{{ $url }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">{{ $page }}</a>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                @endforeach
-                                @if ($patientrecords->hasMorePages())
-                                    <a href="{{ $patientrecords->nextPageUrl() }}" class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap">Next</a>
-                                @else
-                                    <span class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed whitespace-nowrap">Next</span>
-                                @endif
+                                {{ $patientrecords->links('pagination::tailwind') }} 
+                                {{-- Simplified pagination call if you are using standard Laravel pagination, otherwise paste your custom pagination code back here --}}
                             </div>
                         </div>
                     </div>
                 </div>
+
                 {{-- Add Dispensation Modal --}}
                 <div class="fixed w-full h-screen top-0 left-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden overflow-auto" id="adddispensationmodal">
                     <div class="modal bg-white dark:bg-gray-800 rounded-lg w-full max-w-lg p-5 h-fit max-h-[90vh] overflow-y-auto">
@@ -278,6 +321,7 @@
                     </div>
                 </div>
                 {{-- End Add Modal --}}
+
                 {{-- Edit Dispensation Modal --}}
                 <div id="editrecordmodal" class="fixed w-full h-screen top-0 left-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
                     <div class="modal bg-white dark:bg-gray-800 rounded-lg w-full max-w-lg p-5">
@@ -347,6 +391,7 @@
                     </div>
                 </div>
                 {{-- End Edit Modal --}}
+
                 {{-- View Medications Modal --}}
                 <div id="viewmedicationsmodal" class="fixed w-full h-screen top-0 left-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
                     <div class="modal bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl p-5 max-h-[90vh] overflow-y-auto">
@@ -375,9 +420,10 @@
                     </div>
                 </div>
                 {{-- End View Medications Modal --}}
+
             </main>
         @else
-            {{-- UNAUTHORIZED VIEW (Added this else block) --}}
+            {{-- UNAUTHORIZED VIEW --}}
             <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen flex flex-col items-center justify-center">
                 <i class="fa-regular fa-lock text-6xl text-gray-400 mb-4"></i>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Unauthorized Access</h1>
@@ -389,5 +435,4 @@
         @endif
     </div>
     <script src="{{ asset('js/patientrecords.js') }}"></script>
-    
 </x-app-layout>

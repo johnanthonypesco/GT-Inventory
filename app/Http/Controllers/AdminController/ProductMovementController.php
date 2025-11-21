@@ -17,61 +17,66 @@ class ProductMovementController extends Controller
         $product_id = $request->input('product_id', '');
         $type = $request->input('type', '');
         $user_id = $request->input('user_id', '');
+        $branch_id = $request->input('branch_id', ''); // NEW: Branch filter
         $from = $request->input('from', '');
         $to = $request->input('to', '');
 
         $sort = $request->input('sort', 'desc');
-        $query = ProductMovement::with(['product', 'user', 'inventory'])
-                                ->orderBy('created_at', $sort);
 
-        // === Search Filter (by description or batch) ===
+        $query = ProductMovement::with(['product', 'user', 'inventory'])
+            ->orderBy('created_at', $sort);
+
+        // Search by description or batch number
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
-                  ->orWhereHas('inventory', function ($q_inv) use ($search) {
-                      $q_inv->where('batch_number', 'like', "%{$search}%");
-                  });
+                  ->orWhereHas('inventory', fn($q_inv) => $q_inv->where('batch_number', 'like', "%{$search}%"));
             });
         }
-        
-        // === Product Filter ===
-        if (!empty($product_id)) {
-            $query->where('product_id', $product_id);
+
+        if (!empty($product_id)) $query->where('product_id', $product_id);
+        if (!empty($type)) $query->where('type', $type);
+        if (!empty($user_id)) $query->where('user_id', $user_id);
+
+        // NEW: Filter by branch
+        if (!empty($branch_id)) {
+            $query->whereHas('inventory', fn($q) => $q->where('branch_id', $branch_id));
         }
 
-        // === Type Filter (IN/OUT) ===
-        if (!empty($type)) {
-            $query->where('type', $type);
-        }
-        
-        // === User Filter ===
-        if (!empty($user_id)) {
-            $query->where('user_id', $user_id);
-        }
-
-        // === Date Range Filter ===
+        // Date range
         if (!empty($from) && !empty($to)) {
-            $fromDate = Carbon::parse($from)->startOfDay();
-            $toDate = Carbon::parse($to)->endOfDay();
-            $query->whereBetween('created_at', [$fromDate, $toDate]);
+            $query->whereBetween('created_at', [
+                Carbon::parse($from)->startOfDay(),
+                Carbon::parse($to)->endOfDay()
+            ]);
         } elseif (!empty($from)) {
-            $fromDate = Carbon::parse($from)->startOfDay();
-            $query->where('created_at', '>=', $fromDate);
+            $query->where('created_at', '>=', Carbon::parse($from)->startOfDay());
         } elseif (!empty($to)) {
-            $toDate = Carbon::parse($to)->endOfDay();
-            $query->where('created_at', '<=', $toDate);
+            $query->where('created_at', '<=', Carbon::parse($to)->endOfDay());
         }
 
         $movements = $query->paginate(20)->withQueryString();
 
-        // For dropdown data
+        // Stats for cards (Today)
+        $today = Carbon::today();
+        $movementsTodayCount = ProductMovement::whereDate('created_at', $today)->count();
+        $itemsInToday = ProductMovement::where('type', 'IN')->whereDate('created_at', $today)->sum('quantity');
+        $itemsOutToday = ProductMovement::where('type', 'OUT')->whereDate('created_at', $today)->sum('quantity');
+
+        $products = Product::where('is_archived', 1)->orderBy('generic_name')->get();
+        $users = User::orderBy('name')->get();
+
         if ($request->ajax()) {
             return view('admin.partials._movements_table', compact('movements'))->render();
         }
-        
-        $products = Product::where('is_archived', 2)->orderBy('generic_name')->get();
-        $users = User::orderBy('name')->get(); // Assuming you want all users
 
-        return view('admin.product_movements', compact('movements', 'products', 'users'));
+        return view('admin.product_movements', compact(
+            'movements',
+            'products',
+            'users',
+            'movementsTodayCount',
+            'itemsInToday',
+            'itemsOutToday'
+        ));
     }
 }

@@ -97,6 +97,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/inventory/archived-stocks', [InventoryController::class, 'fetchArchivedStocks'])
                  ->name('admin.inventory.fetchArchivedStocks');
 
+            Route::post('/inventory/transfer', [InventoryController::class, 'transferStock'])->name('inventory.transferstock');
+
                  
 
             // L1, L2: History Logs (Protected)
