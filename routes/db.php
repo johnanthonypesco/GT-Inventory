@@ -13,6 +13,6 @@ Route::get('/dangerous-db-reset', function () {
     set_time_limit(0);
     Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
     
-    return "Database reset.";
+return "NARESET NA ANG DATABASE MO BAYYYYBEEE! <HTML><br><a href='/'>Go Back to Home</a></HTML>";
 });
 // === DANGEROUS: RESET DB ROUTE FOR TESTING PURPOSES ONLY or FOR AUTOMATION PORPOSES===
