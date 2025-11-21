@@ -105,6 +105,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.dashboard'); 
         }
         elseif ($user->level->name == 'doctor') {
+            if ($user->branch_id == 2) {
+                return redirect()->route('admin.inventory');
+            }
             return redirect()->route('admin.dashboard'); 
         }
 
