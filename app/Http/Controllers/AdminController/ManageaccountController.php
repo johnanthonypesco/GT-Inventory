@@ -10,6 +10,7 @@ use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ManageaccountController extends Controller
 {
@@ -37,13 +38,23 @@ class ManageaccountController extends Controller
         $currentUser = Auth::user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'user_level_id' => 'required|exists:user_levels,id',
-            'branch_id' => 'nullable|exists:branches,id', 
-            'password' => 'required|min:8',
-        ]);
-
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'user_level_id' => 'required|exists:user_levels,id',
+        'branch_id' => 'nullable|exists:branches,id', 
+        
+        // DITO ANG PAGBABAGO:
+        'password' => [
+            'required',
+            'string',
+            'min:8',               // Minimum 8 characters
+            'regex:/[0-9]/',       // Must contain at least one number
+            'regex:/[@$!%*#?&]/',  // Must contain at least one special character
+        ],
+    ], [
+        // Custom Error Messages (Optional para mas malinaw sa user)
+        'password.regex' => 'Password must contain at least one number and one special character (@$!%*#?&).',
+    ]);
         $targetLevel = UserLevel::find($request->user_level_id);
         if ($currentUser->level->name !== 'superadmin' && $targetLevel->name === 'superadmin') {
              abort(403, 'You are not allowed to create a Superadmin account.');

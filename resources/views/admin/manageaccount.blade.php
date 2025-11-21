@@ -6,10 +6,24 @@
         <x-admin.header/>
         <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
             
+            {{-- ================= NOTIFICATIONS ================= --}}
+            
             {{-- Success Message --}}
             @if(session('success'))
             <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800" role="alert">
                 <span class="font-medium">Success!</span> {{ session('success') }}
+            </div>
+            @endif
+
+            {{-- Error Messages (Validation) --}}
+            @if ($errors->any())
+            <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+                <span class="font-medium">Whoops!</span> There were some problems with your input.
+                <ul class="mt-1 list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
             @endif
 
@@ -35,7 +49,7 @@
                     </button>
                 </div>
 
-                {{-- Table Section --}}
+                {{-- ================= TABLE SECTION ================= --}}
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
@@ -65,6 +79,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        {{-- Displays Role Name (e.g. Admin, Doctor) --}}
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                                             {{ ucfirst($user->level->name ?? 'N/A') }}
                                         </span>
@@ -77,21 +92,18 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         
-                                        {{-- EDIT BUTTON (Vanilla JS Trigger) --}}
-                                        {{-- Important: use single quotes for onclick wrapper, @json handles the object --}}
+                                        {{-- EDIT BUTTON --}}
                                         <button onclick='openUserModal("edit", @json($user))'
-                                            class="text-gray-400 hover:text-blue-600 transition duration-150 mx-2 cursor-pointer">
+                                            class="text-gray-400 hover:text-blue-600 transition duration-150 mx-2 cursor-pointer" title="Edit">
                                             <i class="fa-solid fa-pencil fa-lg"></i>
                                         </button>
-
-                                        {{-- You can add Delete here later --}}
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-5">
+                    <div class="p-5 border-t border-gray-200 dark:border-gray-700">
                         {{ $users->links() }}
                     </div>
                 </div>
@@ -110,6 +122,7 @@
                         </div>
                         
                         {{-- FORM --}}
+                        {{-- Ensure your route is named correctly in web.php --}}
                         <form id="userForm" method="POST" action="{{ route('admin.manageaccount.store') }}">
                             @csrf
                             {{-- Container for Hidden Method Field (PUT) --}}
@@ -160,19 +173,39 @@
                                     @endif
                                 </div>
                                 
-                                {{-- Password --}}
+                                {{-- Password With Generator --}}
                                 <div>
-                                    <label id="passwordLabel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                                    <input type="password" name="password" id="inputPassword"
-                                           class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="*********">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label id="passwordLabel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                                        
+                                        {{-- Generate Button --}}
+                                        <button type="button" onclick="generateRandomPassword()" 
+                                            class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold focus:outline-none cursor-pointer transition-colors">
+                                            <i class="fa-solid fa-shuffle mr-1"></i> Generate Strong Password
+                                        </button>
+                                    </div>
+
+                                    <div class="relative">
+                                        <input type="password" name="password" id="inputPassword"
+                                               class="block w-full border border-gray-300 rounded-lg shadow-sm py-2 pl-3 pr-10 bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="*********">
+                                        
+                                        {{-- Show/Hide Toggle --}}
+                                        <button type="button" onclick="togglePasswordVisibility()"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer focus:outline-none">
+                                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        Must be 8+ chars, incl. numbers & symbols.
+                                    </p>
                                 </div>
                             </div>
                             
                             {{-- Footer --}}
-                            <div class="flex justify-end items-center p-6 bg-gray-50 dark:bg-gray-800 border-t space-x-3">
-                                <button type="button" onclick="closeUserModal()" class="bg-white py-2 px-4 border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">Cancel</button>
-                                <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 cursor-pointer">Save User</button>
+                            <div class="flex justify-end items-center p-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 space-x-3">
+                                <button type="button" onclick="closeUserModal()" class="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors">Cancel</button>
+                                <button type="submit" class="bg-blue-600 dark:bg-blue-700 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-800 cursor-pointer transition-colors">Save User</button>
                             </div>
                         </form>
                     </div>
@@ -182,6 +215,7 @@
             
             {{-- ================= VANILLA JS SCRIPT ================= --}}
             <script>
+                // --- 1. MODAL LOGIC ---
                 function openUserModal(mode, user = null) {
                     const modal = document.getElementById('userModal');
                     const form = document.getElementById('userForm');
@@ -194,36 +228,44 @@
                     const roleInput = document.getElementById('inputRole');
                     const passwordInput = document.getElementById('inputPassword');
                     const passwordLabel = document.getElementById('passwordLabel');
-                    const branchInput = document.getElementById('inputBranch'); // Might be null if not superadmin
+                    const branchInput = document.getElementById('inputBranch'); // Null if not superadmin
+                    const eyeIcon = document.getElementById('eyeIcon');
 
-                    // Show Modal (Remove hidden, add flex)
+                    // Show Modal
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
+                    
+                    // Reset Password Visibility to Hidden
+                    passwordInput.type = "password";
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
 
                     if (mode === 'add') {
                         // --- ADD MODE ---
                         modalTitle.innerText = 'Add New User';
                         form.action = "{{ route('admin.manageaccount.store') }}";
-                        methodField.innerHTML = ''; // Clear PUT method if exists
+                        methodField.innerHTML = ''; // Remove PUT if exists
                         
-                        // Reset Fields
+                        // Clear Fields
                         nameInput.value = '';
                         emailInput.value = '';
                         roleInput.value = '';
+                        
+                        // Password Required for New Users
                         passwordInput.value = '';
                         passwordInput.required = true;
                         passwordLabel.innerText = 'Password';
+                        
                         if(branchInput) branchInput.value = '';
 
                     } else if (mode === 'edit' && user) {
                         // --- EDIT MODE ---
                         modalTitle.innerText = 'Edit User Account';
                         
-                        // Construct URL: /admin/manageaccount/{id}
-                        // Note: Ensure your route is defined as /admin/manageaccount/{id}
+                        // Route: /admin/manageaccount/{id}
                         form.action = '/admin/manageaccount/' + user.id; 
                         
-                        // Add Hidden PUT Method
+                        // Add PUT method
                         methodField.innerHTML = '<input type="hidden" name="_method" value="PUT">';
 
                         // Populate Fields
@@ -231,10 +273,10 @@
                         emailInput.value = user.email;
                         roleInput.value = user.user_level_id;
                         
-                        // Password is optional in Edit
+                        // Password Optional for Edit
                         passwordInput.value = '';
                         passwordInput.required = false;
-                        passwordLabel.innerText = 'New Password (Leave blank to keep current)';
+                        passwordLabel.innerText = 'New Password (Leave blank to keep)';
 
                         if(branchInput) branchInput.value = user.branch_id;
                     }
@@ -246,12 +288,51 @@
                     modal.classList.remove('flex');
                 }
 
-                // Close modal when clicking outside
+                // Close on Click Outside
                 document.getElementById('userModal').addEventListener('click', function(e) {
                     if (e.target === this) {
                         closeUserModal();
                     }
                 });
+
+                // --- 2. PASSWORD GENERATOR LOGIC ---
+                function generateRandomPassword() {
+                    const length = 16;
+                    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+?><";
+                    let password = "";
+                    
+                    // Secure Randomness
+                    const array = new Uint32Array(length);
+                    window.crypto.getRandomValues(array);
+                    
+                    for (let i = 0; i < length; i++) {
+                        password += charset[array[i] % charset.length];
+                    }
+
+                    const passwordInput = document.getElementById('inputPassword');
+                    passwordInput.value = password;
+
+                    // Show password to user
+                    passwordInput.type = "text"; 
+                    document.getElementById('eyeIcon').classList.remove('fa-eye');
+                    document.getElementById('eyeIcon').classList.add('fa-eye-slash');
+                }
+
+                // --- 3. SHOW/HIDE TOGGLE LOGIC ---
+                function togglePasswordVisibility() {
+                    const passwordInput = document.getElementById('inputPassword');
+                    const eyeIcon = document.getElementById('eyeIcon');
+                    
+                    if (passwordInput.type === "password") {
+                        passwordInput.type = "text";
+                        eyeIcon.classList.remove('fa-eye');
+                        eyeIcon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = "password";
+                        eyeIcon.classList.remove('fa-eye-slash');
+                        eyeIcon.classList.add('fa-eye');
+                    }
+                }
             </script>
             
         </main>
