@@ -33,7 +33,6 @@
         body, html, input, button, select, textarea {
             font-family: 'Inter', sans-serif;
         }
-        /* Fade effect para sa sleep mode */
         #sleep-overlay {
             transition: opacity 0.5s ease-in-out;
         }
@@ -41,19 +40,24 @@
     <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         {{ $slot }}
 
-        <div id="sleep-overlay" class="fixed inset-0 z-[9999] bg-black/95 hidden flex-col items-center justify-center text-white backdrop-blur-sm">
-            <div class="text-center animate-pulse">
-                {{-- Logo --}}
-                <img src="{{ asset('images/gtlogo.png') }}" alt="Logo" class="w-32 h-32 mx-auto mb-6 opacity-80">
+        <div id="sleep-overlay" class="fixed inset-0 z-[9999] bg-black/95 hidden flex-col items-center justify-center text-white backdrop-blur-sm p-4">
+            <div class="text-center animate-pulse w-full max-w-lg">
+                {{-- Logo: 24 (small) sa mobile, 32 (large) sa desktop --}}
+                <img src="{{ asset('images/gtlogo.png') }}" alt="Logo" class="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 md:mb-6 opacity-80 object-contain">
                 
-                {{-- Time --}}
-                <div id="sleep-clock" class="text-6xl font-bold tracking-widest mb-4 font-mono">00:00</div>
+                {{-- Time: 4xl sa mobile, 6xl sa desktop --}}
+                <div id="sleep-clock" class="text-4xl md:text-6xl font-bold tracking-widest mb-2 md:mb-4 font-mono break-words">00:00:00</div>
                 
-                {{-- Date --}}
-                <div id="sleep-date" class="text-xl text-gray-400 mb-12 font-light">Loading date...</div>
+                {{-- Date: base text sa mobile, xl sa desktop --}}
+                <div id="sleep-date" class="text-base md:text-xl text-gray-400 mb-8 md:mb-12 font-light">Loading date...</div>
 
-                <p class="text-gray-500 text-sm uppercase tracking-[0.3em]">System Sleeping</p>
-                <p class="text-gray-600 text-xs mt-2">Move mouse or press any key to wake up</p>
+                <p class="text-gray-500 text-xs md:text-sm uppercase tracking-[0.3em]">System Sleeping</p>
+                
+                {{-- Instructions change slightly for visual clarity --}}
+                <p class="text-gray-600 text-[10px] md:text-xs mt-2">
+                    <span class="block md:hidden">Tap screen to wake up</span>
+                    <span class="hidden md:block">Move mouse or press any key to wake up</span>
+                </p>
             </div>
         </div>
         </body>
