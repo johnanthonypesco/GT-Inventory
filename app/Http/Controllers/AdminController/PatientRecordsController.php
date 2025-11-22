@@ -9,7 +9,11 @@ use App\Models\Product;
 use App\Models\Patientrecords;
 use App\Models\Dispensedmedication;
 use App\Models\ProductMovement;
+use App\Models\ProductMovement;
 use App\Models\Barangay;
+use App\Models\Branch; // Don't forget to import Branch
+use Illuminate\Support\Facades\Auth;
+use App\Models\HistoryLog;
 use App\Models\Branch; // Don't forget to import Branch
 use Illuminate\Support\Facades\Auth;
 use App\Models\HistoryLog;
@@ -102,6 +106,8 @@ class PatientRecordsController extends Controller
 
     public function adddispensation(Request $request) 
     {
+    public function adddispensation(Request $request) 
+    {
         $validated = $request->validateWithBag('adddispensation', [
             'patient-name' => 'required|string|max:255',
             'barangay_id' => 'required|exists:barangays,id',
@@ -124,6 +130,8 @@ class PatientRecordsController extends Controller
 
         $user = Auth::user(); 
 
+        $user = Auth::user(); 
+
         // Check inventory first
         foreach ($validated['medications'] as $med) {
             $inventory = Inventory::findOrFail($med['name']);
@@ -134,6 +142,7 @@ class PatientRecordsController extends Controller
 
         // Create PatientRecord
         // IMPORTANT: We explicitly set the branch_id based on the logged-in user
+        // IMPORTANT: We explicitly set the branch_id based on the logged-in user
         $newRecord = Patientrecords::create([
             'patient_name' => $validated['patient-name'],
             'barangay_id' => $validated['barangay_id'],
@@ -141,16 +150,22 @@ class PatientRecordsController extends Controller
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
             'branch_id' => $user->branch_id, // <--- AUTO-ASSIGN USER'S BRANCH
+            'branch_id' => $user->branch_id, // <--- AUTO-ASSIGN USER'S BRANCH
         ]);
 
+        // === HISTORY LOG ===
         // === HISTORY LOG ===
         HistoryLog::create([
             'action' => 'RECORD ADDED',
             'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}) at " . ($user->branch->name ?? 'Branch ID ' . $user->branch_id) . ".",
             'user_id' => $user->id,
             'user_name' => $user->name ?? 'System',
+            'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}) at " . ($user->branch->name ?? 'Branch ID ' . $user->branch_id) . ".",
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'metadata' => [
                 'patientrecord_id' => $newRecord->id,
+                'branch_id' => $user->branch_id
                 'branch_id' => $user->branch_id
             ],
         ]);
@@ -158,6 +173,7 @@ class PatientRecordsController extends Controller
         // Create dispensed medications and deduct inventory
         foreach ($validated['medications'] as $med) {
             $inventory = Inventory::findOrFail($med['name']);
+            
             
             $quantity_before = $inventory->quantity;
             $quantity_to_deduct = $med['quantity'];
@@ -168,9 +184,11 @@ class PatientRecordsController extends Controller
             $inventory->save();
 
             // Log Product Movement
+            // Log Product Movement
             ProductMovement::create([
                 'product_id'      => $inventory->product_id,
                 'inventory_id'    => $inventory->id,
+                'user_id'         => $user->id,
                 'user_id'         => $user->id,
                 'type'            => 'OUT',
                 'quantity'        => $quantity_to_deduct,
@@ -219,6 +237,12 @@ class PatientRecordsController extends Controller
         if (!in_array($user->user_level_id, [1, 2]) && $record->branch_id != $user->branch_id) {
             return back()->with('error', 'Unauthorized action.');
         }
+        $user = Auth::user();
+
+        // SECURITY CHECK: Ensure Encoders can't edit records from other branches via ID manipulation
+        if (!in_array($user->user_level_id, [1, 2]) && $record->branch_id != $user->branch_id) {
+            return back()->with('error', 'Unauthorized action.');
+        }
 
         // capture old values before updating
         $old = $record->only(['patient_name', 'barangay_id', 'purok', 'category', 'date_dispensed']);
@@ -231,6 +255,7 @@ class PatientRecordsController extends Controller
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
+            // Note: We usually don't allow changing the branch_id on edit unless specifically required
             // Note: We usually don't allow changing the branch_id on edit unless specifically required
         ]);
 
@@ -249,6 +274,8 @@ class PatientRecordsController extends Controller
             - Purok: {$old['purok']} to {$record->purok}. 
             - Category: {$old['category']} to {$record->category}. 
             - Date Dispensed: {$oldDate} ({$time}) to {$newDate} ({$time}).",
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'user_id' => $user->id,
             'user_name' => $user->name ?? 'System',
             'metadata' => [
