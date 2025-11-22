@@ -43,4 +43,16 @@ class ProductMovement extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // NEW: Get branch from inventory
+    public function branch()
+    {
+        return $this->inventory()->with('branch'); // assuming you have branch relationship in Inventory
+    }
+
+    // Helper to get branch name easily
+    public function getBranchNameAttribute()
+    {
+        return $this->inventory?->branch_id == 1 ? 'RHU 1' : ($this->inventory?->branch_id == 2 ? 'RHU 2' : 'Unknown');
+    }
 }

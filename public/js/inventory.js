@@ -437,3 +437,43 @@ function showArchiveStockmodal(){
         });
     }
 }
+
+// transfer 
+document.querySelectorAll('.transfer-stock-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const modal = document.getElementById('transferstockmodal');
+        const qtyInput = document.getElementById('transfer_qty');
+        const errorMsg = document.getElementById('transfer-error');
+        const available = parseInt(this.dataset.quantity);
+
+        // Fill data
+        document.getElementById('transfer-inventory-id').value = this.dataset.stockId;
+        document.getElementById('transfer-product-name').textContent = 
+            `${this.dataset.product} ${this.dataset.strength} ${this.dataset.form}`;
+        document.getElementById('transfer-batch').textContent = this.dataset.batch;
+        document.getElementById('transfer-current-branch').textContent = this.dataset.branch;
+        document.getElementById('transfer-available-qty').textContent = this.dataset.quantity;
+
+        // Set max and reset
+        qtyInput.max = available;
+        qtyInput.value = '';
+        errorMsg.classList.add('hidden');
+
+        // Auto-select opposite branch
+        const currentBranch = this.closest('tr').querySelector('td:nth-child(6)')?.textContent.trim().includes('RHU 1') ? 1 : 2;
+        document.getElementById('destination_branch').value = currentBranch === 1 ? 2 : 1;
+
+        // Validate on input
+        qtyInput.oninput = () => {
+            if (parseInt(qtyInput.value) > available || qtyInput.value <= 0) {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('confirm-transfer-btn').disabled = true;
+            } else {
+                errorMsg.classList.add('hidden');
+                document.getElementById('confirm-transfer-btn').disabled = false;
+            }
+        };
+
+        modal.classList.remove('hidden');
+    });
+});

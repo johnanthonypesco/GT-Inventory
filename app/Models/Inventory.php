@@ -32,4 +32,9 @@ class Inventory extends Model
     {
         return $this->hasMany(ProductMovement::class);
     }
+
+    public function getBranchNameAttribute()
+    {
+        return $this->branch?->name ?? 'Unknown Branch';
+    }
 }

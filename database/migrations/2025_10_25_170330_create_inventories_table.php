@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->index();
             $table->foreignId('branch_id')->index();
-            $table->string('batch_number')->unique();
-            $table->integer('quantity')->default(0);
+            $table->string('batch_number');
+            $table->integer('quantity');
             $table->date('expiry_date');
             $table->boolean('is_archived')->default(false);
             $table->timestamps();

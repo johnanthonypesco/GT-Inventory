@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Super Admin',
             'email' => 'jmjonatas4@gmail.com',
-            'branch_id' => 3,
+            'branch_id' => 1,
             'password' => Hash::make('password'), // Awtomatikong na-hash
             'email_verified_at' => now(), // Set as verified na
             'user_level_id' => 1, // ID para sa 'superadmin'
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Super Admin',
             'email' => 'pescojohnanthony@gmail.com',
-            'branch_id' => 3,
+            'branch_id' => 1,
             'password' => Hash::make('password'), // Awtomatikong na-hash
             'email_verified_at' => now(), // Set as verified na
             'user_level_id' => 1, // ID para sa 'superadmin'
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Sigrae Super Duper',
             'email' => 'sde.gabriel.77@gmail.com',
-            'branch_id' => 3,
+            'branch_id' => 1,
             'password' => Hash::make('12345678'), // Awtomatikong na-hash
             'email_verified_at' => now(), // Set as verified na
             'user_level_id' => 1, // ID para sa 'superadmin'
@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Ace',
             'email' => 'acepadillaace@gmail.com',
-            'branch_id' => 3,
+            'branch_id' => 1,
             'password' => Hash::make('12345678'), // Awtomatikong na-hash
             'email_verified_at' => now(), // Set as verified na
             'user_level_id' => 1, // ID para sa 'superadmin'
@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
 
         // 2. Admin
         User::create([
-            'name' => 'HRU1 Admin',
+            'name' => 'Pharmacist (RHU 1, RHU 2)',
             'email' => 'johnmichaeljonatas71@gmail.com',
             'branch_id' => 1,
             'password' => Hash::make('password'),
@@ -63,9 +63,9 @@ class UserSeeder extends Seeder
             'user_level_id' => 2, // ID para sa 'admin'
         ]);
         User::create([
-            'name' => 'HRU2 Admin',
+            'name' => 'Pharmacist (RHU 1, RHU 2)',
             'email' => 'johnmichaeljonatas72@gmail.com',
-            'branch_id' => 2,
+            'branch_id' => 1,
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'user_level_id' => 2, // ID para sa 'admin'
@@ -73,14 +73,16 @@ class UserSeeder extends Seeder
 
         // 3. Encoder
         User::create([
-            'name' => 'Encoder User',
+            'name' => 'Staff',
             'email' => 'jg.jonatas.au@phinmaed.com',
+            'branch_id' => 2,
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'user_level_id' => 3, // ID para sa 'encoder'
         ]);
         User::create([
             'name' => 'Doctor User',
+            'branch_id' => 1,
             'email' => 'doctor@example.com', // Palitan ito ng totoong email
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
