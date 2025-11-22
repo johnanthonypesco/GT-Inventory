@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
 
         // 2. Admin
         User::create([
-            'name' => 'Pharmacist (RHU 1, RHU 2)',
+            'name' => 'Pharmacist (RHU 1)',
             'email' => 'johnmichaeljonatas71@gmail.com',
             'branch_id' => 1,
             'password' => Hash::make('password'),
@@ -63,9 +63,9 @@ class UserSeeder extends Seeder
             'user_level_id' => 2, // ID para sa 'admin'
         ]);
         User::create([
-            'name' => 'Pharmacist (RHU 1, RHU 2)',
+            'name' => 'Pharmacist (RHU 2)',
             'email' => 'johnmichaeljonatas72@gmail.com',
-            'branch_id' => 1,
+            'branch_id' => 2,
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'user_level_id' => 2, // ID para sa 'admin'
