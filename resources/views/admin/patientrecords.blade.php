@@ -5,8 +5,28 @@
         
         {{-- Check for Authorization --}}
         @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]))
+        @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]))
             {{-- AUTHORIZED VIEW --}}
             <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
+                
+                {{-- HEADER with Branch Label --}}
+                <div class="mb-6 pt-16 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Home / <span class="text-red-700 dark:text-red-300 font-medium">Reports</span>
+                    </p>
+
+                    {{-- Current Unit Badge --}}
+                    <div class="flex items-center gap-2">
+                        <span class="hidden sm:inline text-sm text-gray-500 dark:text-gray-400">Current Unit:</span>
+                        <span class="px-3 py-1 rounded-full text-sm font-bold border flex items-center shadow-sm
+                            {{ auth()->user()->branch_id == 1 ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300' : '' }}
+                            {{ auth()->user()->branch_id == 2 ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300' : '' }}
+                            {{ auth()->user()->branch_id >= 3 ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-300' : '' }}
+                        ">
+                            <i class="fa-regular fa-building-columns mr-2"></i>
+                            {{ auth()->user()->branch->name ?? 'Unknown Branch' }}
+                        </span>
+                    </div>
                 
                 {{-- HEADER with Branch Label --}}
                 <div class="mb-6 pt-16 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -74,7 +94,11 @@
                             
                             {{-- Search Bar --}}
                             <div class="relative w-full sm:w-1/3">
+                            
+                            {{-- Search Bar --}}
+                            <div class="relative w-full sm:w-1/3">
                                 <i class="fa-regular fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm"></i>
+                                <input type="text" id="patientrecords-search-input" placeholder="Search records..." class="w-full pl-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
                                 <input type="text" id="patientrecords-search-input" placeholder="Search records..." class="w-full pl-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
                             </div>
 
@@ -182,6 +206,7 @@
                         </form>
                     </div>
                 </div>
+
 
                 {{-- Add Dispensation Modal --}}
                 <div class="fixed w-full h-screen top-0 left-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden overflow-auto" id="adddispensationmodal">
@@ -396,6 +421,7 @@
 
             </main>
         @else
+            {{-- UNAUTHORIZED VIEW --}}
             {{-- UNAUTHORIZED VIEW --}}
             <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen flex flex-col items-center justify-center">
                 <i class="fa-regular fa-lock text-6xl text-gray-400 mb-4"></i>

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Patientrecords;
 use App\Models\Dispensedmedication;
 use App\Models\ProductMovement;
+use App\Models\ProductMovement;
 use App\Models\Barangay;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +114,8 @@ class PatientRecordsController extends Controller
 
     public function adddispensation(Request $request) 
     {
+    public function adddispensation(Request $request) 
+    {
         $validated = $request->validateWithBag('adddispensation', [
             'patient-name' => 'required|string|max:255',
             'barangay_id' => 'required|exists:barangays,id',
@@ -135,6 +138,8 @@ class PatientRecordsController extends Controller
 
         $user = Auth::user(); 
 
+        $user = Auth::user(); 
+
         // Check inventory first
         foreach ($validated['medications'] as $med) {
             $inventory = Inventory::findOrFail($med['name']);
@@ -144,6 +149,7 @@ class PatientRecordsController extends Controller
         }
 
         // Create PatientRecord
+        // IMPORTANT: We explicitly set the branch_id based on the logged-in user
         $newRecord = Patientrecords::create([
             'patient_name' => $validated['patient-name'],
             'barangay_id' => $validated['barangay_id'],
@@ -154,13 +160,18 @@ class PatientRecordsController extends Controller
         ]);
 
         // === HISTORY LOG ===
+        // === HISTORY LOG ===
         HistoryLog::create([
             'action' => 'RECORD ADDED',
             'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}) at " . ($user->branch->name ?? 'Branch ID ' . $user->branch_id) . ".",
             'user_id' => $user->id,
             'user_name' => $user->name ?? 'System',
+            'description' => "Recorded medication dispensation for patient {$newRecord->patient_name} (Record #: {$newRecord->id}) at " . ($user->branch->name ?? 'Branch ID ' . $user->branch_id) . ".",
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'metadata' => [
                 'patientrecord_id' => $newRecord->id,
+                'branch_id' => $user->branch_id
                 'branch_id' => $user->branch_id
             ],
         ]);
@@ -168,6 +179,7 @@ class PatientRecordsController extends Controller
         // Create dispensed medications and deduct inventory
         foreach ($validated['medications'] as $med) {
             $inventory = Inventory::findOrFail($med['name']);
+            
             
             $quantity_before = $inventory->quantity;
             $quantity_to_deduct = $med['quantity'];
@@ -178,9 +190,11 @@ class PatientRecordsController extends Controller
             $inventory->save();
 
             // Log Product Movement
+            // Log Product Movement
             ProductMovement::create([
                 'product_id'      => $inventory->product_id,
                 'inventory_id'    => $inventory->id,
+                'user_id'         => $user->id,
                 'user_id'         => $user->id,
                 'type'            => 'OUT',
                 'quantity'        => $quantity_to_deduct,
@@ -241,6 +255,7 @@ class PatientRecordsController extends Controller
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
+            // Note: We usually don't allow changing the branch_id on edit unless specifically required
         ]);
 
         // HISTORY LOG: UPDATE
@@ -258,6 +273,8 @@ class PatientRecordsController extends Controller
             - Purok: {$old['purok']} to {$record->purok}. 
             - Category: {$old['category']} to {$record->category}. 
             - Date Dispensed: {$oldDate} ({$time}) to {$newDate} ({$time}).",
+            'user_id' => $user->id,
+            'user_name' => $user->name ?? 'System',
             'user_id' => $user->id,
             'user_name' => $user->name ?? 'System',
             'metadata' => [
