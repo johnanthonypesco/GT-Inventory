@@ -10,7 +10,7 @@ use App\Models\Patientrecords;
 use App\Models\Dispensedmedication;
 use App\Models\ProductMovement;
 use App\Models\Barangay;
-use App\Models\Branch; // Don't forget to import Branch
+use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 use App\Models\HistoryLog;
 use Carbon\Carbon;
@@ -20,14 +20,11 @@ class PatientRecordsController extends Controller
     public function showpatientrecords(Request $request)
     {
         $user = Auth::user();
-        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get();
-        $barangays = Barangay::all();
-        $branches = Branch::all();
 
-        // Base query
+        // === 1. BUILD THE QUERY (Filters apply to both AJAX and Full Page) ===
         $query = Patientrecords::with(['dispensedMedications', 'barangay', 'branch']);
 
-        // === BRANCH FILTERING (Admin vs Regular User) ===
+        // --- Branch Filtering ---
         if (in_array($user->user_level_id, [1, 2])) {
             // Admin: optional branch filter
             if ($request->filled('branch_filter') && $request->branch_filter !== 'all') {
@@ -38,7 +35,7 @@ class PatientRecordsController extends Controller
             $query->where('branch_id', $user->branch_id);
         }
 
-        // === APPLY OTHER FILTERS ===
+        // --- Other Filters ---
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
         }
@@ -55,10 +52,23 @@ class PatientRecordsController extends Controller
             $query->where('barangay_id', $request->barangay_id);
         }
 
-        // Paginated results
-        $patientrecords = $query->latest()->paginate(20)->withQueryString(); // Important: preserves filters in pagination
+        // === 2. GET PAGINATED RESULTS ===
+        $patientrecords = $query->latest()->paginate(20)->withQueryString();
 
-        // === Stats Calculation (Same filters applied) ===
+        // === 3. AJAX CHECK (The Key Change) ===
+        // If the request comes from our JS fetch(), return only the table partial
+        if ($request->ajax()) {
+            return view('admin.partials.patientrecords_table', compact('patientrecords'))->render();
+        }
+
+        // === 4. LOAD DATA FOR FULL PAGE ONLY (Dropdowns & Stats) ===
+        // We only need to load these if we are rendering the full dashboard, not just paging the table.
+        
+        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get();
+        $barangays = Barangay::all();
+        $branches = Branch::all();
+
+        // Calculate Stats (Re-using filter logic for accuracy)
         $statsQuery = Patientrecords::query();
 
         if (in_array($user->user_level_id, [1, 2])) {
@@ -89,6 +99,7 @@ class PatientRecordsController extends Controller
             return $record->dispensedMedications->count();
         });
 
+        // === 5. RETURN FULL VIEW ===
         return view('admin.patientrecords', compact(
             'products',
             'barangays',
@@ -133,14 +144,13 @@ class PatientRecordsController extends Controller
         }
 
         // Create PatientRecord
-        // IMPORTANT: We explicitly set the branch_id based on the logged-in user
         $newRecord = Patientrecords::create([
             'patient_name' => $validated['patient-name'],
             'barangay_id' => $validated['barangay_id'],
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
-            'branch_id' => $user->branch_id, // <--- AUTO-ASSIGN USER'S BRANCH
+            'branch_id' => $user->branch_id,
         ]);
 
         // === HISTORY LOG ===
@@ -215,7 +225,7 @@ class PatientRecordsController extends Controller
         $record = Patientrecords::with('barangay')->findOrFail($id);
         $user = Auth::user();
 
-        // SECURITY CHECK: Ensure Encoders can't edit records from other branches via ID manipulation
+        // SECURITY CHECK
         if (!in_array($user->user_level_id, [1, 2]) && $record->branch_id != $user->branch_id) {
             return back()->with('error', 'Unauthorized action.');
         }
@@ -231,7 +241,6 @@ class PatientRecordsController extends Controller
             'purok' => $validated['purok'],
             'category' => $validated['category'],
             'date_dispensed' => $validated['date-dispensed'],
-            // Note: We usually don't allow changing the branch_id on edit unless specifically required
         ]);
 
         // HISTORY LOG: UPDATE
@@ -256,7 +265,6 @@ class PatientRecordsController extends Controller
             ],
         ]);
 
-        // update barangay_id in related dispensed medications if changed
         if ($record->barangay_id != $validated['barangay_id']) {
             Dispensedmedication::where('patientrecord_id', $id)->update(['barangay_id' => $validated['barangay_id']]);
         }
