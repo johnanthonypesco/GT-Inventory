@@ -9,11 +9,7 @@ use App\Models\Product;
 use App\Models\Patientrecords;
 use App\Models\Dispensedmedication;
 use App\Models\ProductMovement;
-use App\Models\ProductMovement;
 use App\Models\Barangay;
-use App\Models\Branch; // Don't forget to import Branch
-use Illuminate\Support\Facades\Auth;
-use App\Models\HistoryLog;
 use App\Models\Branch; // Don't forget to import Branch
 use Illuminate\Support\Facades\Auth;
 use App\Models\HistoryLog;
@@ -106,8 +102,6 @@ class PatientRecordsController extends Controller
 
     public function adddispensation(Request $request) 
     {
-    public function adddispensation(Request $request) 
-    {
         $validated = $request->validateWithBag('adddispensation', [
             'patient-name' => 'required|string|max:255',
             'barangay_id' => 'required|exists:barangays,id',
@@ -165,7 +159,6 @@ class PatientRecordsController extends Controller
             'user_name' => $user->name ?? 'System',
             'metadata' => [
                 'patientrecord_id' => $newRecord->id,
-                'branch_id' => $user->branch_id
                 'branch_id' => $user->branch_id
             ],
         ]);
