@@ -133,7 +133,7 @@
 
             Swal.fire({
                 title: 'Are you sure?',
-                text: "This action can't be undone. Please confirm if you want to proceed.",
+                text: "Please confirm if you want to proceed.",
                 icon: 'info',
                 showCancelButton: true,
                 cancelButtonText: 'Cancel',

@@ -164,7 +164,7 @@
                         </div>
 
                         <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-2xl">
-                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors cursor-pointer">Save User</button>
+                            <button type="button" id="adduserbtn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors cursor-pointer">Save User</button>
                             <button type="button" onclick="closeUserModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white dark:bg-gray-600 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 sm:mt-0 sm:w-auto transition-colors cursor-pointer">Cancel</button>
                         </div>
                     </form>
@@ -372,6 +372,76 @@
                 setTimeout(() => div.remove(), 300);
             }, 4000);
         }
+
+        document.getElementById('adduserbtn').addEventListener('click', function() {
+            const form = document.getElementById('userForm');
+            const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"] , input[type="email"], select[name="user_level_id"], select[name="branch_id"]');
+            let allFilled = true;
+
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                allFilled = false;
+                }
+            });
+
+            if (!allFilled) {
+                Swal.fire({
+                title: 'Incomplete Form',
+                text: 'Please fill in all required fields before submitting.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    icon: 'swal-icon'
+                }
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Please confirm if you want to proceed.",
+                icon: 'info',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content',
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Processing...',
+                    text: "Please wait, your request is being processed.",
+                    allowOutsideClick: false,
+                    customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                    },
+                    didOpen: () => {
+                    Swal.showLoading();
+                    }
+                });
+                form.submit();
+                }
+            });
+            });
     </script>
 </body>
 </x-app-layout>

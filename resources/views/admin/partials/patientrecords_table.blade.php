@@ -75,9 +75,9 @@
                                 <button class="editrecordbtn bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-green-600 dark:hover:bg-green-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
                                     <i class="fa-regular fa-pen-to-square mr-1"></i>Edit
                                 </button>
-                                <button class="deleterecordbtn bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
+                                {{-- <button class="deleterecordbtn bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-800 hover:text-white font-semibold text-sm" data-record-id="{{ $patientrecord->id }}">
                                     <i class="fa-regular fa-trash mr-1"></i>Delete
-                                </button>
+                                </button> --}}
                             @endif
                         @endif
                     </td>

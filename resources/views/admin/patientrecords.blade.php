@@ -299,7 +299,7 @@
                             @error('medications', 'adddispensation')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                             @enderror
-                            <button type="submit" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
+                            <button type="button" id="add-dispensation-btn" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
                                 <i class="fa-regular fa-check mr-1"></i> Submit
                             </button>
                         </form>

@@ -47,22 +47,42 @@
 
 <script>
     document.getElementById('editstockbtn').addEventListener('click', function() {
-    const form = document.getElementById('editstockform');
-    const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
-    let allFilled = true;
+      const form = document.getElementById('editstockform');
+      const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+      let allFilled = true;
 
-    inputs.forEach(input => {
-      if (input.value.trim() === '') {
-        allFilled = false;
+      inputs.forEach(input => {
+        if (input.value.trim() === '') {
+          allFilled = false;
+        }
+      });
+
+      if (!allFilled) {
+        Swal.fire({
+          title: 'Incomplete Form',
+          text: 'Please fill in all required fields before submitting.',
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          allowOutsideClick: false,
+          customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content',
+            confirmButton: 'swal-confirm-button',
+            icon: 'swal-icon'
+          }
+        });
+        return;
       }
-    });
 
-    if (!allFilled) {
       Swal.fire({
-        title: 'Incomplete Form',
-        text: 'Please fill in all required fields before submitting.',
-        icon: 'warning',
-        confirmButtonText: 'OK',
+        title: 'Are you sure?',
+        text: "Please confirm if you want to proceed.",
+        icon: 'info',
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirm',
         allowOutsideClick: false,
         customClass: {
           container: 'swal-container',
@@ -70,49 +90,29 @@
           title: 'swal-title',
           htmlContainer: 'swal-content',
           confirmButton: 'swal-confirm-button',
+          cancelButton: 'swal-cancel-button',
           icon: 'swal-icon'
         }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Processing...',
+            text: "Please wait, your request is being processed.",
+            allowOutsideClick: false,
+            customClass: {
+              container: 'swal-container',
+              popup: 'swal-popup',
+              title: 'swal-title',
+              htmlContainer: 'swal-content',
+              cancelButton: 'swal-cancel-button',
+              icon: 'swal-icon'
+            },
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          form.submit();
+        }
       });
-      return;
-    }
-
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "This action can't be undone. Please confirm if you want to proceed.",
-      icon: 'info',
-      showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Confirm',
-      allowOutsideClick: false,
-      customClass: {
-        container: 'swal-container',
-        popup: 'swal-popup',
-        title: 'swal-title',
-        htmlContainer: 'swal-content',
-        confirmButton: 'swal-confirm-button',
-        cancelButton: 'swal-cancel-button',
-        icon: 'swal-icon'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Processing...',
-          text: "Please wait, your request is being processed.",
-          allowOutsideClick: false,
-          customClass: {
-            container: 'swal-container',
-            popup: 'swal-popup',
-            title: 'swal-title',
-            htmlContainer: 'swal-content',
-            cancelButton: 'swal-cancel-button',
-            icon: 'swal-icon'
-          },
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-        form.submit();
-      }
     });
-  });
 </script>
