@@ -55,7 +55,7 @@ class DashboardController extends Controller
         $drilldownProduct = $active_product_id ? Product::find($active_product_id) : null;
         $drilldown_product_name = $drilldownProduct->generic_name ?? null;
 
-        $seasonal_product_id = $inputs['seasonal_product_id'] ?? Product::where('is_archived', 2)->value('id');
+        $seasonal_product_id = $inputs['seasonal_product_id'] ?? Product::where('is_archived', 0)->value('id');
         $compare_product_id = $inputs['compare_product_id'] ?? null;
 
         $dateRange = $this->calculateDateRange(
@@ -322,7 +322,7 @@ class DashboardController extends Controller
             ->get();
 
         // KPI Cards (Apply Branch Filter to Inventory queries)
-        $invQuery = Inventory::where('is_archived', 2);
+        $invQuery = Inventory::where('is_archived', 0);
         if($filter_branch) {
             $invQuery->where('branch_id', $filter_branch);
         }
@@ -408,7 +408,7 @@ class DashboardController extends Controller
         $topProducts = $topProductsData->pluck('total_dispensed', 'generic_name');
 
         // Data for Filters
-        $filter_products = Product::where('is_archived', 2)->orderBy('generic_name')->get(['id', 'generic_name', 'brand_name']);
+        $filter_products = Product::where('is_archived', 0)->orderBy('generic_name')->get(['id', 'generic_name', 'brand_name']);
         
         // Load all branches for the dropdown
         $filter_branches = Branch::all(); 
@@ -799,7 +799,7 @@ class DashboardController extends Controller
             ->pluck('total_consumed', 'product_id');
 
         // 2. Current Stock (Filtered by Branch)
-        $currentStockQuery = Inventory::where('is_archived', 2);
+        $currentStockQuery = Inventory::where('is_archived', 0);
         if ($branch_id) {
             $currentStockQuery->where('branch_id', $branch_id);
         }
