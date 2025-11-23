@@ -12,6 +12,24 @@
                 </p>
             </div>
 
+            @if (session('success'))
+                <div id="successAlert" class="w3 fixed top-24 right-5 border-l-4 border-green-500 bg-white text-green-500 py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3 z-50">
+                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                    <div>
+                        <p class="font-bold">Success!</p>
+                        <p id="successMessage" class="text-black">{{ session('success') }}</p>
+                    </div>
+                </div>
+                <script>
+                    setTimeout(() => {
+                        const alert = document.getElementById('successAlert');
+                        if (alert) {
+                            alert.remove();
+                        }
+                    }, 3000);
+                </script>
+            @endif
+
             {{-- Summary Cards --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
@@ -177,6 +195,7 @@
 </x-app-layout>
 
 <script src="{{ asset('js/inventory.js') }}"></script>
+<script>window.successMessage = @json(session('success'));</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     @if ($errors->hasBag('addproduct') || $errors->hasBag('addstock') || $errors->hasBag('updateproduct') || $errors->hasBag('editstock'))

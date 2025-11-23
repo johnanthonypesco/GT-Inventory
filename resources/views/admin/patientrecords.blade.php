@@ -28,6 +28,24 @@
                     </div>
                 </div>
 
+                @if (session('success'))
+                    <div id="successAlert" class="w3 fixed top-24 right-5 border-l-4 border-green-500 bg-white text-green-500 py-3 px-6 rounded-lg shadow-lg z-101 flex items-center gap-3 z-50">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                        <div>
+                            <p class="font-bold">Success!</p>
+                            <p id="successMessage" class="text-black">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                    <script>
+                        setTimeout(() => {
+                            const alert = document.getElementById('successAlert');
+                            if (alert) {
+                                alert.remove();
+                            }
+                        }, 3000);
+                    </script>
+                @endif
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-between">
@@ -417,4 +435,5 @@
     </div>
 
     <script src="{{ asset('js/patientrecords.js') }}"></script>
+    <script>window.successMessage = @json(session('success'));</script>
 </x-app-layout>

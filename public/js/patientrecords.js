@@ -256,18 +256,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Edit Form Confirmation
+    // edit dispensation form submit with sweet alert
     const updateBtn = document.getElementById('update-dispensation-btn');
     const editForm = document.getElementById('edit-dispensation-form');
 
     if (updateBtn && editForm) {
-        updateBtn.addEventListener('click', () => {
+        updateBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
             const patientName = document.getElementById('edit-patient-name').value.trim();
             const barangayId = document.getElementById('edit-barangay_id').value;
             const purok = document.getElementById('edit-purok').value.trim();
             const category = document.getElementById('edit-category').value;
             const dateDispensed = document.getElementById('edit-date-dispensed').value;
 
+            // Validation
             if (!patientName || !barangayId || !purok || !category || !dateDispensed) {
                 Swal.fire({
                     title: 'Incomplete Data',
@@ -278,7 +281,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         container: 'swal-container',
                         popup: 'swal-popup',
                         title: 'swal-title',
-                        htmlContainer: 'swal-content',
                         confirmButton: 'swal-confirm-button',
                         icon: 'swal-icon'
                     }
@@ -288,11 +290,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You want to update this record?.",
+                text: "Please confirm if you want to proceed.",
                 icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Confirm',
                 cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
                 allowOutsideClick: false,
                 customClass: {
                     container: 'swal-container',
@@ -307,21 +309,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Processing...',
+                        text: "Please wait, your request is being processed.",
                         allowOutsideClick: false,
                         customClass: {
                             container: 'swal-container',
                             popup: 'swal-popup',
                             title: 'swal-title',
                             htmlContainer: 'swal-content',
+                            cancelButton: 'swal-cancel-button',
                             icon: 'swal-icon'
-                        },
-                        didOpen: () => Swal.showLoading()
-                    }).then(() => editForm.submit());
+                            },
+                        didOpen: () => {
+                            Swal.showLoading();
+                            editForm.submit();
+                        }
+                    });
                 }
             });
         });
     }
-
     // Clear Filters
     const clearFilterBtn = document.getElementById('clearFilters');
     if (clearFilterBtn) {

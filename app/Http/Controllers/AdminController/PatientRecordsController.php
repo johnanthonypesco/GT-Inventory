@@ -279,7 +279,7 @@ class PatientRecordsController extends Controller
             Dispensedmedication::where('patientrecord_id', $id)->update(['barangay_id' => $validated['barangay_id']]);
         }
 
-        return to_route('admin.patientrecords')->with('success', 'Dispensation updated successfully.');
+        return to_route('admin.patientrecords')->with('success', 'Dispensation record updated successfully.');
     }
 
     public function exportPdf(Request $request)
