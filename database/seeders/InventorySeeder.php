@@ -24,7 +24,7 @@ class InventorySeeder extends Seeder
                 'batch_number' => 'BATCH-' . str_pad($index, 4, '0', STR_PAD_LEFT),
                 'quantity' => rand(10, 1000),
                 'expiry_date' => now()->addMonths(rand(1, 24))->format('Y-m-d'),
-                'is_archived' => 2,
+                'is_archived' => 0,
             ]);
         }
     }

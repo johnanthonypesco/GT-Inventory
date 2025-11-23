@@ -18,12 +18,12 @@ class InventoryController extends Controller
     // show inventory
     public function showinventory(Request $request)
     {
-        $products = Product::where('is_archived', 1)->get();
-        $archiveproducts = Product::where('is_archived', 2)->get();
-        $inventorycount = Inventory::where('is_archived', 2)->get();
+        $products = Product::where('is_archived', 0)->get();
+        $archiveproducts = Product::where('is_archived', 1)->get();
+        $inventorycount = Inventory::where('is_archived', 0)->get();
 
         // RHU 1
-        $query1 = Inventory::where('branch_id', 1)->where('is_archived', 2);
+        $query1 = Inventory::where('branch_id', 1)->where('is_archived', 0);
 
         if ($request->filled('search_rhu1')) {
             $search = strtolower($request->search_rhu1);
@@ -216,7 +216,7 @@ class InventoryController extends Controller
 
         $product = Product::findOrFail($validated['product_id']);
         $product->update([
-            'is_archived' => 2,
+            'is_archived' => 1,
         ]);
 
         // Archive stock that belongs to the product
@@ -250,12 +250,12 @@ class InventoryController extends Controller
 
         $product = Product::findOrFail($validated['product_id']);
         $product->update([
-            'is_archived' => 1,
+            'is_archived' => 0,
         ]);
 
         // Unarchive stock that belongs to the product
         Inventory::where('product_id', $product->id)->update([
-            'is_archived' => 2,
+            'is_archived' => 0,
         ]);
 
         // logging

@@ -77,11 +77,13 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex flex-col sm:flex-row gap-3 w-full justify-end">
-                    <button id="adddispensationbtn" class="bg-white dark:bg-gray-800 inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300">
-                        <i class="fa-regular fa-plus mr-2"></i> Record New Dispensation
-                    </button>
-                </div>
+                @if (auth()->user()->user_level_id == 1 || auth()->user()->user_level_id == 2)
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3 w-full justify-end">
+                        <button id="adddispensationbtn" class="bg-white dark:bg-gray-800 inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 text-gray-700 dark:text-gray-300">
+                            <i class="fa-regular fa-plus mr-2"></i> Record New Dispensation
+                        </button>
+                    </div>
+                @endif
 
                 {{-- Records Table Container --}}
                 <div id="patientrecords-data-container">
