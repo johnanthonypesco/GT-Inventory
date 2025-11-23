@@ -112,6 +112,9 @@ class AuthenticatedSessionController extends Controller
         elseif ($user->level->name == 'mayor') {
             return redirect()->route('admin.dashboard'); 
         }
+        elseif ($user->level->name == 'finance') {
+            return redirect()->route('admin.dashboard'); 
+        }
         
 
         // Fallback for any other roles.
