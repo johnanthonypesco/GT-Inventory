@@ -96,10 +96,10 @@
                     <p class="text-lg font-semibold text-red-700 dark:text-gray-100">RHU 1 Inventory</p>
                     <select id="filter-rhu1" class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 text-sm">
                         <option value="">All Items</option>
-                        <option value="in_stock" {{ request('filter_rhu1') == 'in_stock' ? 'selected' : '' }}>In Stock (≥100)</option>
-                        <option value="low_stock" {{ request('filter_rhu1') == 'low_stock' ? 'selected' : '' }}>Low Stock (1–99)</option>
+                        <option value="in_stock" {{ request('filter_rhu1') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                        <option value="low_stock" {{ request('filter_rhu1') == 'low_stock' ? 'selected' : '' }}>Low Stock</option>
                         <option value="out_of_stock" {{ request('filter_rhu1') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                        <option value="nearly_expired" {{ request('filter_rhu1') == 'nearly_expired' ? 'selected' : '' }}>Nearly Expired (&lt;30 days)</option>
+                        <option value="nearly_expired" {{ request('filter_rhu1') == 'nearly_expired' ? 'selected' : '' }}>Nearly Expired</option>
                         <option value="expired" {{ request('filter_rhu1') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
                 </div>
@@ -134,10 +134,10 @@
                     <p class="text-lg font-semibold text-red-700 dark:text-gray-100">RHU 2 Inventory</p>
                     <select id="filter-rhu2" class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 text-sm">
                         <option value="">All Items</option>
-                        <option value="in_stock" {{ request('filter_rhu2') == 'in_stock' ? 'selected' : '' }}>In Stock (≥100)</option>
-                        <option value="low_stock" {{ request('filter_rhu2') == 'low_stock' ? 'selected' : '' }}>Low Stock (1–99)</option>
+                        <option value="in_stock" {{ request('filter_rhu2') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                        <option value="low_stock" {{ request('filter_rhu2') == 'low_stock' ? 'selected' : '' }}>Low Stock</option>
                         <option value="out_of_stock" {{ request('filter_rhu2') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                        <option value="nearly_expired" {{ request('filter_rhu2') == 'nearly_expired' ? 'selected' : '' }}>Nearly Expired (&lt;30 days)</option>
+                        <option value="nearly_expired" {{ request('filter_rhu2') == 'nearly_expired' ? 'selected' : '' }}>Nearly Expired</option>
                         <option value="expired" {{ request('filter_rhu2') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
                 </div>
@@ -179,16 +179,16 @@
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    @if ($errors->any())
-        @if ($errors->addproduct->any())
+    @if ($errors->hasBag('addproduct') || $errors->hasBag('addstock') || $errors->hasBag('updateproduct') || $errors->hasBag('editstock'))
+        @if ($errors->hasBag('addproduct'))
             document.getElementById('addnewproductmodal')?.classList.remove('hidden');
-        @elseif ($errors->addstock->any())
+        @elseif ($errors->hasBag('addstock'))
             document.getElementById('viewallproductsmodal')?.classList.remove('hidden');
             document.getElementById('addstockmodal')?.classList.remove('hidden');
-        @elseif ($errors->updateproduct->any())
+        @elseif ($errors->hasBag('updateproduct'))
             document.getElementById('viewallproductsmodal')?.classList.remove('hidden');
             document.getElementById('editproductmodal')?.classList.remove('hidden');
-        @elseif ($errors->editstock->any())
+        @elseif ($errors->hasBag('editstock'))
             document.getElementById('editstockmodal')?.classList.remove('hidden');
         @endif
     @endif

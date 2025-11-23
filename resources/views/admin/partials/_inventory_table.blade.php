@@ -70,6 +70,7 @@
                         <td class="p-3 flex">
                             <div class="flex gap-2 w-full">
                                 <button type="button" class="edit-stock-btn w-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 p-2 rounded-lg hover:-translate-y-1 hover:shadow-md transition-all duration-200 hover:bg-blue-600 dark:hover:bg-blue-800 hover:text-white font-semibold text-sm text-center">
+                                    <i class="fa-regular fa-pen-to-square mr-2"></i>
                                     Edit Stock
                                 </button>
 
@@ -84,6 +85,7 @@
                                             data-quantity="{{ $inventory->quantity }}"
                                             data-branch="{{ $inventory->branch_id == 1 ? 'RHU 1' : 'RHU 2' }}"
                                             data-branch-id="{{ $inventory->branch_id }}">
+                                            <i class="fa-regular fa-share-from-square mr-2"></i>
                                         Transfer
                                     </button>
                                 @endif
@@ -164,11 +166,11 @@
 
 <!-- Transfer Stock Modal-->
 <div id="transferstockmodal" class="hidden fixed bg-black/60 w-full h-screen top-0 left-0 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+    <div class="modal bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md transform transition-all">
         <div class="flex justify-between items-center p-6 border-b dark:border-gray-700">
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Transfer Stock</h3>
             <button type="button" class="close-modal text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                Close
+                <i class="fa-regular fa-xmark text-lg"></i>
             </button>
         </div>
 
@@ -222,7 +224,7 @@
                 <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
                     Cancel
                 </button>
-                <button type="submit" id="confirm-transfer-btn"
+                <button type="button" id="confirm-transfer-btn"
                         class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium shadow-md hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                     Transfer Stock
                 </button>
@@ -231,7 +233,6 @@
     </div>
 </div>
 
-{{-- FULL AJAX SCRIPT (Dito na lahat, gumagana na) --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tableContainer = document.querySelector('#inventory-data-container') || document.body; // fallback
@@ -324,4 +325,74 @@ document.addEventListener('DOMContentLoaded', function () {
     // Back/Forward Button
     window.addEventListener('popstate', () => fetchInventory(location.href));
 });
+
+document.getElementById('confirm-transfer-btn').addEventListener('click', function() {
+    const form = document.getElementById('transfer-form');
+    const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+    let allFilled = true;
+
+    inputs.forEach(input => {
+      if (input.value.trim() === '') {
+        allFilled = false;
+      }
+    });
+
+    if (!allFilled) {
+      Swal.fire({
+        title: 'Incomplete Form',
+        text: 'Please fill in all required fields before submitting.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        allowOutsideClick: false,
+        customClass: {
+          container: 'swal-container',
+          popup: 'swal-popup',
+          title: 'swal-title',
+          htmlContainer: 'swal-content',
+          confirmButton: 'swal-confirm-button',
+          icon: 'swal-icon'
+        }
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This action can't be undone. Please confirm if you want to proceed.",
+      icon: 'info',
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Confirm',
+      allowOutsideClick: false,
+      customClass: {
+        container: 'swal-container',
+        popup: 'swal-popup',
+        title: 'swal-title',
+        htmlContainer: 'swal-content',
+        confirmButton: 'swal-confirm-button',
+        cancelButton: 'swal-cancel-button',
+        icon: 'swal-icon'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Processing...',
+          text: "Please wait, your request is being processed.",
+          allowOutsideClick: false,
+          customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+          },
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        form.submit();
+      }
+    });
+  });
 </script>

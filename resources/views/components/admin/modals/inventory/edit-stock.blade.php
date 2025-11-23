@@ -6,7 +6,7 @@
                 <i class="fa-regular fa-xmark text-gray-600 dark:text-gray-400"></i>
             </button>
         </div>
-        <form action="{{ route('admin.inventory.editstock') }}" method="POST">
+        <form action="{{ route('admin.inventory.editstock') }}" method="POST" id="editstockform">
             @csrf
             @method('PUT')
             <input type="hidden" id="edit-stock-id" name="inventory_id" value="{{ old('inventory_id') }}">
@@ -38,9 +38,81 @@
                     <p class="text-red-600 dark:text-red-400 text-sm mt-1 error-message">{{ $message }}</p>
                 @enderror
             </div>
-            <button type="submit" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
+            <button type="button" id="editstockbtn" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
                 <i class="fa-regular fa-check"></i> <span>Update</span>
             </button>
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('editstockbtn').addEventListener('click', function() {
+    const form = document.getElementById('editstockform');
+    const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+    let allFilled = true;
+
+    inputs.forEach(input => {
+      if (input.value.trim() === '') {
+        allFilled = false;
+      }
+    });
+
+    if (!allFilled) {
+      Swal.fire({
+        title: 'Incomplete Form',
+        text: 'Please fill in all required fields before submitting.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        allowOutsideClick: false,
+        customClass: {
+          container: 'swal-container',
+          popup: 'swal-popup',
+          title: 'swal-title',
+          htmlContainer: 'swal-content',
+          confirmButton: 'swal-confirm-button',
+          icon: 'swal-icon'
+        }
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This action can't be undone. Please confirm if you want to proceed.",
+      icon: 'info',
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Confirm',
+      allowOutsideClick: false,
+      customClass: {
+        container: 'swal-container',
+        popup: 'swal-popup',
+        title: 'swal-title',
+        htmlContainer: 'swal-content',
+        confirmButton: 'swal-confirm-button',
+        cancelButton: 'swal-cancel-button',
+        icon: 'swal-icon'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Processing...',
+          text: "Please wait, your request is being processed.",
+          allowOutsideClick: false,
+          customClass: {
+            container: 'swal-container',
+            popup: 'swal-popup',
+            title: 'swal-title',
+            htmlContainer: 'swal-content',
+            cancelButton: 'swal-cancel-button',
+            icon: 'swal-icon'
+          },
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        form.submit();
+      }
+    });
+  });
+</script>
