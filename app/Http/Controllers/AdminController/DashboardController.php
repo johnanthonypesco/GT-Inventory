@@ -890,7 +890,7 @@ class DashboardController extends Controller
         $apiKey = env("GEMINI_API_KEY"); // Best practice: use env
         if (!$apiKey) {
             // Fallback hardcoded key if env not set (matches your previous code)
-            $apiKey = "AIzaSyBgq8Fl29xbuqPShS9-r35LRMhZVybklrU"; 
+            $apiKey = "AIzaSyCr5K_DdA0RRvRLo7_sDfG-gB1ToVd51L8"; 
         }
         
         if (!$apiKey) {
@@ -940,7 +940,7 @@ Provide a <div> block with HTML paragraphs containing a separate, clear, predict
 <p>Provide a single, clear, predictive recommendation for managing stock for **<strong>{$productName}</strong>** (e.g., 'Proactively increase stock levels by 20% from December to February to prepare for the annual peak.').</p>";
         }
 
-        $model = 'gemini-2.5-pro';
+        $model = 'gemini-2.5-flash';
         $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
 
         $payload = [

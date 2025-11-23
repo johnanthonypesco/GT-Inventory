@@ -100,5 +100,13 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
             'user_level_id' => 4, // ID para sa 'doctor'
         ]);
+        User::create([
+            'name' => 'mayor User',
+            'branch_id' => 1,
+            'email' => 'mayor@example.com', // Palitan ito ng totoong email
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'user_level_id' => 5, // ID para sa 'doctor'
+        ]);
     }
 }

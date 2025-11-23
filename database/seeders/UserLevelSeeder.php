@@ -10,8 +10,9 @@ class UserLevelSeeder extends Seeder
     {
         UserLevel::create(['name' => 'superadmin']);
         UserLevel::create(['name' => 'admin']);
-        UserLevel::create(['name' => 'encoderp']);
+        UserLevel::create(['name' => 'encoder']);
         UserLevel::create(['name' => 'doctor']);
+        UserLevel::create(['name' => 'mayor']);
         // ... Magdagdag pa kung kailangan
     }
 }

@@ -109,6 +109,10 @@ class AuthenticatedSessionController extends Controller
             // }
             return redirect()->route('admin.dashboard'); 
         }
+        elseif ($user->level->name == 'mayor') {
+            return redirect()->route('admin.dashboard'); 
+        }
+        
 
         // Fallback for any other roles.
         Auth::guard('web')->logout();
