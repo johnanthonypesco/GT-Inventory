@@ -30,7 +30,7 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
     {
         $query = Inventory::with(['product', 'branch'])
             ->where('branch_id', $this->branch)
-            ->where('is_archived', 2); // active only
+            ->where('is_archived', 0); // active only
 
         // Apply Search
         if ($this->search) {
