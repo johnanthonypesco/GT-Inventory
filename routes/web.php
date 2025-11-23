@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController\DashboardController;
-use App\Http\Controllers\AdminController\ProductMovementController;
-use App\Http\Controllers\AdminController\InventoryController;
-use App\Http\Controllers\AdminController\PatientRecordsController;
-use App\Http\Controllers\AdminController\HistorylogController;
-use App\Http\Controllers\AdminController\InventoryExportController;
-use App\Http\Controllers\AdminController\ManageaccountController;
-use Illuminate\Support\Facades\Auth; // <-- Siguraduhin na nandito ito
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\OtpLoginController;
+use App\Http\Controllers\AdminController\OrderController;
+use App\Http\Controllers\AdminController\DashboardController;
+use App\Http\Controllers\AdminController\InventoryController;
+use App\Http\Controllers\AdminController\HistorylogController;
+use App\Http\Controllers\AdminController\ManageaccountController;
+use App\Http\Controllers\AdminController\PatientRecordsController;
+use App\Http\Controllers\AdminController\InventoryExportController;
+use App\Http\Controllers\AdminController\ProductMovementController;
+use Illuminate\Support\Facades\Auth; // <-- Siguraduhin na nandito ito
 
 Route::get('/', function () {
     return view('auth.login');
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // =================== 1. ANG LOGIN REDIRECTOR ===================
     // Ito ang sasalubong sa LAHAT ng user pagka-login.
     Route::get('/dashboard', function () {
+        $user = Auth::user();
         
         // ---- BINAGO NATIN TO ----
         // I-check kung ang level ay 1, 2, o 3 (Superadmin, Admin, o Encoder)
@@ -35,6 +37,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
              // Papuntang /admin/dashboard
             return redirect()->route('admin.dashboard');
         }
+        if ($user && $user->user_level_id == 6) {
+            return redirect()->route('admin.orders.index');
+        }
 
         // Kung wala (level 4, 5, atbp), logout
         Auth::logout();
@@ -42,12 +47,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     })->name('dashboard'); // <-- Ito ang default "home" ng Laravel
 
+    // Route::middleware(function ($request, $next) {
+    //         if (in_array(Auth::user()->user_level_id, [1, 2, 6])) {
+    //             return $next($request);
+    //         }
+    //         abort(403, 'Unauthorized Access to Orders.');
+    //     })->prefix('orders')->name('orders.')->group(function () {
+            
+    //         Route::get('/', [App\Http\Controllers\AdminController\OrderController::class, 'index'])->name('index');
+    //         Route::get('/create', [App\Http\Controllers\AdminController\OrderController::class, 'create'])->name('create');
+    //         Route::post('/store', [App\Http\Controllers\AdminController\OrderController::class, 'store'])->name('store');
+    //         Route::post('/{id}/update', [App\Http\Controllers\AdminController\OrderController::class, 'updateStatus'])->name('update'); 
+    //         Route::get('/{id}/print', [App\Http\Controllers\AdminController\OrderController::class, 'print'])->name('print');
+
+    //     });
+
     
     // =================== 2. PROFILE ROUTES ===================
     // (Para sa lahat ng naka-login)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/{id}/update', [App\Http\Controllers\AdminController\OrderController::class, 'updateStatus'])->name('update');
+    Route::get('/', [App\Http\Controllers\AdminController\OrderController::class, 'index'])->name('index');
 
 
     // =================== 3. ANG IISANG (SHARED) ADMIN PANEL ===================
@@ -62,6 +84,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // == A. BASE ACCESS ROUTES (Para sa lahat ng nakapasa sa level.all) ==
         // L1, L2, L3, L4: Dashboard.
         Route::get('/dashboard', [DashboardController::class, 'showdashboard'])->name('dashboard');
+
+             Route::prefix('orders')->name('orders.')->group(function () {
+                Route::get('/', [OrderController::class, 'index'])->name('index');
+                Route::get('/create', [OrderController::class, 'create'])->name('create');
+                Route::post('/store', [OrderController::class, 'store'])->name('store');
+                Route::post('/{id}/update', [OrderController::class, 'updateStatus'])->name('update'); 
+                Route::get('/{id}/print', [OrderController::class, 'print'])->name('print');
+            });
         
         // L1, L2, L4: Patient Records READ access. 
         // Ang access check para dito ay nasa loob ng PatientRecordsController (L1, L2, L4 allowed, L3 blocked).
@@ -85,7 +115,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
             
             // L1, L2: Patient Records WRITE access (Add Dispensation)
             Route::post('/patientrecords', [PatientRecordsController::class, 'adddispensation'])->name('patientrecords.adddispensation');
-            
+
+        //   Route::middleware(function ($request, $next) {
+        //     if (in_array(Auth::user()->user_level_id, [1, 2, 6])) {
+        //         return $next($request);
+        //     }
+        //     abort(403, 'Unauthorized Access to Orders');
+        // })->prefix('orders')->name('orders.')->group(function () {
+        //     Route::get('/', [OrderController::class, 'index'])->name('index');
+        //     Route::get('/create', [OrderController::class, 'create'])->name('create');
+        //     Route::post('/store', [OrderController::class, 'store'])->name('store');
+        //     Route::post('/{id}/update', [OrderController::class, 'updateStatus'])->name('update'); 
+        //     Route::get('/{id}/print', [OrderController::class, 'print'])->name('print');
+        // });
+    
             // L1, L2: Product Movements (Protected)
             Route::get('/product-movements', [ProductMovementController::class, 'showMovements'])->name('movements');    
             Route::post('/get-ai-analysis', [DashboardController::class, 'getAiAnalysis'])->name('ai.analysis');        
@@ -127,8 +170,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         
     }); // <-- End ng buong /admin group
+    
 
 }); // <-- End ng buong auth middleware group
+
+
 
 require __DIR__.'/auth.php';
 require __DIR__.'/db.php';

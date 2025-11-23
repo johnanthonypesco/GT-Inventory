@@ -17,14 +17,19 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class DashboardController extends Controller
 {
     /**
      * Show the admin dashboard with analytics or return AJAX data.
      */
-    public function showdashboard(Request $request): View | JsonResponse
-    {
+// Add | RedirectResponse to the end
+public function showdashboard(Request $request): View | JsonResponse | RedirectResponse    {
+        if (\Illuminate\Support\Facades\Auth::user()->user_level_id == 6) {
+        return redirect()->route('admin.orders.index');
+            
+    }
         // === 0. GET FILTERS WITH DEFAULTS ===
         $inputs = $request->validate([
             'filter_timespan' => 'nullable|string|in:7d,30d,90d,1y,all,custom',

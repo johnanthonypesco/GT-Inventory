@@ -11,8 +11,9 @@
     <ul class="flex flex-col flex-1 mt-6 space-y-2">
         @auth
             
-            {{-- 1. DASHBOARD (Para sa Level 1, 2, 3, 4) --}}
-            @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4, 5]))
+            {{-- 1. DASHBOARD (Para sa Level 1, 2, 3, 4, 5) --}}
+            {{-- NOTE: Finance (6) is NOT included here --}}
+            @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4, 5, 6]))
                 <li>
                     <a href="{{ route('admin.dashboard') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                         <i class="fa-regular fa-house-chimney nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
@@ -21,7 +22,40 @@
                 </li>
             @endif
 
-            {{-- 3. INVENTORY & LOGS (Para sa Level 1, 2 - Superadmin at Admin lang) --}}
+            {{-- ========================================================= --}}
+            {{-- NEW: ORDER STOCK (For Pharmacist, SuperAdmin, Finance) --}}
+            {{-- ========================================================= --}}
+            @if(in_array(auth()->user()->user_level_id, [1, 2, 6]))
+                <li>
+                    <a href="{{ route('admin.orders.index') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 {{ request()->routeIs('admin.orders.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                        <i class="fa-solid fa-cart-shopping nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
+                        <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700 dark:text-gray-300">Order Stock</span>
+                        
+                        {{-- Optional: Notification Badge for Pending Approvals --}}
+                        @php
+                            $pendingCount = 0;
+                            // If Super Admin, count pending_admin
+                            if(auth()->user()->user_level_id == 1) {
+                                $pendingCount = \App\Models\Order::where('status', 'pending_admin')->count();
+                            } 
+                            // If Finance, count pending_finance
+                            elseif(auth()->user()->user_level_id == 6) {
+                                $pendingCount = \App\Models\Order::where('status', 'pending_finance')->count();
+                            }
+                        @endphp
+
+                        @if($pendingCount > 0)
+                            <span class="ml-auto inline-flex items-center justify-center w-5 h-5 ml-2 text-xs font-semibold text-white bg-red-600 rounded-full">
+                                {{ $pendingCount }}
+                            </span>
+                        @endif
+                    </a>
+                </li>
+            @endif
+            {{-- ========================================================= --}}
+
+
+            {{-- 3. INVENTORY & LOGS (Para sa Level 1, 2 - Superadmin at Admin lang, plus Encoder 3, Doctor 4) --}}
             @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]))
             <li>
                 <a href="{{ route('admin.inventory') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -29,15 +63,16 @@
                     <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700 dark:text-gray-300">Inventory</span>
                 </a>
             </li>
-            <li>
             @endif
-                @if(in_array(auth()->user()->user_level_id, [1, 2])) 
+            
+            @if(in_array(auth()->user()->user_level_id, [1, 2])) 
+            <li>
                 <a href="{{ route('admin.movements') }}" class="nav-link flex items-center px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 md:text-gray-700 dark:md:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fa-regular fa-file-spreadsheet nav-icon w-5 text-center text-gray-600 dark:text-gray-400"></i>
                     <span class="nav-text ml-3 font-medium lg:inline md:hidden text-gray-700 dark:text-gray-300">Product Movement</span>
                 </a>
-                @endif
             </li>
+            @endif
 
             {{-- 2. PATIENT RECORDS / DISPENSATION (Para sa Level 1, 2, 4 - Admin at Doctor) --}}
             @if(in_array(auth()->user()->user_level_id, [1, 2, 4]) || auth()->user()->branch_id == 2)
