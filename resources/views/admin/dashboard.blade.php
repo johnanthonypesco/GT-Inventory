@@ -623,7 +623,21 @@
           'Child': 'rgb(14, 165, 233)', // sky-500
           'Senior': 'rgb(132, 204, 22)' // lime-500
     };
-    const pieColors = Object.values(categoryColors); // Use consistent colors for pie chart
+
+const distinctPieColors = [
+        '#3b82f6', // Blue
+        '#ef4444', // Red
+        '#10b981', // Emerald
+        '#f59e0b', // Amber
+        '#8b5cf6', // Violet
+        '#ec4899', // Pink
+        '#06b6d4', // Cyan
+        '#f97316', // Orange
+        '#6366f1', // Indigo
+        '#84cc16'  // Lime
+    ];
+
+    const pieColors = Object.values(distinctPieColors); // Use consistent colors for pie chart
     
     const consumptionLineColor = 'rgb(34, 197, 94)'; // green-600
     const topProductsBarColor = 'rgba(59, 130, 246, 0.7)'; // blue-600 with alpha
