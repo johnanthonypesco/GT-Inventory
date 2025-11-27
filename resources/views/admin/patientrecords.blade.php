@@ -209,7 +209,7 @@
                     </div>
                 </div>
 
-                {{-- 2. ADD DISPENSATION MODAL --}}
+                {{-- Add Dispensation Modal --}}
                 <div class="fixed w-full h-screen top-0 left-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden overflow-auto" id="adddispensationmodal">
                     <div class="modal bg-white dark:bg-gray-800 rounded-lg w-full max-w-lg p-5 h-fit max-h-[90vh] overflow-y-auto">
                         <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
@@ -225,7 +225,9 @@
                                 <input type="text" name="patient-name" id="patient-name" placeholder="Enter Patient Name" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" value="{{ old('patient-name') }}">
                                 @error('patient-name', 'adddispensation')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
-                                    <script>document.getElementById('adddispensationmodal').classList.remove('hidden');</script>
+                                    <script>
+                                        document.getElementById('adddispensationmodal').classList.remove('hidden');
+                                    </script>
                                 @enderror
                             </div>
                             <div class="flex gap-2 mt-3">
@@ -261,45 +263,49 @@
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                 @enderror
                             </div>
-                            
-                            {{-- Dynamic Medication Fields --}}
                             <div class="mt-3" id="medication-container">
-                                <div class="medication-group flex gap-2 items-end mb-2">
-                                    <div class="flex-1 relative">
-                                        <label class="text-sm font-semibold text-gray-600 dark:text-gray-300">Medicine:</label>
-                                        <input type="text" class="search-med-input mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Search Medicine..." autocomplete="off">
-                                        <input type="hidden" name="medications[0][name]" class="med-name-hidden" value="{{ old('medications.0.name') }}">
-                                        
-                                        <div class="dropdown-options absolute z-20 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto hidden shadow-xl">
-                                            @foreach ($products as $inventory)
-                                                <div class="option p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-900 dark:text-gray-100 border-b dark:border-gray-600"
-                                                    data-id="{{ $inventory->id }}" 
-                                                    data-label="{{ $inventory->product->generic_name }} - {{ $inventory->product->brand_name }} ({{ $inventory->product->strength }})">
-                                                    <span class="font-bold">{{ $inventory->product->generic_name }}</span> 
-                                                    <span class="text-gray-500 text-xs italic">{{ $inventory->product->brand_name }}</span>
-                                                    <br>
-                                                    <span class="text-xs">Batch: {{ $inventory->batch_number }} | Qty: {{ $inventory->quantity }}</span>
-                                                </div>
-                                            @endforeach
+                                <div class="medication-group flex gap-2 items-end">
+                                    <div class="flex-1">
+                                        <label for="medication-0" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Medicine:</label>
+                                        <div class="relative">
+                                            @php
+                                                $selected_med_label_0 = '';
+                                                $old_med_id_0 = old('medications.0.name', '');
+                                                foreach ($products as $inventory) {
+                                                    if ($old_med_id_0 == $inventory->id) {
+                                                        $selected_med_label_0 = ($inventory->product->generic_name ?? 'N/A') . ' - ' . ($inventory->product->brand_name ?? 'N/A') . ' (' . ($inventory->product->form ?? 'N/A') . ', ' . ($inventory->product->strength ?? 'N/A') . ') (' . ($inventory->batch_number ?? 'N/A') . ') - Available: ' . ($inventory->quantity ?? 0);
+                                                        break;
+                                                    }
+                                                }
+                                            @endphp
+                                            <input type="text" class="search-med-input mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Search Medicine..." value="{{ $selected_med_label_0 }}">
+                                            <div class="dropdown-options absolute z-50 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto hidden shadow-lg">
+                                                @foreach ($products as $inventory)
+                                                    <div class="option p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-gray-100" 
+                                                        data-id="{{ $inventory->id }}" 
+                                                        data-label="{{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}">
+                                                        {{ ($inventory->product->generic_name ?? 'N/A') }} - {{ ($inventory->product->brand_name ?? 'N/A') }} ({{ ($inventory->product->form ?? 'N/A') }}, {{ ($inventory->product->strength ?? 'N/A') }}) ({{ ($inventory->batch_number ?? 'N/A') }}) - Available: {{ ($inventory->quantity ?? 0) }}
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
+                                        <input type="hidden" name="medications[0][name]" class="med-name-hidden" value="{{ old('medications.0.name') }}">
                                         @error('medications.0.name', 'adddispensation')
                                             <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div class="w-24">
-                                        <label class="text-sm font-semibold text-gray-600 dark:text-gray-300">Qty:</label>
-                                        <input type="number" name="medications[0][quantity]" placeholder="Qty" min="1" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" value="{{ old('medications.0.quantity') }}">
+                                    <div class="w-28">
+                                        <label for="quantity-0" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Qty:</label>
+                                        <input type="number" name="medications[0][quantity]" id="quantity-0" placeholder="Qty" min="1" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" value="{{ old('medications.0.quantity') }}">
                                         @error('medications.0.quantity', 'adddispensation')
                                             <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
                             </div>
-                            
-                            <button type="button" id="add-more-medication" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-2">
-                                <i class="fa-regular fa-plus-circle"></i> Add another medication
+                            <button type="button" id="add-more-medication" class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 p-2 rounded-lg mt-3 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit text-sm text-gray-700 dark:text-gray-300">
+                                <i class="fa-regular fa-plus mr-1"></i> Add More
                             </button>
-
                             <div class="mt-3">
                                 <label for="date-dispensed" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Date Dispensed:</label>
                                 <input type="date" name="date-dispensed" id="date-dispensed" class="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" value="{{ old('date-dispensed') }}">
@@ -307,11 +313,9 @@
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                                 @enderror
                             </div>
-                            
                             @error('medications', 'adddispensation')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400 error-message">{{ $message }}</p>
                             @enderror
-                            
                             <button type="button" id="add-dispensation-btn" class="bg-blue-500 dark:bg-blue-600 text-white p-2 rounded-lg mt-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 w-fit">
                                 <i class="fa-regular fa-check mr-1"></i> Submit
                             </button>

@@ -232,33 +232,73 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- SWEET ALERT FORMS ---
-    const addProductForm = document.getElementById('add-product-form');
-    const addProductBtn = document.getElementById('add-product-btn');
+    document.getElementById('add-product-btn').addEventListener('click', function() {
+        const form = document.getElementById('add-product-form');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
 
-    if (addProductBtn && addProductForm) {
-        addProductBtn.addEventListener('click', function() {
-            const inputs = addProductForm.querySelectorAll('input:not([type="hidden"]), select');
-            let missing = false;
-            inputs.forEach(input => {
-                if(input.hasAttribute('required') && input.value.trim() === '') missing = true;
-            });
-
-            if (missing) {
-                Swal.fire({ title: 'Missing Fields', text: 'Please fill out required fields.', icon: 'warning' });
-            } else {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Confirm new product registration?",
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, Register'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.showLoading();
-                        addProductForm.submit();
-                    }
-                });
+        let allFilled = true;
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                allFilled = false;
             }
         });
-    }
+
+        if (!allFilled) {
+            Swal.fire({
+                title: 'Incomplete Form',
+                text: 'Please fill in all required fields before submitting.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    icon: 'swal-icon'
+                }
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Please confirm if you want to proceed.",
+            icon: 'info',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Confirm',
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-container',
+                popup: 'swal-popup',
+                title: 'swal-title',
+                htmlContainer: 'swal-content',
+                confirmButton: 'swal-confirm-button',
+                cancelButton: 'swal-cancel-button',
+                icon: 'swal-icon'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Processing...',
+                    text: "Please wait, your request is being processed.",
+                    allowOutsideClick: false,
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        cancelButton: 'swal-cancel-button',
+                        icon: 'swal-icon'
+                    },
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                form.submit();
+            }
+        });
+    });
 });

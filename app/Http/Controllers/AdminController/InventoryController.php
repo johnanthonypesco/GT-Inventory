@@ -403,7 +403,7 @@ public function showinventory(Request $request)
             'inventory_id' => 'required|exists:inventories,id',
             'batchnumber' => 'required|min:3|max:120',
             'quantity' => 'required|numeric|min:0',
-            'expiry' => 'required|date|after:today',
+            'expiry' => 'required|date',
         ], [
             'inventory_id.required' => 'Product ID is required.',
             'inventory_id.exists'   => 'The selected stock does not exist.',
@@ -412,7 +412,6 @@ public function showinventory(Request $request)
             'quantity.numeric'      => 'Quantity must be a number.',
             'expiry.required'       => 'Expiry date is required.',
             'expiry.date'           => 'Expiry date must be a valid date.',
-            'expiry.after'          => 'Expiry date cannot be in the past.',
         ]);
 
         $inventory = Inventory::with('product')
@@ -500,7 +499,7 @@ public function showinventory(Request $request)
                 'quantity'      => $request->quantity,
                 'expiry_date'   => $sourceInventory->expiry_date,
                 'branch_id'     => $request->destination_branch,
-                'is_archived'   => 2,
+                'is_archived'   => 0,
             ]);
         }
 

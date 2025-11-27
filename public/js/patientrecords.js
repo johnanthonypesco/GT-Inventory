@@ -379,23 +379,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: 'Incomplete Form',
                     text: 'Please fill in all required fields (including Medicine selection).',
                     icon: 'warning',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        confirmButton: 'swal-confirm-button',
+                        icon: 'swal-icon'
+                    }
                 });
                 return;
             }
 
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Confirm dispensation details?",
+                text: "Please confirm if you want to proceed.",
                 icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Confirm'
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Processing...',
                         text: "Saving record...",
                         allowOutsideClick: false,
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content',
+                            cancelButton: 'swal-cancel-button',
+                            icon: 'swal-icon'
+                        },
                         didOpen: () => Swal.showLoading()
                     });
                     addForm.submit();
@@ -423,23 +450,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: 'Incomplete Data',
                     text: 'Please fill in all required fields.',
                     icon: 'warning',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        cancelButton: 'swal-cancel-button',
+                        icon: 'swal-icon'
+                    }
                 });
                 return;
             }
 
             Swal.fire({
-                title: 'Update Record?',
-                text: "Confirm changes to this record.",
-                icon: 'question',
+                title: 'Are you sure?',
+                text: "Please confirm if you want to proceed.",
+                icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Update'
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Processing...',
                         text: "Updating record...",
                         allowOutsideClick: false,
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content',
+                            cancelButton: 'swal-cancel-button',
+                            icon: 'swal-icon'
+                        },
                         didOpen: () => Swal.showLoading()
                     });
                     editForm.submit();
