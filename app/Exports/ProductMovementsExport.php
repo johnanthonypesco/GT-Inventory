@@ -18,6 +18,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ProductMovementsExport implements 
     FromQuery, 
@@ -51,14 +52,13 @@ class ProductMovementsExport implements
             $drawing->setWidth(1485); 
             $drawing->setCoordinates('A1');
             $drawing->setOffsetY(5);
-        } else {
-            return [];
+            $drawing->setOffsetX(10);
+            return $drawing;
         }
 
-        return $drawing;
+        return [];
     }
 
-    // FIX 1: Push table down to Row 12 to make room for image + titles
     public function startCell(): string
     {
         return 'A19'; 
@@ -101,7 +101,7 @@ class ProductMovementsExport implements
             'Product Name',
             'Batch #',
             'Type',
-            'Qty Change',
+            'Qty Change',    // This will be red
             'Before',
             'After',
             'Description',
@@ -122,9 +122,9 @@ class ProductMovementsExport implements
             $movement->product->generic_name . ' (' . $movement->product->brand_name . ')',
             $movement->inventory->batch_number ?? 'N/A',
             $movement->type,
-            $qty, 
-            $movement->quantity_before ?? '0', // Corrected Column Name
-            $movement->quantity_after ?? '0',  // Corrected Column Name
+            $qty,
+            $movement->quantity_before ?? '0',
+            $movement->quantity_after ?? '0',
             $movement->description,
             $movement->user->name ?? 'System',
         ];
@@ -134,35 +134,45 @@ class ProductMovementsExport implements
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $sheet = $event->sheet;
-                
-                // FIX 2: Move Title to Row 9 (was 7) to avoid image overlap
+                $sheet = $event->sheet->getDelegate();
+                $highestRow = $sheet->getHighestRow();
+
+                // Title
                 $sheet->mergeCells('A16:J16');
                 $sheet->setCellValue('A16', 'Product Movement Report');
                 $sheet->getStyle('A16')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 16],
+                    'font' => ['bold' => true, 'size' => 18, 'color' => ['rgb' => '1F2937']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // FIX 3: Move Metadata to Row 10 (was 8)
+                // Exported By + Generated Date — RIGHT AFTER TITLE (Row 17)
                 $user = Auth::user()->name ?? 'Guest';
-                $date = now()->format('M d, Y h:i A');
+                $generatedAt = now()->format('M d, Y h:i A');
+                $exportInfo = "Exported By: $user";
+
                 $sheet->mergeCells('A17:J17');
-                $sheet->setCellValue('A17', "Exported By: $user • Generated: $date");
+                $sheet->setCellValue('A17', $exportInfo);
                 $sheet->getStyle('A17')->applyFromArray([
-                    'font' => ['italic' => true, 'size' => 11],
+                    'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '6B7280']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Conditional Formatting for Red Text
-                // Loop starts at Row 13 because data starts there (Header is 12)
-                $highestRow = $sheet->getHighestRow();
+                // Only Generated Timestamp at the very bottom
+                $footerRow = $highestRow + 3;
+                $sheet->mergeCells("A$footerRow:J$footerRow");
+                $sheet->setCellValue("A$footerRow", "Generated: $generatedAt");
+                $sheet->getStyle("A$footerRow")->applyFromArray([
+                    'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '6B7280']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+
+                // Qty Change column: Red if negative, Dark Green if positive
                 for ($row = 20; $row <= $highestRow; $row++) {
-                    $qtyCell = $sheet->getCell("F$row")->getValue();
-                    if ($qtyCell < 0) {
+                    $qtyValue = $sheet->getCell("F$row")->getValue();
+                    if ($qtyValue < 0) {
                         $sheet->getStyle("F$row")->getFont()->setColor(new Color(Color::COLOR_RED));
                     } else {
-                         $sheet->getStyle("F$row")->getFont()->setColor(new Color(Color::COLOR_DARKGREEN));
+                        $sheet->getStyle("F$row")->getFont()->setColor(new Color(Color::COLOR_DARKGREEN));
                     }
                 }
             },
@@ -171,13 +181,38 @@ class ProductMovementsExport implements
 
     public function styles(Worksheet $sheet)
     {
-        // FIX 4: Update Style Target to Row 12 (Where headers now live)
+        // Header row styling (row 19)
         $sheet->getStyle('A19:J19')->applyFromArray([
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1F2937']], 
+            'font' => ['bold' => true, 'size' => 12],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => 'E5E7EB']
+            ],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'borders' => [
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN]
+            ]
         ]);
 
-        foreach (range('A', 'J') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
+        // Make "Qty Change" header RED
+        $sheet->getStyle('F19')->getFont()->setColor(new Color(Color::COLOR_RED));
+
+        // Auto-size columns
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Add borders to data rows
+        $lastRow = $sheet->getHighestRow();
+        if ($lastRow >= 20) {
+            $sheet->getStyle("A19:J$lastRow")->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC']
+                    ]
+                ]
+            ]);
+        }
     }
 }

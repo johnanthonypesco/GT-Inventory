@@ -48,7 +48,7 @@ class InventoryController extends Controller
         $inventories_rhu1 = $query1->with('product')->paginate(20, ['*'], 'page_rhu1');
 
         // RHU 2
-        $query2 = Inventory::where('branch_id', 2)->where('is_archived', 2);
+        $query2 = Inventory::where('branch_id', 2)->where('is_archived', 0);
 
         if ($request->filled('search_rhu2')) {
             $search = strtolower($request->search_rhu2);
@@ -338,7 +338,7 @@ class InventoryController extends Controller
                 'batch_number' => $validated['batchnumber'],
                 'quantity' => $validated['quantity'],
                 'expiry_date' => $validated['expiry'],
-                'is_archived' => 2,
+                'is_archived' => 0,
             ]);
 
             // === START: ADD THIS BLOCK ===
