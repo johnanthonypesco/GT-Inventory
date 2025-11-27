@@ -10,7 +10,7 @@
         <i class="fa-regular fa-user text-red-700 dark:text-red-300 text-xl hidden md:block"></i>
         <div class="hidden md:flex md:flex-col">
             <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{auth()->user()->name}}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{auth()->user()->email}}</p>
+            {{-- <p class="text-xs text-gray-500 dark:text-gray-400">{{auth()->user()->email}}</p> --}}
         </div>
     </div>
 </header>
