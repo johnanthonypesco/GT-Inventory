@@ -450,12 +450,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Confirm stock transfer?",
-                icon: 'warning',
+                text: "Please confirm if you want to proceed.",
+                icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Transfer'
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Confirm',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-container',
+                    popup: 'swal-popup',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-content',
+                    confirmButton: 'swal-confirm-button',
+                    cancelButton: 'swal-cancel-button',
+                    icon: 'swal-icon'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: "Please wait, your request is being processed.",
+                        allowOutsideClick: false,
+                        customClass: {
+                            container: 'swal-container',
+                            popup: 'swal-popup',
+                            title: 'swal-title',
+                            htmlContainer: 'swal-content',
+                            cancelButton: 'swal-cancel-button',
+                            icon: 'swal-icon'
+                        },
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     form.submit();
                 }
             });
