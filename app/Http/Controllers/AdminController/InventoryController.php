@@ -16,79 +16,101 @@ class InventoryController extends Controller
 {
     
     // show inventory
-    public function showinventory(Request $request)
-    {
-        $products = Product::where('is_archived', 0)->get();
-        $archiveproducts = Product::where('is_archived', 1)->get();
-        $inventorycount = Inventory::where('is_archived', 0)->get();
+    // Inside App\Http\Controllers\AdminController\InventoryController.php
 
-        // RHU 1
-        $query1 = Inventory::where('branch_id', 1)->where('is_archived', 0);
+public function showinventory(Request $request)
+{
+    // 1. Common Data
+    $products = Product::where('is_archived', 0)->get();
+    $archiveproducts = Product::where('is_archived', 1)->get();
+    $inventorycount = Inventory::where('is_archived', '!=', 1)->get(); // Count all active
 
-        if ($request->filled('search_rhu1')) {
-            $search = strtolower($request->search_rhu1);
-            $query1->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(batch_number) LIKE ?', ["%{$search}%"])
-                ->orWhereHas('product', fn($p) => $p->whereRaw('LOWER(generic_name) LIKE ?', ["%{$search}%"])
-                                            ->orWhereRaw('LOWER(brand_name) LIKE ?', ["%{$search}%"]));
-            });
-        }
+    // 2. RHU 1 Query Setup
+    // Using != 1 to catch both status 0 and 2 (active stocks)
+    $query1 = Inventory::where('branch_id', 1)->where('is_archived', '!=', 1);
 
-        if ($request->filled('filter_rhu1')) {
-            $filter = $request->filter_rhu1;
-            match ($filter) {
-                'in_stock'       => $query1->where('quantity', '>=', 100),
-                'low_stock'      => $query1->where('quantity', '>', 0)->where('quantity', '<', 100),
-                'out_of_stock'   => $query1->where('quantity', '<=', 0),
-                'nearly_expired' => $query1->where('expiry_date', '>', now())->where('expiry_date', '<', now()->addDays(30)),
-                'expired'        => $query1->where('expiry_date', '<', now()),
-            };
-        }
-
-        $inventories_rhu1 = $query1->with('product')->paginate(20, ['*'], 'page_rhu1');
-
-        // RHU 2
-        $query2 = Inventory::where('branch_id', 2)->where('is_archived', 2);
-
-        if ($request->filled('search_rhu2')) {
-            $search = strtolower($request->search_rhu2);
-            $query2->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(batch_number) LIKE ?', ["%{$search}%"])
-                ->orWhereHas('product', fn($p) => $p->whereRaw('LOWER(generic_name) LIKE ?', ["%{$search}%"])
-                                            ->orWhereRaw('LOWER(brand_name) LIKE ?', ["%{$search}%"]));
-            });
-        }
-
-        if ($request->filled('filter_rhu2')) {
-            $filter = $request->filter_rhu2;
-            match ($filter) {
-                'in_stock'       => $query2->where('quantity', '>=', 100),
-                'low_stock'      => $query2->where('quantity', '>', 0)->where('quantity', '<', 100),
-                'out_of_stock'   => $query2->where('quantity', '<=', 0),
-                'nearly_expired' => $query2->where('expiry_date', '>', now())->where('expiry_date', '<', now()->addDays(30)),
-                'expired'        => $query2->where('expiry_date', '<', now()),
-            };
-        }
-
-        $inventories_rhu2 = $query2->with('product')->paginate(20, ['*'], 'page_rhu2');
-
-        if ($request->ajax()) {
-            $branch = $request->input('branch', 1);
-            $inventories = $branch == 1 ? $inventories_rhu1 : $inventories_rhu2;
-            return view('admin.partials._inventory_table', [
-                'inventories' => $inventories,
-                'branch' => $branch
-            ])->render();
-        }
-
-        return view('admin.inventory', [
-            'products' => $products,
-            'archiveproducts' => $archiveproducts,
-            'inventorycount' => $inventorycount,
-            'inventories_rhu1' => $inventories_rhu1,
-            'inventories_rhu2' => $inventories_rhu2
-        ]);
+    // Search RHU 1
+    if ($request->filled('search_rhu1')) {
+        $search = strtolower($request->search_rhu1);
+        $query1->where(function ($q) use ($search) {
+            $q->whereRaw('LOWER(batch_number) LIKE ?', ["%{$search}%"])
+            ->orWhereHas('product', fn($p) => $p->whereRaw('LOWER(generic_name) LIKE ?', ["%{$search}%"])
+                                        ->orWhereRaw('LOWER(brand_name) LIKE ?', ["%{$search}%"]));
+        });
     }
+
+    // Filter RHU 1
+    if ($request->filled('filter_rhu1')) {
+        match ($request->filter_rhu1) {
+            'in_stock'       => $query1->where('quantity', '>=', 100),
+            'low_stock'      => $query1->where('quantity', '>', 0)->where('quantity', '<', 100),
+            'out_of_stock'   => $query1->where('quantity', '<=', 0),
+            'nearly_expired' => $query1->where('expiry_date', '>', now())->where('expiry_date', '<', now()->addDays(30)),
+            'expired'        => $query1->where('expiry_date', '<', now()),
+            default          => null,
+        };
+    }
+    
+    // Paginate RHU 1 (explicit page name 'page_rhu1')
+    $inventories_rhu1 = $query1->with('product')
+        ->orderBy('expiry_date', 'asc')
+        ->paginate(20, ['*'], 'page_rhu1');
+
+
+    // 3. RHU 2 Query Setup
+    $query2 = Inventory::where('branch_id', 2)->where('is_archived', '!=', 1);
+
+    // Search RHU 2
+    if ($request->filled('search_rhu2')) {
+        $search = strtolower($request->search_rhu2);
+        $query2->where(function ($q) use ($search) {
+            $q->whereRaw('LOWER(batch_number) LIKE ?', ["%{$search}%"])
+            ->orWhereHas('product', fn($p) => $p->whereRaw('LOWER(generic_name) LIKE ?', ["%{$search}%"])
+                                        ->orWhereRaw('LOWER(brand_name) LIKE ?', ["%{$search}%"]));
+        });
+    }
+
+    // Filter RHU 2
+    if ($request->filled('filter_rhu2')) {
+        match ($request->filter_rhu2) {
+            'in_stock'       => $query2->where('quantity', '>=', 100),
+            'low_stock'      => $query2->where('quantity', '>', 0)->where('quantity', '<', 100),
+            'out_of_stock'   => $query2->where('quantity', '<=', 0),
+            'nearly_expired' => $query2->where('expiry_date', '>', now())->where('expiry_date', '<', now()->addDays(30)),
+            'expired'        => $query2->where('expiry_date', '<', now()),
+            default          => null,
+        };
+    }
+
+    // Paginate RHU 2 (explicit page name 'page_rhu2')
+    $inventories_rhu2 = $query2->with('product')
+        ->orderBy('expiry_date', 'asc')
+        ->paginate(20, ['*'], 'page_rhu2');
+
+
+    // 4. AJAX Handling
+    if ($request->ajax()) {
+        // Retrieve which branch is being requested. Default to 1.
+        $branch = $request->input('branch', 1);
+        
+        // Select the correct dataset based on the requested branch
+        $selectedInventories = ($branch == 2) ? $inventories_rhu2 : $inventories_rhu1;
+
+        return view('admin.partials._inventory_table', [
+            'inventories' => $selectedInventories,
+            'branch' => $branch
+        ])->render();
+    }
+
+    // 5. Normal View Return
+    return view('admin.inventory', [
+        'products' => $products,
+        'archiveproducts' => $archiveproducts,
+        'inventorycount' => $inventorycount,
+        'inventories_rhu1' => $inventories_rhu1,
+        'inventories_rhu2' => $inventories_rhu2
+    ]);
+}
 
     // fetch archived stocks
     public function fetchArchivedStocks(Request $request)

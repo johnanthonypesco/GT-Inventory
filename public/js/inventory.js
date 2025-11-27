@@ -1,86 +1,146 @@
-// clear validation if close the modal
-function clearValidation(modal) {
-    const errorMessages = modal.querySelectorAll('.error-message');
-    errorMessages.forEach(error => error.remove());
-}
+document.addEventListener('DOMContentLoaded', function () {
 
-// Add New Product Modal
-function showAddNewProductModal() {
-    const modal = document.getElementById('addnewproductmodal');
-    const btn = document.getElementById('addnewproductbtn');
-    const closeBtn = document.getElementById('closeaddnewproductmodal');
+    // --- HELPER FUNCTIONS ---
 
-    btn.addEventListener('click', () => modal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden')
-        clearValidation(modal);
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-}
+    function clearValidation(modal) {
+        const errorMessages = modal.querySelectorAll('.error-message');
+        errorMessages.forEach(error => error.remove());
+    }
 
-// View All Products Modal
-function showViewAllProductsModal() {
-    const modal = document.getElementById('viewallproductsmodal');
-    const btn = document.getElementById('viewallproductsbtn');
-    const closeBtn = document.getElementById('closeviewallproductsmodal');
+    function toggleModal(modalId, show = true) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+                clearValidation(modal);
+            }
+        }
+    }
 
-    btn.addEventListener('click', () => modal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-}
+    // --- EVENT DELEGATION (Ito ang solusyon sa Bugs) ---
+    // Lahat ng click events sa loob ng table ay dito dadaan.
+    // Kahit mag-AJAX ka, gagana pa rin ito.
 
-// Add Stock Modal
-function showAddStockModal() {
-    const modal = document.getElementById('addstockmodal');
-    const closeBtn = document.getElementById('closeaddstockmodal');
-    const title = document.getElementById('add-stock-title');
-    const productIdInput = document.getElementById('selected-product-id');
+    document.addEventListener('click', function (e) {
+        const target = e.target;
 
-    document.querySelectorAll('.add-stock-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const row = this.closest('tr');
+        // 1. EDIT STOCK BUTTON
+        const editStockBtn = target.closest('.edit-stock-btn');
+        if (editStockBtn) {
+            const row = editStockBtn.closest('tr');
+            if (!row) return;
+
+            const modal = document.getElementById('editstockmodal');
+            const title = document.getElementById('edit-stock-title');
+            const productDisplay = document.getElementById('edit-stock-product');
+            const stockIdInput = document.getElementById('edit-stock-id');
+            const batchInput = document.getElementById('edit-batchnumber');
+            const quantityInput = document.getElementById('edit-quantity');
+            const expiryInput = document.getElementById('edit-expiry');
+
+            // Data gathering
+            const productName = `${row.dataset.product} ${row.dataset.strength} ${row.dataset.form} (${row.dataset.brand})`;
+            const batch = row.dataset.batch;
+            const quantity = row.dataset.quantity;
+            const expiry = row.dataset.expiry;
+            const stockId = row.dataset.stockId;
+
+            if (stockId) {
+                title.textContent = `Edit Stock - ${batch}`;
+                productDisplay.textContent = productName;
+                stockIdInput.value = stockId;
+                batchInput.value = batch;
+                quantityInput.value = quantity;
+                expiryInput.value = expiry;
+                toggleModal('editstockmodal', true);
+            }
+            return;
+        }
+
+        // 2. TRANSFER STOCK BUTTON
+        const transferBtn = target.closest('.transfer-stock-btn');
+        if (transferBtn) {
+            const row = transferBtn.closest('tr');
+            const modal = document.getElementById('transferstockmodal');
+            const qtyInput = document.getElementById('transfer_qty');
+            const errorMsg = document.getElementById('transfer-error');
+            const confirmBtn = document.getElementById('confirm-transfer-btn');
+            
+            // Data from data-attributes
+            const stockId = transferBtn.dataset.stockId;
+            const product = transferBtn.dataset.product;
+            const strength = transferBtn.dataset.strength;
+            const form = transferBtn.dataset.form;
+            const batch = transferBtn.dataset.batch;
+            const branch = transferBtn.dataset.branch;
+            const quantity = parseInt(transferBtn.dataset.quantity);
+            const branchId = transferBtn.dataset.branchId;
+
+            // Populate Modal
+            document.getElementById('transfer-inventory-id').value = stockId;
+            document.getElementById('transfer-product-name').textContent = `${product} ${strength} ${form}`;
+            document.getElementById('transfer-batch').textContent = batch;
+            document.getElementById('transfer-current-branch').textContent = branch;
+            document.getElementById('transfer-available-qty').textContent = quantity;
+
+            // Reset Input
+            qtyInput.max = quantity;
+            qtyInput.value = '';
+            if(errorMsg) errorMsg.classList.add('hidden');
+            if(confirmBtn) confirmBtn.disabled = false;
+
+            // Auto-select destination (Assuming 1=RHU1, 2=RHU2)
+            const destSelect = document.getElementById('destination_branch');
+            if(destSelect) {
+                destSelect.value = (branchId == 1) ? 2 : 1;
+            }
+
+            // Real-time validation for transfer input
+            qtyInput.oninput = () => {
+                const val = parseInt(qtyInput.value);
+                if (val > quantity || val <= 0 || isNaN(val)) {
+                    errorMsg.classList.remove('hidden');
+                    confirmBtn.disabled = true;
+                } else {
+                    errorMsg.classList.add('hidden');
+                    confirmBtn.disabled = false;
+                }
+            };
+
+            toggleModal('transferstockmodal', true);
+            return;
+        }
+
+        // 3. ADD STOCK BUTTON (Icon sa table row)
+        const addStockBtn = target.closest('.add-stock-btn');
+        if (addStockBtn) {
+            const row = addStockBtn.closest('tr');
+            const modal = document.getElementById('addstockmodal');
+            const title = document.getElementById('add-stock-title');
+            const productIdInput = document.getElementById('selected-product-id');
+
             const productName = `${row.dataset.product} ${row.dataset.strength} ${row.dataset.form}`;
             const productId = row.dataset.productId;
 
             title.textContent = `Add Stock - ${productName}`;
             productIdInput.value = productId;
+            toggleModal('addstockmodal', true);
+            return;
+        }
 
-            modal.classList.remove('hidden');
-        });
-    });
+        // 4. EDIT PRODUCT BUTTON
+        const editProductBtn = target.closest('.edit-product-btn');
+        if (editProductBtn) {
+            const row = editProductBtn.closest('tr');
+            const modal = document.getElementById('editproductmodal');
+            const brandInput = document.getElementById('edit-brand');
+            const productInput = document.getElementById('edit-product');
+            const formInput = document.getElementById('edit-form');
+            const strengthInput = document.getElementById('edit-strength');
+            const productIdInput = document.getElementById('edit-product-id');
 
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-}
-
-// Edit Product Modal
-function showEditProductModal() {
-    const modal = document.getElementById('editproductmodal');
-    const closeBtn = document.getElementById('closeeditproductmodal');
-    const brandInput = document.getElementById('edit-brand');
-    const productInput = document.getElementById('edit-product');
-    const formInput = document.getElementById('edit-form');
-    const strengthInput = document.getElementById('edit-strength');
-    const productIdInput = document.getElementById('edit-product-id');
-
-    document.querySelectorAll('.edit-product-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const row = this.closest('tr');
             const productId = row.dataset.productId;
 
             productIdInput.value = productIdInput.value || productId || '';
@@ -89,391 +149,116 @@ function showEditProductModal() {
             formInput.value = formInput.value || row.dataset.form || '';
             strengthInput.value = strengthInput.value || row.dataset.strength || '';
 
-            modal.classList.remove('hidden');
-        });
-    });
-
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-}
-
-// Edit Stock Modal
-function showEditStockModal() {
-    const modal = document.getElementById('editstockmodal');
-    const closeBtn = document.getElementById('closeeditstockmodal');
-    const title = document.getElementById('edit-stock-title');
-    const productDisplay = document.getElementById('edit-stock-product');
-    const stockIdInput = document.getElementById('edit-stock-id');
-    const batchInput = document.getElementById('edit-batchnumber');
-    const quantityInput = document.getElementById('edit-quantity');
-    const expiryInput = document.getElementById('edit-expiry');
-
-    document.querySelectorAll('.edit-stock-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const productName = `${row.dataset.product} ${row.dataset.strength} ${row.dataset.form} (${row.dataset.brand})`;
-            const batch = row.dataset.batch;
-            const quantity = row.dataset.quantity;
-            const expiry = row.dataset.expiry;
-            const stockId = row.dataset.stockId;
-
-            if (!stockId) {
-                console.error('Inventory ID is undefined');
-                return;
-            }
-
-            title.textContent = `Edit Stock - ${batch}`;
-            productDisplay.textContent = productName;
-            stockIdInput.value = stockId;
-            batchInput.value = batch;
-            quantityInput.value = quantity;
-            expiryInput.value = expiry;
-
-            modal.classList.remove('hidden');
-        });
-    });
-
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        clearValidation(modal);
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-            clearValidation(modal);
-        }
-    });
-}
-
-function showarchivemodal() {
-    const modal = document.getElementById('viewarchiveproductsmodal');
-    const btn = document.getElementById('viewarchiveproductsbtn');
-    const closeBtn = document.getElementById('closeviewarchiveproductsmodal');
-    btn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-    });
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-    });
-}
-
-function showArchiveStockmodal() {
-    const modal = document.getElementById('viewarchivedstocksmodal');
-    const closeBtn = document.getElementById('closeviewarchivedstocksmodal');
-    const productNameSpan = document.getElementById('archived-product-name');
-    const stocksTbody = document.getElementById('archived-stocks-tbody');
-    document.querySelectorAll('.view-archivestock-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const productId = row.dataset.productId;
-            const productName = `${row.dataset.brand} ${row.dataset.product} ${row.dataset.strength} ${row.dataset.form}`;
-            productNameSpan.textContent = productName;
-            const rows = stocksTbody.querySelectorAll('tr');
-            let hasVisibleRows = false;
-            rows.forEach(row => {
-                if (row.dataset.productId === productId) {
-                    row.style.display = '';
-                    hasVisibleRows = true;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            if (!hasVisibleRows && rows.length > 0 && rows[0].querySelector('td').textContent === 'No Archived Stocks Available') {
-                rows[0].style.display = '';
-            }
-            modal.classList.remove('hidden');
-        });
-    });
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-    });
-}
-
-function sweetalertforallfunction() {
-    const addproductform = document.getElementById('add-product-form');
-    const addproductbtn = document.getElementById('add-product-btn');
-
-    addproductbtn.addEventListener('click', () => {
-        showSweetAlert(addproductform);
-    });
-
-    function showSweetAlert(form) {
-        const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), select');
-        let formIsMissingData = false;
-
-        inputs.forEach((input) => {
-            if (input.value.trim() === '') {
-                formIsMissingData = true;
-            }
-        });
-
-        if (formIsMissingData) {
-            Swal.fire({
-                title: 'Missing Fields',
-                text: 'Please fill out all required inputs before submitting.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-                customClass: {
-                    popup: 'swal-popup',
-                    title: 'swal-title',
-                    confirmButton: 'swal-confirm-button',
-                    icon: 'swal-icon'
-                }
-            });
+            toggleModal('editproductmodal', true);
             return;
         }
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This action can't be undone. Please confirm if you want to proceed.",
-            icon: 'info',
-            showCancelButton: true,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Confirm',
-            allowOutsideClick: false,
-            customClass: {
-                container: 'swal-container',
-                popup: 'swal-popup',
-                title: 'swal-title',
-                htmlContainer: 'swal-content',
-                confirmButton: 'swal-confirm-button',
-                cancelButton: 'swal-cancel-button',
-                icon: 'swal-icon'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Processing...',
-                    text: "Please wait, your request is being processed.",
-                    allowOutsideClick: false,
-                    customClass: {
-                        container: 'swal-container',
-                        popup: 'swal-popup',
-                        title: 'swal-title',
-                        htmlContainer: 'swal-content',
-                        cancelButton: 'swal-cancel-button',
-                        icon: 'swal-icon'
-                    },
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                form.submit();
-            }
-        });
-    }
-}
+        // 5. VIEW ARCHIVED STOCKS BUTTON
+        const viewArchiveStockBtn = target.closest('.view-archivestock-btn');
+        if (viewArchiveStockBtn) {
+            const row = viewArchiveStockBtn.closest('tr');
+            const modal = document.getElementById('viewarchivedstocksmodal');
+            const productNameSpan = document.getElementById('archived-product-name');
+            const stocksTbody = document.getElementById('archived-stocks-tbody');
+            const productId = row.dataset.productId;
+            const productName = `${row.dataset.brand} ${row.dataset.product} ${row.dataset.strength} ${row.dataset.form}`;
 
+            if(productNameSpan) productNameSpan.textContent = productName;
+            
+            // Reset and show modal
+            if(stocksTbody) stocksTbody.innerHTML = '';
+            toggleModal('viewarchivedstocksmodal', true);
 
-// ==========================================================
-// !!!!!!!!!!!         ITO ANG BINAGO         !!!!!!!!!!!
-// ==========================================================
+            // Fetch Data
+            loadMoreArchivedStocks(productId, 1, stocksTbody);
+            return;
+        }
 
-// Global initializer function para sa Inventory Page
-function initializeInventoryPage() {
-    // Naglagay tayo ng 'if' checks para sigurado na 
-    // tumatakbo lang ito kung nasa inventory page
-
-    if (document.getElementById('addnewproductbtn')) {
-        showAddNewProductModal();
-    }
-    if (document.getElementById('viewallproductsbtn')) {
-        showViewAllProductsModal();
-    }
-    // I-check kung may buttons bago i-run ang function
-    if (document.querySelectorAll('.add-stock-btn').length > 0) {
-        showAddStockModal();
-    }
-    if (document.querySelectorAll('.edit-product-btn').length > 0) {
-        showEditProductModal();
-    }
-    if (document.querySelectorAll('.edit-stock-btn').length > 0) {
-        showEditStockModal();
-    }
-    if (document.getElementById('add-product-form')) {
-        sweetalertforallfunction();
-    }
-    if (document.getElementById('viewarchiveproductsbtn')) {
-        showarchivemodal();
-    }
-    if (document.querySelectorAll('.view-archivestock-btn').length > 0) {
-        showArchiveStockmodal();
-    }
-}
-
-// Tawagin ang initializer sa unang pag-load (hard refresh)
-document.addEventListener('DOMContentLoaded', initializeInventoryPage);
-
-// Inalis na natin 'yung mga duplicate na 'DOMContentLoaded' listeners
-
-function showArchiveStockmodal(){
-    const modal = document.getElementById('viewarchivedstocksmodal');
-    if (!modal) return; // Prevent errors if modal isn't on the page
-
-    const closeBtn = document.getElementById('closeviewarchivedstocksmodal');
-    const productNameSpan = document.getElementById('archived-product-name');
-    const stocksTbody = document.getElementById('archived-stocks-tbody');
-    const loader = document.getElementById('archive-loader');
-    const scrollContainer = document.getElementById('archived-stock-list'); 
-
-    let currentPage = 1;
-    let currentProductId = null;
-    let isLoading = false;
-    let hasMorePages = true;
-
-    // --- Function to fetch data ---
-    async function loadMoreArchivedStocks(productId, page) {
-        if (isLoading || !hasMorePages) return; 
+        // --- CLOSING MODALS (Clicking outside or X button) ---
         
-        isLoading = true;
-        if(loader) loader.classList.remove('hidden'); 
+        // Close Button Class
+        if (target.closest('.close-modal') || target.closest('[id^="close"]')) { // Matches IDs starting with 'close'
+             // Find parent modal
+             const modal = target.closest('.modal')?.parentElement || target.closest('[id$="modal"]');
+             if(modal) {
+                 modal.classList.add('hidden');
+                 clearValidation(modal);
+             }
+        }
 
+        // Clicking Outside Modal (Background)
+        if (target.classList.contains('fixed') && target.classList.contains('z-50')) {
+             // Assuming the modal wrapper has these classes (Tailwind modal background)
+             target.classList.add('hidden');
+             clearValidation(target);
+        }
+    });
+
+    // --- STATIC BUTTON LISTENERS (Buttons na hindi nawawala) ---
+
+    // Add New Product (Top Button)
+    const addNewProductBtn = document.getElementById('addnewproductbtn');
+    if (addNewProductBtn) {
+        addNewProductBtn.addEventListener('click', () => toggleModal('addnewproductmodal', true));
+    }
+
+    // View All Products (Top Button)
+    const viewAllProductsBtn = document.getElementById('viewallproductsbtn');
+    if (viewAllProductsBtn) {
+        viewAllProductsBtn.addEventListener('click', () => toggleModal('viewallproductsmodal', true));
+    }
+
+    // View Archived Products (Top Button)
+    const viewArchiveProductsBtn = document.getElementById('viewarchiveproductsbtn');
+    if (viewArchiveProductsBtn) {
+        viewArchiveProductsBtn.addEventListener('click', () => toggleModal('viewarchiveproductsmodal', true));
+    }
+
+    // --- ARCHIVED STOCKS AJAX LOGIC ---
+    async function loadMoreArchivedStocks(productId, page, container) {
         try {
-            const url = `/admin/inventory/archived-stocks?product_id=${productId}&page=${page}`; // Use correct path
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest', 
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            const url = `/admin/inventory/archived-stocks?product_id=${productId}&page=${page}`;
+            const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
             const data = await response.json();
             
-            if (page === 1 && stocksTbody) {
-                stocksTbody.innerHTML = ''; // Clear table only on first load
-            }
+            if (page === 1 && container) container.innerHTML = '';
+            if (container) container.insertAdjacentHTML('beforeend', data.html);
             
-            if(stocksTbody) stocksTbody.insertAdjacentHTML('beforeend', data.html); 
-            hasMorePages = data.has_more_pages;
-            if (hasMorePages) {
-                currentPage = page + 1; // Prepare for next page
-            } else {
-                console.log("No more pages to load."); // Optional: log when done
-            }
-
-
+            // Note: Simple implementation. Add scroll listener logic here if you want infinite scroll
         } catch (error) {
-            console.error('Failed to fetch archived stocks:', error);
-            if (page === 1 && stocksTbody) { 
-                stocksTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-red-500">Error loading data. Please try again.</td></tr>';
-            }
-        } finally {
-            isLoading = false;
-            if(loader) loader.classList.add('hidden'); 
+            console.error('Error:', error);
+            if(container) container.innerHTML = '<tr><td colspan="4" class="text-red-500 p-4 text-center">Error loading data</td></tr>';
         }
     }
 
-    // --- Attach listener to buttons that open the modal ---
-    document.querySelectorAll('.view-archivestock-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            if (!row) return; // Add check if row is not found
-            const productId = row.dataset.productId;
-            const productName = `${row.dataset.brand} ${row.dataset.product} ${row.dataset.strength} ${row.dataset.form}`;
-            
-            if(productNameSpan) productNameSpan.textContent = productName;
-            
-            // Reset state
-            if(stocksTbody) stocksTbody.innerHTML = ''; 
-            currentPage = 1;
-            currentProductId = productId;
-            hasMorePages = true;
-            isLoading = false;
-            if(scrollContainer) scrollContainer.scrollTop = 0; 
+    // --- SWEET ALERT FORMS ---
+    const addProductForm = document.getElementById('add-product-form');
+    const addProductBtn = document.getElementById('add-product-btn');
 
-            if(modal) modal.classList.remove('hidden');
-            
-            // Initial load
-            if(currentProductId) {
-                loadMoreArchivedStocks(currentProductId, currentPage);
+    if (addProductBtn && addProductForm) {
+        addProductBtn.addEventListener('click', function() {
+            const inputs = addProductForm.querySelectorAll('input:not([type="hidden"]), select');
+            let missing = false;
+            inputs.forEach(input => {
+                if(input.hasAttribute('required') && input.value.trim() === '') missing = true;
+            });
+
+            if (missing) {
+                Swal.fire({ title: 'Missing Fields', text: 'Please fill out required fields.', icon: 'warning' });
             } else {
-                 console.error("Product ID is missing.");
-                 if(stocksTbody) stocksTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-red-500">Cannot load data: Product ID missing.</td></tr>';
-            }
-        });
-    });
-
-    // --- Attach scroll listener ---
-    if(scrollContainer) {
-        scrollContainer.addEventListener('scroll', () => {
-            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-            
-            // Load more when near the bottom (adjust threshold as needed)
-            if (scrollHeight - scrollTop - clientHeight < 100) { 
-                if (!isLoading && hasMorePages && currentProductId) {
-                    console.log("Loading page:", currentPage); // Add console log for debugging
-                    loadMoreArchivedStocks(currentProductId, currentPage);
-                }
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Confirm new product registration?",
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Register'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.showLoading();
+                        addProductForm.submit();
+                    }
+                });
             }
         });
     }
-
-    // --- Logic for closing the modal ---
-    if(closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            if(modal) modal.classList.add('hidden');
-        });
-    }
-
-    if(modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.add('hidden');
-        });
-    }
-}
-
-// transfer 
-document.querySelectorAll('.transfer-stock-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const modal = document.getElementById('transferstockmodal');
-        const qtyInput = document.getElementById('transfer_qty');
-        const errorMsg = document.getElementById('transfer-error');
-        const available = parseInt(this.dataset.quantity);
-
-        // Fill data
-        document.getElementById('transfer-inventory-id').value = this.dataset.stockId;
-        document.getElementById('transfer-product-name').textContent = 
-            `${this.dataset.product} ${this.dataset.strength} ${this.dataset.form}`;
-        document.getElementById('transfer-batch').textContent = this.dataset.batch;
-        document.getElementById('transfer-current-branch').textContent = this.dataset.branch;
-        document.getElementById('transfer-available-qty').textContent = this.dataset.quantity;
-
-        // Set max and reset
-        qtyInput.max = available;
-        qtyInput.value = '';
-        errorMsg.classList.add('hidden');
-
-        // Auto-select opposite branch
-        const currentBranch = this.closest('tr').querySelector('td:nth-child(6)')?.textContent.trim().includes('RHU 1') ? 1 : 2;
-        document.getElementById('destination_branch').value = currentBranch === 1 ? 2 : 1;
-
-        // Validate on input
-        qtyInput.oninput = () => {
-            if (parseInt(qtyInput.value) > available || qtyInput.value <= 0) {
-                errorMsg.classList.remove('hidden');
-                document.getElementById('confirm-transfer-btn').disabled = true;
-            } else {
-                errorMsg.classList.add('hidden');
-                document.getElementById('confirm-transfer-btn').disabled = false;
-            }
-        };
-
-        modal.classList.remove('hidden');
-    });
 });

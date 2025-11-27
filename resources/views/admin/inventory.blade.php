@@ -192,12 +192,85 @@
     @include('components.admin.modals.inventory.add-stock')
     @include('components.admin.modals.inventory.edit-product')
     @include('components.admin.modals.inventory.edit-stock')
+    {{-- Included Transfer Modal (was separate in your code, keeping structure) --}}
+    {{-- @include('components.admin.modals.inventory.transfer-stock')  --}}
+    {{-- transfer into modal if needed - jm --}}
+    <div id="transferstockmodal" class="hidden fixed bg-black/60 w-full h-screen top-0 left-0 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="modal bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        <div class="flex justify-between items-center p-6 border-b dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Transfer Stock</h3>
+            <button type="button" class="close-modal text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="fa-regular fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form action="{{ route('admin.inventory.transferstock') }}" method="POST" id="transfer-form">
+            @csrf
+            <div class="p-6 space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Product</label>
+                    <p id="transfer-product-name" class="text-lg font-medium text-red-600 dark:text-white mt-1"></p>
+                    <input type="hidden" name="inventory_id" id="transfer-inventory-id">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Batch No.</label>
+                        <p id="transfer-batch" class="font-bold text-purple-700 dark:text-purple-400"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Current Branch</label>
+                        <p id="transfer-current-branch" class="font-medium text-gray-700 dark:text-gray-300"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Available Quantity</label>
+                    <p id="transfer-available-qty" class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1"></p>
+                </div>
+
+                <div>
+                    <label for="transfer_qty" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Quantity to Transfer <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="quantity" id="transfer_qty" min="1" required
+                           class="w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-100">
+                    <p class="text-xs text-red-500 mt-1 hidden" id="transfer-error">Not enough stock!</p>
+                </div>
+
+                <div>
+                    <label for="destination_branch" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Transfer To Branch <span class="text-red-500">*</span>
+                    </label>
+                    <select name="destination_branch" id="destination_branch" required
+                            class="w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-100">
+                        <option value="1">RHU 1</option>
+                        <option value="2">RHU 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 p-6 border-t dark:border-gray-700">
+                <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium text-gray-700 dark:text-gray-300">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-transfer-btn"
+                        class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium shadow-md hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    Transfer Stock
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 </x-app-layout>
+
+{{-- Note: I assumed the Transfer Modal is in a component. If not, paste it here --}}
 
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script>window.successMessage = @json(session('success'));</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Error Handling for Modals
     @if ($errors->hasBag('addproduct') || $errors->hasBag('addstock') || $errors->hasBag('updateproduct') || $errors->hasBag('editstock'))
         @if ($errors->hasBag('addproduct'))
             document.getElementById('addnewproductmodal')?.classList.remove('hidden');
@@ -214,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const baseUrl = '{{ route("admin.inventory") }}';
 
+    // Debounce function
     const debounce = (func, delay) => {
         let timer;
         return (...args) => {
@@ -222,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     };
 
+    // --- MAIN SEARCH/FILTER LOGIC ---
     function fetchTable(branch) {
         const searchInput = document.getElementById(`search-rhu${branch}`);
         const filterSelect = document.getElementById(`filter-rhu${branch}`);
@@ -231,9 +306,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const filter = filterSelect.value;
 
         const url = new URL(baseUrl);
+        
+        // CRITICAL FIX: Explicitly set the branch param for the controller
+        url.searchParams.set('branch', branch); 
+
         if (search) url.searchParams.set(`search_rhu${branch}`, search);
         if (filter) url.searchParams.set(`filter_rhu${branch}`, filter);
 
+        // Remove params for the other branch to keep URL clean
         const other = branch === 1 ? 2 : 1;
         url.searchParams.delete(`search_rhu${other}`);
         url.searchParams.delete(`filter_rhu${other}`);
@@ -245,7 +325,9 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(r => r.text())
         .then(html => {
             container.innerHTML = html;
-            history.replaceState({}, '', url.href);
+            
+            // Re-attach listeners for buttons inside the newly loaded table
+            attachTableListeners(branch);
 
             // Update export hidden fields
             document.getElementById(`export-search-rhu${branch}`).value = search;
@@ -253,6 +335,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Helper to attach listeners (like Transfer/Edit buttons) after AJAX reload
+    function attachTableListeners(branch) {
+        // If you have specific listeners for Edit/Transfer buttons inside the table,
+        // you should call their initialization function here.
+        // For example: if you have a global `attachTransferButtonListeners()` function.
+        if (typeof attachTransferButtonListeners === 'function') {
+            attachTransferButtonListeners();
+        }
+        if (typeof attachEditButtonListeners === 'function') {
+            attachEditButtonListeners();
+        }
+    }
+
+    // Initialize Listeners for Both Branches
     [1, 2].forEach(branch => {
         const searchInput = document.getElementById(`search-rhu${branch}`);
         const filterSelect = document.getElementById(`filter-rhu${branch}`);
@@ -261,22 +357,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Search (AJAX)
         searchInput.addEventListener('keyup', debounce(() => fetchTable(branch), 500));
 
-        // Filter change → full reload (preserves filter)
-        filterSelect.addEventListener('change', function() {
-            const url = new URL(baseUrl);
-            const searchVal = document.getElementById(`search-rhu${branch}`).value.trim();
-            const filterVal = this.value;
-
-            if (searchVal) url.searchParams.set(`search_rhu${branch}`, searchVal);
-            if (filterVal) url.searchParams.set(`filter_rhu${branch}`, filterVal);
-
-            const other = branch === 1 ? 2 : 1;
-            url.searchParams.delete(`search_rhu${other}`);
-            url.searchParams.delete(`filter_rhu${other}`);
-            url.searchParams.delete(`page_rhu${other}`);
-
-            window.location.href = url.href;
-        });
+        // Filter change (AJAX)
+        filterSelect.addEventListener('change', () => fetchTable(branch));
 
         // Pagination (AJAX)
         container.addEventListener('click', function(e) {
@@ -287,6 +369,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const url = new URL(link.href);
             const currentSearch = searchInput.value.trim();
             const currentFilter = filterSelect.value;
+
+            // CRITICAL FIX: Ensure branch is sent during pagination
+            url.searchParams.set('branch', branch);
 
             if (currentSearch) url.searchParams.set(`search_rhu${branch}`, currentSearch);
             if (currentFilter) url.searchParams.set(`filter_rhu${branch}`, currentFilter);
@@ -300,9 +385,81 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(r => r.text())
                 .then(html => {
                     container.innerHTML = html;
-                    history.replaceState({}, '', url.href);
+                    attachTableListeners(branch);
                 });
         });
     });
+
+    // --- TRANSFER MODAL LOGIC (Re-integrated from your snippet) ---
+    const transferModal = document.getElementById('transferstockmodal');
+
+    // Make this global or accessible so we can call it after AJAX
+    window.attachTransferButtonListeners = function() {
+        document.querySelectorAll('.transfer-stock-btn').forEach(btn => {
+            // Remove old listener to prevent duplicates (optional if replacing HTML)
+            btn.replaceWith(btn.cloneNode(true)); 
+        });
+
+        // Re-select fresh buttons
+        document.querySelectorAll('.transfer-stock-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const data = this.dataset;
+
+                document.getElementById('transfer-inventory-id').value = data.stockId;
+                document.getElementById('transfer-product-name').textContent = data.product + ' ' + data.strength + ' ' + data.form;
+                document.getElementById('transfer-batch').textContent = data.batch;
+                document.getElementById('transfer-current-branch').textContent = data.branch;
+                document.getElementById('transfer-available-qty').textContent = data.quantity;
+                
+                // Set max for validation
+                document.getElementById('transfer_qty').max = data.quantity;
+
+                // Auto-select opposite branch
+                document.getElementById('destination_branch').value = data.branchId == 1 ? 2 : 1;
+
+                if(transferModal) transferModal.classList.remove('hidden');
+            });
+        });
+    }
+
+    // Close modal logic
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => transferModal && transferModal.classList.add('hidden'));
+    });
+
+    // Initial attachment on page load
+    attachTransferButtonListeners();
+
+    // Confirm Transfer Logic
+    const confirmTransferBtn = document.getElementById('confirm-transfer-btn');
+    if(confirmTransferBtn) {
+        confirmTransferBtn.addEventListener('click', function() {
+            const form = document.getElementById('transfer-form');
+            const qtyInput = document.getElementById('transfer_qty');
+            const availableQty = parseInt(document.getElementById('transfer-available-qty').textContent);
+            
+            if (!qtyInput.value || qtyInput.value <= 0) {
+                 Swal.fire('Error', 'Please enter a valid quantity.', 'error');
+                 return;
+            }
+
+            if (parseInt(qtyInput.value) > availableQty) {
+                Swal.fire('Error', 'Not enough stock!', 'error');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Confirm stock transfer?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Transfer'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    }
 });
 </script>
