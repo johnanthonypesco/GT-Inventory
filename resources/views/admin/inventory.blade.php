@@ -439,13 +439,37 @@ document.addEventListener('DOMContentLoaded', function () {
             const availableQty = parseInt(document.getElementById('transfer-available-qty').textContent);
             
             if (!qtyInput.value || qtyInput.value <= 0) {
-                 Swal.fire('Error', 'Please enter a valid quantity.', 'error');
+                 Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter a valid quantity.',
+                    icon: 'error',
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        confirmButton: 'swal-confirm-button',
+                        cancelButton: 'swal-cancel-button'
+                    }
+                 });
                  return;
             }
 
             if (parseInt(qtyInput.value) > availableQty) {
-                Swal.fire('Error', 'Not enough stock!', 'error');
-                return;
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Not enough stock!',
+                    icon: 'error',
+                    customClass: {
+                        container: 'swal-container',
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        htmlContainer: 'swal-content',
+                        confirmButton: 'swal-confirm-button',
+                        cancelButton: 'swal-cancel-button'
+                    }
+                 });
+                 return;
             }
 
             Swal.fire({
