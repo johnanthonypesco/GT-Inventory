@@ -24,48 +24,82 @@ class PatientRecordsController extends Controller
     {
         $user = Auth::user();
 
-        // === 1. BUILD THE QUERY ===
-        $query = Patientrecords::with(['dispensedMedications', 'barangay', 'branch']);
+        // 1. START QUERY
+        // Gumamit tayo ng select('patientrecords.*') para hindi magka-conflict ang ID kapag nag-join
+        $query = Patientrecords::select('patientrecords.*')
+            ->with(['dispensedMedications', 'barangay', 'branch']);
 
         // --- Branch Filtering ---
         if (in_array($user->user_level_id, [1, 2])) {
             if ($request->filled('branch_filter') && $request->branch_filter !== 'all') {
-                $query->where('branch_id', $request->branch_filter);
+                $query->where('patientrecords.branch_id', $request->branch_filter);
             }
         } else {
-            $query->where('branch_id', $user->branch_id);
+            $query->where('patientrecords.branch_id', $user->branch_id);
         }
 
-        // --- Other Filters ---
+        // --- Date & Category Filters ---
         if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
+            $query->whereDate('patientrecords.created_at', '>=', $request->from_date);
         }
         if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
+            $query->whereDate('patientrecords.created_at', '<=', $request->to_date);
         }
         if ($request->filled('category') && $request->category !== '') {
-            $query->where('category', $request->category);
+            $query->where('patientrecords.category', $request->category);
         }
         if ($request->filled('barangay_id') && $request->barangay_id !== '') {
-            $query->where('barangay_id', $request->barangay_id);
+            $query->where('patientrecords.barangay_id', $request->barangay_id);
         }
 
-        // === 2. PAGINATION ===
-        $patientrecords = $query->latest()->paginate(20)->withQueryString();
+        // =========================================================
+        // !!! SEARCH LOGIC UPDATE (Para sa Address Search) !!!
+        // =========================================================
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            
+            // JOIN BARANGAY TABLE
+            // Kailangan ito para mabasa natin ang barangay_name + purok ng sabay
+            $query->join('barangays', 'patientrecords.barangay_id', '=', 'barangays.id');
 
-        // === 3. AJAX CHECK ===
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('patientrecords.patient_name', 'LIKE', "%{$searchTerm}%")
+                  
+                  // Search sa Purok lang
+                  ->orWhere('patientrecords.purok', 'LIKE', "%{$searchTerm}%")
+                  
+                  // Search sa Barangay Name lang
+                  ->orWhere('barangays.barangay_name', 'LIKE', "%{$searchTerm}%")
+                  
+                  // !!! MAGIC PART: COMBINED SEARCH !!!
+                  // Ito ang bahala sa "Poblacion East, Purok 2"
+                  ->orWhereRaw("CONCAT(barangays.barangay_name, ', ', patientrecords.purok) LIKE ?", ["%{$searchTerm}%"])
+                  ->orWhereRaw("CONCAT(barangays.barangay_name, ' ', patientrecords.purok) LIKE ?", ["%{$searchTerm}%"]) // Walang comma version
+                  
+                  // Search sa Medicines
+                  ->orWhereHas('dispensedMedications', function($subQ) use ($searchTerm) {
+                      $subQ->where('generic_name', 'LIKE', "%{$searchTerm}%")
+                           ->orWhere('brand_name', 'LIKE', "%{$searchTerm}%");
+                  });
+            });
+        }
+        // =========================================================
+
+        // 2. PAGINATION
+        $patientrecords = $query->latest('patientrecords.created_at')->paginate(20)->withQueryString();
+
+        // 3. AJAX CHECK
         if ($request->ajax()) {
             return view('admin.partials.patientrecords_table', compact('patientrecords'))->render();
         }
 
-        // === 4. LOAD FULL PAGE DATA ===
+        // 4. LOAD PAGE DATA
         $products = Inventory::with('product')->where('is_archived', 0)->latest()->get();
         $barangays = Barangay::all();
         $branches = Branch::all();
 
         // Calculate Stats
         $statsQuery = Patientrecords::query();
-
         if (in_array($user->user_level_id, [1, 2])) {
             if ($request->filled('branch_filter') && $request->branch_filter !== 'all') {
                 $statsQuery->where('branch_id', $request->branch_filter);
@@ -73,26 +107,12 @@ class PatientRecordsController extends Controller
         } else {
             $statsQuery->where('branch_id', $user->branch_id);
         }
-
-        if ($request->filled('from_date')) {
-            $statsQuery->whereDate('created_at', '>=', $request->from_date);
-        }
-        if ($request->filled('to_date')) {
-            $statsQuery->whereDate('created_at', '<=', $request->to_date);
-        }
-        if ($request->filled('category') && $request->category !== '') {
-            $statsQuery->where('category', $request->category);
-        }
-        if ($request->filled('barangay_id') && $request->barangay_id !== '') {
-            $statsQuery->where('barangay_id', $request->barangay_id);
-        }
+        if ($request->filled('from_date')) $statsQuery->whereDate('created_at', '>=', $request->from_date);
+        if ($request->filled('to_date')) $statsQuery->whereDate('created_at', '<=', $request->to_date);
 
         $patientrecordscard = $statsQuery->with('dispensedMedications')->get();
-
         $totalPeopleServed = $patientrecordscard->count();
-        $totalProductsDispensed = $patientrecordscard->sum(function ($record) {
-            return $record->dispensedMedications->count();
-        });
+        $totalProductsDispensed = $patientrecordscard->sum(fn($r) => $r->dispensedMedications->count());
 
         return view('admin.patientrecords', compact(
             'products',
