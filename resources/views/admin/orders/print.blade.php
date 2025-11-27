@@ -224,7 +224,7 @@
                 color-adjust: exact;
             }
             .no-print { display: none !important; }
-            @page { margin: 0.8cm; size: A4; }
+            @page { margin: 10px; size: A4; }
         }
     </style>
 </head>
