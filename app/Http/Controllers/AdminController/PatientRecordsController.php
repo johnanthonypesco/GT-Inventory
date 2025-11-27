@@ -59,7 +59,7 @@ class PatientRecordsController extends Controller
         }
 
         // === 4. LOAD FULL PAGE DATA ===
-        $products = Inventory::with('product')->where('is_archived', 2)->latest()->get();
+        $products = Inventory::with('product')->where('is_archived', 0)->latest()->get();
         $barangays = Barangay::all();
         $branches = Branch::all();
 

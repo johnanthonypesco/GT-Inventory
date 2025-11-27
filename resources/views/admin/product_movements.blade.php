@@ -128,9 +128,11 @@
                     <!-- TABLE -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border overflow-hidden">
                         <div class="p-4 border-b flex justify-end">
-                            <button onclick="exportToCSV()" class="flex items-center gap-2 px-4 py-2 border rounded-lg hover:shadow">
-                                <i class="fa-regular fa-file-export text-green-600"></i> Export CSV
-                            </button>
+                         <button onclick="exportToExcel()" class="flex items-center gap-2 px-4 py-2 border rounded-lg hover:shadow bg-green-50 text-green-700 border-green-200">
+    <i class="fa-regular fa-file-excel"></i> Export Excel
+</button>
+
+
                         </div>
                         <div class="overflow-x-auto p-5" id="movements-data-container">
                             @include('admin.partials.movements_table')
@@ -150,7 +152,14 @@
 </x-app-layout>
 
 <script>
-function exportToCSV() {
-    window.location = "{{ route('admin.movements') }}?export=csv";
+function exportToExcel() {
+    // 1. Get current URL parameters (search, filters, etc.)
+    const currentParams = new URLSearchParams(window.location.search);
+    
+    // 2. Append the export flag
+    currentParams.set('export', 'excel');
+    
+    // 3. Reload page with new params (triggers download in controller)
+    window.location.href = "{{ route('admin.movements') }}?" + currentParams.toString();
 }
 </script>

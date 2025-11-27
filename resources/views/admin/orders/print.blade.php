@@ -149,6 +149,7 @@
 
         .approval-row {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             gap: 30px;
         }
@@ -224,7 +225,7 @@
                 color-adjust: exact;
             }
             .no-print { display: none !important; }
-            @page { margin: 0.8cm; size: A4; }
+            @page { margin: 10px; size: A4; }
         }
     </style>
 </head>
@@ -241,7 +242,7 @@
             <div>
                 <img src="{{asset('images/letterhead.png')}}" alt="" style="width:100%; max-width:600px;">
             </div>
-            <h1>Stock Requestion Form</h1>
+            <h1>Stock Requisition Form</h1>
         </div>
 
         <!-- Meta Information -->
@@ -299,18 +300,17 @@
             <div class="approval-row">
                 <div class="approval-block">
                     <div class="signature-line"></div>
-                    <div class="approval-label">Prepared By</div>
                     <div class="approval-name">{{ $order->user->name }}</div>
                     <div class="approval-role">Pharmacist / Branch Requestor</div>
                     <div class="approval-date">{{ $order->created_at->format('F d, Y') }}</div>
                 </div>
-
+                
                 <div class="approval-block">
                     <div class="signature-line"></div>
-                    <div class="approval-label">Approved By Pharmacy Admin</div>
+                    <div class="approval-label">Melanie Q. Ramos</div>
                     <div class="approval-name">
                     </div>
-                    <div class="approval-role">Pharmacy Administrator</div>
+                    <div class="approval-role">Gen. Tinio Office / Treasurer</div>
                     <div class="approval-date">
                         {{ $order->admin_approved_at ? \Carbon\Carbon::parse($order->admin_approved_at)->format('F d, Y') : 'Pending Approval' }}
                     </div>
@@ -318,10 +318,10 @@
 
                 <div class="approval-block">
                     <div class="signature-line"></div>
-                    <div class="approval-label">Approved By Finance</div>
+                    <div class="approval-label">Sherry Ann D. Bolisay</div>
                     <div class="approval-name">
                     </div>
-                    <div class="approval-role">Finance Officer</div>
+                    <div class="approval-role">Mun. Mayor / Authorized Official</div>
                     <div class="approval-date">
                         {{ $order->finance_approved_at ? \Carbon\Carbon::parse($order->finance_approved_at)->format('F d, Y') : 'Pending Approval' }}
                     </div>

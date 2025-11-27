@@ -56,9 +56,8 @@ public function showinventory(Request $request)
         ->orderBy('expiry_date', 'asc')
         ->paginate(20, ['*'], 'page_rhu1');
 
-
-    // 3. RHU 2 Query Setup
-    $query2 = Inventory::where('branch_id', 2)->where('is_archived', '!=', 1);
+        // RHU 2
+        $query2 = Inventory::where('branch_id', 2)->where('is_archived', 0);
 
     // Search RHU 2
     if ($request->filled('search_rhu2')) {
@@ -360,7 +359,7 @@ public function showinventory(Request $request)
                 'batch_number' => $validated['batchnumber'],
                 'quantity' => $validated['quantity'],
                 'expiry_date' => $validated['expiry'],
-                'is_archived' => 2,
+                'is_archived' => 0,
             ]);
 
             // === START: ADD THIS BLOCK ===

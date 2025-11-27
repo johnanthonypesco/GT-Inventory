@@ -4,14 +4,29 @@ namespace App\Exports;
 
 use App\Models\Inventory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class InventoryExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class InventoryExport implements 
+    FromCollection, 
+    WithHeadings, 
+    WithMapping, 
+    WithStyles, 
+    WithDrawings, 
+    WithCustomStartCell, 
+    WithEvents
 {
     protected $branch;
     protected $filter;
@@ -26,13 +41,38 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
         $this->user = Auth::user();
     }
 
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Letterhead');
+        $drawing->setDescription('Official Header');
+        
+        $path = public_path('/images/letterhead.png');
+        if (file_exists($path)) {
+            $drawing->setPath($path);
+        } else {
+            return [];
+        }
+
+        $drawing->setWidth(720);
+        $drawing->setCoordinates('A1');
+        $drawing->setOffsetY(5);
+        $drawing->setOffsetX(5);
+
+        return $drawing;
+    }
+
+    public function startCell(): string
+    {
+        return 'A10';
+    }
+
     public function collection()
     {
         $query = Inventory::with(['product', 'branch'])
             ->where('branch_id', $this->branch)
-            ->where('is_archived', 0); // active only
+            ->where('is_archived', 0);
 
-        // Apply Search
         if ($this->search) {
             $query->where(function ($q) {
                 $q->whereHas('product', function ($pq) {
@@ -42,14 +82,12 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
             });
         }
 
-        // Apply Filter
         if ($this->filter) {
             match ($this->filter) {
                 'in_stock' => $query->where('quantity', '>=', 100),
                 'low_stock' => $query->where('quantity', '>', 0)->where('quantity', '<', 100),
                 'out_of_stock' => $query->where('quantity', '<=', 0),
-                'nearly_expired' => $query->where('expiry_date', '>', now())
-                    ->where('expiry_date', '<', now()->addDays(30)),
+                'nearly_expired' => $query->whereBetween('expiry_date', [now(), now()->addDays(30)]),
                 'expired' => $query->where('expiry_date', '<', now()),
                 default => null,
             };
@@ -57,12 +95,8 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
 
         $items = $query->get()->sortBy('expiry_date');
 
-        // Group by expiry month/year for nice formatting
-        $grouped = $items->groupBy(function ($item) {
-            return Carbon::parse($item->expiry_date)->format('F Y');
-        });
-
         $final = collect();
+        $grouped = $items->groupBy(fn($item) => Carbon::parse($item->expiry_date)->format('F Y'));
 
         foreach ($grouped as $monthLabel => $records) {
             $final->push((object)[
@@ -76,34 +110,19 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
             }
         }
 
-        return $final->isEmpty() ? collect([ (object)['empty' => true] ]) : $final;
+        return $final->isEmpty() ? collect([(object)['empty' => true]]) : $final;
     }
 
     public function headings(): array
     {
-        $title = "RHU-{$this->branch} Inventory Report";
-        $by = $this->user?->name ?? 'Unknown';
-
-        $filterText = '';
-        if ($this->filter || $this->search) {
-            $parts = [];
-            if ($this->filter) {
-                $labels = [
-                    'in_stock' => 'In Stock (≥100)',
-                    'low_stock' => 'Low Stock (1–99)',
-                    'out_of_stock' => 'Out of Stock',
-                    'nearly_expired' => 'Nearly Expired (<30 days)',
-                    'expired' => 'Expired',
-                ];
-                $parts[] = $labels[$this->filter] ?? 'Filtered';
-            }
-            if ($this->search) $parts[] = "Search: {$this->search}";
-            $filterText = ' (' . implode(', ', $parts) . ')';
-        }
-
         return [
-            "{$title}{$filterText} • Exported By: {$by}",
-            '', '', '', '', '', ''
+            'Batch Number', 
+            'Generic Name', 
+            'Brand Name', 
+            'Form', 
+            'Strength', 
+            'Quantity', 
+            'Expiry Date'
         ];
     }
 
@@ -117,13 +136,10 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
             return [$item->month_label, '', '', '', '', '', ''];
         }
 
-        $generic_name = $item->product?->generic_name ?? '—';
-        $brand_name   = $item->product?->brand_name ?? '—';
-
         return [
             $item->batch_number,
-            $generic_name,
-            $brand_name,
+            $item->product?->generic_name ?? '—',
+            $item->product?->brand_name ?? '—',
             $item->product?->form ?? '—',
             $item->product?->strength ?? '—',
             $item->quantity,
@@ -131,38 +147,95 @@ class InventoryExport implements FromCollection, WithHeadings, WithMapping, With
         ];
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet;
+                $highestRow = $sheet->getHighestRow(); // Last data row (including month headers)
+                $footerRow = $highestRow + 3;           // Leave some space
+
+                // Report Title (Row 7)
+                $sheet->mergeCells('A7:G7');
+                $sheet->setCellValue('A7', "RHU-{$this->branch} Inventory Report");
+                $sheet->getStyle('A7')->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => '1F2937']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+                ]);
+
+                // Exported By & Date - NOW CENTERED (Row 8)
+                $by = $this->user?->name ?? 'Unknown';
+                $date = now()->format('M d, Y h:i A');
+                
+                $filterText = 'All Items';
+                if ($this->filter) {
+                    $labels = [
+                        'in_stock' => 'In Stock (≥100)',
+                        'low_stock' => 'Low Stock (1–99)',
+                        'out_of_stock' => 'Out of Stock',
+                        'nearly_expired' => 'Nearly Expired (<30 days)',
+                        'expired' => 'Expired',
+                    ];
+                    $filterText = $labels[$this->filter] ?? ucfirst($this->filter);
+                }
+                if ($this->search) $filterText .= " | Search: \"{$this->search}\"";
+
+                $sheet->mergeCells('A8:G8');
+                $sheet->setCellValue('A8', "Exported By: {$by}");
+                $sheet->setCellValue('A9', "Filter: {$filterText}");
+                $sheet->getStyle('A8:A9')->applyFromArray([
+                    'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '4B5563']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER], // ← CENTERED
+                ]);
+
+                // Timestamp at the very bottom
+                $sheet->mergeCells("A{$footerRow}:G{$footerRow}");
+                $sheet->setCellValue("A{$footerRow}", "Generated on " . now()->format('F d, Y \a\t h:i:s A'));
+                $sheet->getStyle("A{$footerRow}:G{$footerRow}")->applyFromArray([
+                    'font' => ['italic' => true, 'size' => 10, 'color' => ['rgb' => '6B7280']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+            },
+        ];
+    }
+
     public function styles(Worksheet $sheet)
     {
-        $sheet->mergeCells('A1:G1');
-        $sheet->getStyle('A1')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 14],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT]
-        ]);
+        $highestRow = $sheet->getHighestRow();
 
-        // Column headers
-        $sheet->fromArray(['Batch Number', 'Generic Name', 'Brand Name', 'Form', 'Strength', 'Quantity', 'Expiry Date'], null, 'A2');
-        $sheet->getStyle('A2:G2')->applyFromArray([
+        // Header Row (A10:G10)
+        $sheet->getStyle('A10:G10')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => 'solid', 'color' => ['rgb' => '7F1D1D']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '7F1D1D']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
         ]);
 
+        // Auto-size columns
         foreach (range('A', 'G') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $sheet->getStyle('A3:G10000')->getFont()->setSize(12);
-
-        // Highlight month rows
-        $highest = $sheet->getHighestRow();
-        for ($row = 3; $row <= $highest; $row++) {
+        // Style data rows and month headers
+        for ($row = 11; $row <= $highestRow; $row++) {
             $val = $sheet->getCell("A{$row}")->getValue();
-            if (preg_match('/^[A-Za-z]+\s+\d{4}$/', $val)) {
+
+            if (preg_match('/^[A-Za-z]+\s+\d{4}$/', $val) && $sheet->getCell("B{$row}")->getValue() == '') {
+                // Month Header
                 $sheet->mergeCells("A{$row}:G{$row}");
                 $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 13],
-                    'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID],
-                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+                    'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => '000000']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'E5E7EB']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'indent' => 1],
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_THIN]]
                 ]);
+            } else {
+                // Normal rows
+                $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1D5DB']]]
+                ]);
+                
+                $sheet->getStyle("F{$row}:G{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             }
         }
 
