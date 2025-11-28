@@ -17,7 +17,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Color;
 use Illuminate\Support\Facades\Auth;
 
 class PatientRecordsExport implements 
@@ -97,7 +96,7 @@ class PatientRecordsExport implements
             $query->where('barangay_id', $filters['barangay_id']);
         }
 
-        return $query->latest(); // Already ordered by latest
+        return $query->latest();
     }
 
     public function headings(): array
@@ -139,7 +138,7 @@ class PatientRecordsExport implements
                 $sheet = $event->sheet->getDelegate();
                 $highestRow = $sheet->getHighestRow();
 
-                // Title
+                // Title (centered)
                 $sheet->mergeCells('A16:H16');
                 $sheet->setCellValue('A16', 'Patient Dispensing Records Report');
                 $sheet->getStyle('A16')->applyFromArray([
@@ -147,23 +146,16 @@ class PatientRecordsExport implements
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Exported By + Generated (below title)
-                $userName = Auth::check() ? Auth::user()->name : $this->user->name ?? 'User';
-                $generatedAt = now()->format('M d, Y h:i A');
-                $exportInfo = "Exported By: $userName";
+                // "Exported By" + Timestamp combined at the bottom
+                $userName = Auth::check() ? Auth::user()->name : ($this->user->name ?? 'User');
+                $generatedAt = now()->format('F d, Y \a\t h:i:s A');
+                $footerText = "Exported By: {$userName} | Generated on {$generatedAt}";
 
-                $sheet->mergeCells('A17:H17');
-                $sheet->setCellValue('A17', $exportInfo);
-                $sheet->getStyle('A17')->applyFromArray([
-                    'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '6B7280']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                ]);
-
-                // Generated timestamp only at the bottom
                 $footerRow = $highestRow + 3;
-                $sheet->mergeCells("A$footerRow:H$footerRow");
-                $sheet->setCellValue("A$footerRow", "Generated: $generatedAt");
-                $sheet->getStyle("A$footerRow")->applyFromArray([
+
+                $sheet->mergeCells("A{$footerRow}:H{$footerRow}");
+                $sheet->setCellValue("A{$footerRow}", $footerText);
+                $sheet->getStyle("A{$footerRow}:H{$footerRow}")->applyFromArray([
                     'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '6B7280']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
@@ -189,7 +181,7 @@ class PatientRecordsExport implements
         // Add borders to all data rows
         $lastRow = $sheet->getHighestRow();
         if ($lastRow >= 20) {
-            $sheet->getStyle("A19:H$lastRow")->applyFromArray([
+            $sheet->getStyle("A19:H{$lastRow}")->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,

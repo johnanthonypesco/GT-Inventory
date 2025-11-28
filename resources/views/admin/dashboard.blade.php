@@ -15,9 +15,10 @@
     {{-- @if(in_array(auth()->user()->user_level_id, [1, 2, 3, 4]) && auth()->user()->branch_id != 2) --}}
     <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
       {{-- Breadcrumb --}}
-      <div class="mb-6 pt-16">
-        <p class="text-3xl font-bold text-gray-900">Analytics Dashboard</p>
-        <p class="text-sm text-gray-600">Welcome! Here's your clinic's predictive overview.</p>
+      <div class="mb-6 pt-16 flex flex-col gap-2">
+        <a class="text-sm text-gray-600 dark:text-gray-400" href="{{ route('admin.dashboard') }}"><i class="fa-regular fa-home mr-2"></i>Dashboard</a>
+        <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Welcome! Here's your clinic's predictive overview.</p>
       </div>
 
       {{-- 1. KPI CARDS --}}

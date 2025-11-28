@@ -23,15 +23,14 @@
 <body>
 
     <div class="header">
-        <h2>Patient Dispensation Records</h2>
-        <p>Generated on: {{ $date }} | By: {{ $generated_by }}</p>
+        <img src="{{ public_path('images/letterhead.png') }}" alt="Clinic Logo" style="height: auto; margin-bottom: 10px; width:full;">
     </div>
 
-    <div class="meta">
+    {{-- <div class="meta">
         <strong>Filters Applied:</strong> 
         Date: {{ $filters['from'] ? $filters['from'] : 'Start' }} to {{ $filters['to'] ? $filters['to'] : 'Current' }}
         @if($filters['category']) | Category: {{ $filters['category'] }} @endif
-    </div>
+    </div> --}}
 
     <table>
         <thead>
@@ -82,6 +81,9 @@
             @endforelse
         </tbody>
     </table>
+
+    <p>Generated on: {{ $date }} | By: {{ $generated_by }}</p>
+
 
 </body>
 </html>

@@ -5,11 +5,14 @@
         <main id="main-content" class="pt-20 p-4 lg:p-8 min-h-screen">
             
             <div class="mb-6 pt-20 flex justify-between items-center">
-                <div class="flex flex-col gap-5">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Home / Orders / <span class="text-red-700 dark:text-red-300 font-medium">Create</span>
-                    </p>
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Create Replenishment Order</h2>
+                <div class="">
+                    <div class="flex gap-2 items-center font-semibold mb-4">
+                        <a href="{{route('admin.dashboard')}}" class="text-sm text-gray-600 dark:text-gray-400"><i class="fa-regular fa-home mr-2"></i>Dashboard</a>
+                        <span><i class="fa-regular fa-angle-right text-gray-600 dark:text-gray-400"></i></span>
+                        <p class="text-red-500 dark:text-red-400">Order Stock</p>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">Orders Overview</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Can create and view orders.</p>
                 </div>
             </div>
 

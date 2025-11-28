@@ -10,9 +10,15 @@
                 
                 {{-- HEADER with Branch Label --}}
                 <div class="mb-6 pt-16 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Home / <span class="text-red-700 dark:text-red-300 font-medium">Reports</span>
-                    </p>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex gap-2 items-center font-semibold mb-4">
+                            <a href="{{route('admin.dashboard')}}" class="text-sm text-gray-600 dark:text-gray-400"><i class="fa-regular fa-home mr-2"></i>Dashboard</a>
+                            <span><i class="fa-regular fa-angle-right text-gray-600 dark:text-gray-400"></i></span>
+                            <p class="text-red-500 dark:text-red-400">Records</p>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">Patient Records</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Can add and view patient records for all branches.</p>
+                    </div>
 
                     {{-- Current Unit Badge --}}
                     <div class="flex items-center gap-2">
